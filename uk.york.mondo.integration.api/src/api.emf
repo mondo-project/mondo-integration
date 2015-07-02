@@ -1,0 +1,562 @@
+@doc(dServices="
+The present section lists the services offered by the current version of the
+MONDO platform. For each service, the available operations are presented, along
+with the parameters they take, their return type and the exceptions they may
+throw if they fail.
+
+In addition to their explicitly listed exceptions, operations requiring authentication
+may throw an AuthenticationFailed exception if the user fails to provide valid credentials
+or does not have the required permissions. In its current version, the MONDO platform
+assumes that authenticated users will have the necessary permissions. The deliverable D6.3
+in M24 will include a more fine-grained permissions system which separates authentication and
+authorization.
+")
+@thrift(javans="uk.ac.york.mondo.integration.api")
+@namespace(uri="mondo_api", prefix="")
+package mondo_api;
+
+// MONDO credentials (Hawk/ReactiveATL/CloudATL): implied in the "auth" @doc attribute.
+// VCSAuthenticationFailed, VCSAuthorizationFailed: for VCS credentials (Hawk/Collaboration).
+//
+// AG: to simplify the API, auth="true" (the default) should imply that both authorization
+// and authentication exceptions could happen.
+
+@doc(d="The majority of service operations provided by the MONDO
+		platform require user authentication (indicated in the top-left  
+		cell of each operation table) to prevent unaccountable use. 
+		As such, the platform needs to provide basic user management service operations 
+		for creating, updating and deleting user accounts.")
+class Users {
+	@doc(d="Creates a new platform user")
+	op void createUser (
+		@doc(d="A unique identifier for the user") String username,
+		@doc(d="The desired password") String password,	
+		@doc(d="The profile of the user") UserProfile profile
+	) throws UserExists;
+
+	// Make auth implicit, depending on whether we have MONDOAuthenticationFailed?
+	@doc(d="Tests whether the provided credentials are valid", auth="false")
+	op boolean testCredentials (
+		@doc(d="A user name") String username,
+		@doc(d="The password for that user name") String password
+	);
+
+	@doc(d="Updates the profile of a platform user")
+	op void updateUser (
+		@doc(d="The name of the user to update the profile of") String username,	
+		@doc(d="The updated profile of the user") UserProfile profile
+	) throws UserNotFound;
+
+	@doc(d="Deletes a platform user")
+	op void deleteUser (
+		@doc(d="The name of the user to delete") String username
+	) throws UserNotFound;
+}
+
+@doc(d="
+The following service operations expose the capabilities of the Hawk heterogeneous model indexing
+framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3
+")
+class Hawk {
+	@doc(d="Creates a new Hawk instance.")
+	op void create (
+		@doc(d="The unique name of the new Hawk instance") String name
+	);
+
+	@doc(d="Lists the details of all Hawk instances")
+	op HawkInstance[*] listAll();
+
+	@doc(d="Deletes an existing Hawk instance")
+	op void deleteUser (
+		@doc(d="The name of the Hawk instance to delete") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Starts a stopped Hawk instance")
+	op void start (
+		@doc(d="The name of the Hawk instance to start") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Stops a running Hawk instance")
+	op void stop (
+		@doc(d="The name of the Hawk instance to stop") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Registers a set of file-based metamodels with a Hawk instance")
+	op void registerMetamodels (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The metamodels to register. 
+			More than one metamodel files can be provided in one 
+			go to accomodate fragmented metamodels.") File[*] metamodel
+	) throws HawkInstanceNotFound, InvalidMetamodel;
+	
+	@doc(d="Unregisters a metamodel from a Hawk instance")
+	op void unregisterMetamodel (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the metamodel") String metamodel
+	) throws HawkInstanceNotFound;
+
+	@doc(d="Lists the URIs of the registered metamodels of a Hawk instance")
+	op String[*] listMetamodels (
+		@doc(d="The name of the Hawk instance") String name
+	) throws HawkInstanceNotFound;
+
+	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
+	op Object[*] query (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The query to be executed") String query,
+		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
+		@doc(d="The scope of the query (e.g. *.uml)") String scope
+	) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery;
+	
+	@doc(d="Returns populated model elements for the provided proxies")
+	op ModelElement[*] resolveProxies (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="Proxy model elements to be resolved") ModelElement[*] proxies	
+	) throws HawkInstanceNotFound;
+
+	@doc(d="Asks a Hawk instance to start monitoring a repository")
+	op void addRepository (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to monitor") String uri,
+		@doc(d="The type of repository to be monitored") String type,
+		@doc(d="A valid set of credentials that has read-access to the repository", optional="true") Credentials credentials
+	) throws HawkInstanceNotFound, UnknownRepositoryType, VCSAuthenticationFailed;
+
+	@doc(d="Asks a Hawk instance to stop monitoring a repository")
+	op void deleteRepository (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to stop monitoring") String uri
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Lists the URIs of the repositories monitored by a Hawk instance")
+	op String[*] listRepositories (
+		@doc(d="The name of the Hawk instance") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Lists the paths of the files of the indexed repository")
+	op String[*] listFiles (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the indexed repository") String repository
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Sets the base polling period and max interval of a Hawk instance")
+	op void configurePolling (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The base polling period (in seconds)") int base,
+		@doc(d="The maximum polling interval (in seconds)") int max
+	) throws HawkInstanceNotFound, InvalidPollingConfiguration;
+
+	@doc(d="Add a new derived attribute to a Hawk instance")
+	op void addDerivedAttribute (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The details of the new derived attribute") DerivedAttributeSpec spec
+	) throws HawkInstanceNotFound, InvalidDerivedAttributeSpec;
+	
+	@doc(d="Remove a derived attribute from a Hawk instance")
+	op void removeDerivedAttribute (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The details of the derived attribute to be deleted.
+			Only the first three fields of the spec
+			need to be populated") DerivedAttributeSpec spec
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Lists the derived attributes of a Hawk instance")
+	op DerivedAttributeSpec[*] listDerivedAttributes (
+		@doc(d="The name of the Hawk instance") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Add a new indexed attribute to a Hawk instance")
+	op void addIndexedAttribute (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The details of the new indexed attribute") IndexedAttributeSpec spec
+	) throws HawkInstanceNotFound, InvalidIndexedAttributeSpec;
+	
+	@doc(d="Remove a indexed attribute from a Hawk instance")
+	op void removeIndexedAttribute (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The details of the indexed attribute to be deleted") IndexedAttributeSpec spec
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Lists the indexed attributes of a Hawk instance")
+	op IndexedAttributeSpec[*] listIndexedAttributes (
+		@doc(d="The name of the Hawk instance") String name
+	) throws HawkInstanceNotFound;
+	
+	@doc(d="Returns the contents of a model indexed in a Hawk instance. Cross-model references are also resolved")
+	op ModelElement[*] getModel (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The path of the model file in the repository") String filePath
+	) throws HawkInstanceNotFound;
+
+	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
+	op ModelElementChange[*] watchModelChanges(
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The path of the model file in the repository") String filePath,
+		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
+		@doc(d="The model element type to watch for", optional="true") String modelElementType
+	);
+}
+
+@doc(d="Enumeration with the different types of changes that can happen to a model element.")
+enum ModelElementChangeType {
+	@doc(d="The model element was added to the model") ADDED;
+	@doc(d="The model element was removed from the model") REMOVED;
+	@doc(d="The contents of the model element were changed") UPDATED;
+}
+
+@doc(d="Entity that reflects a single change on a single model element.")
+class ModelElementChange {
+	@doc(d="The model element that was changed.") val ModelElement element;
+	@doc(d="The type of change performed on the model.") attr ModelElementChangeType type;
+	@doc(d="For changes of type UPDATED, the path within the element that was updated.", optional="true") attr String changePath;
+}
+
+@doc(d="No Hawk instance exists with that name.")
+class HawkInstanceNotFound {}
+
+@doc(d="The provided metamodel is not valid (e.g. unparsable or inconsistent).")
+class InvalidMetamodel {
+	@doc(d="Reason for the metamodel not being valid.") attr String reason;
+}
+
+@doc(d="The specified query language is not supported by the operation.")
+class UnknownQueryLanguage {}
+
+@doc(d="The specified repository type is not supported by the operation.")
+class UnknownRepositoryType {}
+
+@doc(d="The specified query is not valid")
+class InvalidQuery {
+	@doc(d="Reason for the query not being valid.") attr String reason;
+}
+
+@doc(d="The derived attribute specification is not valid")
+class InvalidDerivedAttributeSpec {
+	@doc(d="Reason for the spec not being valid.") attr String reason;
+}
+
+@doc(d="The indexed attribute specification is not valid")
+class InvalidIndexedAttributeSpec {
+	@doc(d="Reason for the spec not being valid.") attr String reason;
+}
+
+@doc(d="The polling configuration is not valid")
+class InvalidPollingConfiguration {
+	@doc(d="Reason for the spec not being valid.") attr String reason;
+}
+
+
+@doc(d="
+The following service operations expose the capabilities of the offline collaboration framework 
+developed in Work Package 4. The framework is discussed in detail in D4.3.
+")
+// Services related to offline collaboration should go here
+// AG: how do the lock operations know which VCS they should talk to?
+// AG: a collaboration lock query spec is only a FQN? Shouldn't it include the query language and the language as well?
+class OfflineCollaboration {
+	@doc(d="Performs the checkout operation")
+	op CollaborationResource[*] checkout (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound;
+
+	@doc(d="Performs the commit operation")
+	op void commit (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound, CollaborationResourceLocked;
+
+	@doc(d="Performs the pull operation")
+	op CollaborationResource[*] pull (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources,
+		@doc(d="The operations executed on the client") OperationModel operationModel
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound, MergeRequired;
+
+	@doc(d="Publishes a lock definition")
+	op void publishLockDefinition (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The lock query specification") CollaborationLockQuerySpec specification
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec;
+
+	@doc(d="Unpublish a lock definition")
+	op void unpublishLockDefinition (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The lock query specification") CollaborationLockQuerySpec specification
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationLockQueryNotFound;
+
+	@doc(d="Locks the pattern with the given bindings")
+	op void lock (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The lock specification with pattern and its bindings") CollaborationQueryInvocationSpecification specification
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationResourceLocked;
+
+	@doc(d="Unlocks the pattern with the given bindings")
+	op void unlock (
+		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
+		@doc(d="The lock specification with pattern and its bindings") CollaborationQueryInvocationSpecification specification
+	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationLockQueryNotFound;
+}
+
+@doc(d="Specification of a lock on a set of model elements, without bindings")
+class CollaborationLockQuerySpec {
+    @doc(d="Fully qualified name of the pre-existing query.")
+	attr String patternFQN;
+}
+
+@doc(d="Specification of a lock on a set of model elements, with bindings")
+class CollaborationQueryInvocationSpecification {
+    @doc(d="Fully qualified name of the pre-existing query.")
+	attr String patternFQN;
+	@doc(d="Name/value bindings to be provided to the query.")
+	val CollaborationQueryBinding[*] bindings;
+}
+
+@doc(d="Name/value binding used within a lock pattern")
+class CollaborationQueryBinding {
+    @doc(d="Name of the query parameter being bound")
+	attr String name;
+	@doc(d="Value to be bound to the query parameter")
+	attr String value;
+	// AG: István says that the type is not necessary, as that will come from the query definition itself
+}
+
+@doc(d="Base entity for resource references in the collaboration API")
+abstract class CollaborationResourceReference {
+	@doc(d="The URI of the repository containing the resource") attr String repositoryUri;
+}
+
+@doc(d="Reference to a resource in a Git repository")
+class CollaborationGitResourceReference extends CollaborationResourceReference {
+	@doc(d="The name of the Git branch to which new commits should be pushed.") attr String branch;
+	@doc(d="The SHA1 identifier of the commit with the resource.") attr String commit;
+}
+
+@doc(d="Reference to a resource in a SVN repository")
+class CollaborationSvnResourceReference extends CollaborationResourceReference {
+	@doc(d="The revision number containing the resource.") attr String revision;
+	@doc(d="The path to the resource within the SVN repository.") attr String filePath;
+}
+
+@doc(d="Contents of a resource in the collaboration API")
+class CollaborationResource {
+    @doc(d="File with the contents of the resource")
+	ref File file;
+}
+
+@doc(d="Credentials of the client in the target VCS")
+class Credentials {
+    @doc(d="Username for logging into the VCS")
+	attr String username;
+	@doc(d="Password for logging into the VCS")
+	attr String password;
+}
+
+@doc(d="
+Operational trace that encodes the operations carried out by the user locally over the models.
+Its internal schema is presented in D4.3 and will be refined in D4.2.
+")
+class OperationModel {
+	// AG: István says it should be left blank for now
+}
+
+
+@doc(d="
+The following service operations expose the capabilities of the cloud-enabled
+version of the ATL transformation language which is currently under development and
+will be presented in M24 in D3.3
+")
+class CloudATL {
+	
+	@doc(d="Invokes a cloud-based transformation in a batch non-blocking mode. 
+			Returns a token that can be used to check the status of the transformation.")
+	op String launch (
+		@doc(d="The ATL source-code of the transformation") String transformation,
+		@doc(d="The input models of the transformation") ModelSpec[*] source,
+		@doc(d="The target models of the transformation") ModelSpec[*] target
+	) throws InvalidTransformation, InvalidModelSpec;
+
+	@doc(d="Returns the status of a previously invoked transformation")
+	op TransformationStatus getStatus (
+		@doc(d="A valid token returned by a previous call to launch()") String token
+	) throws TransformationTokenNotFound;
+}
+
+@doc(d="
+The following service operations expose the capabilities of the reactive
+version of the ATL transformation language which is discussed in D3.2
+")
+class ReactiveATL {
+	@doc(d="Launches a cloud-based transformation in reactive mode.
+	    The transformation keeps running until it is explicitly stopped.
+	    Returns a token that can be used to control the transformation.")
+	op String launch (
+		@doc(d="The ATL source-code of the transformation") String transformation,
+		@doc(d="The input models of the transformation") ModelSpec[*] source,
+		@doc(d="The target models of the transformation") ModelSpec[*] target
+	) throws InvalidTransformation, InvalidModelSpec;
+
+	@doc(d="Stops a cloud-based reactive transformation.")
+	op String stop (
+		@doc(d="A valid token returned by a previous call to launch()") String token
+	) throws TransformationTokenNotFound;
+
+	@doc(d="Commits in-memory changes on the target model to its persistent storage.")
+	op String commit (
+		@doc(d="A valid token returned by a previous call to launch()") String token
+	) throws TransformationTokenNotFound;
+}
+
+@doc(d="Represents a model element")
+class ModelElement {
+	@doc(d="Unique ID of the model element") 
+	attr String ~id;
+	@doc(d="URI of the metamodel to which the type of the element belongs") 
+	attr String metamodelUri;
+	@doc(d="The name of type that the model element is an instance of") 
+	attr String typeName;
+	@doc(d="Flag that specifies whether the contents of the model element
+			are available or if it is only a proxy") 
+	attr boolean isProxy;
+	@doc(d="Slots holding the values of the model element's properties (i.e. attributes and references)") 
+	val Slot[*] slots;
+}
+
+@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+class Slot {
+	@doc(d="The name of the model element property the value of which is stored in this slot") 
+	attr String name;
+	@doc(d="The values of the slot. These can be primitive values (for attributes) or model elements (for references)") 
+	ref Object[*] values;
+}
+
+@doc(d="Captures information about source/target models of ATL transformations") 
+class ModelSpec {
+	@doc(d="The local name of the model in the transformation")
+	attr String name;
+	@doc(d="The URI from which the model will be loaded or to which it will be persisted") 
+	attr String uri;
+	@doc(d="The URIs of the metamodels to which elements of the model conform") 
+	attr String[*] metamodelUris;
+}
+
+@doc(d="Used to configure Hawk's indexed attributes (discussed in D5.3)")
+class IndexedAttributeSpec {
+	@doc(d="The URI of the metamodel to which the indexed attribute belongs")
+	attr String metamodelUri;
+	@doc(d="The name of the type to which the indexed attribute belongs")
+	attr String typename; 
+	@doc(d="The name of the indexed attribute")
+	attr String attributename;
+}
+
+@doc(d="Used to configure Hawk's derived attributes (discussed in D5.3)")
+class DerivedAttributeSpec {
+	@doc(d="The URI of the metamodel to which the derived attribute belongs")
+	attr String metamodelUri;
+	@doc(d="The name of the type to which the derived attribute belongs")
+	attr String typeName; 
+	@doc(d="The name of the derived attribute")
+	attr String attributeName;
+	@doc(d="The (primitive) type of the derived attribute")
+	attr String attributeType;
+	@doc(d="The multiplicity of the derived attribute")
+	attr boolean isMany;
+	@doc(d="A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true)")
+	attr boolean isOrdered;
+	@doc(d="A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true)")
+	attr boolean isUnique;
+	@doc(d="The language used to express the derivation logic (EOL is the only supported value so far)")
+	attr String derivationLanguage;
+	@doc(d="An executable expression of the derivation logic in the language above")
+	attr String derivationLogic;
+}
+
+@doc(d="Used to report the status of a long-running transformation by CloudATL")
+class TransformationStatus {
+	@doc(d="True if the transformation has finished, false otherwise")	
+	attr boolean finished;
+	@doc(d="Time passed since the start of execution")	
+	attr long elapsed;
+	@doc(d="Description of the error that caused the transformation to fail")
+	attr String error;
+}
+
+@doc(d="Status of a Hawk instance")
+class HawkInstance {
+	@doc(d="The name of the instance")
+	attr String name;
+	@doc(d="Whether the instance is running or not")
+	attr boolean running;
+}
+
+@doc(d="Minimal details about registered users")
+class UserProfile {
+	@doc(d="The real name of the user")
+	attr String realName;
+	@doc(d="Whether the user has admin rights (i.e. so that they can create new users, change the status of admin users etc)")
+	attr boolean admin;
+}
+
+@doc(exclude="true")
+class File {}
+
+/* EXCEPTIONS: exception="true" is only necessary when the class is not in any throws list */
+
+@doc(d="The client failed to prove its identity in MONDO or did not have the necessary permissions.", exception="true")
+class AuthenticationFailed {}
+
+/*
+@doc(d="The client does not have the required permissions in MONDO to perform the operation.")
+class AuthorizationFailed {}
+*/
+
+@doc(d="The specified username already exists.")
+class UserExists {}
+
+@doc(d="The specified username does not exist.")
+class UserNotFound {}
+
+@doc(d="The client failed to prove its identity in the VCS.")
+class VCSAuthenticationFailed {}
+
+@doc(d="The client does not have the required permissions in the VCS to perform the operation.")
+class VCSAuthorizationFailed {}
+
+@doc(d="The resource does not exist in the VCS.")
+class CollaborationResourceNotFound {
+	@doc(d="Reference to the missing resource.") val CollaborationResourceReference resourceReference;
+}
+
+@doc(d="The resource is currently locked for collaboration.")
+class CollaborationResourceLocked {
+	@doc(d="Reference to the locked resource.") val CollaborationResourceReference resourceReference;
+}
+
+@doc(d="The operation requires a merge before it can be retried.")
+class MergeRequired {}
+
+@doc(d="The lock query specification is not valid.")
+class InvalidCollaborationLockQuerySpec {}
+
+@doc(d="No matching lock exists.")
+class CollaborationLockQueryNotFound {}
+
+@doc(d="The transformation is not valid: it is unparsable or inconsistent.")
+class InvalidTransformation {
+	@doc(d="Reason for the transformation not being valid.") attr String reason;
+	@doc(d="Location of the problem, if applicable. Usually a combination of line and column numbers.") attr String location;
+}
+
+@doc(d="The model specification is not valid: the model or the metamodels are inaccessible or invalid.")
+class InvalidModelSpec {
+	@doc(d="A copy of the invalid model specification.") val ModelSpec spec;
+	@doc(d="Reason for the spec not being valid.") attr String reason;
+}
+
+@doc(d="The specified transformation token does not exist within the invokved MONDO instance.")
+class TransformationTokenNotFound {
+	@doc(d="Transformation token which was not found within the invoked MONDO instance.") attr String token;
+}
