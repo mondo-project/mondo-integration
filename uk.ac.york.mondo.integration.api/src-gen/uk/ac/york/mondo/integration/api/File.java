@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 public class File implements org.apache.thrift.TBase<File, File._Fields>, java.io.Serializable, Cloneable, Comparable<File> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("File");
 
+  private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField CONTENTS_FIELD_DESC = new org.apache.thrift.protocol.TField("contents", org.apache.thrift.protocol.TType.STRING, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -45,10 +47,13 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
     schemes.put(TupleScheme.class, new FileTupleSchemeFactory());
   }
 
+  public String name; // required
+  public ByteBuffer contents; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-;
+    NAME((short)1, "name"),
+    CONTENTS((short)2, "contents");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -63,6 +68,10 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
+        case 1: // NAME
+          return NAME;
+        case 2: // CONTENTS
+          return CONTENTS;
         default:
           return null;
       }
@@ -101,9 +110,15 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
       return _fieldName;
     }
   }
+
+  // isset id assignments
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.CONTENTS, new org.apache.thrift.meta_data.FieldMetaData("contents", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(File.class, metaDataMap);
   }
@@ -111,10 +126,25 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
   public File() {
   }
 
+  public File(
+    String name,
+    ByteBuffer contents)
+  {
+    this();
+    this.name = name;
+    this.contents = org.apache.thrift.TBaseHelper.copyBinary(contents);
+  }
+
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public File(File other) {
+    if (other.isSetName()) {
+      this.name = other.name;
+    }
+    if (other.isSetContents()) {
+      this.contents = org.apache.thrift.TBaseHelper.copyBinary(other.contents);
+    }
   }
 
   public File deepCopy() {
@@ -123,15 +153,97 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
 
   @Override
   public void clear() {
+    this.name = null;
+    this.contents = null;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public File setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public void unsetName() {
+    this.name = null;
+  }
+
+  /** Returns true if field name is set (has been assigned a value) and false otherwise */
+  public boolean isSetName() {
+    return this.name != null;
+  }
+
+  public void setNameIsSet(boolean value) {
+    if (!value) {
+      this.name = null;
+    }
+  }
+
+  public byte[] getContents() {
+    setContents(org.apache.thrift.TBaseHelper.rightSize(contents));
+    return contents == null ? null : contents.array();
+  }
+
+  public ByteBuffer bufferForContents() {
+    return org.apache.thrift.TBaseHelper.copyBinary(contents);
+  }
+
+  public File setContents(byte[] contents) {
+    this.contents = contents == null ? (ByteBuffer)null : ByteBuffer.wrap(Arrays.copyOf(contents, contents.length));
+    return this;
+  }
+
+  public File setContents(ByteBuffer contents) {
+    this.contents = org.apache.thrift.TBaseHelper.copyBinary(contents);
+    return this;
+  }
+
+  public void unsetContents() {
+    this.contents = null;
+  }
+
+  /** Returns true if field contents is set (has been assigned a value) and false otherwise */
+  public boolean isSetContents() {
+    return this.contents != null;
+  }
+
+  public void setContentsIsSet(boolean value) {
+    if (!value) {
+      this.contents = null;
+    }
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
+    case NAME:
+      if (value == null) {
+        unsetName();
+      } else {
+        setName((String)value);
+      }
+      break;
+
+    case CONTENTS:
+      if (value == null) {
+        unsetContents();
+      } else {
+        setContents((ByteBuffer)value);
+      }
+      break;
+
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
+    case NAME:
+      return getName();
+
+    case CONTENTS:
+      return getContents();
+
     }
     throw new IllegalStateException();
   }
@@ -143,6 +255,10 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
     }
 
     switch (field) {
+    case NAME:
+      return isSetName();
+    case CONTENTS:
+      return isSetContents();
     }
     throw new IllegalStateException();
   }
@@ -160,12 +276,40 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
     if (that == null)
       return false;
 
+    boolean this_present_name = true && this.isSetName();
+    boolean that_present_name = true && that.isSetName();
+    if (this_present_name || that_present_name) {
+      if (!(this_present_name && that_present_name))
+        return false;
+      if (!this.name.equals(that.name))
+        return false;
+    }
+
+    boolean this_present_contents = true && this.isSetContents();
+    boolean that_present_contents = true && that.isSetContents();
+    if (this_present_contents || that_present_contents) {
+      if (!(this_present_contents && that_present_contents))
+        return false;
+      if (!this.contents.equals(that.contents))
+        return false;
+    }
+
     return true;
   }
 
   @Override
   public int hashCode() {
     List<Object> list = new ArrayList<Object>();
+
+    boolean present_name = true && (isSetName());
+    list.add(present_name);
+    if (present_name)
+      list.add(name);
+
+    boolean present_contents = true && (isSetContents());
+    list.add(present_contents);
+    if (present_contents)
+      list.add(contents);
 
     return list.hashCode();
   }
@@ -178,6 +322,26 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
 
     int lastComparison = 0;
 
+    lastComparison = Boolean.valueOf(isSetName()).compareTo(other.isSetName());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, other.name);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetContents()).compareTo(other.isSetContents());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetContents()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.contents, other.contents);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -198,12 +362,33 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
     StringBuilder sb = new StringBuilder("File(");
     boolean first = true;
 
+    sb.append("name:");
+    if (this.name == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.name);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("contents:");
+    if (this.contents == null) {
+      sb.append("null");
+    } else {
+      org.apache.thrift.TBaseHelper.toString(this.contents, sb);
+    }
+    first = false;
     sb.append(")");
     return sb.toString();
   }
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
+    if (name == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
+    }
+    if (contents == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'contents' was not present! Struct: " + toString());
+    }
     // check for sub-struct validity
   }
 
@@ -241,6 +426,22 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
           break;
         }
         switch (schemeField.id) {
+          case 1: // NAME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.name = iprot.readString();
+              struct.setNameIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // CONTENTS
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.contents = iprot.readBinary();
+              struct.setContentsIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -256,6 +457,16 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
+      if (struct.name != null) {
+        oprot.writeFieldBegin(NAME_FIELD_DESC);
+        oprot.writeString(struct.name);
+        oprot.writeFieldEnd();
+      }
+      if (struct.contents != null) {
+        oprot.writeFieldBegin(CONTENTS_FIELD_DESC);
+        oprot.writeBinary(struct.contents);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -273,11 +484,17 @@ public class File implements org.apache.thrift.TBase<File, File._Fields>, java.i
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, File struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
+      oprot.writeString(struct.name);
+      oprot.writeBinary(struct.contents);
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, File struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
+      struct.name = iprot.readString();
+      struct.setNameIsSet(true);
+      struct.contents = iprot.readBinary();
+      struct.setContentsIsSet(true);
     }
   }
 

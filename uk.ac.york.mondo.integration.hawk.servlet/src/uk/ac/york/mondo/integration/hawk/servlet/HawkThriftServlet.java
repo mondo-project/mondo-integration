@@ -10,6 +10,8 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.servlet;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,8 +78,17 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getHawkByName(name);
 
 			for (File f : metamodels) {
-				// TODO file upload with Thrift?
-				//model.registerMeta(new java.io.File("received through Thrift?"));
+				try {
+					// Remove path separators for now (UNIX-style / and Windows-style \)
+					final String safeName = f.name.replaceAll("/", "_").replaceAll("\\", "_");
+					final java.io.File dataFile = Activator.getInstance().writeToDataFile(safeName, f.contents);
+					// TODO No way to report a bad file?
+					model.registerMeta(dataFile);
+				} catch (FileNotFoundException ex) {
+					throw new TException(ex);
+				} catch (IOException ex) {
+					throw new TException(ex);
+				}
 			}
 		}
 

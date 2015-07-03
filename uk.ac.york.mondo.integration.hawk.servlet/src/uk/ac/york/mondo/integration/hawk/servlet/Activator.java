@@ -10,6 +10,13 @@
  ******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.servlet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -31,6 +38,22 @@ public class Activator implements BundleActivator {
 
 	public Activator() {
 		Activator.instance = this;
+	}
+
+	public File getDataFile(String filename) {
+		return context.getDataFile(filename);
+	}
+
+	public File writeToDataFile(String filename, ByteBuffer contents) throws FileNotFoundException, IOException {
+		// Store in the plugin's persistent store
+		final java.io.File destFile = getDataFile(filename);
+
+		// The FOS is closed while closing the channel, so we can suppress this warning
+		try (@SuppressWarnings("resource") FileChannel fc = new FileOutputStream(destFile).getChannel()) {
+			fc.write(contents);
+		}
+
+		return destFile;
 	}
 
 	@Override

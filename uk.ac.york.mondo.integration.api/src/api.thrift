@@ -50,6 +50,8 @@ struct DerivedAttributeSpec {
 }
 
 struct File {
+	 /*  */ 1: required string name,
+	 /*  */ 2: required binary contents,
 }
 
 struct HawkInstance {
