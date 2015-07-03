@@ -1,0 +1,54 @@
+/*******************************************************************************
+ * Copyright (c) 2015 The University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Antonio Garcia-Dominguez - initial API and implementation
+ ******************************************************************************/
+package uk.ac.york.mondo.integration.hawk.servlet;
+
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+
+import uk.ac.york.mondo.integration.hawk.servlet.util.HManager;
+
+public class Activator implements BundleActivator {
+
+	private static BundleContext context;
+	private static Activator instance;
+	private HManager hawkManager;
+
+	public static Activator getInstance() {
+		return instance;
+	}
+
+	public static String getPluginId() {
+		return context.getBundle().getSymbolicName();
+	}
+
+	public Activator() {
+		Activator.instance = this;
+	}
+
+	@Override
+	public void start(BundleContext bundleContext) throws Exception {
+		Activator.context = bundleContext;
+		this.hawkManager = new HManager();
+	}
+
+	@Override
+	public void stop(BundleContext bundleContext) throws Exception {
+		Activator.context = null;
+		hawkManager.stopAllRunningInstances();
+	}
+
+	/**
+	 * Returns the instance of {@link HManager} managed by this plugin.
+	 */
+	public HManager getHawkManager() {
+		return hawkManager;
+	}
+}
