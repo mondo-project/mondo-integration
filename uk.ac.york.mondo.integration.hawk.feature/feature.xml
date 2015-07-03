@@ -18,7 +18,35 @@
    </license>
 
    <includes
-         id="uk.ac.york.mondo.integration.hawk.deps.feature"
+         id="org.hawk.core.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.emf.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.epsilon.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.ifc.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.localfolder.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.modelio.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.neo4jv2.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.hawk.svn.feature"
          version="0.0.0"/>
 
    <requires>

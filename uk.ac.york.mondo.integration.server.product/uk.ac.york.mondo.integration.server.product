@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Server Product" id="uk.ac.york.mondo.integration.server.product.product" application="uk.ac.york.mondo.integration.server.product.serverapp" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-Dosgi.noShutdown=true
+      </programArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="mondo">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</linux>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="uk.ac.york.mondo.integration.hawk.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.server.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.server.deps.feature"/>
+      <feature id="org.hawk.neo4jv2.feature"/>
+      <feature id="org.hawk.localfolder.feature"/>
+      <feature id="org.hawk.emf.feature"/>
+      <feature id="org.hawk.svn.feature"/>
+      <feature id="org.hawk.modelio.feature"/>
+      <feature id="org.hawk.ifc.feature"/>
+      <feature id="org.hawk.epsilon.feature"/>
+      <feature id="org.hawk.core.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.equinox.http.registry" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+   </configurations>
+
+</product>
