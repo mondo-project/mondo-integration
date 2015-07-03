@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="uk.ac.york.mondo.integration.hawk.feature"
+      label="MONDO Integration - Hawk Feature"
+      version="1.0.0.qualifier"
+      provider-name="University of York">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <includes
+         id="uk.ac.york.mondo.integration.hawk.deps.feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="uk.ac.york.mondo.integration.api" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.hawk.core" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.equinox.http.registry" version="1.1.300" match="greaterOrEqual"/>
+      <import plugin="org.slf4j.api" version="1.7.2" match="greaterOrEqual"/>
+      <import plugin="javax.servlet"/>
+      <import plugin="org.apache.thrift"/>
+      <import plugin="org.hawk.core.dependencies"/>
+   </requires>
+
+   <plugin
+         id="uk.ac.york.mondo.integration.hawk.servlet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
