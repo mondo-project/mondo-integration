@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -186,7 +185,7 @@ public class HModel {
 	public void addDerivedAttribute(String metamodeluri, String typename,
 			String attributename, String attributetype, Boolean isMany,
 			Boolean isOrdered, Boolean isUnique, String derivationlanguage,
-			String derivationlogic) {
+			String derivationlogic) throws Exception {
 		hawk.getModelIndexer().addDerivedAttribute(metamodeluri, typename,
 				attributename, attributetype, isMany, isOrdered, isUnique,
 				derivationlanguage, derivationlogic);
@@ -200,10 +199,8 @@ public class HModel {
 		}
 	}
 
-	public void addIndexedAttribute(String metamodeluri, String typename,
-			String attributename) {
-		hawk.getModelIndexer().addIndexedAttribute(metamodeluri, typename,
-				attributename);
+	public void addIndexedAttribute(String metamodeluri, String typename, String attributename) throws Exception {
+		hawk.getModelIndexer().addIndexedAttribute(metamodeluri, typename, attributename);
 	}
 
 	public void addVCS(String loc, String type, String user, String pass) {
@@ -220,34 +217,31 @@ public class HModel {
 
 	/**
 	 * Performs a context-aware query and returns its result.
+	 * The result must be a Double, a String, an Integer, a ModelElement, the null
+	 * reference or an Iterable of these things.
 	 * @throws NoSuchElementException Unknown query language.
 	 */
-	public String contextFullQuery(File query, String ql,
-			Map<String, String> context) {
+	public Object contextFullQuery(File query, String ql, Map<String, String> context)  throws Exception {
 		IQueryEngine q = hawk.getModelIndexer().getKnownQueryLanguages().get(ql);
 		if (q == null) {
 			throw new NoSuchElementException();
 		}
 
-		Object ret = q.contextfullQuery(hawk.getModelIndexer().getGraph(),
-				query, context);
-
-		return ret != null ? ret.toString() : "null";
+		return q.contextfullQuery(hawk.getModelIndexer().getGraph(), query, context);
 	}
 
 	/**
-	 * Performs a context-aware query and returns its result.
+	 * Performs a context-aware query and returns its result. For the result
+	 * types, see {@link #contextFullQuery(File, String, Map)}.
 	 * @throws NoSuchElementException Unknown query language.
 	 */
-	public String contextFullQuery(String query, String ql, Map<String, String> context) {
+	public Object contextFullQuery(String query, String ql, Map<String, String> context) throws Exception {
 		IQueryEngine q = hawk.getModelIndexer().getKnownQueryLanguages().get(ql);
 		if (q == null) {
 			throw new NoSuchElementException();
 		}
 
-		Object ret = q.contextfullQuery(hawk.getModelIndexer().getGraph(), query, context);
-
-		return ret != null ? ret.toString() : "null";
+		return q.contextfullQuery(hawk.getModelIndexer().getGraph(), query, context);
 	}
 
 	public void delete() {
@@ -333,20 +327,24 @@ public class HModel {
 		return running;
 	}
 
-	public String query(File query, String ql) {
+	/**
+	 * For the result
+	 * types, see {@link #contextFullQuery(File, String, Map)}.
+	 */
+	public Object query(File query, String ql) throws Exception {
 		IQueryEngine q = hawk.getModelIndexer().getKnownQueryLanguages()
 				.get(ql);
 
-		Object ret = q.contextlessQuery(hawk.getModelIndexer().getGraph(),
+		return q.contextlessQuery(hawk.getModelIndexer().getGraph(),
 				query);
-
-		return ret != null ? ret.toString() : "null";
 	}
 
-	public String query(String query, String ql) {
+	/**
+	 * For the result types, see {@link #contextFullQuery(File, String, Map)}.
+	 */
+	public Object query(String query, String ql) throws Exception {
 		IQueryEngine q = hawk.getModelIndexer().getKnownQueryLanguages().get(ql);
-		Object ret = q.contextlessQuery(hawk.getModelIndexer().getGraph(), query);
-		return ret != null ? ret.toString() : "null";
+		return q.contextlessQuery(hawk.getModelIndexer().getGraph(), query);
 	}
 
 	public boolean registerMeta(File f) {
@@ -445,6 +443,34 @@ public class HModel {
 		}
 
 		return error;
+	}
+
+	public void removeDerivedAttribute(String metamodelUri, String typeName, String attributeName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removeIndexedAttribute(String metamodelUri, String typename, String attributename) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public Iterable<ModelElement> resolveProxies(List<String> ids) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void removeRepository(String uri) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Should throw an {@link IllegalArgumentException} if the configuration for
+	 * the polling is not valid (base or max <= 0 or base > max).
+	 */
+	public void configurePolling(int base, int max) {
+		// TODO Auto-generated method stub
 	}
 
 }

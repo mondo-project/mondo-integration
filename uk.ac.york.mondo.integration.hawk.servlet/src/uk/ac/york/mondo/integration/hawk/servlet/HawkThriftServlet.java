@@ -24,9 +24,11 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServlet;
 import org.eclipse.core.runtime.CoreException;
+import org.hawk.core.IModelIndexer;
 import org.hawk.core.graph.IGraphIterable;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeIndex;
+import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.util.HawkConfig;
 
 import uk.ac.york.mondo.integration.api.Credentials;
@@ -113,23 +115,25 @@ public class HawkThriftServlet extends TServlet {
 			Map<String, String> context = new HashMap<>();
 			context.put(org.hawk.core.query.IQueryEngine.PROPERTY_FILECONTEXT, scope);
 			try {
-				// TODO How to detect invalid queries?
-				return Arrays.asList(model.contextFullQuery(query, language, context));
+				Object ret = model.contextFullQuery(query, language, context);
+				return Arrays.asList();
 			} catch (NoSuchElementException ex) {
 				throw new UnknownQueryLanguage();
+			} catch (InvalidQueryException ex) {
+				throw new InvalidQuery(ex);
+			} catch (Exception ex) {
+				throw new TException(ex);
 			}
 		}
 
 		@Override
-		public List<ModelElement> resolveProxies(String name, List<ModelElement> proxies) throws HawkInstanceNotFound, TException {
+		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			
+
 			List<ModelElement> resolved = new ArrayList<ModelElement>();
-			for (ModelElement proxy : proxies) {
-				final IGraphNode node = model.getGraph().getNodeById(proxy.id);
-				// TODO How to recover ModelElement from proxy?
+			for (ModelElement me : model.resolveProxies(ids)) {
+				// TODO convert me to Thrift ModelElement
 			}
-			
 			return resolved;
 		}
 
@@ -154,10 +158,13 @@ public class HawkThriftServlet extends TServlet {
 
 		@Override
 		public void deleteRepository(String name, String uri) throws HawkInstanceNotFound, TException {
+			// TODO rename to removeRepository
 			final HModel model = getHawkByName(name);
-
-			// TODO Delete repository not implemented by Hawk UI yet?
-			throw new TException(new UnsupportedOperationException());
+			try {
+				model.removeRepository(uri);
+			} catch (Exception ex) {
+				throw new TException(ex);
+			}
 		}
 
 		@Override
@@ -184,9 +191,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void configurePolling(String name, int base, int max) throws HawkInstanceNotFound, InvalidPollingConfiguration, TException {
 			final HModel model = getHawkByName(name);
-
-			// TODO Hawk has a fixed polling interval now: need API to change that
-			throw new TException(new UnsupportedOperationException());
+			model.configurePolling(base, max);
 		}
 
 		@Override
@@ -195,11 +200,14 @@ public class HawkThriftServlet extends TServlet {
 				TException {
 			final HModel model = getHawkByName(name);
 
-			// TODO No syntax validation by Hawk?
-			model.addDerivedAttribute(
+			try {
+				model.addDerivedAttribute(
 					spec.metamodelUri, spec.typeName, spec.attributeName, spec.attributeType,
 					spec.isMany, spec.isOrdered, spec.isUnique,
 					spec.derivationLanguage, spec.derivationLogic);
+			} catch (Exception ex) {
+				throw new TException(ex);
+			}
 		}
 
 		@Override
@@ -207,16 +215,14 @@ public class HawkThriftServlet extends TServlet {
 				DerivedAttributeSpec spec) throws HawkInstanceNotFound,
 				TException {
 			final HModel model = getHawkByName(name);
-
-			// TODO Removing derived attributes not available in Hawk UI yet?
-			throw new TException(new UnsupportedOperationException());
+			model.removeDerivedAttribute(
+				spec.metamodelUri, spec.typeName, spec.attributeName);
 		}
 
 		@Override
 		public List<String> listDerivedAttributes(String name)
 				throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			// TODO Change Hawk API to use DerivedAttribute POJO in add/remove/list instead of raw strings
 			return new ArrayList<String>(model.getDerivedAttributes());
 		}
 
@@ -225,8 +231,11 @@ public class HawkThriftServlet extends TServlet {
 				throws HawkInstanceNotFound, InvalidIndexedAttributeSpec,
 				TException {
 			final HModel model = getHawkByName(name);
-			// TODO No exceptions from Hawk at all?
-			model.addIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
+			try {
+				model.addIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
+			} catch (Exception e) {
+				throw new TException(e);
+			}
 		}
 
 		@Override
@@ -234,22 +243,24 @@ public class HawkThriftServlet extends TServlet {
 				IndexedAttributeSpec spec) throws HawkInstanceNotFound,
 				TException {
 			final HModel model = getHawkByName(name);
-			// TODO Removing indexed attributes not available in Hawk UI yet?
-			throw new TException(new UnsupportedOperationException());
+			model.removeIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
 		}
 
 		@Override
 		public List<String> listIndexedAttributes(String name)
 				throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			// TODO Change Hawk API to use IndexedAttribute POJO instead of raw Strings in add/del/list
 			return new ArrayList<String>(model.getIndexedAttributes());
 		}
 
 		@Override
 		public List<ModelElement> getModel(String name, String repositoryUri, String filePath) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
-			// TODO Ask Kostas for help with this (extra method for HModel would be great)
+			final Map<String, String> props = new HashMap<>();
+			props.put(IQueryEngine.PROPERTY_FILECONTEXT, filePath);
+
+			// TODO Change query/contextFullQuery to return model elements
+			// TODO Add contextless version (without repositoryUri + filePath)
+			// TODO Remove isProxy from ModelElement and divide slots into references + attributes
 			return Collections.emptyList();
 		}
 
