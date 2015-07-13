@@ -24,12 +24,14 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServlet;
 import org.eclipse.core.runtime.CoreException;
-import org.hawk.core.IModelIndexer;
 import org.hawk.core.graph.IGraphIterable;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.query.IQueryEngine;
+import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.util.HawkConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
@@ -44,8 +46,6 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
-import uk.ac.york.mondo.integration.api.ModelElementChange;
-import uk.ac.york.mondo.integration.api.ModelElementChangeType;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
@@ -63,6 +63,7 @@ public class HawkThriftServlet extends TServlet {
 
 	private static final class Iface implements Hawk.Iface {
 		
+		private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
 		private final HManager manager = Activator.getInstance().getHawkManager();
 		
 		private HModel getHawkByName(String name) throws HawkInstanceNotFound {
@@ -116,11 +117,12 @@ public class HawkThriftServlet extends TServlet {
 			context.put(org.hawk.core.query.IQueryEngine.PROPERTY_FILECONTEXT, scope);
 			try {
 				Object ret = model.contextFullQuery(query, language, context);
-				return Arrays.asList();
+				// TODO convert collections into String
+				return Arrays.asList(""+ ret);
 			} catch (NoSuchElementException ex) {
 				throw new UnknownQueryLanguage();
 			} catch (InvalidQueryException ex) {
-				throw new InvalidQuery(ex);
+				throw new InvalidQuery(ex.getMessage());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -131,8 +133,8 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getHawkByName(name);
 
 			List<ModelElement> resolved = new ArrayList<ModelElement>();
-			for (ModelElement me : model.resolveProxies(ids)) {
-				// TODO convert me to Thrift ModelElement
+			for (uk.ac.york.mondo.integration.hawk.servlet.util.ModelElement me : model.resolveProxies(ids)) {
+				// TODO convert me to Thrift ModelElement (wait for Kostas to implement resolveProxies)
 			}
 			return resolved;
 		}
@@ -157,8 +159,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void deleteRepository(String name, String uri) throws HawkInstanceNotFound, TException {
-			// TODO rename to removeRepository
+		public void removeRepository(String name, String uri) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			try {
 				model.removeRepository(uri);
@@ -170,7 +171,6 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public List<String> listRepositories(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-
 			return new ArrayList<String>(model.getLocations());
 		}
 
@@ -211,8 +211,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void removeDerivedAttribute(String name,
-				DerivedAttributeSpec spec) throws HawkInstanceNotFound,
+		public void removeDerivedAttribute(String name, DerivedAttributeSpec spec) throws HawkInstanceNotFound,
 				TException {
 			final HModel model = getHawkByName(name);
 			model.removeDerivedAttribute(
@@ -220,10 +219,24 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> listDerivedAttributes(String name)
-				throws HawkInstanceNotFound, TException {
+		public List<DerivedAttributeSpec> listDerivedAttributes(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			return new ArrayList<String>(model.getDerivedAttributes());
+
+			final List<DerivedAttributeSpec> specs = new ArrayList<>();
+			for (String sIndexedAttr : model.getDerivedAttributes()) {
+				String[] parts = sIndexedAttr.split("##", 3);
+				if (parts.length != 3) {
+					LOGGER.warn("Expected {} to have 3 parts, but had {} instead: skipping", sIndexedAttr, parts.length);
+					continue;
+				}
+
+				final DerivedAttributeSpec spec = new DerivedAttributeSpec();
+				spec.metamodelUri = parts[0];
+				spec.typeName = parts[1];
+				spec.attributeName = parts[2];
+				specs.add(spec);
+			}
+			return specs;
 		}
 
 		@Override
@@ -239,18 +252,27 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void removeIndexedAttribute(String name,
-				IndexedAttributeSpec spec) throws HawkInstanceNotFound,
-				TException {
+		public void removeIndexedAttribute(String name, IndexedAttributeSpec spec) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			model.removeIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
 		}
 
 		@Override
-		public List<String> listIndexedAttributes(String name)
-				throws HawkInstanceNotFound, TException {
+		public List<IndexedAttributeSpec> listIndexedAttributes(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			return new ArrayList<String>(model.getIndexedAttributes());
+
+			final List<IndexedAttributeSpec> specs = new ArrayList<>();
+			for (String sIndexedAttr : model.getIndexedAttributes()) {
+				String[] parts = sIndexedAttr.split("##", 3);
+				if (parts.length != 3) {
+					LOGGER.warn("Expected {} to have 3 parts, but had {} instead: skipping", sIndexedAttr, parts.length);
+					continue;
+				}
+
+				final IndexedAttributeSpec spec = new IndexedAttributeSpec(parts[0], parts[1], parts[2]);
+				specs.add(spec);
+			}
+			return specs;
 		}
 
 		@Override
@@ -258,21 +280,13 @@ public class HawkThriftServlet extends TServlet {
 			final Map<String, String> props = new HashMap<>();
 			props.put(IQueryEngine.PROPERTY_FILECONTEXT, filePath);
 
-			// TODO Change query/contextFullQuery to return model elements
-			// TODO Add contextless version (without repositoryUri + filePath)
-			// TODO Remove isProxy from ModelElement and divide slots into references + attributes
+			// TODO Change query/contextFullQuery to return model elements (waiting for Kostas)
 			return Collections.emptyList();
 		}
 
-		//@Override
-		public List<ModelElementChange> watchModelChanges(String name,
-				String repositoryUri, String filePath,
-				ModelElementChangeType changeType, String modelElementType)
-				throws TException {
-			/** 
-			 * TODO Need to think about how to transform stream methods into Thrift + Artemis:
-			 * maybe generate notification struct + Artemis wrappers (skipping the operation)?
-			 */
+		@Override
+		public List<ModelElement> getAllContents(String name) throws HawkInstanceNotFound, TException {
+			// TODO Wait for Kostas to implement object retrieval through queries
 			return null;
 		}
 
@@ -300,7 +314,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void deleteInstance(String name) throws HawkInstanceNotFound, TException {
+		public void removeInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			model.delete();
 		}

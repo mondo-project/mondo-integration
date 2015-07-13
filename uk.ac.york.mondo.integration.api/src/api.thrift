@@ -103,9 +103,8 @@ struct ModelElement {
 	 /* Unique ID of the model element. */ 1: required string id,
 	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
 	 /* The name of type that the model element is an instance of. */ 3: required string typeName,
-	 /* Flag that specifies whether the contents of the model element
-	    			are available or if it is only a proxy. */ 4: required bool isProxy,
-	 /* Slots holding the values of the model element's properties (i.e. attributes and references). */ 5: required list<Slot> slots,
+	 /* Slots holding the values of the model element's attributes. */ 4: required list<Slot> attributes,
+	 /* Slots holding the values of the model element's references. */ 5: required list<Slot> references,
 }
 
 struct ModelElementChange {
@@ -243,9 +242,9 @@ service Hawk {
   list<HawkInstance> listInstances(
   )
 	
-  /* Deletes an existing Hawk instance. Auth needed: Yes */
-  void deleteInstance(
-	/* The name of the Hawk instance to delete. */ 1: required string name, 
+  /* Removes an existing Hawk instance. Auth needed: Yes */
+  void removeInstance(
+	/* The name of the Hawk instance to remove. */ 1: required string name,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -312,7 +311,7 @@ service Hawk {
   /* Returns populated model elements for the provided proxies. Auth needed: Yes */
   list<ModelElement> resolveProxies(
 	/* The name of the Hawk instance. */ 1: required string name, 
-	/* Proxy model elements to be resolved. */ 2: required list<ModelElement> proxies, 
+	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -332,7 +331,7 @@ service Hawk {
 	) 
 	
   /* Asks a Hawk instance to stop monitoring a repository. Auth needed: Yes */
-  void deleteRepository(
+  void removeRepository(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository to stop monitoring. */ 2: required string uri, 
   )
@@ -381,7 +380,7 @@ service Hawk {
   /* Remove a derived attribute from a Hawk instance. Auth needed: Yes */
   void removeDerivedAttribute(
 	/* The name of the Hawk instance. */ 1: required string name, 
-	/* The details of the derived attribute to be deleted.
+	/* The details of the derived attribute to be removed.
 	   			Only the first three fields of the spec
 	   			need to be populated. */ 2: required DerivedAttributeSpec spec, 
   )
@@ -390,7 +389,7 @@ service Hawk {
 	) 
 	
   /* Lists the derived attributes of a Hawk instance. Auth needed: Yes */
-  list<string> listDerivedAttributes(
+  list<DerivedAttributeSpec> listDerivedAttributes(
 	/* The name of the Hawk instance. */ 1: required string name, 
   )
   throws (
@@ -410,25 +409,33 @@ service Hawk {
   /* Remove a indexed attribute from a Hawk instance. Auth needed: Yes */
   void removeIndexedAttribute(
 	/* The name of the Hawk instance. */ 1: required string name, 
-	/* The details of the indexed attribute to be deleted. */ 2: required IndexedAttributeSpec spec, 
+	/* The details of the indexed attribute to be removed. */ 2: required IndexedAttributeSpec spec, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	) 
 	
   /* Lists the indexed attributes of a Hawk instance. Auth needed: Yes */
-  list<string> listIndexedAttributes(
+  list<IndexedAttributeSpec> listIndexedAttributes(
 	/* The name of the Hawk instance. */ 1: required string name, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	) 
 	
-  /* Returns the contents of a model indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
+  /* Returns the full contents of a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
+  list<ModelElement> getAllContents(
+	/* The name of the Hawk instance. */ 1: required string name,
+  )
+  throws (
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */
+	)
+
+  /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri, 
-	/* The path of the model file in the repository. */ 3: required string filePath, 
+	/* The path of the model file(s) in the repository. */ 3: required string filePath,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

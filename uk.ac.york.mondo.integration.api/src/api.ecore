@@ -92,13 +92,13 @@
         <details key="d" value="Lists the details of all Hawk instances"/>
       </eAnnotations>
     </eOperations>
-    <eOperations name="deleteInstance" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="removeInstance" eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
-        <details key="d" value="Deletes an existing Hawk instance"/>
+        <details key="d" value="Removes an existing Hawk instance"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The name of the Hawk instance to delete"/>
+          <details key="d" value="The name of the Hawk instance to remove"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -198,9 +198,9 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="proxies" upperBound="-1" eType="#//ModelElement">
+      <eParameters name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="Proxy model elements to be resolved"/>
+          <details key="d" value="Proxy model element IDs to be resolved"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -230,7 +230,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="deleteRepository" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="removeRepository" eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
         <details key="d" value="Asks a Hawk instance to stop monitoring a repository"/>
       </eAnnotations>
@@ -318,14 +318,14 @@
       </eParameters>
       <eParameters name="spec" eType="#//DerivedAttributeSpec">
         <eAnnotations source="doc">
-          <details key="d" value="The details of the derived attribute to be deleted.&#xA;&#x9;&#x9;&#x9;Only the first three fields of the spec&#xA;&#x9;&#x9;&#x9;need to be populated"/>
+          <details key="d" value="The details of the derived attribute to be removed.&#xA;&#x9;&#x9;&#x9;Only the first three fields of the spec&#xA;&#x9;&#x9;&#x9;need to be populated"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="listDerivedAttributes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+    <eOperations name="listDerivedAttributes" upperBound="-1" eType="#//DerivedAttributeSpec"
         eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
-        <details key="d" value="Lists the derived attributes of a Hawk instance"/>
+        <details key="d" value="Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -359,11 +359,11 @@
       </eParameters>
       <eParameters name="spec" eType="#//IndexedAttributeSpec">
         <eAnnotations source="doc">
-          <details key="d" value="The details of the indexed attribute to be deleted"/>
+          <details key="d" value="The details of the indexed attribute to be removed"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="listIndexedAttributes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+    <eOperations name="listIndexedAttributes" upperBound="-1" eType="#//IndexedAttributeSpec"
         eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
         <details key="d" value="Lists the indexed attributes of a Hawk instance"/>
@@ -374,9 +374,19 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="getAllContents" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound">
+      <eAnnotations source="doc">
+        <details key="d" value="Returns the full contents of a Hawk instance. Cross-model references are also resolved"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
     <eOperations name="getModel" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
-        <details key="d" value="Returns the contents of a model indexed in a Hawk instance. Cross-model references are also resolved"/>
+        <details key="d" value="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -390,7 +400,7 @@
       </eParameters>
       <eParameters name="filePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The path of the model file in the repository"/>
+          <details key="d" value="The path of the model file(s) in the repository"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -832,15 +842,16 @@
         <details key="d" value="The name of type that the model element is an instance of"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isProxy" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
-      <eAnnotations source="doc">
-        <details key="d" value="Flag that specifies whether the contents of the model element&#xA;&#x9;&#x9;&#x9;are available or if it is only a proxy"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="slots" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
         eType="#//Slot" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Slots holding the values of the model element's properties (i.e. attributes and references)"/>
+        <details key="d" value="Slots holding the values of the model element's attributes"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
+        eType="#//Slot" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Slots holding the values of the model element's references"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
