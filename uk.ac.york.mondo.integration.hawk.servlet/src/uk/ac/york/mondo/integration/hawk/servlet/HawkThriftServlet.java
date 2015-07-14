@@ -30,6 +30,7 @@ import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.util.HawkConfig;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -295,6 +296,8 @@ public class HawkThriftServlet extends TServlet {
 			try {
 				final HawkConfig config = new HawkConfig();
 				config.setName(name);
+
+				config.setLoc(storageFolder(name).getPath());
 				manager.addHawk(new HModel(manager, config, false));
 			} catch (Exception ex) {
 				throw new TException(ex);
@@ -316,7 +319,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void removeInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			model.delete();
+			manager.delete(model, true);
 		}
 
 		@Override
@@ -329,6 +332,17 @@ public class HawkThriftServlet extends TServlet {
 		public void stopInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			model.stop();
+		}
+
+		private java.io.File storageFolder(String instanceName) {
+			java.io.File dataFile = FrameworkUtil.getBundle(HawkThriftServlet.class).getDataFile("hawk-" + instanceName);
+			if (!dataFile.exists()) {
+				dataFile.mkdir();
+				LOGGER.info("Created storage directory for instance '{}' in '{}'", instanceName, dataFile.getPath());
+			} else {
+				LOGGER.info("Reused storage directory for instance '{}' in '{}'", instanceName, dataFile.getPath());
+			}
+			return dataFile;
 		}
 	}
 

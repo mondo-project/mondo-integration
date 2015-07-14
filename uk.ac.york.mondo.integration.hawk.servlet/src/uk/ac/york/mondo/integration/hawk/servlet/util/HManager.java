@@ -30,6 +30,7 @@ import org.hawk.core.IVcsManager;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.util.HawkConfig;
 import org.hawk.core.util.HawksConfig;
+import org.osgi.framework.FrameworkUtil;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -99,6 +100,7 @@ public class HManager {
 
 	public void addHawk(HModel e) {
 		all.add(e);
+		saveHawkToMetadata(e);
 	}
 
 	public IGraphDatabase createGraph(IHawk hawk) throws Exception {
@@ -265,7 +267,7 @@ public class HManager {
 	}
 
 	private void loadHawksFromMetadata() {
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode("org.hawk.ui2");
+		IEclipsePreferences preferences = getPreferences();
 
 		try {
 			Collection<HawkConfig> hawks = new HashSet<HawkConfig>();
@@ -291,6 +293,41 @@ public class HManager {
 			preferences.remove("config");
 		}
 		firstRun = false;
+	}
+
+	private void saveHawkToMetadata(HModel e) {
+		IEclipsePreferences preferences = getPreferences();
+		String xml = preferences.get("config", null);
+
+		XStream stream = new XStream(new DomDriver());
+		stream.processAnnotations(HawksConfig.class);
+		stream.processAnnotations(HawkConfig.class);
+		stream.setClassLoader(HawksConfig.class.getClassLoader());
+
+		HawksConfig hc = null;
+		try {
+			if (xml != null) {
+				hc = (HawksConfig) stream.fromXML(xml);
+			}
+
+			Set<HawkConfig> locs = new HashSet<HawkConfig>();
+			if (hc != null) {
+				locs.addAll(hc.getConfigs());
+			}
+
+			locs.add(new HawkConfig(e.getName(), e.getFolder()));
+	
+			xml = stream.toXML(new HawksConfig(locs));
+			preferences.put("config", xml);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			preferences.remove("config");
+		}
+	}
+
+	public static IEclipsePreferences getPreferences() {
+		final String bundleName = FrameworkUtil.getBundle(HManager.class).getSymbolicName();
+		return InstanceScope.INSTANCE.getNode(bundleName);
 	}
 
 }

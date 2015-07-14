@@ -59,12 +59,14 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
+		HManager.getPreferences().flush();
 		this.hawkManager = new HManager();
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
+		HManager.getPreferences().sync();
 		hawkManager.stopAllRunningInstances();
 	}
 
