@@ -132,6 +132,9 @@ class Hawk {
 	op String[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound;
+
+	@doc(d="Lists the available repository types in this installation")
+	op String[*] listRepositoryTypes();
 	
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (

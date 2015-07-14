@@ -233,7 +233,7 @@ service Users {
 /* The following service operations expose the capabilities of the Hawk heterogeneous model indexing
    framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3. */
 service Hawk {
-  /* Creates a new Hawk instance. Auth needed: Yes */
+  /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name, 
   )
@@ -244,7 +244,7 @@ service Hawk {
 	
   /* Removes an existing Hawk instance. Auth needed: Yes */
   void removeInstance(
-	/* The name of the Hawk instance to remove. */ 1: required string name,
+	/* The name of the Hawk instance to remove. */ 1: required string name, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -311,7 +311,7 @@ service Hawk {
   /* Returns populated model elements for the provided proxies. Auth needed: Yes */
   list<ModelElement> resolveProxies(
 	/* The name of the Hawk instance. */ 1: required string name, 
-	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids,
+	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -346,6 +346,10 @@ service Hawk {
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	) 
+	
+  /* Lists the available repository types in this installation. Auth needed: Yes */
+  list<string> listRepositoryTypes(
+  )
 	
   /* Lists the paths of the files of the indexed repository. Auth needed: Yes */
   list<string> listFiles(
@@ -388,7 +392,7 @@ service Hawk {
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	) 
 	
-  /* Lists the derived attributes of a Hawk instance. Auth needed: Yes */
+  /* Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated. Auth needed: Yes */
   list<DerivedAttributeSpec> listDerivedAttributes(
 	/* The name of the Hawk instance. */ 1: required string name, 
   )
@@ -425,17 +429,17 @@ service Hawk {
 	
   /* Returns the full contents of a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getAllContents(
-	/* The name of the Hawk instance. */ 1: required string name,
+	/* The name of the Hawk instance. */ 1: required string name, 
   )
   throws (
-	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */
-	)
-
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	) 
+	
   /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri, 
-	/* The path of the model file(s) in the repository. */ 3: required string filePath,
+	/* The path of the model file(s) in the repository. */ 3: required string filePath, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

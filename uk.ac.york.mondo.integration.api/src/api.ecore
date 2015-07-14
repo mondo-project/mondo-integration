@@ -256,6 +256,11 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="listRepositoryTypes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Lists the available repository types in this installation"/>
+      </eAnnotations>
+    </eOperations>
     <eOperations name="listFiles" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         eExceptions="#//HawkInstanceNotFound">
       <eAnnotations source="doc">
