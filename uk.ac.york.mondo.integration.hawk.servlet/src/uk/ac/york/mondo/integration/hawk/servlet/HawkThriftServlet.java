@@ -23,15 +23,14 @@ import java.util.NoSuchElementException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServlet;
-import org.eclipse.core.runtime.CoreException;
 import org.hawk.core.graph.IGraphIterable;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
-import org.hawk.core.util.HawkConfig;
 import org.hawk.neo4j_v2.Neo4JDatabase;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +84,7 @@ public class HawkThriftServlet extends TServlet {
 			for (File f : metamodels) {
 				try {
 					// Remove path separators for now (UNIX-style / and Windows-style \)
-					final String safeName = f.name.replaceAll("/", "_").replaceAll("\\", "_");
+					final String safeName = f.name.replaceAll("/", "_").replaceAll("\\\\", "_");
 					final java.io.File dataFile = Activator.getInstance().writeToDataFile(safeName, f.contents);
 					// TODO No way to report a bad file?
 					model.registerMeta(dataFile);
@@ -149,14 +148,9 @@ public class HawkThriftServlet extends TServlet {
 			// TODO Integrate with centralized repositories API
 			final HModel model = getHawkByName(name);
 			try {
-				model.addEncryptedVCS(uri, type, credentials.username, credentials.password);
+				model.addVCS(uri, type, credentials.username, credentials.password);
 			} catch (NoSuchElementException ex) {
 				throw new UnknownRepositoryType();
-			} catch (CoreException ex) {
-				throw new TException(ex);
-			} catch (Exception ex) {
-				// TODO Need more detailed exceptions from IVcsManager.run
-				throw new VCSAuthenticationFailed();
 			}
 		}
 
@@ -174,6 +168,11 @@ public class HawkThriftServlet extends TServlet {
 		public List<String> listRepositories(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			return new ArrayList<String>(model.getLocations());
+		}
+
+		@Override
+		public List<String> listRepositoryTypes() throws TException {
+			return new ArrayList<String>(manager.getVCSTypes());
 		}
 
 		@Override
@@ -316,7 +315,11 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void removeInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			manager.delete(model, true);
+			try {
+				manager.delete(model, true);
+			} catch (BackingStoreException e) {
+				throw new TException(e.getMessage(), e);
+			}
 		}
 
 		@Override

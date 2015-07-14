@@ -35,6 +35,7 @@ import org.hawk.core.runtime.LocalHawk;
 import org.hawk.core.util.HawkConfig;
 import org.hawk.core.util.HawkProperties;
 import org.hawk.core.util.HawksConfig;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -242,7 +243,7 @@ public class HModel {
 		return q.contextfullQuery(hawk.getModelIndexer().getGraph(), query, context);
 	}
 
-	public void delete() {
+	public void delete() throws BackingStoreException {
 		removeHawkFromMetadata(new HawkConfig(getName(), getFolder()));
 
 		File f = hawk.getModelIndexer().getParentFolder();
@@ -354,8 +355,8 @@ public class HModel {
 		return true;
 	}
 
-	public void removeHawkFromMetadata(HawkConfig config) {
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode("org.hawk.ui2");
+	public void removeHawkFromMetadata(HawkConfig config) throws BackingStoreException {
+		IEclipsePreferences preferences = HManager.getPreferences();
 
 		String xml = preferences.get("config", null);
 
@@ -368,6 +369,7 @@ public class HModel {
 			hc.removeLoc(config);
 			xml = stream.toXML(hc);
 			preferences.put("config", xml);
+			preferences.flush();
 		} else {
 			getConsole().printerrln("removeHawkFromMetadata tried to load preferences but it could not.");
 		}

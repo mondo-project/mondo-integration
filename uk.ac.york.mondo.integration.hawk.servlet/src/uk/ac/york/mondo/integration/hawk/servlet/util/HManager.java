@@ -31,18 +31,27 @@ import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.util.HawkConfig;
 import org.hawk.core.util.HawksConfig;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.prefs.BackingStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class HManager {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HManager.class);
 	private static HManager inst;
 
 	public static HManager getInstance() {
 		if (inst == null)
 			inst = new HManager();
 		return inst;
+	}
+
+	public static IEclipsePreferences getPreferences() {
+		final String bundleName = FrameworkUtil.getBundle(HManager.class).getSymbolicName();
+		return InstanceScope.INSTANCE.getNode(bundleName);
 	}
 
 	private static void createExecutableExtensions(final String propertyName,
@@ -128,14 +137,13 @@ public class HManager {
 		throw new NoSuchElementException("cannot instantiate this type of manager: " + s);
 	}
 
-	public void delete(HModel o, boolean exists) {
+	public void delete(HModel o, boolean exists) throws BackingStoreException {
 		if (all.contains(o)) {
 			if (exists) {
 				o.stop();
 				o.delete();
 			} else {
-				o.removeHawkFromMetadata(new HawkConfig(o.getName(), o
-						.getFolder()));
+				o.removeHawkFromMetadata(new HawkConfig(o.getName(), o.getFolder()));
 			}
 			all.remove(o);
 		} else {
@@ -294,9 +302,9 @@ public class HManager {
 		firstRun = false;
 	}
 
-	public void saveHawkToMetadata(HModel e) {
-		IEclipsePreferences preferences = getPreferences();
-		String xml = preferences.get("config", null);
+	public void saveHawkToMetadata(HModel e) throws BackingStoreException {
+		final IEclipsePreferences preferences = getPreferences();
+		final String oldXML = preferences.get("config", null);
 
 		XStream stream = new XStream(new DomDriver());
 		stream.processAnnotations(HawksConfig.class);
@@ -305,8 +313,8 @@ public class HManager {
 
 		HawksConfig hc = null;
 		try {
-			if (xml != null) {
-				hc = (HawksConfig) stream.fromXML(xml);
+			if (oldXML != null) {
+				hc = (HawksConfig) stream.fromXML(oldXML);
 			}
 
 			Set<HawkConfig> locs = new HashSet<HawkConfig>();
@@ -315,18 +323,12 @@ public class HManager {
 			}
 
 			locs.add(new HawkConfig(e.getName(), e.getFolder()));
-	
-			xml = stream.toXML(new HawksConfig(locs));
+			final String xml = stream.toXML(new HawksConfig(locs));
 			preferences.put("config", xml);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			preferences.remove("config");
+			preferences.put("config", oldXML);
 		}
-	}
-
-	public static IEclipsePreferences getPreferences() {
-		final String bundleName = FrameworkUtil.getBundle(HManager.class).getSymbolicName();
-		return InstanceScope.INSTANCE.getNode(bundleName);
+		preferences.flush();
 	}
 
 }

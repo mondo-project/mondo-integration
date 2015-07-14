@@ -19,11 +19,14 @@ import java.nio.channels.FileChannel;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.hawk.servlet.util.HManager;
 
 public class Activator implements BundleActivator {
 
+	private static Logger LOGGER = LoggerFactory.getLogger(Activator.class);
 	private static BundleContext context;
 	private static Activator instance;
 	private HManager hawkManager;
@@ -59,14 +62,12 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		HManager.getPreferences().flush();
 		this.hawkManager = new HManager();
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
-		HManager.getPreferences().sync();
 		hawkManager.stopAllRunningInstances();
 	}
 
