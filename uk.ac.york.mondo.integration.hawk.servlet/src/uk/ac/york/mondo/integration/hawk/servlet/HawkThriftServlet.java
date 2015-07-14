@@ -30,6 +30,7 @@ import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.util.HawkConfig;
+import org.hawk.neo4j_v2.Neo4JDatabase;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -294,11 +295,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void createInstance(String name) throws TException {
 			try {
-				final HawkConfig config = new HawkConfig();
-				config.setName(name);
-
-				config.setLoc(storageFolder(name).getPath());
-				manager.addHawk(new HModel(manager, config, false));
+				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), manager);
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}

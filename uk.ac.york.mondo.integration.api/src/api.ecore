@@ -79,7 +79,7 @@
     </eAnnotations>
     <eOperations name="createInstance">
       <eAnnotations source="doc">
-        <details key="d" value="Creates a new Hawk instance."/>
+        <details key="d" value="Creates a new Hawk instance (stopped)."/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">

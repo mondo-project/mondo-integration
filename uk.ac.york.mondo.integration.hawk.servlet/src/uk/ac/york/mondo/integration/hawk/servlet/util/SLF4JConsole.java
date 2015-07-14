@@ -20,12 +20,12 @@ public class SLF4JConsole implements IAbstractConsole {
 
 	@Override
 	public void println(String s) {
-		LOGGER.info(s);		
+		LOGGER.info(s);
 	}
 
 	@Override
 	public void printerrln(String s) {
-		LOGGER.error(s);	
+		LOGGER.error(s);
 	}
 
 	@Override

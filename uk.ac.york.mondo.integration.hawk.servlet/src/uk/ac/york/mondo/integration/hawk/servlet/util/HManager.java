@@ -100,7 +100,6 @@ public class HManager {
 
 	public void addHawk(HModel e) {
 		all.add(e);
-		saveHawkToMetadata(e);
 	}
 
 	public IGraphDatabase createGraph(IHawk hawk) throws Exception {
@@ -295,7 +294,7 @@ public class HManager {
 		firstRun = false;
 	}
 
-	private void saveHawkToMetadata(HModel e) {
+	public void saveHawkToMetadata(HModel e) {
 		IEclipsePreferences preferences = getPreferences();
 		String xml = preferences.get("config", null);
 

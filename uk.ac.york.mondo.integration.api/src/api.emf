@@ -58,7 +58,7 @@ The following service operations expose the capabilities of the Hawk heterogeneo
 framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3
 ")
 class Hawk {
-	@doc(d="Creates a new Hawk instance.")
+	@doc(d="Creates a new Hawk instance (stopped).")
 	op void createInstance(
 		@doc(d="The unique name of the new Hawk instance") String name
 	);

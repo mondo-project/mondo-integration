@@ -12,7 +12,9 @@ package uk.ac.york.mondo.integration.hawk.cli;
 
 import java.net.ConnectException;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
+import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
@@ -29,6 +31,10 @@ public class HawkCommandProvider implements CommandProvider {
 	private Hawk.Client client;
 	private String currentInstance;
 
+	public Object _hawkHelp(CommandInterpreter intp) {
+		return getHelp();
+	}
+
 	/* CONNECTION HANDLING */
 
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
@@ -36,11 +42,12 @@ public class HawkCommandProvider implements CommandProvider {
 
 		final THttpClient transport = new THttpClient(url);
 		client = new Hawk.Client(new TCompactProtocol(transport));
+		currentInstance = null;
+
 		transport.open();
 		if (transport.isOpen()) {
-			System.out.println(String.format("Connected to URL %s", url));
+			return String.format("Connected to URL %s", url);
 		}
-
 		return null;
 	}
 
@@ -49,8 +56,11 @@ public class HawkCommandProvider implements CommandProvider {
 			client.getInputProtocol().getTransport().close();
 			client = null;
 			currentInstance = null;
+			return String.format("Connection closed");
 		}
-		return null;
+		else {
+			return "Connection already closed";
+		}
 	}
 
 	/* INSTANCE HANDLING */
@@ -59,39 +69,60 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnection();
 		Collection<HawkInstance> instances = client.listInstances();
 		if (instances.isEmpty()) {
-			System.out.println("No instances exist");
+			return "No instances exist";
 		} else {
+			StringBuffer sbuf = new StringBuffer();
 			for (HawkInstance i : instances) {
-				System.out.println(String.format("%s (%s)", i.name, i.running ? "running" : "stopped"));
+				sbuf.append(String.format("%s (%s)\n", i.name, i.running ? "running" : "stopped"));
 			}
+			return sbuf.toString();
 		}
-		return null;
 	}
 
 	public Object _hawkAddInstance(CommandInterpreter intp) throws Exception {
 		checkConnection();
 		final String name = requiredArgument(intp, "name");
 		client.createInstance(name);
-		return null;
+		return String.format("Created instance %s", name);
 	}
 
 	public Object _hawkRemoveInstance(CommandInterpreter intp) throws Exception {
 		checkConnection();
 		final String name = requiredArgument(intp, "name");
 		client.removeInstance(name);
-		return null;
+		return String.format("Removed instance %s", name);
 	}
 
 	public Object _hawkSelectInstance(CommandInterpreter intp) throws Exception {
 		checkConnection();
 		final String name = requiredArgument(intp, "name");
-		for (HawkInstance i : client.listInstances()) {
-			if (i.name.equals(name)) {
-				currentInstance = name;
-				return null;
-			}
+		findInstance(name);
+		currentInstance = name;
+		return String.format("Selected instance %s", name);
+	}
+
+	public Object _hawkStartInstance(CommandInterpreter intp) throws Exception {
+		checkConnection();
+		final String name = requiredArgument(intp, "name");
+		final HawkInstance hi = findInstance(name);
+		if (!hi.running) {
+			client.startInstance(name);
+			return String.format("Started instance %s", name);
+		} else {
+			return String.format("Instance %s was already running", name);
 		}
-		throw new IllegalArgumentException(String.format("No instance exists with the name '%s'", name));
+	}
+
+	public Object _hawkStopInstance(CommandInterpreter intp) throws Exception {
+		checkConnection();
+		final String name = requiredArgument(intp, "name");
+		final HawkInstance hi = findInstance(name);
+		if (hi.running) {
+			client.stopInstance(name);
+			return String.format("Stopped instance %s", name);
+		} else {
+			return String.format("Instance %s was already stopped", name);
+		}
 	}
 
 	/**
@@ -104,6 +135,23 @@ public class HawkCommandProvider implements CommandProvider {
 		if (client == null) {
 			throw new ConnectException("Please connect to a Thrift endpoint first!");
 		}
+	}
+
+	/**
+	 * Queries the Thrift endpoint about the specified instance.
+	 *
+	 * @throws NoSuchElementException
+	 *             No instance exists with that name.
+	 * @throws TException
+	 *             Server or communication error with the Thrift endpoint.
+	 */
+	private HawkInstance findInstance(final String name) throws TException {
+		for (HawkInstance i : client.listInstances()) {
+			if (i.name.equals(name)) {
+				return i;
+			}
+		}
+		throw new NoSuchElementException(String.format("No instance exists with the name '%s'", name));
 	}
 
 	/**

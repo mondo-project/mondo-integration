@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.hawk.core.dependencies,
  org.slf4j.api;bundle-version="1.7.2",
  org.hawk.core;bundle-version="1.0.0",
- org.apache.thrift;bundle-version="0.9.2"
+ org.apache.thrift;bundle-version="0.9.2",
+ org.hawk.neo4j-v2;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.servlet;version="2.6.0",
