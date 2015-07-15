@@ -916,12 +916,12 @@
         <details key="d" value="The URI of the metamodel to which the indexed attribute belongs"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="typename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="typeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The name of the type to which the indexed attribute belongs"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="attributename" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="attributeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The name of the indexed attribute"/>
       </eAnnotations>
@@ -949,31 +949,37 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="attributeType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The (primitive) type of the derived attribute"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="isMany" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
       <eAnnotations source="doc">
         <details key="d" value="The multiplicity of the derived attribute"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="isOrdered" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
       <eAnnotations source="doc">
         <details key="d" value="A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="isUnique" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
       <eAnnotations source="doc">
         <details key="d" value="A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="derivationLanguage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="The language used to express the derivation logic (EOL is the only supported value so far)"/>
+        <details key="d" value="The language used to express the derivation logic"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="derivationLogic" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="An executable expression of the derivation logic in the language above"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

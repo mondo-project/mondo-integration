@@ -41,12 +41,12 @@ struct DerivedAttributeSpec {
 	 /* The URI of the metamodel to which the derived attribute belongs. */ 1: required string metamodelUri,
 	 /* The name of the type to which the derived attribute belongs. */ 2: required string typeName,
 	 /* The name of the derived attribute. */ 3: required string attributeName,
-	 /* The (primitive) type of the derived attribute. */ 4: required string attributeType,
-	 /* The multiplicity of the derived attribute. */ 5: required bool isMany,
-	 /* A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true). */ 6: required bool isOrdered,
-	 /* A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true). */ 7: required bool isUnique,
-	 /* The language used to express the derivation logic (EOL is the only supported value so far). */ 8: required string derivationLanguage,
-	 /* An executable expression of the derivation logic in the language above. */ 9: required string derivationLogic,
+	 /* The (primitive) type of the derived attribute. */ 4: optional string attributeType,
+	 /* The multiplicity of the derived attribute. */ 5: optional bool isMany,
+	 /* A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true). */ 6: optional bool isOrdered,
+	 /* A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true). */ 7: optional bool isUnique,
+	 /* The language used to express the derivation logic. */ 8: optional string derivationLanguage,
+	 /* An executable expression of the derivation logic in the language above. */ 9: optional string derivationLogic,
 }
 
 struct File {
@@ -61,8 +61,8 @@ struct HawkInstance {
 
 struct IndexedAttributeSpec {
 	 /* The URI of the metamodel to which the indexed attribute belongs. */ 1: required string metamodelUri,
-	 /* The name of the type to which the indexed attribute belongs. */ 2: required string typename,
-	 /* The name of the indexed attribute. */ 3: required string attributename,
+	 /* The name of the type to which the indexed attribute belongs. */ 2: required string typeName,
+	 /* The name of the indexed attribute. */ 3: required string attributeName,
 }
 
 struct ModelSpec {

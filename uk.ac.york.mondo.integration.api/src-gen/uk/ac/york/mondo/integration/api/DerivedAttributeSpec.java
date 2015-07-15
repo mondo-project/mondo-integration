@@ -57,12 +57,12 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
   public String metamodelUri; // required
   public String typeName; // required
   public String attributeName; // required
-  public String attributeType; // required
-  public boolean isMany; // required
-  public boolean isOrdered; // required
-  public boolean isUnique; // required
-  public String derivationLanguage; // required
-  public String derivationLogic; // required
+  public String attributeType; // optional
+  public boolean isMany; // optional
+  public boolean isOrdered; // optional
+  public boolean isUnique; // optional
+  public String derivationLanguage; // optional
+  public String derivationLogic; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -151,6 +151,7 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
   private static final int __ISORDERED_ISSET_ID = 1;
   private static final int __ISUNIQUE_ISSET_ID = 2;
   private byte __isset_bitfield = 0;
+  private static final _Fields optionals[] = {_Fields.ATTRIBUTE_TYPE,_Fields.IS_MANY,_Fields.IS_ORDERED,_Fields.IS_UNIQUE,_Fields.DERIVATION_LANGUAGE,_Fields.DERIVATION_LOGIC};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -160,17 +161,17 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ATTRIBUTE_NAME, new org.apache.thrift.meta_data.FieldMetaData("attributeName", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.ATTRIBUTE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("attributeType", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.ATTRIBUTE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("attributeType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IS_MANY, new org.apache.thrift.meta_data.FieldMetaData("isMany", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.IS_MANY, new org.apache.thrift.meta_data.FieldMetaData("isMany", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.IS_ORDERED, new org.apache.thrift.meta_data.FieldMetaData("isOrdered", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.IS_ORDERED, new org.apache.thrift.meta_data.FieldMetaData("isOrdered", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.IS_UNIQUE, new org.apache.thrift.meta_data.FieldMetaData("isUnique", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.IS_UNIQUE, new org.apache.thrift.meta_data.FieldMetaData("isUnique", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.DERIVATION_LANGUAGE, new org.apache.thrift.meta_data.FieldMetaData("derivationLanguage", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.DERIVATION_LANGUAGE, new org.apache.thrift.meta_data.FieldMetaData("derivationLanguage", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.DERIVATION_LOGIC, new org.apache.thrift.meta_data.FieldMetaData("derivationLogic", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.DERIVATION_LOGIC, new org.apache.thrift.meta_data.FieldMetaData("derivationLogic", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(DerivedAttributeSpec.class, metaDataMap);
@@ -182,27 +183,12 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
   public DerivedAttributeSpec(
     String metamodelUri,
     String typeName,
-    String attributeName,
-    String attributeType,
-    boolean isMany,
-    boolean isOrdered,
-    boolean isUnique,
-    String derivationLanguage,
-    String derivationLogic)
+    String attributeName)
   {
     this();
     this.metamodelUri = metamodelUri;
     this.typeName = typeName;
     this.attributeName = attributeName;
-    this.attributeType = attributeType;
-    this.isMany = isMany;
-    setIsManyIsSet(true);
-    this.isOrdered = isOrdered;
-    setIsOrderedIsSet(true);
-    this.isUnique = isUnique;
-    setIsUniqueIsSet(true);
-    this.derivationLanguage = derivationLanguage;
-    this.derivationLogic = derivationLogic;
   }
 
   /**
@@ -654,8 +640,8 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
         return false;
     }
 
-    boolean this_present_isMany = true;
-    boolean that_present_isMany = true;
+    boolean this_present_isMany = true && this.isSetIsMany();
+    boolean that_present_isMany = true && that.isSetIsMany();
     if (this_present_isMany || that_present_isMany) {
       if (!(this_present_isMany && that_present_isMany))
         return false;
@@ -663,8 +649,8 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
         return false;
     }
 
-    boolean this_present_isOrdered = true;
-    boolean that_present_isOrdered = true;
+    boolean this_present_isOrdered = true && this.isSetIsOrdered();
+    boolean that_present_isOrdered = true && that.isSetIsOrdered();
     if (this_present_isOrdered || that_present_isOrdered) {
       if (!(this_present_isOrdered && that_present_isOrdered))
         return false;
@@ -672,8 +658,8 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
         return false;
     }
 
-    boolean this_present_isUnique = true;
-    boolean that_present_isUnique = true;
+    boolean this_present_isUnique = true && this.isSetIsUnique();
+    boolean that_present_isUnique = true && that.isSetIsUnique();
     if (this_present_isUnique || that_present_isUnique) {
       if (!(this_present_isUnique && that_present_isUnique))
         return false;
@@ -726,17 +712,17 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
     if (present_attributeType)
       list.add(attributeType);
 
-    boolean present_isMany = true;
+    boolean present_isMany = true && (isSetIsMany());
     list.add(present_isMany);
     if (present_isMany)
       list.add(isMany);
 
-    boolean present_isOrdered = true;
+    boolean present_isOrdered = true && (isSetIsOrdered());
     list.add(present_isOrdered);
     if (present_isOrdered)
       list.add(isOrdered);
 
-    boolean present_isUnique = true;
+    boolean present_isUnique = true && (isSetIsUnique());
     list.add(present_isUnique);
     if (present_isUnique)
       list.add(isUnique);
@@ -895,42 +881,54 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
       sb.append(this.attributeName);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("attributeType:");
-    if (this.attributeType == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.attributeType);
+    if (isSetAttributeType()) {
+      if (!first) sb.append(", ");
+      sb.append("attributeType:");
+      if (this.attributeType == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.attributeType);
+      }
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("isMany:");
-    sb.append(this.isMany);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("isOrdered:");
-    sb.append(this.isOrdered);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("isUnique:");
-    sb.append(this.isUnique);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("derivationLanguage:");
-    if (this.derivationLanguage == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.derivationLanguage);
+    if (isSetIsMany()) {
+      if (!first) sb.append(", ");
+      sb.append("isMany:");
+      sb.append(this.isMany);
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("derivationLogic:");
-    if (this.derivationLogic == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.derivationLogic);
+    if (isSetIsOrdered()) {
+      if (!first) sb.append(", ");
+      sb.append("isOrdered:");
+      sb.append(this.isOrdered);
+      first = false;
     }
-    first = false;
+    if (isSetIsUnique()) {
+      if (!first) sb.append(", ");
+      sb.append("isUnique:");
+      sb.append(this.isUnique);
+      first = false;
+    }
+    if (isSetDerivationLanguage()) {
+      if (!first) sb.append(", ");
+      sb.append("derivationLanguage:");
+      if (this.derivationLanguage == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.derivationLanguage);
+      }
+      first = false;
+    }
+    if (isSetDerivationLogic()) {
+      if (!first) sb.append(", ");
+      sb.append("derivationLogic:");
+      if (this.derivationLogic == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.derivationLogic);
+      }
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -945,18 +943,6 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
     }
     if (attributeName == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributeName' was not present! Struct: " + toString());
-    }
-    if (attributeType == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributeType' was not present! Struct: " + toString());
-    }
-    // alas, we cannot check 'isMany' because it's a primitive and you chose the non-beans generator.
-    // alas, we cannot check 'isOrdered' because it's a primitive and you chose the non-beans generator.
-    // alas, we cannot check 'isUnique' because it's a primitive and you chose the non-beans generator.
-    if (derivationLanguage == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'derivationLanguage' was not present! Struct: " + toString());
-    }
-    if (derivationLogic == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'derivationLogic' was not present! Struct: " + toString());
     }
     // check for sub-struct validity
   }
@@ -1077,15 +1063,6 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetIsMany()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isMany' was not found in serialized data! Struct: " + toString());
-      }
-      if (!struct.isSetIsOrdered()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isOrdered' was not found in serialized data! Struct: " + toString());
-      }
-      if (!struct.isSetIsUnique()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isUnique' was not found in serialized data! Struct: " + toString());
-      }
       struct.validate();
     }
 
@@ -1109,28 +1086,40 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
         oprot.writeFieldEnd();
       }
       if (struct.attributeType != null) {
-        oprot.writeFieldBegin(ATTRIBUTE_TYPE_FIELD_DESC);
-        oprot.writeString(struct.attributeType);
+        if (struct.isSetAttributeType()) {
+          oprot.writeFieldBegin(ATTRIBUTE_TYPE_FIELD_DESC);
+          oprot.writeString(struct.attributeType);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.isSetIsMany()) {
+        oprot.writeFieldBegin(IS_MANY_FIELD_DESC);
+        oprot.writeBool(struct.isMany);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(IS_MANY_FIELD_DESC);
-      oprot.writeBool(struct.isMany);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(IS_ORDERED_FIELD_DESC);
-      oprot.writeBool(struct.isOrdered);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(IS_UNIQUE_FIELD_DESC);
-      oprot.writeBool(struct.isUnique);
-      oprot.writeFieldEnd();
-      if (struct.derivationLanguage != null) {
-        oprot.writeFieldBegin(DERIVATION_LANGUAGE_FIELD_DESC);
-        oprot.writeString(struct.derivationLanguage);
+      if (struct.isSetIsOrdered()) {
+        oprot.writeFieldBegin(IS_ORDERED_FIELD_DESC);
+        oprot.writeBool(struct.isOrdered);
         oprot.writeFieldEnd();
+      }
+      if (struct.isSetIsUnique()) {
+        oprot.writeFieldBegin(IS_UNIQUE_FIELD_DESC);
+        oprot.writeBool(struct.isUnique);
+        oprot.writeFieldEnd();
+      }
+      if (struct.derivationLanguage != null) {
+        if (struct.isSetDerivationLanguage()) {
+          oprot.writeFieldBegin(DERIVATION_LANGUAGE_FIELD_DESC);
+          oprot.writeString(struct.derivationLanguage);
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.derivationLogic != null) {
-        oprot.writeFieldBegin(DERIVATION_LOGIC_FIELD_DESC);
-        oprot.writeString(struct.derivationLogic);
-        oprot.writeFieldEnd();
+        if (struct.isSetDerivationLogic()) {
+          oprot.writeFieldBegin(DERIVATION_LOGIC_FIELD_DESC);
+          oprot.writeString(struct.derivationLogic);
+          oprot.writeFieldEnd();
+        }
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -1152,12 +1141,44 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
       oprot.writeString(struct.metamodelUri);
       oprot.writeString(struct.typeName);
       oprot.writeString(struct.attributeName);
-      oprot.writeString(struct.attributeType);
-      oprot.writeBool(struct.isMany);
-      oprot.writeBool(struct.isOrdered);
-      oprot.writeBool(struct.isUnique);
-      oprot.writeString(struct.derivationLanguage);
-      oprot.writeString(struct.derivationLogic);
+      BitSet optionals = new BitSet();
+      if (struct.isSetAttributeType()) {
+        optionals.set(0);
+      }
+      if (struct.isSetIsMany()) {
+        optionals.set(1);
+      }
+      if (struct.isSetIsOrdered()) {
+        optionals.set(2);
+      }
+      if (struct.isSetIsUnique()) {
+        optionals.set(3);
+      }
+      if (struct.isSetDerivationLanguage()) {
+        optionals.set(4);
+      }
+      if (struct.isSetDerivationLogic()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
+      if (struct.isSetAttributeType()) {
+        oprot.writeString(struct.attributeType);
+      }
+      if (struct.isSetIsMany()) {
+        oprot.writeBool(struct.isMany);
+      }
+      if (struct.isSetIsOrdered()) {
+        oprot.writeBool(struct.isOrdered);
+      }
+      if (struct.isSetIsUnique()) {
+        oprot.writeBool(struct.isUnique);
+      }
+      if (struct.isSetDerivationLanguage()) {
+        oprot.writeString(struct.derivationLanguage);
+      }
+      if (struct.isSetDerivationLogic()) {
+        oprot.writeString(struct.derivationLogic);
+      }
     }
 
     @Override
@@ -1169,18 +1190,31 @@ public class DerivedAttributeSpec implements org.apache.thrift.TBase<DerivedAttr
       struct.setTypeNameIsSet(true);
       struct.attributeName = iprot.readString();
       struct.setAttributeNameIsSet(true);
-      struct.attributeType = iprot.readString();
-      struct.setAttributeTypeIsSet(true);
-      struct.isMany = iprot.readBool();
-      struct.setIsManyIsSet(true);
-      struct.isOrdered = iprot.readBool();
-      struct.setIsOrderedIsSet(true);
-      struct.isUnique = iprot.readBool();
-      struct.setIsUniqueIsSet(true);
-      struct.derivationLanguage = iprot.readString();
-      struct.setDerivationLanguageIsSet(true);
-      struct.derivationLogic = iprot.readString();
-      struct.setDerivationLogicIsSet(true);
+      BitSet incoming = iprot.readBitSet(6);
+      if (incoming.get(0)) {
+        struct.attributeType = iprot.readString();
+        struct.setAttributeTypeIsSet(true);
+      }
+      if (incoming.get(1)) {
+        struct.isMany = iprot.readBool();
+        struct.setIsManyIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.isOrdered = iprot.readBool();
+        struct.setIsOrderedIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.isUnique = iprot.readBool();
+        struct.setIsUniqueIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.derivationLanguage = iprot.readString();
+        struct.setDerivationLanguageIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.derivationLogic = iprot.readString();
+        struct.setDerivationLogicIsSet(true);
+      }
     }
   }
 

@@ -461,9 +461,9 @@ class IndexedAttributeSpec {
 	@doc(d="The URI of the metamodel to which the indexed attribute belongs")
 	attr String metamodelUri;
 	@doc(d="The name of the type to which the indexed attribute belongs")
-	attr String typename; 
+	attr String typeName; 
 	@doc(d="The name of the indexed attribute")
-	attr String attributename;
+	attr String attributeName;
 }
 
 @doc(d="Used to configure Hawk's derived attributes (discussed in D5.3)")
@@ -474,17 +474,17 @@ class DerivedAttributeSpec {
 	attr String typeName;
 	@doc(d="The name of the derived attribute")
 	attr String attributeName;
-	@doc(d="The (primitive) type of the derived attribute")
+	@doc(d="The (primitive) type of the derived attribute", optional="true")
 	attr String attributeType;
-	@doc(d="The multiplicity of the derived attribute")
+	@doc(d="The multiplicity of the derived attribute", optional="true")
 	attr boolean isMany;
-	@doc(d="A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true)")
+	@doc(d="A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true)", optional="true")
 	attr boolean isOrdered;
-	@doc(d="A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true)")
+	@doc(d="A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true)", optional="true")
 	attr boolean isUnique;
-	@doc(d="The language used to express the derivation logic (EOL is the only supported value so far)")
+	@doc(d="The language used to express the derivation logic", optional="true")
 	attr String derivationLanguage;
-	@doc(d="An executable expression of the derivation logic in the language above")
+	@doc(d="An executable expression of the derivation logic in the language above", optional="true")
 	attr String derivationLogic;
 }
 

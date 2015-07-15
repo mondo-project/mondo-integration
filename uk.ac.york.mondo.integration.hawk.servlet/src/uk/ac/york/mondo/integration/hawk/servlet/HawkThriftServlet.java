@@ -261,7 +261,7 @@ public class HawkThriftServlet extends TServlet {
 				TException {
 			final HModel model = getHawkByName(name);
 			try {
-				model.addIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
+				model.addIndexedAttribute(spec.metamodelUri, spec.typeName, spec.attributeName);
 			} catch (Exception e) {
 				throw new TException(e);
 			}
@@ -270,7 +270,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void removeIndexedAttribute(String name, IndexedAttributeSpec spec) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			model.removeIndexedAttribute(spec.metamodelUri, spec.typename, spec.attributename);
+			model.removeIndexedAttribute(spec.metamodelUri, spec.typeName, spec.attributeName);
 		}
 
 		@Override

@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -27,12 +26,14 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import uk.ac.york.mondo.integration.api.Credentials;
+import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 
 /**
- * Simple command-line based client for a remote Hawk instance.
+ * Simple command-line based client for a remote Hawk instance, using the Thrift API.
  */
 public class HawkCommandProvider implements CommandProvider {
 
@@ -237,6 +238,87 @@ public class HawkCommandProvider implements CommandProvider {
 		return "Result: " + ret;
 	}
 
+	/* INDEXED ATTRIBUTES */
+
+	public Object _hawkListIndexedAttributes(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		List<String> lines = new ArrayList<>();
+		for (IndexedAttributeSpec spec : client.listIndexedAttributes(currentInstance)) {
+			lines.add(String.format("metamodel '%s', type '%s', indexed attribute '%s'",
+					spec.metamodelUri, spec.typeName, spec.attributeName));
+		}
+		return formatList(lines);
+	}
+
+	public Object _hawkAddIndexedAttribute(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String mmURI = requiredArgument(intp, "mmURI");
+		final String typeName = requiredArgument(intp, "typeName");
+		final String attributeName = requiredArgument(intp, "attributeName");
+		client.addIndexedAttribute(currentInstance, new IndexedAttributeSpec(mmURI, typeName, attributeName));
+		return String.format("Added indexed attribute '%s' to '%s' in '%s'", attributeName, typeName, mmURI);
+	}
+
+	public Object _hawkRemoveIndexedAttribute(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String mmURI = requiredArgument(intp, "mmURI");
+		final String typeName = requiredArgument(intp, "typeName");
+		final String attributeName = requiredArgument(intp, "attributeName");
+		client.removeIndexedAttribute(currentInstance, new IndexedAttributeSpec(mmURI, typeName, attributeName));
+		return String.format("Removed indexed attribute '%s' from '%s' in '%s'", attributeName, typeName, mmURI);
+	}
+
+	/* DERIVED ATTRIBUTES */
+
+	public Object _hawkListDerivedAttributes(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		List<String> lines = new ArrayList<>();
+		for (DerivedAttributeSpec spec : client.listDerivedAttributes(currentInstance)) {
+			lines.add(String.format("metamodel '%s', type '%s', derived attribute '%s'",
+					spec.metamodelUri, spec.typeName, spec.attributeName));
+		}
+		return formatList(lines);
+	}
+
+	public Object _hawkAddDerivedAttribute(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+
+		DerivedAttributeSpec spec = new DerivedAttributeSpec();
+		spec.metamodelUri = requiredArgument(intp, "mmURI");
+		spec.typeName = requiredArgument(intp, "typeName");
+		spec.attributeName = requiredArgument(intp, "attributeName");
+		spec.attributeType = requiredArgument(intp, "attributeType");
+		spec.derivationLanguage = requiredArgument(intp, "lang");
+		spec.derivationLogic = requiredArgument(intp, "expr");
+
+		String nextArg;
+		while ((nextArg = intp.nextArgument()) != null) {
+			switch (nextArg.toLowerCase()) {
+			case "many": spec.isMany = true; break;
+			case "ordered": spec.isOrdered = true; break;
+			case "unique": spec.isUnique = true; break;
+			}
+		}
+
+		client.addDerivedAttribute(currentInstance, spec);
+		return String.format("Added derived attribute '%s' to '%s' in '%s'",
+			spec.attributeName, spec.typeName, spec.metamodelUri);
+	}
+
+	public Object _hawkRemoveDerivedAttribute(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String mmURI = requiredArgument(intp, "mmURI");
+		final String typeName = requiredArgument(intp, "typeName");
+		final String attributeName = requiredArgument(intp, "attributeName");
+
+		final DerivedAttributeSpec spec = new DerivedAttributeSpec();
+		spec.metamodelUri = mmURI;
+		spec.typeName = typeName;
+		spec.attributeName = attributeName;
+		client.removeDerivedAttribute(currentInstance, spec);
+		return String.format("Removed derived attribute '%s' from '%s' in '%s'", attributeName, typeName, mmURI);
+	}
+
 	/**
 	 * Ensures that a connection has been established.
 	 * @throws ConnectException No connection has been established yet.
@@ -273,11 +355,22 @@ public class HawkCommandProvider implements CommandProvider {
 		throw new NoSuchElementException(String.format("No instance exists with the name '%s'", name));
 	}
 
-	private Object formatList(final List<String> listFiles) {
-		if (listFiles.isEmpty()) {
+	private Object formatList(final List<String> elements) {
+		if (elements.isEmpty()) {
 			return "(no results)";
 		} else {
-			return StringUtils.join(listFiles, "\n");
+			StringBuffer sbuf = new StringBuffer();
+			boolean bFirst = true;
+			for (String element : elements) {
+				if (bFirst) {
+					bFirst = false;
+				} else {
+					sbuf.append("\n");
+				}
+				sbuf.append("\t- ");
+				sbuf.append(element);
+			}
+			return sbuf.toString();
 		}
 	}
 
@@ -303,9 +396,9 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
-		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkAddInstance <name> - adds an instance with the provided name\n\t");
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
+		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
 		sbuf.append("hawkStartInstance <name> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
@@ -322,6 +415,14 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("--Queries--\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
 		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n");
+		sbuf.append("--Derived attributes--\n\t");
+		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
+		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
+		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n");
+		sbuf.append("--Indexed attributes--\n\t");
+		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
+		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
+		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
 		return sbuf.toString();
 	}
 

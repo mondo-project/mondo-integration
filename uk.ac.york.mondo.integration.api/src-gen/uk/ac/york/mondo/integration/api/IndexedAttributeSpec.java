@@ -39,8 +39,8 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("IndexedAttributeSpec");
 
   private static final org.apache.thrift.protocol.TField METAMODEL_URI_FIELD_DESC = new org.apache.thrift.protocol.TField("metamodelUri", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField TYPENAME_FIELD_DESC = new org.apache.thrift.protocol.TField("typename", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField ATTRIBUTENAME_FIELD_DESC = new org.apache.thrift.protocol.TField("attributename", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField TYPE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("typeName", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField ATTRIBUTE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("attributeName", org.apache.thrift.protocol.TType.STRING, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,14 +49,14 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
   }
 
   public String metamodelUri; // required
-  public String typename; // required
-  public String attributename; // required
+  public String typeName; // required
+  public String attributeName; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     METAMODEL_URI((short)1, "metamodelUri"),
-    TYPENAME((short)2, "typename"),
-    ATTRIBUTENAME((short)3, "attributename");
+    TYPE_NAME((short)2, "typeName"),
+    ATTRIBUTE_NAME((short)3, "attributeName");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -73,10 +73,10 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
       switch(fieldId) {
         case 1: // METAMODEL_URI
           return METAMODEL_URI;
-        case 2: // TYPENAME
-          return TYPENAME;
-        case 3: // ATTRIBUTENAME
-          return ATTRIBUTENAME;
+        case 2: // TYPE_NAME
+          return TYPE_NAME;
+        case 3: // ATTRIBUTE_NAME
+          return ATTRIBUTE_NAME;
         default:
           return null;
       }
@@ -122,9 +122,9 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.METAMODEL_URI, new org.apache.thrift.meta_data.FieldMetaData("metamodelUri", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TYPENAME, new org.apache.thrift.meta_data.FieldMetaData("typename", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.TYPE_NAME, new org.apache.thrift.meta_data.FieldMetaData("typeName", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.ATTRIBUTENAME, new org.apache.thrift.meta_data.FieldMetaData("attributename", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.ATTRIBUTE_NAME, new org.apache.thrift.meta_data.FieldMetaData("attributeName", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(IndexedAttributeSpec.class, metaDataMap);
@@ -135,13 +135,13 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
 
   public IndexedAttributeSpec(
     String metamodelUri,
-    String typename,
-    String attributename)
+    String typeName,
+    String attributeName)
   {
     this();
     this.metamodelUri = metamodelUri;
-    this.typename = typename;
-    this.attributename = attributename;
+    this.typeName = typeName;
+    this.attributeName = attributeName;
   }
 
   /**
@@ -151,11 +151,11 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     if (other.isSetMetamodelUri()) {
       this.metamodelUri = other.metamodelUri;
     }
-    if (other.isSetTypename()) {
-      this.typename = other.typename;
+    if (other.isSetTypeName()) {
+      this.typeName = other.typeName;
     }
-    if (other.isSetAttributename()) {
-      this.attributename = other.attributename;
+    if (other.isSetAttributeName()) {
+      this.attributeName = other.attributeName;
     }
   }
 
@@ -166,8 +166,8 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
   @Override
   public void clear() {
     this.metamodelUri = null;
-    this.typename = null;
-    this.attributename = null;
+    this.typeName = null;
+    this.attributeName = null;
   }
 
   public String getMetamodelUri() {
@@ -194,51 +194,51 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     }
   }
 
-  public String getTypename() {
-    return this.typename;
+  public String getTypeName() {
+    return this.typeName;
   }
 
-  public IndexedAttributeSpec setTypename(String typename) {
-    this.typename = typename;
+  public IndexedAttributeSpec setTypeName(String typeName) {
+    this.typeName = typeName;
     return this;
   }
 
-  public void unsetTypename() {
-    this.typename = null;
+  public void unsetTypeName() {
+    this.typeName = null;
   }
 
-  /** Returns true if field typename is set (has been assigned a value) and false otherwise */
-  public boolean isSetTypename() {
-    return this.typename != null;
+  /** Returns true if field typeName is set (has been assigned a value) and false otherwise */
+  public boolean isSetTypeName() {
+    return this.typeName != null;
   }
 
-  public void setTypenameIsSet(boolean value) {
+  public void setTypeNameIsSet(boolean value) {
     if (!value) {
-      this.typename = null;
+      this.typeName = null;
     }
   }
 
-  public String getAttributename() {
-    return this.attributename;
+  public String getAttributeName() {
+    return this.attributeName;
   }
 
-  public IndexedAttributeSpec setAttributename(String attributename) {
-    this.attributename = attributename;
+  public IndexedAttributeSpec setAttributeName(String attributeName) {
+    this.attributeName = attributeName;
     return this;
   }
 
-  public void unsetAttributename() {
-    this.attributename = null;
+  public void unsetAttributeName() {
+    this.attributeName = null;
   }
 
-  /** Returns true if field attributename is set (has been assigned a value) and false otherwise */
-  public boolean isSetAttributename() {
-    return this.attributename != null;
+  /** Returns true if field attributeName is set (has been assigned a value) and false otherwise */
+  public boolean isSetAttributeName() {
+    return this.attributeName != null;
   }
 
-  public void setAttributenameIsSet(boolean value) {
+  public void setAttributeNameIsSet(boolean value) {
     if (!value) {
-      this.attributename = null;
+      this.attributeName = null;
     }
   }
 
@@ -252,19 +252,19 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
       }
       break;
 
-    case TYPENAME:
+    case TYPE_NAME:
       if (value == null) {
-        unsetTypename();
+        unsetTypeName();
       } else {
-        setTypename((String)value);
+        setTypeName((String)value);
       }
       break;
 
-    case ATTRIBUTENAME:
+    case ATTRIBUTE_NAME:
       if (value == null) {
-        unsetAttributename();
+        unsetAttributeName();
       } else {
-        setAttributename((String)value);
+        setAttributeName((String)value);
       }
       break;
 
@@ -276,11 +276,11 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     case METAMODEL_URI:
       return getMetamodelUri();
 
-    case TYPENAME:
-      return getTypename();
+    case TYPE_NAME:
+      return getTypeName();
 
-    case ATTRIBUTENAME:
-      return getAttributename();
+    case ATTRIBUTE_NAME:
+      return getAttributeName();
 
     }
     throw new IllegalStateException();
@@ -295,10 +295,10 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     switch (field) {
     case METAMODEL_URI:
       return isSetMetamodelUri();
-    case TYPENAME:
-      return isSetTypename();
-    case ATTRIBUTENAME:
-      return isSetAttributename();
+    case TYPE_NAME:
+      return isSetTypeName();
+    case ATTRIBUTE_NAME:
+      return isSetAttributeName();
     }
     throw new IllegalStateException();
   }
@@ -325,21 +325,21 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
         return false;
     }
 
-    boolean this_present_typename = true && this.isSetTypename();
-    boolean that_present_typename = true && that.isSetTypename();
-    if (this_present_typename || that_present_typename) {
-      if (!(this_present_typename && that_present_typename))
+    boolean this_present_typeName = true && this.isSetTypeName();
+    boolean that_present_typeName = true && that.isSetTypeName();
+    if (this_present_typeName || that_present_typeName) {
+      if (!(this_present_typeName && that_present_typeName))
         return false;
-      if (!this.typename.equals(that.typename))
+      if (!this.typeName.equals(that.typeName))
         return false;
     }
 
-    boolean this_present_attributename = true && this.isSetAttributename();
-    boolean that_present_attributename = true && that.isSetAttributename();
-    if (this_present_attributename || that_present_attributename) {
-      if (!(this_present_attributename && that_present_attributename))
+    boolean this_present_attributeName = true && this.isSetAttributeName();
+    boolean that_present_attributeName = true && that.isSetAttributeName();
+    if (this_present_attributeName || that_present_attributeName) {
+      if (!(this_present_attributeName && that_present_attributeName))
         return false;
-      if (!this.attributename.equals(that.attributename))
+      if (!this.attributeName.equals(that.attributeName))
         return false;
     }
 
@@ -355,15 +355,15 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     if (present_metamodelUri)
       list.add(metamodelUri);
 
-    boolean present_typename = true && (isSetTypename());
-    list.add(present_typename);
-    if (present_typename)
-      list.add(typename);
+    boolean present_typeName = true && (isSetTypeName());
+    list.add(present_typeName);
+    if (present_typeName)
+      list.add(typeName);
 
-    boolean present_attributename = true && (isSetAttributename());
-    list.add(present_attributename);
-    if (present_attributename)
-      list.add(attributename);
+    boolean present_attributeName = true && (isSetAttributeName());
+    list.add(present_attributeName);
+    if (present_attributeName)
+      list.add(attributeName);
 
     return list.hashCode();
   }
@@ -386,22 +386,22 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetTypename()).compareTo(other.isSetTypename());
+    lastComparison = Boolean.valueOf(isSetTypeName()).compareTo(other.isSetTypeName());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTypename()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.typename, other.typename);
+    if (isSetTypeName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.typeName, other.typeName);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetAttributename()).compareTo(other.isSetAttributename());
+    lastComparison = Boolean.valueOf(isSetAttributeName()).compareTo(other.isSetAttributeName());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetAttributename()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.attributename, other.attributename);
+    if (isSetAttributeName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.attributeName, other.attributeName);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -434,19 +434,19 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("typename:");
-    if (this.typename == null) {
+    sb.append("typeName:");
+    if (this.typeName == null) {
       sb.append("null");
     } else {
-      sb.append(this.typename);
+      sb.append(this.typeName);
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("attributename:");
-    if (this.attributename == null) {
+    sb.append("attributeName:");
+    if (this.attributeName == null) {
       sb.append("null");
     } else {
-      sb.append(this.attributename);
+      sb.append(this.attributeName);
     }
     first = false;
     sb.append(")");
@@ -458,11 +458,11 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     if (metamodelUri == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'metamodelUri' was not present! Struct: " + toString());
     }
-    if (typename == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'typename' was not present! Struct: " + toString());
+    if (typeName == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'typeName' was not present! Struct: " + toString());
     }
-    if (attributename == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributename' was not present! Struct: " + toString());
+    if (attributeName == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributeName' was not present! Struct: " + toString());
     }
     // check for sub-struct validity
   }
@@ -509,18 +509,18 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // TYPENAME
+          case 2: // TYPE_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.typename = iprot.readString();
-              struct.setTypenameIsSet(true);
+              struct.typeName = iprot.readString();
+              struct.setTypeNameIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // ATTRIBUTENAME
+          case 3: // ATTRIBUTE_NAME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.attributename = iprot.readString();
-              struct.setAttributenameIsSet(true);
+              struct.attributeName = iprot.readString();
+              struct.setAttributeNameIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -545,14 +545,14 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
         oprot.writeString(struct.metamodelUri);
         oprot.writeFieldEnd();
       }
-      if (struct.typename != null) {
-        oprot.writeFieldBegin(TYPENAME_FIELD_DESC);
-        oprot.writeString(struct.typename);
+      if (struct.typeName != null) {
+        oprot.writeFieldBegin(TYPE_NAME_FIELD_DESC);
+        oprot.writeString(struct.typeName);
         oprot.writeFieldEnd();
       }
-      if (struct.attributename != null) {
-        oprot.writeFieldBegin(ATTRIBUTENAME_FIELD_DESC);
-        oprot.writeString(struct.attributename);
+      if (struct.attributeName != null) {
+        oprot.writeFieldBegin(ATTRIBUTE_NAME_FIELD_DESC);
+        oprot.writeString(struct.attributeName);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -573,8 +573,8 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
     public void write(org.apache.thrift.protocol.TProtocol prot, IndexedAttributeSpec struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       oprot.writeString(struct.metamodelUri);
-      oprot.writeString(struct.typename);
-      oprot.writeString(struct.attributename);
+      oprot.writeString(struct.typeName);
+      oprot.writeString(struct.attributeName);
     }
 
     @Override
@@ -582,10 +582,10 @@ public class IndexedAttributeSpec implements org.apache.thrift.TBase<IndexedAttr
       TTupleProtocol iprot = (TTupleProtocol) prot;
       struct.metamodelUri = iprot.readString();
       struct.setMetamodelUriIsSet(true);
-      struct.typename = iprot.readString();
-      struct.setTypenameIsSet(true);
-      struct.attributename = iprot.readString();
-      struct.setAttributenameIsSet(true);
+      struct.typeName = iprot.readString();
+      struct.setTypeNameIsSet(true);
+      struct.attributeName = iprot.readString();
+      struct.setAttributeNameIsSet(true);
     }
   }
 
