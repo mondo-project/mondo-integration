@@ -3,7 +3,6 @@
 
 <product name="MONDO CLI Client Product" id="uk.ac.york.mondo.integration.clients.cli.product.product" application="uk.ac.york.mondo.integration.clients.cli.product.app" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -18,18 +17,15 @@
 
    <windowImages/>
 
-
-   <launcher>
+   <launcher name="mondo-cli">
       <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
@@ -44,6 +40,7 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="uk.ac.york.mondo.integration.hawk.cli" autoStart="true" startLevel="0" />
    </configurations>
 
 </product>

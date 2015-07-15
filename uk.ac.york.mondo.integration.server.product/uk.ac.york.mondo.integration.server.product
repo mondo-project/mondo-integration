@@ -15,7 +15,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="mondo">
+   <launcher name="mondo-server">
       <solaris/>
       <win useIco="false">
          <bmp/>
