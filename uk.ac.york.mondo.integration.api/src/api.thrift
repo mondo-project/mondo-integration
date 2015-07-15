@@ -295,6 +295,11 @@ service Hawk {
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	) 
 	
+  /* Lists the supported query languages and their status. Auth needed: Yes */
+  list<string> listQueryLanguages(
+	/* The name of the Hawk instance. */ 1: required string name, 
+  )
+	
   /* Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct). Auth needed: Yes */
   list<string> query(
 	/* The name of the Hawk instance. */ 1: required string name, 

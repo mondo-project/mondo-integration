@@ -163,6 +163,16 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="listQueryLanguages" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Lists the supported query languages and their status"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
     <eOperations name="query" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"
         eExceptions="#//HawkInstanceNotFound #//UnknownQueryLanguage #//InvalidQuery">
       <eAnnotations source="doc">

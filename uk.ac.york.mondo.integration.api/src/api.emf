@@ -100,6 +100,11 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound;
 
+    @doc(d="Lists the supported query languages and their status")
+    op String[*] listQueryLanguages(
+    	@doc(d="The name of the Hawk instance") String name
+    );
+
 	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
 	op Object[*] query (
 		@doc(d="The name of the Hawk instance") String name,
