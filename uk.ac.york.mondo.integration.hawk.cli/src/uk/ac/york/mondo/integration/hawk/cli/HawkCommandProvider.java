@@ -411,7 +411,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
-		sbuf.append("hawkListRepositoryFiles <url> - lists files within a repository\n");
+		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
 		sbuf.append("--Queries--\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
 		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n");

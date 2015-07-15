@@ -297,6 +297,7 @@ public class HawkThriftServlet extends TServlet {
 			props.put(IQueryEngine.PROPERTY_FILECONTEXT, filePath);
 
 			// TODO Change query/contextFullQuery to return model elements (waiting for Kostas)
+			// NOTE: do not get derived attributes (they're not part of the original metamodel)
 			return Collections.emptyList();
 		}
 
