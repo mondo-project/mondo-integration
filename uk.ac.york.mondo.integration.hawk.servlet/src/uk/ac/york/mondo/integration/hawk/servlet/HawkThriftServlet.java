@@ -23,9 +23,11 @@ import java.util.NoSuchElementException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServlet;
+import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphIterable;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeIndex;
+import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.neo4j_v2.Neo4JDatabase;
@@ -112,6 +114,12 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
+		public List<String> listQueryLanguages(String name) throws TException {
+			final HModel model = getHawkByName(name);
+			return new ArrayList<String>(model.getKnownQueryLanguages());
+		}
+
+		@Override
 		public List<String> query(String name, String query, String language, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
 			final HModel model = getHawkByName(name);
 			Map<String, String> context = new HashMap<>();
@@ -179,14 +187,21 @@ public class HawkThriftServlet extends TServlet {
 		public List<String> listFiles(String name, String repository) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 
-			final IGraphNodeIndex fileIndex = model.getGraph().getFileIndex();
-			final IGraphIterable<IGraphNode> contents = fileIndex.get("id", "*");
+			final IGraphDatabase graph = model.getGraph();
+			try (IGraphTransaction t = graph.beginTransaction()) {
+				final IGraphNodeIndex fileIndex = graph.getFileIndex();
+				final IGraphIterable<IGraphNode> contents = fileIndex.query("id", "*");
 
-			final List<String> files = new ArrayList<>();
-			for (IGraphNode node : contents) {
-				files.add("" + node.getProperty("id"));
+				final List<String> files = new ArrayList<>();
+				for (IGraphNode node : contents) {
+					files.add("" + node.getProperty("id"));
+				}
+
+				return files;
+			} catch (Exception ex) {
+				LOGGER.error(ex.getMessage(), ex);
+				throw new TException(ex);
 			}
-			return files;
 		}
 
 		@Override

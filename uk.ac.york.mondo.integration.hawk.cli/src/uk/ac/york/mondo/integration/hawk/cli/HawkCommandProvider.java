@@ -91,6 +91,7 @@ public class HawkCommandProvider implements CommandProvider {
 	}
 
 	public Object _hawkAddInstance(CommandInterpreter intp) throws Exception {
+		// TODO add extra parameter to pick the backend + listBackends operation
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		client.createInstance(name);
@@ -174,7 +175,7 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListMetamodels(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
-		return StringUtils.join(client.listMetamodels(currentInstance), "\n");
+		return formatList(client.listMetamodels(currentInstance));
 	}
 
 	/* REPOSITORY MANAGEMENT */
@@ -187,6 +188,8 @@ public class HawkCommandProvider implements CommandProvider {
 		final Credentials creds = new Credentials();
 		creds.username = intp.nextArgument();
 		creds.password = intp.nextArgument();
+		if (creds.username == null) { creds.username = "anonymous"; }
+		if (creds.password == null) { creds.password = "anonymous"; }
 
 		// TODO tell Kostas that LocalFolder does not work if the path has a trailing separator
 		client.addRepository(currentInstance, repoURL, repoType, creds);
@@ -202,12 +205,36 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListRepositories(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
-		return StringUtils.join(client.listRepositories(currentInstance), "\n");
+		return formatList(client.listRepositories(currentInstance));
 	}
 
 	public Object _hawkListRepositoryTypes(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
-		return StringUtils.join(client.listRepositoryTypes(), "\n");
+		return formatList(client.listRepositoryTypes());
+	}
+
+	public Object _hawkListFiles(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String repo = requiredArgument(intp, "url");
+		return formatList(client.listFiles(currentInstance, repo));
+	}
+
+	/* QUERIES */
+
+	public Object _hawkListQueryLanguages(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		return formatList(client.listQueryLanguages(currentInstance));
+	}
+
+	public Object _hawkQuery(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String query = requiredArgument(intp, "query");
+		final String language = requiredArgument(intp, "language");
+		final String scope = requiredArgument(intp, "scope");
+
+		Object ret = client.query(currentInstance, query, language, scope);
+		// TODO do something better than toString here
+		return "Result: " + ret;
 	}
 
 	/**
@@ -246,6 +273,14 @@ public class HawkCommandProvider implements CommandProvider {
 		throw new NoSuchElementException(String.format("No instance exists with the name '%s'", name));
 	}
 
+	private Object formatList(final List<String> listFiles) {
+		if (listFiles.isEmpty()) {
+			return "(no results)";
+		} else {
+			return StringUtils.join(listFiles, "\n");
+		}
+	}
+
 	/**
 	 * Reads an expected argument from the interpreter.
 	 * @throws IllegalArgumentException The argument has not been provided.
@@ -282,7 +317,11 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
-		sbuf.append("hawkListRepositoryTypes - lists available repository types\n");
+		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
+		sbuf.append("hawkListRepositoryFiles <url> - lists files within a repository\n");
+		sbuf.append("--Queries--\n\t");
+		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
+		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n");
 		return sbuf.toString();
 	}
 

@@ -210,7 +210,7 @@ public class HModel {
 				hawk.getModelIndexer().addVCSManager(mo);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			getConsole().printerrln(e.getMessage());
 		}
 	}
 
@@ -377,13 +377,33 @@ public class HModel {
 
 	public boolean start(HManager manager) {
 		try {
+			/*
+			 * TODO talk with Kostas -- there is a cyclic dependency between
+			 * hawk.init() and loadIndexerMetadata()
+			 *
+			 * - loadIndexerMetadata needs the adminpw that hawk.init() sets
+			 * (for the encrypted VCS user/pass).
+			 *
+			 * - hawk.init() needs the graph from manager.createGraph(hawk),
+			 * which needs the dbType from loadIndexerMetadata() sets (for
+			 * registerMetamodelFiles).
+			 *
+			 * For now, I call this normally and then *retry* after hawk.init().
+			 */
 			loadIndexerMetadata();
+		} catch (Exception e) {
+			getConsole().printerrln(e.getMessage());
+		}
 
+		try {
 			// create the indexer with relevant database
 			IGraphDatabase db = manager.createGraph(hawk);
 			db.run(new File(this.getFolder()), getConsole());
 			hawk.getModelIndexer().setDB(db);
 			hawk.init();
+
+			// TODO remove this ugly retry (see above comment on cyclic dep)
+			loadIndexerMetadata();
 
 			running = true;
 		} catch (Exception e) {
