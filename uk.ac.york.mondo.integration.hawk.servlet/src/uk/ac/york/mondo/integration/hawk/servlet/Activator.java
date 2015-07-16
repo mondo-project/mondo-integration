@@ -17,19 +17,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import org.hawk.osgiserver.HManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.york.mondo.integration.hawk.servlet.util.HManager;
 
 public class Activator implements BundleActivator {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(Activator.class);
 	private static BundleContext context;
 	private static Activator instance;
-	private HManager hawkManager;
 
 	public static Activator getInstance() {
 		return instance;
@@ -62,19 +57,12 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.hawkManager = new HManager();
+		HManager.getInstance();
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
-		hawkManager.stopAllRunningInstances();
-	}
-
-	/**
-	 * Returns the instance of {@link HManager} managed by this plugin.
-	 */
-	public HManager getHawkManager() {
-		return hawkManager;
+		HManager.getInstance().stopAllRunningInstances();
 	}
 }

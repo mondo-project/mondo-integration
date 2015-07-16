@@ -30,7 +30,10 @@ import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
+import org.hawk.graph.GraphWrapper;
 import org.hawk.neo4j_v2.Neo4JDatabase;
+import org.hawk.osgiserver.HManager;
+import org.hawk.osgiserver.HModel;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
@@ -52,8 +55,6 @@ import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
-import uk.ac.york.mondo.integration.hawk.servlet.util.HManager;
-import uk.ac.york.mondo.integration.hawk.servlet.util.HModel;
 
 /**
  * Entry point to the Hawk model indexers. This servlet exposes a Thrift-based
@@ -67,7 +68,7 @@ public class HawkThriftServlet extends TServlet {
 	private static final class Iface implements Hawk.Iface {
 		
 		private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
-		private final HManager manager = Activator.getInstance().getHawkManager();
+		private final HManager manager = HManager.getInstance();
 		
 		private HModel getHawkByName(String name) throws HawkInstanceNotFound {
 			HModel model;
@@ -142,9 +143,7 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getHawkByName(name);
 
 			List<ModelElement> resolved = new ArrayList<ModelElement>();
-			for (uk.ac.york.mondo.integration.hawk.servlet.util.ModelElement me : model.resolveProxies(ids)) {
-				// TODO convert me to Thrift ModelElement (wait for Kostas to implement resolveProxies)
-			}
+			// TODO wait for Kostas to implement resolveProxies
 			return resolved;
 		}
 
@@ -310,7 +309,8 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void createInstance(String name) throws TException {
 			try {
-				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), manager);
+				// TODO allow users to pass in the password somehow
+				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, "admin");
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
