@@ -399,16 +399,6 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="getAllContents" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
-      <eAnnotations source="doc">
-        <details key="d" value="Returns the full contents of a Hawk instance. Cross-model references are also resolved"/>
-      </eAnnotations>
-      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The name of the Hawk instance"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
     <eOperations name="getModel" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved"/>

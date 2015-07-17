@@ -192,11 +192,6 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
-	@doc(d="Returns the full contents of a Hawk instance. Cross-model references are also resolved")
-	op ModelElement[*] getAllContents (
-		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-
 	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved")
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,

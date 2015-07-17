@@ -454,15 +454,6 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
-  /* Returns the full contents of a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
-  list<ModelElement> getAllContents(
-	/* The name of the Hawk instance. */ 1: required string name, 
-  )
-  throws (
-	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
-	) 
-	
   /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name, 

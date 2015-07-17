@@ -149,11 +149,25 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
-			List<ModelElement> resolved = new ArrayList<ModelElement>();
-			// TODO wait for Kostas to implement resolveProxies
+			final IGraphDatabase graph = model.getGraph();
+			final GraphWrapper gw = new GraphWrapper(graph);
+			final List<ModelElement> resolved = new ArrayList<ModelElement>();
+			try (IGraphTransaction tx = graph.beginTransaction()) {
+				for (String id : ids) {
+					try {
+						ModelElementNode me = gw.getModelElementNodeById(id);
+						resolved.add(encodeModelElement(me));
+					} catch (Exception ex) {
+						LOGGER.error(ex.getMessage(), ex);
+					}
+				}
+			} catch (Exception ex) {
+				throw new TException(ex);
+			}
+
 			return resolved;
 		}
 
@@ -302,6 +316,7 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getRunningHawkByName(name);
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
+			// TODO implement limiting by repository
 			final List<ModelElement> elems = new ArrayList<>();
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
@@ -315,49 +330,6 @@ public class HawkThriftServlet extends TServlet {
 				LOGGER.error(ex.getMessage(), ex);
 				throw new TException(ex);
 			}
-		}
-
-		private ModelElement encodeModelElement(ModelElementNode meNode) throws Exception {
-			ModelElement me = new ModelElement();
-			me.id = meNode.getNode().getId().toString();
-			me.typeName = meNode.getTypeNode().getTypeName();
-			me.metamodelUri = meNode.getTypeNode().getMetamodelName();
-
-			final Map<String, Object> attrs = new HashMap<>();
-			final Map<String, Object> refs = new HashMap<>();
-			meNode.getSlotValues(attrs, refs);
-
-			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-				// TODO use union types to be able to return richer values
-				Slot s = encodeSlot(attr);
-				me.addToAttributes(s);
-			}
-			for (Map.Entry<String, Object> ref : refs.entrySet()) {
-				Slot s = encodeSlot(ref);
-				me.addToReferences(s);
-			}
-			return me;
-		}
-
-		private Slot encodeSlot(Map.Entry<String, Object> slotEntry) {
-			Slot s = new Slot();
-			s.name = slotEntry.getKey();
-			s.values = new ArrayList<>();
-			if (slotEntry.getValue() instanceof Iterable) {
-				for (Object o : (Iterable<?>)slotEntry.getValue()) {
-					s.values.add(o.toString());
-				}
-			}
-			else if (slotEntry.getValue() != null) {
-				s.values.add(slotEntry.getValue().toString());
-			}
-			return s;
-		}
-
-		@Override
-		public List<ModelElement> getAllContents(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
-			// TODO Wait for Kostas to implement object retrieval through queries
-			return null;
 		}
 
 		@Override
@@ -401,6 +373,43 @@ public class HawkThriftServlet extends TServlet {
 		public void stopInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			model.stop();
+		}
+
+		private ModelElement encodeModelElement(ModelElementNode meNode) throws Exception {
+			ModelElement me = new ModelElement();
+			me.id = meNode.getNode().getId().toString();
+			me.typeName = meNode.getTypeNode().getTypeName();
+			me.metamodelUri = meNode.getTypeNode().getMetamodelName();
+
+			final Map<String, Object> attrs = new HashMap<>();
+			final Map<String, Object> refs = new HashMap<>();
+			meNode.getSlotValues(attrs, refs);
+
+			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
+				// TODO use union types to be able to return richer values
+				Slot s = encodeSlot(attr);
+				me.addToAttributes(s);
+			}
+			for (Map.Entry<String, Object> ref : refs.entrySet()) {
+				Slot s = encodeSlot(ref);
+				me.addToReferences(s);
+			}
+			return me;
+		}
+
+		private Slot encodeSlot(Map.Entry<String, Object> slotEntry) {
+			Slot s = new Slot();
+			s.name = slotEntry.getKey();
+			s.values = new ArrayList<>();
+			if (slotEntry.getValue() instanceof Iterable) {
+				for (Object o : (Iterable<?>)slotEntry.getValue()) {
+					s.values.add(o.toString());
+				}
+			}
+			else if (slotEntry.getValue() != null) {
+				s.values.add(slotEntry.getValue().toString());
+			}
+			return s;
 		}
 
 		private java.io.File storageFolder(String instanceName) {
