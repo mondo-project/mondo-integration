@@ -41,6 +41,7 @@
       <feature id="org.hawk.ifc.feature"/>
       <feature id="org.hawk.epsilon.feature"/>
       <feature id="org.hawk.core.feature"/>
+      <feature id="org.hawk.osgiserver.feature"/>
    </features>
 
    <configurations>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="35">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="49">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="ch.qos.logback.core" version="1.0.7.v20121108-1250"/>
@@ -28,15 +28,15 @@
 <repository location="http://download.eclipse.org/releases/luna/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201507131514"/>
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201507131514"/>
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201507171531"/>
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201507171531"/>
 <repository location="file:/usr/userfs/a/agd516/Documents/mondo-hawk/org.hawk.updatesite/"/>
 </location>
 </locations>
