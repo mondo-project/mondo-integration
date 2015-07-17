@@ -86,6 +86,11 @@
           <details key="d" value="The unique name of the new Hawk instance"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="adminPassword" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The admin password for encrypting credentials"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="listInstances" upperBound="-1" eType="#//HawkInstance">
       <eAnnotations source="doc">
@@ -111,8 +116,13 @@
           <details key="d" value="The name of the Hawk instance to start"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="adminPassword" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The admin password for encrypting credentials"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
-    <eOperations name="stopInstance" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="stopInstance" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Stops a running Hawk instance"/>
       </eAnnotations>
@@ -122,7 +132,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="registerMetamodels" eExceptions="#//HawkInstanceNotFound #//InvalidMetamodel">
+    <eOperations name="registerMetamodels" eExceptions="#//HawkInstanceNotFound #//InvalidMetamodel #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Registers a set of file-based metamodels with a Hawk instance"/>
       </eAnnotations>
@@ -137,7 +147,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="unregisterMetamodel" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="unregisterMetamodel" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Unregisters a metamodel from a Hawk instance"/>
       </eAnnotations>
@@ -153,7 +163,7 @@
       </eParameters>
     </eOperations>
     <eOperations name="listMetamodels" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//HawkInstanceNotFound">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the URIs of the registered metamodels of a Hawk instance"/>
       </eAnnotations>
@@ -174,7 +184,7 @@
       </eParameters>
     </eOperations>
     <eOperations name="query" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"
-        eExceptions="#//HawkInstanceNotFound #//UnknownQueryLanguage #//InvalidQuery">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery">
       <eAnnotations source="doc">
         <details key="d" value="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)"/>
       </eAnnotations>
@@ -199,7 +209,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="resolveProxies" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="resolveProxies" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns populated model elements for the provided proxies"/>
       </eAnnotations>
@@ -214,7 +224,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="addRepository" eExceptions="#//HawkInstanceNotFound #//UnknownRepositoryType #//VCSAuthenticationFailed">
+    <eOperations name="addRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownRepositoryType #//VCSAuthenticationFailed">
       <eAnnotations source="doc">
         <details key="d" value="Asks a Hawk instance to start monitoring a repository"/>
       </eAnnotations>
@@ -240,7 +250,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="removeRepository" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="removeRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Asks a Hawk instance to stop monitoring a repository"/>
       </eAnnotations>
@@ -256,7 +266,7 @@
       </eParameters>
     </eOperations>
     <eOperations name="listRepositories" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//HawkInstanceNotFound">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the URIs of the repositories monitored by a Hawk instance"/>
       </eAnnotations>
@@ -272,7 +282,7 @@
       </eAnnotations>
     </eOperations>
     <eOperations name="listFiles" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//HawkInstanceNotFound">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the paths of the files of the indexed repository"/>
       </eAnnotations>
@@ -287,7 +297,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="configurePolling" eExceptions="#//HawkInstanceNotFound #//InvalidPollingConfiguration">
+    <eOperations name="configurePolling" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//InvalidPollingConfiguration">
       <eAnnotations source="doc">
         <details key="d" value="Sets the base polling period and max interval of a Hawk instance"/>
       </eAnnotations>
@@ -307,7 +317,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="addDerivedAttribute" eExceptions="#//HawkInstanceNotFound #//InvalidDerivedAttributeSpec">
+    <eOperations name="addDerivedAttribute" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//InvalidDerivedAttributeSpec">
       <eAnnotations source="doc">
         <details key="d" value="Add a new derived attribute to a Hawk instance"/>
       </eAnnotations>
@@ -322,7 +332,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="removeDerivedAttribute" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="removeDerivedAttribute" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Remove a derived attribute from a Hawk instance"/>
       </eAnnotations>
@@ -338,7 +348,7 @@
       </eParameters>
     </eOperations>
     <eOperations name="listDerivedAttributes" upperBound="-1" eType="#//DerivedAttributeSpec"
-        eExceptions="#//HawkInstanceNotFound">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated"/>
       </eAnnotations>
@@ -348,7 +358,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="addIndexedAttribute" eExceptions="#//HawkInstanceNotFound #//InvalidIndexedAttributeSpec">
+    <eOperations name="addIndexedAttribute" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//InvalidIndexedAttributeSpec">
       <eAnnotations source="doc">
         <details key="d" value="Add a new indexed attribute to a Hawk instance"/>
       </eAnnotations>
@@ -363,7 +373,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="removeIndexedAttribute" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="removeIndexedAttribute" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Remove a indexed attribute from a Hawk instance"/>
       </eAnnotations>
@@ -379,7 +389,7 @@
       </eParameters>
     </eOperations>
     <eOperations name="listIndexedAttributes" upperBound="-1" eType="#//IndexedAttributeSpec"
-        eExceptions="#//HawkInstanceNotFound">
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the indexed attributes of a Hawk instance"/>
       </eAnnotations>
@@ -389,7 +399,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="getAllContents" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="getAllContents" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns the full contents of a Hawk instance. Cross-model references are also resolved"/>
       </eAnnotations>
@@ -399,7 +409,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="getModel" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound">
+    <eOperations name="getModel" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved"/>
       </eAnnotations>
@@ -413,9 +423,9 @@
           <details key="d" value="The URI of the repository in which the model is contained"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="filePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The path of the model file(s) in the repository"/>
+          <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -465,6 +475,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="HawkInstanceNotFound">
     <eAnnotations source="doc">
       <details key="d" value="No Hawk instance exists with that name."/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkInstanceNotRunning">
+    <eAnnotations source="doc">
+      <details key="d" value="The selecte Hawk instance is not running."/>
     </eAnnotations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InvalidMetamodel">

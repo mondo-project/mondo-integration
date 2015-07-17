@@ -60,7 +60,8 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 class Hawk {
 	@doc(d="Creates a new Hawk instance (stopped).")
 	op void createInstance(
-		@doc(d="The unique name of the new Hawk instance") String name
+		@doc(d="The unique name of the new Hawk instance") String name,
+		@doc(d="The admin password for encrypting credentials") String adminPassword
 	);
 
 	@doc(d="Lists the details of all Hawk instances")
@@ -73,13 +74,14 @@ class Hawk {
 	
 	@doc(d="Starts a stopped Hawk instance")
 	op void startInstance(
-		@doc(d="The name of the Hawk instance to start") String name
+		@doc(d="The name of the Hawk instance to start") String name,
+		@doc(d="The admin password for encrypting credentials") String adminPassword
 	) throws HawkInstanceNotFound;
 	
 	@doc(d="Stops a running Hawk instance")
 	op void stopInstance(
 		@doc(d="The name of the Hawk instance to stop") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Registers a set of file-based metamodels with a Hawk instance")
 	op void registerMetamodels (
@@ -87,18 +89,18 @@ class Hawk {
 		@doc(d="The metamodels to register. 
 			More than one metamodel files can be provided in one 
 			go to accomodate fragmented metamodels.") File[*] metamodel
-	) throws HawkInstanceNotFound, InvalidMetamodel;
+	) throws HawkInstanceNotFound, InvalidMetamodel, HawkInstanceNotRunning;
 	
 	@doc(d="Unregisters a metamodel from a Hawk instance")
 	op void unregisterMetamodel (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the metamodel") String metamodel
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Lists the URIs of the registered metamodels of a Hawk instance")
 	op String[*] listMetamodels (
 		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
     @doc(d="Lists the supported query languages and their status")
     op String[*] listQueryLanguages(
@@ -111,13 +113,13 @@ class Hawk {
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
-	) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
 	
 	@doc(d="Returns populated model elements for the provided proxies")
 	op ModelElement[*] resolveProxies (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="Proxy model element IDs to be resolved") String[*] ids
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Asks a Hawk instance to start monitoring a repository")
 	op void addRepository (
@@ -125,18 +127,18 @@ class Hawk {
 		@doc(d="The URI of the repository to monitor") String uri,
 		@doc(d="The type of repository to be monitored") String type,
 		@doc(d="A valid set of credentials that has read-access to the repository", optional="true") Credentials credentials
-	) throws HawkInstanceNotFound, UnknownRepositoryType, VCSAuthenticationFailed;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed;
 
 	@doc(d="Asks a Hawk instance to stop monitoring a repository")
 	op void removeRepository (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository to stop monitoring") String uri
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Lists the URIs of the repositories monitored by a Hawk instance")
 	op String[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Lists the available repository types in this installation")
 	op String[*] listRepositoryTypes();
@@ -145,20 +147,20 @@ class Hawk {
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the indexed repository") String repository
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Sets the base polling period and max interval of a Hawk instance")
 	op void configurePolling (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The base polling period (in seconds)") int base,
 		@doc(d="The maximum polling interval (in seconds)") int max
-	) throws HawkInstanceNotFound, InvalidPollingConfiguration;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidPollingConfiguration;
 
 	@doc(d="Add a new derived attribute to a Hawk instance")
 	op void addDerivedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the new derived attribute") DerivedAttributeSpec spec
-	) throws HawkInstanceNotFound, InvalidDerivedAttributeSpec;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidDerivedAttributeSpec;
 	
 	@doc(d="Remove a derived attribute from a Hawk instance")
 	op void removeDerivedAttribute (
@@ -166,41 +168,41 @@ class Hawk {
 		@doc(d="The details of the derived attribute to be removed.
 			Only the first three fields of the spec
 			need to be populated") DerivedAttributeSpec spec
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated")
 	op DerivedAttributeSpec[*] listDerivedAttributes (
 		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Add a new indexed attribute to a Hawk instance")
 	op void addIndexedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the new indexed attribute") IndexedAttributeSpec spec
-	) throws HawkInstanceNotFound, InvalidIndexedAttributeSpec;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidIndexedAttributeSpec;
 	
 	@doc(d="Remove a indexed attribute from a Hawk instance")
 	op void removeIndexedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the indexed attribute to be removed") IndexedAttributeSpec spec
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	
 	@doc(d="Lists the indexed attributes of a Hawk instance")
 	op IndexedAttributeSpec[*] listIndexedAttributes (
 		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Returns the full contents of a Hawk instance. Cross-model references are also resolved")
 	op ModelElement[*] getAllContents (
 		@doc(d="The name of the Hawk instance") String name
-	) throws HawkInstanceNotFound;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved")
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
-		@doc(d="The path of the model file(s) in the repository") String filePath
-	) throws HawkInstanceNotFound;
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
     /*
 	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
@@ -210,7 +212,7 @@ class Hawk {
 		@doc(d="The path of the model file in the repository") String filePath,
 		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
 		@doc(d="The model element type to watch for", optional="true") String modelElementType
-	);
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	*/
 }
 
@@ -230,6 +232,9 @@ class ModelElementChange {
 
 @doc(d="No Hawk instance exists with that name.")
 class HawkInstanceNotFound {}
+
+@doc(d="The selecte Hawk instance is not running.")
+class HawkInstanceNotRunning {}
 
 @doc(d="The provided metamodel is not valid (e.g. unparsable or inconsistent).")
 class InvalidMetamodel {

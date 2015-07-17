@@ -131,6 +131,9 @@ exception CollaborationResourceNotFound {
 exception HawkInstanceNotFound {
 }
 
+exception HawkInstanceNotRunning {
+}
+
 exception InvalidCollaborationLockQuerySpec {
 }
 
@@ -236,6 +239,7 @@ service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name, 
+	/* The admin password for encrypting credentials. */ 2: required string adminPassword, 
   )
 	
   /* Lists the details of all Hawk instances. Auth needed: Yes */
@@ -253,6 +257,7 @@ service Hawk {
   /* Starts a stopped Hawk instance. Auth needed: Yes */
   void startInstance(
 	/* The name of the Hawk instance to start. */ 1: required string name, 
+	/* The admin password for encrypting credentials. */ 2: required string adminPassword, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -264,6 +269,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Registers a set of file-based metamodels with a Hawk instance. Auth needed: Yes */
@@ -276,6 +282,7 @@ service Hawk {
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	2: InvalidMetamodel err2 /* The provided metamodel is not valid (e.g. unparsable or inconsistent). */ 
+	3: HawkInstanceNotRunning err3 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Unregisters a metamodel from a Hawk instance. Auth needed: Yes */
@@ -285,6 +292,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the URIs of the registered metamodels of a Hawk instance. Auth needed: Yes */
@@ -293,6 +301,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the supported query languages and their status. Auth needed: Yes */
@@ -309,8 +318,9 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: UnknownQueryLanguage err2 /* The specified query language is not supported by the operation. */ 
-	3: InvalidQuery err3 /* The specified query is not valid. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	3: UnknownQueryLanguage err3 /* The specified query language is not supported by the operation. */ 
+	4: InvalidQuery err4 /* The specified query is not valid. */ 
 	) 
 	
   /* Returns populated model elements for the provided proxies. Auth needed: Yes */
@@ -320,6 +330,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Asks a Hawk instance to start monitoring a repository. Auth needed: Yes */
@@ -331,8 +342,9 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: UnknownRepositoryType err2 /* The specified repository type is not supported by the operation. */ 
-	3: VCSAuthenticationFailed err3 /* The client failed to prove its identity in the VCS. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	3: UnknownRepositoryType err3 /* The specified repository type is not supported by the operation. */ 
+	4: VCSAuthenticationFailed err4 /* The client failed to prove its identity in the VCS. */ 
 	) 
 	
   /* Asks a Hawk instance to stop monitoring a repository. Auth needed: Yes */
@@ -342,6 +354,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the URIs of the repositories monitored by a Hawk instance. Auth needed: Yes */
@@ -350,6 +363,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the available repository types in this installation. Auth needed: Yes */
@@ -363,6 +377,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Sets the base polling period and max interval of a Hawk instance. Auth needed: Yes */
@@ -373,7 +388,8 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: InvalidPollingConfiguration err2 /* The polling configuration is not valid. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	3: InvalidPollingConfiguration err3 /* The polling configuration is not valid. */ 
 	) 
 	
   /* Add a new derived attribute to a Hawk instance. Auth needed: Yes */
@@ -383,7 +399,8 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: InvalidDerivedAttributeSpec err2 /* The derived attribute specification is not valid. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	3: InvalidDerivedAttributeSpec err3 /* The derived attribute specification is not valid. */ 
 	) 
 	
   /* Remove a derived attribute from a Hawk instance. Auth needed: Yes */
@@ -395,6 +412,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated. Auth needed: Yes */
@@ -403,6 +421,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Add a new indexed attribute to a Hawk instance. Auth needed: Yes */
@@ -412,7 +431,8 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: InvalidIndexedAttributeSpec err2 /* The indexed attribute specification is not valid. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	3: InvalidIndexedAttributeSpec err3 /* The indexed attribute specification is not valid. */ 
 	) 
 	
   /* Remove a indexed attribute from a Hawk instance. Auth needed: Yes */
@@ -422,6 +442,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Lists the indexed attributes of a Hawk instance. Auth needed: Yes */
@@ -430,6 +451,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Returns the full contents of a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
@@ -438,16 +460,18 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
   /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri, 
-	/* The path of the model file(s) in the repository. */ 3: required string filePath, 
+	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
 }
