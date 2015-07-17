@@ -9,7 +9,7 @@
 		</layout>
 	</appender>
  
-	<logger name="org.eclipse.jetty" level="error" additivity="false">
+	<logger name="org.eclipse.jetty" level="warn" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
