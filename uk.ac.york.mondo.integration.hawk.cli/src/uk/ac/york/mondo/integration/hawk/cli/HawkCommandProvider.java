@@ -31,6 +31,8 @@ import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
+import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.Slot;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
@@ -240,6 +242,45 @@ public class HawkCommandProvider implements CommandProvider {
 		return "Result: " + ret;
 	}
 
+	public Object _hawkGetModel(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+
+		final String repo = requiredArgument(intp, "repo");
+		final String firstPattern = requiredArgument(intp, "filepatterns");
+		final List<String> patterns = new ArrayList<>();
+		patterns.add(firstPattern);
+		for (String pattern = intp.nextArgument(); pattern != null; pattern = intp.nextArgument()) {
+			patterns.add(pattern);
+		}
+
+		final List<ModelElement> elems = client.getModel(currentInstance, repo, patterns);
+		return formatModelElements(elems);
+	}
+
+	private Object formatModelElements(final List<ModelElement> elems) {
+		final StringBuffer sbuf = new StringBuffer();
+		boolean isFirst = true;
+		for (ModelElement me : elems) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				sbuf.append("\n");
+			}
+			sbuf.append(String.format("Element %s:\n\t", me.id));
+			sbuf.append(String.format("Metamodel: %s\n\t", me.metamodelUri));
+			sbuf.append(String.format("Type: %s\n\t", me.typeName));
+			sbuf.append("Attributes:");
+			for (Slot s : me.attributes) {
+				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.values));
+			}
+			sbuf.append("\n\tReferences:");
+			for (Slot s : me.references) {
+				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.values));
+			}
+		}
+		return sbuf.toString();
+	}
+
 	/* INDEXED ATTRIBUTES */
 
 	public Object _hawkListIndexedAttributes(CommandInterpreter intp) throws Exception {
@@ -416,7 +457,8 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
 		sbuf.append("--Queries--\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
-		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n");
+		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n\t");
+		sbuf.append("hawkGetModel <repo> <filepatterns...> - returns all the instance of the specified files\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
 		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");

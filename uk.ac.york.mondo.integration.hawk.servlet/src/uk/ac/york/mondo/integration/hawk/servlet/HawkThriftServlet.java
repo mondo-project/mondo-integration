@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +27,10 @@ import org.hawk.core.graph.IGraphIterable;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.graph.IGraphTransaction;
-import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
+import org.hawk.graph.FileNode;
 import org.hawk.graph.GraphWrapper;
+import org.hawk.graph.ModelElementNode;
 import org.hawk.neo4j_v2.Neo4JDatabase;
 import org.hawk.osgiserver.HManager;
 import org.hawk.osgiserver.HModel;
@@ -53,6 +53,7 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.Slot;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
@@ -297,13 +298,60 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> getModel(String name, String repositoryUri, String filePath) throws HawkInstanceNotFound, TException {
-			final Map<String, String> props = new HashMap<>();
-			props.put(IQueryEngine.PROPERTY_FILECONTEXT, filePath);
+		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getRunningHawkByName(name);
+			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
-			// TODO Change query/contextFullQuery to return model elements (waiting for Kostas)
-			// NOTE: do not get derived attributes (they're not part of the original metamodel)
-			return Collections.emptyList();
+			final List<ModelElement> elems = new ArrayList<>();
+			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
+				for (FileNode fileNode : gw.getFileNodes(filePath)) {
+					for (ModelElementNode meNode : fileNode.getModelElements()) {
+						elems.add(encodeModelElement(meNode));
+					}
+				}
+				tx.success();
+				return elems;
+			} catch (Exception ex) {
+				LOGGER.error(ex.getMessage(), ex);
+				throw new TException(ex);
+			}
+		}
+
+		private ModelElement encodeModelElement(ModelElementNode meNode) throws Exception {
+			ModelElement me = new ModelElement();
+			me.id = meNode.getNode().getId().toString();
+			me.typeName = meNode.getTypeNode().getTypeName();
+			me.metamodelUri = meNode.getTypeNode().getMetamodelName();
+
+			final Map<String, Object> attrs = new HashMap<>();
+			final Map<String, Object> refs = new HashMap<>();
+			meNode.getSlotValues(attrs, refs);
+
+			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
+				// TODO use union types to be able to return richer values
+				Slot s = encodeSlot(attr);
+				me.addToAttributes(s);
+			}
+			for (Map.Entry<String, Object> ref : refs.entrySet()) {
+				Slot s = encodeSlot(ref);
+				me.addToReferences(s);
+			}
+			return me;
+		}
+
+		private Slot encodeSlot(Map.Entry<String, Object> slotEntry) {
+			Slot s = new Slot();
+			s.name = slotEntry.getKey();
+			s.values = new ArrayList<>();
+			if (slotEntry.getValue() instanceof Iterable) {
+				for (Object o : (Iterable<?>)slotEntry.getValue()) {
+					s.values.add(o.toString());
+				}
+			}
+			else if (slotEntry.getValue() != null) {
+				s.values.add(slotEntry.getValue().toString());
+			}
+			return s;
 		}
 
 		@Override
