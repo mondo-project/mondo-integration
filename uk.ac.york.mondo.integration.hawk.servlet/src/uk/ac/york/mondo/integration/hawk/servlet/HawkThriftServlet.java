@@ -45,6 +45,7 @@ import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidDerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidIndexedAttributeSpec;
@@ -70,6 +71,15 @@ public class HawkThriftServlet extends TServlet {
 		private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
 		private final HManager manager = HManager.getInstance();
 		
+		private HModel getRunningHawkByName(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			HModel model = getHawkByName(name);
+			if (model.isRunning()) {
+				return model;
+			} else {
+				throw new HawkInstanceNotRunning();
+			}
+		}
+
 		private HModel getHawkByName(String name) throws HawkInstanceNotFound {
 			HModel model;
 			try {
@@ -81,8 +91,8 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void registerMetamodels(String name, List<File> metamodels) throws HawkInstanceNotFound, InvalidMetamodel, TException {
-			final HModel model = getHawkByName(name);
+		public void registerMetamodels(String name, List<File> metamodels) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidMetamodel, TException {
+			final HModel model = getRunningHawkByName(name);
 
 			for (File f : metamodels) {
 				try {
@@ -100,29 +110,28 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getRunningHawkByName(name);
 
 			// TODO Unregister metamodel not implemented by Hawk UI yet?
 			throw new TException(new UnsupportedOperationException());
 		}
 
 		@Override
-		public List<String> listMetamodels(String name)
-				throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<String> listMetamodels(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 			return model.getRegisteredMetamodels();
 		}
 
 		@Override
-		public List<String> listQueryLanguages(String name) throws TException {
-			final HModel model = getHawkByName(name);
+		public List<String> listQueryLanguages(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 			return new ArrayList<String>(model.getKnownQueryLanguages());
 		}
 
 		@Override
 		public List<String> query(String name, String query, String language, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
-			final HModel model = getHawkByName(name);
+			final HModel model = getRunningHawkByName(name);
 			Map<String, String> context = new HashMap<>();
 			context.put(org.hawk.core.query.IQueryEngine.PROPERTY_FILECONTEXT, scope);
 			try {
@@ -139,8 +148,8 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 
 			List<ModelElement> resolved = new ArrayList<ModelElement>();
 			// TODO wait for Kostas to implement resolveProxies
@@ -149,11 +158,10 @@ public class HawkThriftServlet extends TServlet {
 
 		@Override
 		public void addRepository(String name, String uri, String type,
-				Credentials credentials) throws HawkInstanceNotFound,
-				UnknownRepositoryType, VCSAuthenticationFailed, TException {
+				Credentials credentials) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed {
 
 			// TODO Integrate with centralized repositories API
-			final HModel model = getHawkByName(name);
+			final HModel model = getRunningHawkByName(name);
 			try {
 				model.addVCS(uri, type, credentials.username, credentials.password);
 			} catch (NoSuchElementException ex) {
@@ -162,8 +170,8 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void removeRepository(String name, String uri) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public void removeRepository(String name, String uri) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getRunningHawkByName(name);
 			try {
 				model.removeRepository(uri);
 			} catch (Exception ex) {
@@ -172,19 +180,19 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> listRepositories(String name) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<String> listRepositories(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 			return new ArrayList<String>(model.getLocations());
 		}
 
 		@Override
-		public List<String> listRepositoryTypes() throws TException {
+		public List<String> listRepositoryTypes() {
 			return new ArrayList<String>(manager.getVCSTypes());
 		}
 
 		@Override
-		public List<String> listFiles(String name, String repository) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<String> listFiles(String name, String repository) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
 			try (IGraphTransaction t = graph.beginTransaction()) {
@@ -204,16 +212,16 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void configurePolling(String name, int base, int max) throws HawkInstanceNotFound, InvalidPollingConfiguration, TException {
-			final HModel model = getHawkByName(name);
+		public void configurePolling(String name, int base, int max) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidPollingConfiguration {
+			final HModel model = getRunningHawkByName(name);
 			model.configurePolling(base, max);
 		}
 
 		@Override
 		public void addDerivedAttribute(String name, DerivedAttributeSpec spec)
-				throws HawkInstanceNotFound, InvalidDerivedAttributeSpec,
+				throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidDerivedAttributeSpec,
 				TException {
-			final HModel model = getHawkByName(name);
+			final HModel model = getRunningHawkByName(name);
 
 			try {
 				model.addDerivedAttribute(
@@ -226,16 +234,15 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void removeDerivedAttribute(String name, DerivedAttributeSpec spec) throws HawkInstanceNotFound,
-				TException {
-			final HModel model = getHawkByName(name);
+		public void removeDerivedAttribute(String name, DerivedAttributeSpec spec) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 			model.removeDerivedAttribute(
 				spec.metamodelUri, spec.typeName, spec.attributeName);
 		}
 
 		@Override
-		public List<DerivedAttributeSpec> listDerivedAttributes(String name) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<DerivedAttributeSpec> listDerivedAttributes(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 
 			final List<DerivedAttributeSpec> specs = new ArrayList<>();
 			for (String sIndexedAttr : model.getDerivedAttributes()) {
@@ -256,9 +263,8 @@ public class HawkThriftServlet extends TServlet {
 
 		@Override
 		public void addIndexedAttribute(String name, IndexedAttributeSpec spec)
-				throws HawkInstanceNotFound, InvalidIndexedAttributeSpec,
-				TException {
-			final HModel model = getHawkByName(name);
+				throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidIndexedAttributeSpec, TException {
+			final HModel model = getRunningHawkByName(name);
 			try {
 				model.addIndexedAttribute(spec.metamodelUri, spec.typeName, spec.attributeName);
 			} catch (Exception e) {
@@ -267,14 +273,14 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void removeIndexedAttribute(String name, IndexedAttributeSpec spec) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public void removeIndexedAttribute(String name, IndexedAttributeSpec spec) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 			model.removeIndexedAttribute(spec.metamodelUri, spec.typeName, spec.attributeName);
 		}
 
 		@Override
-		public List<IndexedAttributeSpec> listIndexedAttributes(String name) throws HawkInstanceNotFound, TException {
-			final HModel model = getHawkByName(name);
+		public List<IndexedAttributeSpec> listIndexedAttributes(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+			final HModel model = getRunningHawkByName(name);
 
 			final List<IndexedAttributeSpec> specs = new ArrayList<>();
 			for (String sIndexedAttr : model.getIndexedAttributes()) {
@@ -301,16 +307,15 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> getAllContents(String name) throws HawkInstanceNotFound, TException {
+		public List<ModelElement> getAllContents(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
 			// TODO Wait for Kostas to implement object retrieval through queries
 			return null;
 		}
 
 		@Override
-		public void createInstance(String name) throws TException {
+		public void createInstance(String name, String adminPassword) throws TException {
 			try {
-				// TODO allow users to pass in the password somehow
-				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, "admin");
+				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -339,9 +344,9 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void startInstance(String name) throws HawkInstanceNotFound, TException {
+		public void startInstance(String name, String adminPassword) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			model.start(manager);
+			model.start(manager, adminPassword.toCharArray());
 		}
 
 		@Override

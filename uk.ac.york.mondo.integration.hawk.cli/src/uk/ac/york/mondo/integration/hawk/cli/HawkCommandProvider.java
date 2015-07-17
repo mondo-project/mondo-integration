@@ -95,7 +95,8 @@ public class HawkCommandProvider implements CommandProvider {
 		// TODO add extra parameter to pick the backend + listBackends operation
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
-		client.createInstance(name);
+		final String adminPassword = requiredArgument(intp, "adminPassword");
+		client.createInstance(name, adminPassword);
 		return String.format("Created instance %s", name);
 	}
 
@@ -117,9 +118,10 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkStartInstance(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
+		final String adminPassword = requiredArgument(intp, "adminPassword");
 		final HawkInstance hi = findInstance(name);
 		if (!hi.running) {
-			client.startInstance(name);
+			client.startInstance(name, adminPassword);
 			return String.format("Started instance %s", name);
 		} else {
 			return String.format("Instance %s was already running", name);
@@ -396,11 +398,11 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
-		sbuf.append("hawkAddInstance <name> - adds an instance with the provided name\n\t");
+		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
-		sbuf.append("hawkStartInstance <name> - starts the instance with the provided name\n\t");
+		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");
