@@ -1,16 +1,22 @@
 namespace java uk.ac.york.mondo.integration.api
 
-
 enum ModelElementChangeType {
 		/* The model element was added to the model. */ ADDED 
 		/* The model element was removed from the model. */ REMOVED 
 		/* The contents of the model element were changed. */ UPDATED 
 }
 
+
+exception AuthenticationFailed {
+}
+
 struct CollaborationGitResourceReference {
 	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
 	 /* The name of the Git branch to which new commits should be pushed. */ 2: required string branch,
 	 /* The SHA1 identifier of the commit with the resource. */ 3: required string commit,
+}
+
+exception CollaborationLockQueryNotFound {
 }
 
 struct CollaborationLockQuerySpec {
@@ -59,79 +65,16 @@ struct HawkInstance {
 	 /* Whether the instance is running or not. */ 2: required bool running,
 }
 
-struct IndexedAttributeSpec {
-	 /* The URI of the metamodel to which the indexed attribute belongs. */ 1: required string metamodelUri,
-	 /* The name of the type to which the indexed attribute belongs. */ 2: required string typeName,
-	 /* The name of the indexed attribute. */ 3: required string attributeName,
-}
-
-struct ModelSpec {
-	 /* The local name of the model in the transformation. */ 1: required string name,
-	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
-	 /* The URIs of the metamodels to which elements of the model conform. */ 3: required list<string> metamodelUris,
-}
-
-struct OperationModel {
-}
-
-struct Slot {
-	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* The values of the slot. These can be primitive values (for attributes) or model elements (for references). */ 2: required list<string> values,
-}
-
-struct TransformationStatus {
-	 /* True if the transformation has finished, false otherwise. */ 1: required bool finished,
-	 /* Time passed since the start of execution. */ 2: required i64 elapsed,
-	 /* Description of the error that caused the transformation to fail. */ 3: required string error,
-}
-
-struct UserProfile {
-	 /* The real name of the user. */ 1: required string realName,
-	 /* Whether the user has admin rights (i.e. so that they can create new users, change the status of admin users etc). */ 2: required bool admin,
-}
-
-struct CollaborationQueryInvocationSpecification {
-	 /* Fully qualified name of the pre-existing query. */ 1: required string patternFQN,
-	 /* Name/value bindings to be provided to the query. */ 2: required list<CollaborationQueryBinding> bindings,
-}
-
-struct CollaborationResource {
-	 /* File with the contents of the resource. */ 1: required File file,
-}
-
-struct ModelElement {
-	 /* Unique ID of the model element. */ 1: required string id,
-	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
-	 /* The name of type that the model element is an instance of. */ 3: required string typeName,
-	 /* Slots holding the values of the model element's attributes. */ 4: required list<Slot> attributes,
-	 /* Slots holding the values of the model element's references. */ 5: required list<Slot> references,
-}
-
-struct ModelElementChange {
-	 /* The model element that was changed. */ 1: required ModelElement element,
-	 /* The type of change performed on the model. */ 2: required ModelElementChangeType type,
-	 /* For changes of type UPDATED, the path within the element that was updated. */ 3: optional string changePath,
-}
-
-
-exception AuthenticationFailed {
-}
-
-exception CollaborationLockQueryNotFound {
-}
-
-exception CollaborationResourceLocked {
-	 /* Reference to the locked resource. */ 1: required CollaborationResourceReference resourceReference,
-}
-
-exception CollaborationResourceNotFound {
-	 /* Reference to the missing resource. */ 1: required CollaborationResourceReference resourceReference,
-}
-
 exception HawkInstanceNotFound {
 }
 
 exception HawkInstanceNotRunning {
+}
+
+struct IndexedAttributeSpec {
+	 /* The URI of the metamodel to which the indexed attribute belongs. */ 1: required string metamodelUri,
+	 /* The name of the type to which the indexed attribute belongs. */ 2: required string typeName,
+	 /* The name of the indexed attribute. */ 3: required string attributeName,
 }
 
 exception InvalidCollaborationLockQuerySpec {
@@ -147,11 +90,6 @@ exception InvalidIndexedAttributeSpec {
 
 exception InvalidMetamodel {
 	 /* Reason for the metamodel not being valid. */ 1: required string reason,
-}
-
-exception InvalidModelSpec {
-	 /* A copy of the invalid model specification. */ 1: required ModelSpec spec,
-	 /* Reason for the spec not being valid. */ 2: required string reason,
 }
 
 exception InvalidPollingConfiguration {
@@ -170,6 +108,51 @@ exception InvalidTransformation {
 exception MergeRequired {
 }
 
+struct ModelSpec {
+	 /* The local name of the model in the transformation. */ 1: required string name,
+	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
+	 /* The URIs of the metamodels to which elements of the model conform. */ 3: required list<string> metamodelUris,
+}
+
+struct OperationModel {
+}
+
+struct ReferenceSlot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Indicates whether the slot has a value set or not. */ 2: required bool isSet,
+	 /* A homogeneous list with the identifiers of the referenced elements. */ 3: required list<string> ids,
+}
+
+union ScalarList {
+	 /*  */ 1: required binary vBytes,
+	 /*  */ 2: required list<i16> vShorts,
+	 /*  */ 3: required list<i32> vIntegers,
+	 /*  */ 4: required list<i64> vLongs,
+	 /*  */ 5: required list<double> vDoubles,
+	 /*  */ 6: required list<string> vStrings,
+}
+
+union ScalarOrReference {
+	 /*  */ 1: required byte vByte,
+	 /*  */ 2: required i16 vShort,
+	 /*  */ 3: required i32 vInteger,
+	 /*  */ 4: required i64 vLong,
+	 /*  */ 5: required double vDouble,
+	 /*  */ 6: required string vString,
+	 /*  */ 7: required string vReference,
+}
+
+struct Slot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Indicates whether the slot has a value set or not. */ 2: required bool isSet,
+}
+
+struct TransformationStatus {
+	 /* True if the transformation has finished, false otherwise. */ 1: required bool finished,
+	 /* Time passed since the start of execution. */ 2: required i64 elapsed,
+	 /* Description of the error that caused the transformation to fail. */ 3: required string error,
+}
+
 exception TransformationTokenNotFound {
 	 /* Transformation token which was not found within the invoked MONDO instance. */ 1: required string token,
 }
@@ -186,10 +169,57 @@ exception UserExists {
 exception UserNotFound {
 }
 
+struct UserProfile {
+	 /* The real name of the user. */ 1: required string realName,
+	 /* Whether the user has admin rights (i.e. so that they can create new users, change the status of admin users etc). */ 2: required bool admin,
+}
+
 exception VCSAuthenticationFailed {
 }
 
 exception VCSAuthorizationFailed {
+}
+
+struct AttributeSlot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Indicates whether the slot has a value set or not. */ 2: required bool isSet,
+	 /* A heterogeneous list with the scalar values for the attribute slot. */ 3: required ScalarList values,
+}
+
+struct CollaborationQueryInvocationSpecification {
+	 /* Fully qualified name of the pre-existing query. */ 1: required string patternFQN,
+	 /* Name/value bindings to be provided to the query. */ 2: required list<CollaborationQueryBinding> bindings,
+}
+
+struct CollaborationResource {
+	 /* File with the contents of the resource. */ 1: required File file,
+}
+
+exception CollaborationResourceLocked {
+	 /* Reference to the locked resource. */ 1: required CollaborationResourceReference resourceReference,
+}
+
+exception CollaborationResourceNotFound {
+	 /* Reference to the missing resource. */ 1: required CollaborationResourceReference resourceReference,
+}
+
+exception InvalidModelSpec {
+	 /* A copy of the invalid model specification. */ 1: required ModelSpec spec,
+	 /* Reason for the spec not being valid. */ 2: required string reason,
+}
+
+struct ModelElement {
+	 /* Unique ID of the model element. */ 1: required string id,
+	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
+	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
+	 /* Slots holding the values of the model element's attributes. */ 4: required list<AttributeSlot> attributes,
+	 /* Slots holding the values of the model element's references. */ 5: required list<ReferenceSlot> references,
+}
+
+struct ModelElementChange {
+	 /* The model element that was changed. */ 1: required ModelElement element,
+	 /* The type of change performed on the model. */ 2: required ModelElementChangeType type,
+	 /* For changes of type UPDATED, the path within the element that was updated. */ 3: optional string changePath,
 }
 
 /* The majority of service operations provided by the MONDO
@@ -310,7 +340,7 @@ service Hawk {
   )
 	
   /* Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct). Auth needed: Yes */
-  list<string> query(
+  list<ScalarOrReference> query(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The query to be executed. */ 2: required string query, 
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language, 

@@ -183,8 +183,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="query" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"
-        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery">
+    <eOperations name="query" upperBound="-1" eType="#//ScalarOrReference" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery">
       <eAnnotations source="doc">
         <details key="d" value="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)"/>
       </eAnnotations>
@@ -859,17 +858,17 @@
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="typeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="The name of type that the model element is an instance of"/>
+        <details key="d" value="Name of the type that the model element is an instance of"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="#//Slot" containment="true">
+        eType="#//AttributeSlot" containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Slots holding the values of the model element's attributes"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
-        eType="#//Slot" containment="true">
+        eType="#//ReferenceSlot" containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Slots holding the values of the model element's references"/>
       </eAnnotations>
@@ -884,12 +883,67 @@
         <details key="d" value="The name of the model element property the value of which is stored in this slot"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="values" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isSet" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
       <eAnnotations source="doc">
-        <details key="d" value="The values of the slot. These can be primitive values (for attributes) or model elements (for references)"/>
+        <details key="d" value="Indicates whether the slot has a value set or not"/>
       </eAnnotations>
     </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AttributeSlot" eSuperTypes="#//Slot">
+    <eAnnotations source="doc">
+      <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="values" eType="#//ScalarList"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A heterogeneous list with the scalar values for the attribute slot."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ReferenceSlot" eSuperTypes="#//Slot">
+    <eAnnotations source="doc">
+      <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A homogeneous list with the identifiers of the referenced elements."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScalarOrReference">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eAnnotations source="doc">
+      <details key="d" value="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vReference" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScalarList">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eAnnotations source="doc">
+      <details key="d" value="Union type for a homogeneous collection of scalar values."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShorts" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vIntegers" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLongs" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDoubles" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vStrings" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ModelSpec">
     <eAnnotations source="doc">

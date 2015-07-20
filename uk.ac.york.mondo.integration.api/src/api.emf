@@ -108,7 +108,7 @@ class Hawk {
     );
 
 	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
-	op Object[*] query (
+	op ScalarOrReference[*] query (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
@@ -430,20 +430,55 @@ class ModelElement {
 	attr String ~id;
 	@doc(d="URI of the metamodel to which the type of the element belongs") 
 	attr String metamodelUri;
-	@doc(d="The name of type that the model element is an instance of") 
+	@doc(d="Name of the type that the model element is an instance of") 
 	attr String typeName;
 	@doc(d="Slots holding the values of the model element's attributes")
-	val Slot[*] attributes;
+	val AttributeSlot[*] attributes;
 	@doc(d="Slots holding the values of the model element's references")
-	val Slot[*] references;
+	val ReferenceSlot[*] references;
 }
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element") 
 class Slot {
 	@doc(d="The name of the model element property the value of which is stored in this slot") 
 	attr String name;
-	@doc(d="The values of the slot. These can be primitive values (for attributes) or model elements (for references)") 
-	ref Object[*] values;
+	@doc(d="Indicates whether the slot has a value set or not")
+	attr boolean isSet;
+}
+
+@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+class AttributeSlot extends Slot {
+	@doc(d="A heterogeneous list with the scalar values for the attribute slot.") 
+	val ScalarList values;
+}
+
+@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+class ReferenceSlot extends Slot {
+	@doc(d="A homogeneous list with the identifiers of the referenced elements.") 
+	val String[*] ids;
+}
+
+@thrift(union="true")
+@doc(d="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.")
+class ScalarOrReference {
+	attr byte vByte;
+	attr short vShort;
+	attr int vInteger;
+	attr long vLong;
+	attr double vDouble;
+	attr String vString;
+	attr String vReference;
+}
+
+@thrift(union="true")
+@doc(d="Union type for a homogeneous collection of scalar values.")
+class ScalarList {
+	attr EByteArray vBytes;
+	attr short[*] vShorts;
+	attr int[*] vIntegers;
+	attr long[*] vLongs;
+	attr double[*] vDoubles;
+	attr String[*] vStrings;
 }
 
 @doc(d="Captures information about source/target models of ATL transformations") 
