@@ -12,11 +12,15 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.apache.thrift.TException;
@@ -39,6 +43,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
@@ -53,7 +58,9 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
-import uk.ac.york.mondo.integration.api.Slot;
+import uk.ac.york.mondo.integration.api.ReferenceSlot;
+import uk.ac.york.mondo.integration.api.ScalarList;
+import uk.ac.york.mondo.integration.api.ScalarOrReference;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
@@ -114,7 +121,7 @@ public class HawkThriftServlet extends TServlet {
 		public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
-			// TODO Unregister metamodel not implemented by Hawk UI yet?
+			// TODO Unregister metamodel not implemented by Hawk yet
 			throw new TException(new UnsupportedOperationException());
 		}
 
@@ -131,14 +138,16 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> query(String name, String query, String language, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
+		public List<ScalarOrReference> query(String name, String query, String language, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
 			final HModel model = getRunningHawkByName(name);
 			Map<String, String> context = new HashMap<>();
 			context.put(org.hawk.core.query.IQueryEngine.PROPERTY_FILECONTEXT, scope);
 			try {
 				Object ret = model.contextFullQuery(query, language, context);
-				// TODO convert collections into String
-				return Arrays.asList(""+ ret);
+				// TODO be able to return other things beyond Strings
+				final ScalarOrReference v = new ScalarOrReference();
+				v.setVString("" + ret);
+				return Arrays.asList(v);
 			} catch (NoSuchElementException ex) {
 				throw new UnknownQueryLanguage();
 			} catch (InvalidQueryException ex) {
@@ -316,7 +325,7 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getRunningHawkByName(name);
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
-			// TODO implement limiting by repository
+			// TODO filtering by repository
 			final List<ModelElement> elems = new ArrayList<>();
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
@@ -386,30 +395,113 @@ public class HawkThriftServlet extends TServlet {
 			meNode.getSlotValues(attrs, refs);
 
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-				// TODO use union types to be able to return richer values
-				Slot s = encodeSlot(attr);
-				me.addToAttributes(s);
+				me.addToAttributes(encodeAttributeSlot(attr));
 			}
 			for (Map.Entry<String, Object> ref : refs.entrySet()) {
-				Slot s = encodeSlot(ref);
-				me.addToReferences(s);
+				me.addToReferences(encodeReferenceSlot(ref));
 			}
 			return me;
 		}
 
-		private Slot encodeSlot(Map.Entry<String, Object> slotEntry) {
-			Slot s = new Slot();
+		private ReferenceSlot encodeReferenceSlot(Entry<String, Object> slotEntry) {
+			ReferenceSlot s = new ReferenceSlot();
 			s.name = slotEntry.getKey();
-			s.values = new ArrayList<>();
-			if (slotEntry.getValue() instanceof Iterable) {
-				for (Object o : (Iterable<?>)slotEntry.getValue()) {
-					s.values.add(o.toString());
+
+			final Object value = slotEntry.getValue();
+			s.isSet = value != null;
+			s.ids = new ArrayList<>();
+			if (value instanceof Collection) {
+				for (Object o : (Collection<?>)value) {
+					s.ids.add(o.toString());
 				}
+			} else if (s.isSet) {
+				s.ids.add(value.toString());
 			}
-			else if (slotEntry.getValue() != null) {
-				s.values.add(slotEntry.getValue().toString());
-			}
+
 			return s;
+		}
+
+		@SuppressWarnings("unchecked")
+		private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
+			AttributeSlot s = new AttributeSlot();
+			s.name = slotEntry.getKey();
+			s.values = new ScalarList();
+
+			final Object value = slotEntry.getValue();
+			s.isSet = value != null;
+			if (value instanceof Collection) {
+				final Collection<?> cValue = (Collection<?>)value;
+				if (!cValue.isEmpty()) {
+					final Iterator<?> it = cValue.iterator();
+					final Object o = it.next();
+					if (o instanceof Byte) {
+						final ByteBuffer bbuf = ByteBuffer.allocate(cValue.size());
+						bbuf.put((byte)o);
+						while (it.hasNext()) {
+							bbuf.put((byte)it.next());
+						}
+						bbuf.flip();
+						s.values.setVBytes(bbuf);
+					} else if (o instanceof Float) {
+						final ArrayList<Double> l = new ArrayList<Double>(cValue.size());
+						l.add((double)o);
+						while (it.hasNext()) {
+							l.add((double)it.next());
+						}
+						s.values.setVDoubles(l);
+					} else if (o instanceof Double) {
+						s.values.setVDoubles(new ArrayList<Double>((Collection<Double>)cValue));
+					} else if (o instanceof Integer) {
+						s.values.setVIntegers(new ArrayList<Integer>((Collection<Integer>)cValue));
+					} else if (o instanceof Long) {
+						s.values.setVLongs(new ArrayList<Long>((Collection<Long>)cValue));
+					} else if (o instanceof Short) {
+						s.values.setVShorts(new ArrayList<Short>((Collection<Short>)cValue));
+					} else if (o instanceof String) {
+						s.values.setVStrings(new ArrayList<String>((Collection<String>)cValue));
+					}
+				}
+			} else if (value instanceof Byte) {
+				s.values.setVBytes(new byte[] { (byte) value });
+			} else if (value instanceof Float) {
+				s.values.setVDoubles(Arrays.asList((double)value));
+			} else if (value instanceof Double) {
+				s.values.setVDoubles(Arrays.asList((double)value));
+			} else if (value instanceof Integer) {
+				s.values.setVIntegers(Arrays.asList((int)value));
+			} else if (value instanceof Long) {
+				s.values.setVLongs(Arrays.asList((long)value));
+			} else if (value instanceof Short) {
+				s.values.setVShorts(Arrays.asList((short)value));
+			} else if (value instanceof String) {
+				s.values.setVStrings(Arrays.asList((String)value));
+			} else if (value != null) {
+				throw new IllegalArgumentException(String.format("Unsupported value type '%s'", value.getClass().getName()));
+			}
+
+			return s;
+		}
+
+		private ScalarOrReference encodeScalarOrReferenceValue(Object o) {
+			final ScalarOrReference encoded = new ScalarOrReference();
+
+			if (o instanceof Byte) {
+				encoded.setVByte((byte)o);
+			} else if (o instanceof Float || o instanceof Double) {
+				encoded.setVDouble((double)o);
+			} else if (o instanceof Integer) {
+				encoded.setVInteger((int)o);
+			} else if (o instanceof Long) {
+				encoded.setVLong((long)o);
+			} else if (o instanceof IGraphNode) {
+				encoded.setVReference(((IGraphNode)o).getId().toString());
+			} else if (o instanceof Short) {
+				encoded.setVShort((short)o);
+			} else if (o instanceof String) {
+				encoded.setVString(o.toString());
+			}
+
+			return encoded;
 		}
 
 		private java.io.File storageFolder(String instanceName) {

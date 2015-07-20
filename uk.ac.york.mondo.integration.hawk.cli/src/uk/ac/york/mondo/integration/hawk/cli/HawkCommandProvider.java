@@ -25,6 +25,7 @@ import org.apache.thrift.transport.THttpClient;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
+import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
@@ -32,7 +33,7 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
-import uk.ac.york.mondo.integration.api.Slot;
+import uk.ac.york.mondo.integration.api.ReferenceSlot;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
@@ -412,12 +413,12 @@ public class HawkCommandProvider implements CommandProvider {
 			sbuf.append(String.format("Metamodel: %s\n\t", me.metamodelUri));
 			sbuf.append(String.format("Type: %s\n\t", me.typeName));
 			sbuf.append("Attributes:");
-			for (Slot s : me.attributes) {
+			for (AttributeSlot s : me.attributes) {
 				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.values));
 			}
 			sbuf.append("\n\tReferences:");
-			for (Slot s : me.references) {
-				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.values));
+			for (ReferenceSlot s : me.references) {
+				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.ids));
 			}
 		}
 		return sbuf.toString();
