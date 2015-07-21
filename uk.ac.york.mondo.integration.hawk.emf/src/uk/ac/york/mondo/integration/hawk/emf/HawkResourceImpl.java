@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -45,40 +44,12 @@ import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.ScalarList._Fields;
 
 /**
- * <p>
- * EMF driver that reads a remote model from a Hawk index. The file format is a
- * simple Java properties file, with the following keys:
- * </p>
- * <ul>
- * <li>{@link #PROPERTY_HAWK_URL} (required) is the URL to the remote Hawk index
- * (e.g. <code>http://127.0.0.1:8080/thrift/hawk</code>.</li>
- * <li>{@link #PROPERTY_HAWK_INSTANCE} (required) is the name of the Hawk
- * instance within the server.
- * <li>{@link #PROPERTY_HAWK_REPOSITORY} (optional) is the URL of the VCS
- * repository within Hawk that contains the models of interest, or
- * <code>*</code> if all repositories should be considered (the default, as in
- * {@link #DEFAULT_REPOSITORY}).
- * <li>{@link #PROPERTY_HAWK_FILES} (optional) is a comma-separated list of file
- * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
- * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
- * </ul>
+ * EMF driver that reads a remote model from a Hawk index.
  */
 public class HawkResourceImpl extends ResourceImpl {
 
-	public static final String DEFAULT_FILES = "*";
-	public static final String DEFAULT_REPOSITORY = DEFAULT_FILES;
-
-	public static final String PROPERTY_HAWK_FILES = "hawk.files";
-	public static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
-	public static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
-	public static final String PROPERTY_HAWK_URL = "hawk.url";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
-
-	private String hawkURL;
-	private String hawkInstance;
-	private String hawkRepository;
-	private String[] hawkFilePatterns;
+	private HawkModelDescriptor descriptor;
 
 	public HawkResourceImpl() {
 	}
@@ -87,56 +58,23 @@ public class HawkResourceImpl extends ResourceImpl {
 		super(uri);
 	}
 
-	public String getHawkURL() {
-		return hawkURL;
-	}
-
-	public void setHawkURL(String hawkURL) {
-		this.hawkURL = hawkURL;
-	}
-
-	public String getHawkInstance() {
-		return hawkInstance;
-	}
-
-	public void setHawkInstance(String hawkInstance) {
-		this.hawkInstance = hawkInstance;
-	}
-
-	public String getHawkRepository() {
-		return hawkRepository;
-	}
-
-	public void setHawkRepository(String hawkRepository) {
-		this.hawkRepository = hawkRepository;
-	}
-
-	public String[] getHawkFilePatterns() {
-		return hawkFilePatterns;
-	}
-
-	public void setHawkFilePatterns(String[] hawkFilePatterns) {
-		this.hawkFilePatterns = hawkFilePatterns;
-	}
-
 	@Override
 	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		final Properties props = new Properties();
-		props.load(inputStream);
+		this.descriptor = new HawkModelDescriptor();
+		this.descriptor.load(inputStream);
 
-		this.hawkURL = requiredProperty(props, PROPERTY_HAWK_URL);
-		this.hawkInstance = requiredProperty(props, PROPERTY_HAWK_INSTANCE);
-		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
-		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(",");
 		try {
-			final Hawk.Client client = new Hawk.Client(new TCompactProtocol(new THttpClient(hawkURL)));
-			final List<ModelElement> elems = client.getModel(hawkInstance,
-					hawkRepository, Arrays.asList(hawkFilePatterns));
+			final Hawk.Client client = new Hawk.Client(new TCompactProtocol(new THttpClient(descriptor.getHawkURL())));
+			final List<ModelElement> elems = client.getModel(
+					descriptor.getHawkInstance(),
+					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkFilePatterns()));
 
 			// Do a first pass, creating all the objects with their attributes
 			// and saving their graph IDs
 			// into the One Map to bind them.
-			final Registry packageRegistry = getResourceSet().getPackageRegistry();
+			final Registry packageRegistry = getResourceSet()
+					.getPackageRegistry();
 			final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
 			for (ModelElement me : elems) {
 				final EClass eClass = getEClass(packageRegistry, me);
@@ -161,7 +99,8 @@ public class HawkResourceImpl extends ResourceImpl {
 						continue;
 
 					final EClass eClass = getEClass(packageRegistry, me);
-					final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
+					final EStructuralFeature feature = eClass
+							.getEStructuralFeature(s.name);
 					if (feature.isMany()) {
 						final EList<EObject> value = new BasicEList<>();
 						for (String targetId : s.ids) {
@@ -204,10 +143,9 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
-	
-
 	@Override
-	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
+	protected void doSave(OutputStream outputStream, Map<?, ?> options)
+			throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -215,7 +153,9 @@ public class HawkResourceImpl extends ResourceImpl {
 			throws IOException {
 		final EPackage pkg = packageRegistry.getEPackage(me.metamodelUri);
 		if (pkg == null) {
-			throw new IOException(String.format("Could not find EPackage with URI '%s' in the registry %s", me.metamodelUri, packageRegistry));
+			throw new IOException(String.format(
+					"Could not find EPackage with URI '%s' in the registry %s",
+					me.metamodelUri, packageRegistry));
 		}
 
 		final EClassifier eClassifier = pkg.getEClassifier(me.typeName);
@@ -397,25 +337,5 @@ public class HawkResourceImpl extends ResourceImpl {
 					.toEList((Iterable<?>) slot.values
 							.getFieldValue(expectedType)));
 		}
-	}
-
-	private String requiredProperty(Properties props, String name)
-			throws IOException {
-		final String value = (String) props.get(name);
-		if (value == null) {
-			throw new IOException(name + " has not been set");
-		}
-		return value;
-	}
-
-	private String optionalProperty(Properties props, String name,
-			String defaultValue) throws IOException {
-		final String value = (String) props.get(name);
-		if (value == null) {
-			LOGGER.info("{} has not been set, using {} as default", name,
-					defaultValue);
-			return defaultValue;
-		}
-		return value;
 	}
 }

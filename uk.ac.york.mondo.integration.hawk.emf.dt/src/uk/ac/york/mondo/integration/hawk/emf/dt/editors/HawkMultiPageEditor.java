@@ -1,11 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2015 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Antonio Garcia-Dominguez - initial API and implementation
+ *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 
-import org.eclipse.core.resources.IMarker;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -24,125 +42,195 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
-import uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl;
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
+import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 
 /**
- * An example showing how to create a multi-page editor. This example has 3
- * pages:
- * <ul>
- * <li>page 0 contains a nested text editor.
- * <li>page 1 allows you to change the font used in page 2
- * <li>page 2 shows the words in page 0 in sorted order
- * </ul>
+ * Editor for <code>.hawkmodel</code> files. The first page is a form-based UI
+ * for editing the raw text on the second page.
  */
 public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeListener {
 
+	private static abstract class ContentSection implements ModifyListener {
+		private final FormField fldFilePatterns;
+		private final FormField fldRepositoryURL;
+
+		public ContentSection(FormToolkit toolkit, Composite parent) {
+		    final Section sectionContent = toolkit.createSection(parent, Section.TITLE_BAR|Section.DESCRIPTION);
+		    sectionContent.setText("Contents");
+		    sectionContent.setDescription("Filters on the contents of the index to be read as a model");
+		    TableWrapData tdSectionContent = new TableWrapData(TableWrapData.FILL_GRAB);
+		    sectionContent.setLayoutData(tdSectionContent);
+
+		    final Composite cContents =  toolkit.createComposite(sectionContent, SWT.WRAP);
+		    sectionContent.setClient(cContents);
+		    cContents.setLayout(createTableWrapLayout(2));
+
+		    this.fldRepositoryURL = new FormField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
+		    this.fldFilePatterns = new FormField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
+
+		    fldRepositoryURL.getText().addModifyListener(this);
+		    fldFilePatterns.getText().addModifyListener(this);
+		}
+
+		public String[] getFilePatterns() {
+			return fldFilePatterns.getText().getText().split(",");
+		}
+
+		public String getRepositoryURL() {
+			return fldRepositoryURL.getText().getText();
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (e.widget == fldRepositoryURL.getText()) {
+				repositoryURLChanged();
+			} else if (e.widget == fldFilePatterns.getText()) {
+				filePatternsChanged();
+			}
+		}
+
+		public void setFilePatterns(String[] patterns) {
+			// Avoid triggering filePatternsChanged unnecessarily
+			final String newText = HawkMultiPageEditor.concat(patterns, ",");
+			final String oldText = fldFilePatterns.getText().getText();
+			if (!isEqual(oldText, newText)) {
+				fldFilePatterns.getText().setText(newText);
+			}
+		}
+
+		public void setRepositoryURL(String url) {
+			// Avoid triggering repositoryURLChanged unnecessarily
+			if (!isEqual(getRepositoryURL(), url)) {
+				fldRepositoryURL.getText().setText(url);
+			}
+		}
+
+		protected abstract void filePatternsChanged();
+		protected abstract void repositoryURLChanged();
+	}
+
+	private static abstract class InstanceSection implements ModifyListener {
+		private final FormField fldInstanceName;
+		private final FormField fldServerURL;
+
+		public InstanceSection(FormToolkit toolkit, Composite parent) {
+		    final Section section = toolkit.createSection(parent, Section.TITLE_BAR|Section.DESCRIPTION);
+		    section.setText("Instance");
+		    section.setDescription("Access details for the remote Hawk instance.");
+		    section.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+
+		    final Composite client =  toolkit.createComposite(section, SWT.NONE);
+			section.setClient(client);
+		    client.setLayout(createTableWrapLayout(2));
+
+		    this.fldServerURL = new FormField(toolkit, client, "Server URL:", "");
+		    this.fldInstanceName = new FormField(toolkit, client, "Instance name:", "");
+		    fldServerURL.getText().addModifyListener(this);
+		    fldInstanceName.getText().addModifyListener(this);
+		}
+
+		public String getInstanceName() {
+			return fldInstanceName.getText().getText();
+		}
+
+		public String getServerURL() {
+			return fldServerURL.getText().getText();
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (e.widget == fldServerURL.getText()) {
+				serverURLChanged();
+			} else if (e.widget == fldInstanceName.getText()) {
+				instanceNameChanged();
+			}
+		}
+
+		public void setInstanceName(String name) {
+			if (!isEqual(getInstanceName(), name)) {
+				fldInstanceName.getText().setText(name);
+			}
+		}
+
+		public void setServerURL(String url) {
+			if (!isEqual(getServerURL(), url)) {
+				fldServerURL.getText().setText(url);
+			}
+		}
+
+		protected abstract void instanceNameChanged();
+		protected abstract void serverURLChanged();
+	}
+
+
+	/**
+	 * Paired label and text field.
+	 */
+	private static class FormField {
+		private final Label label;
+		private final Text text;
+
+		public FormField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
+		    label = toolkit.createLabel(sectionClient, labelText, SWT.WRAP);
+		    label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
+
+		    final TableWrapData layoutData = new TableWrapData();
+			layoutData.valign = TableWrapData.MIDDLE;
+			label.setLayoutData(layoutData);
+
+			text = toolkit.createText(sectionClient, defaultValue, SWT.BORDER);
+			text.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+		}
+
+		public Text getText() {
+			return text;
+		}
+	}
+
 	private static final int RAW_EDITOR_PAGE_INDEX = 1;
+
+	private static String concat(final String[] elems, final String separator) {
+		final StringBuffer sbuf = new StringBuffer();
+		boolean bFirst = true;
+		for (String filePattern : elems) {
+			if (bFirst) {
+				bFirst = false;
+			} else {
+				sbuf.append(separator);
+			}
+			sbuf.append(filePattern);
+		}
+		return sbuf.toString();
+	}
+
+	private static TableWrapLayout createTableWrapLayout(int nColumns) {
+		final TableWrapLayout cContentsLayout = new TableWrapLayout();
+	    cContentsLayout.numColumns = nColumns;
+	    cContentsLayout.horizontalSpacing = 5;
+	    cContentsLayout.verticalSpacing = 3;
+		return cContentsLayout;
+	}
+
+	/**
+	 * Equality with {@link Object#equals(Object)}, safe against null values.
+	 */
+	private static boolean isEqual(Object a, Object b) {
+		return a == null && b == null || a != null && a.equals(b);
+	}
 
 	/** The text editor used in page 0. */
 	private TextEditor editor;
 
-	/**
-	 * Creates a multi-page editor example.
-	 */
+	private ContentSection sectionContent;
+
+	private InstanceSection sectionInstance;
+
 	public HawkMultiPageEditor() {
 		super();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-	}
-
-	/**
-	 * Creates page 1 of the multi-page editor, which allows you to change the
-	 * font used in page 2.
-	 */
-	private void createFormBasedEditorPage() {
-		final FormToolkit toolkit = createToolkit(getContainer().getDisplay());
-		final ScrolledForm form = toolkit.createScrolledForm(getContainer());
-		form.setText("Remote Hawk Model Descriptor");
-
-		TableWrapLayout layout = new TableWrapLayout();
-		layout.numColumns = 1;
-		form.getBody().setLayout(layout);
-
-	    final Section sectionServer = toolkit.createSection(form.getBody(), Section.TITLE_BAR|Section.DESCRIPTION);
-	    sectionServer.setText("Instance");
-	    sectionServer.setDescription("Access details for the remote Hawk instance.");
-	    sectionServer.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-	    final Composite cServer =  toolkit.createComposite(sectionServer, SWT.NONE);
-		sectionServer.setClient(cServer);
-	    final TableWrapLayout cServerLayout = new TableWrapLayout();
-	    cServerLayout.numColumns = 2;
-	    cServerLayout.horizontalSpacing = 5;
-	    cServerLayout.verticalSpacing = 3;
-	    cServer.setLayout(cServerLayout);
-
-	    Label lServerURL = toolkit.createLabel(cServer, "Server URL:", SWT.WRAP);
-	    lServerURL.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
-		final TableWrapData tdServerURL = new TableWrapData();
-		tdServerURL.valign = TableWrapData.MIDDLE;
-		lServerURL.setLayoutData(tdServerURL);
-		Text tServerURL = toolkit.createText(cServer, "", SWT.BORDER);
-		tServerURL.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-		Label lInstance = toolkit.createLabel(cServer, "Instance name:", SWT.WRAP);
-		lInstance.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
-		final TableWrapData tdInstance = new TableWrapData();
-		tdInstance.valign = TableWrapData.MIDDLE;
-		lInstance.setLayoutData(tdInstance);
-		Text tInstance = toolkit.createText(cServer, "", SWT.BORDER);
-		tInstance.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-	    final Section sectionContent = toolkit.createSection(form.getBody(), Section.TITLE_BAR|Section.DESCRIPTION);
-	    sectionContent.setText("Contents");
-	    sectionContent.setDescription("Filters on the contents of the index to be read as a model");
-	    TableWrapData tdSectionContent = new TableWrapData(TableWrapData.FILL_GRAB);
-	    sectionContent.setLayoutData(tdSectionContent);
-
-	    final Composite cContents =  toolkit.createComposite(sectionContent, SWT.WRAP);
-	    sectionContent.setClient(cContents);
-	    final TableWrapLayout cContentsLayout = new TableWrapLayout();
-	    cContentsLayout.numColumns = 2;
-	    cContentsLayout.horizontalSpacing = 5;
-	    cContentsLayout.verticalSpacing = 3;
-	    cContents.setLayout(cContentsLayout);
-	    
-		Label lRepository = toolkit.createLabel(cContents, "Repository URL:", SWT.WRAP);
-		lRepository.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
-		final TableWrapData tdRepository = new TableWrapData();
-		tdRepository.valign = TableWrapData.MIDDLE;
-		lRepository.setLayoutData(tdRepository);
-		Text tRepository = toolkit.createText(cContents, HawkResourceImpl.DEFAULT_REPOSITORY, SWT.BORDER);
-		tRepository.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-		Label lFiles = toolkit.createLabel(cContents, "File pattern(s):", SWT.WRAP);
-		lFiles.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
-		final TableWrapData tdFiles = new TableWrapData();
-		tdFiles.valign = TableWrapData.MIDDLE;
-		lFiles.setLayoutData(tdFiles);
-		Text tFiles = toolkit.createText(cContents, HawkResourceImpl.DEFAULT_FILES, SWT.BORDER);
-		tFiles.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-		int index = addPage(form);
-		setPageText(index, "Descriptor");
-	}
-	/**
-	 * Creates the pages of the multi-page editor.
-	 */
-	@Override
-	protected void addPages() {
-		createFormBasedEditorPage();
-		try {
-			editor = new TextEditor();
-			int rawEditorPage = addPage(editor, getEditorInput());
-			setPageText(rawEditorPage, editor.getTitle());
-			setPartName(editor.getTitle());
-		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -150,23 +238,23 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	 * <code>IWorkbenchPart</code> method disposes all nested editors.
 	 * Subclasses may extend.
 	 */
+	@Override
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 		super.dispose();
 	}
 
-	/**
-	 * Saves the multi-page editor's document.
-	 */
+	@Override
 	public void doSave(IProgressMonitor monitor) {
 		getEditor(RAW_EDITOR_PAGE_INDEX).doSave(monitor);
 	}
 
 	/**
 	 * Saves the multi-page editor's document as another file. Also updates the
-	 * text for page 0's tab, and updates this multi-page editor's input to
-	 * correspond to the nested editor's.
+	 * text for page {@link #RAW_EDITOR_PAGE_INDEX}'s tab, and updates this
+	 * multi-page editor's input to correspond to the nested editor's.
 	 */
+	@Override
 	public void doSaveAs() {
 		IEditorPart editor = getEditor(RAW_EDITOR_PAGE_INDEX);
 		editor.doSaveAs();
@@ -174,29 +262,20 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		setInput(editor.getEditorInput());
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on IEditorPart
-	 */
-	public void gotoMarker(IMarker marker) {
-		setActivePage(1);
-		IDE.gotoMarker(getEditor(RAW_EDITOR_PAGE_INDEX), marker);
-	}
-
 	/**
 	 * The <code>MultiPageEditorExample</code> implementation of this method
 	 * checks that the input is an instance of <code>IFileEditorInput</code>.
 	 */
+	@Override
 	public void init(IEditorSite site, IEditorInput editorInput)
 			throws PartInitException {
-		if (!(editorInput instanceof IFileEditorInput))
-			throw new PartInitException(
-					"Invalid Input: Must be IFileEditorInput");
+		if (!(editorInput instanceof IFileEditorInput)) {
+			throw new PartInitException("Invalid Input: Must be IFileEditorInput");
+		}
 		super.init(site, editorInput);
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on IEditorPart.
-	 */
+	@Override
 	public boolean isSaveAsAllowed() {
 		return true;
 	}
@@ -204,12 +283,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	/**
 	 * Closes all project files on project close.
 	 */
+	@Override
 	public void resourceChanged(final IResourceChangeEvent event) {
 		if (event.getType() == IResourceChangeEvent.PRE_CLOSE) {
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					IWorkbenchPage[] pages = getSite().getWorkbenchWindow()
-							.getPages();
+					IWorkbenchPage[] pages = getSite().getWorkbenchWindow().getPages();
 					for (int i = 0; i < pages.length; i++) {
 						if (((FileEditorInput) editor.getEditorInput()).getFile().getProject().equals(event.getResource())) {
 							IEditorPart editorPart = pages[i].findEditor(editor.getEditorInput());
@@ -221,4 +300,95 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 	}
 
+	private void createFormBasedEditorPage() {
+		final FormToolkit toolkit = createToolkit(getContainer().getDisplay());
+		final ScrolledForm form = toolkit.createScrolledForm(getContainer());
+		form.setText("Remote Hawk Model Descriptor");
+
+		TableWrapLayout layout = new TableWrapLayout();
+		layout.numColumns = 1;
+		form.getBody().setLayout(layout);
+
+		this.sectionInstance = new InstanceSection(toolkit, form.getBody()) {
+			@Override protected void instanceNameChanged() { writeFile(); }
+			@Override protected void serverURLChanged()    { writeFile(); }
+		};
+		this.sectionContent = new ContentSection(toolkit, form.getBody()) {
+			@Override protected void filePatternsChanged()  { writeFile(); }
+			@Override protected void repositoryURLChanged() { writeFile(); }
+		};
+
+		int index = addPage(form);
+		setPageText(index, "Descriptor");
+	}
+
+	private void createRawTextEditorPage() throws PartInitException {
+		editor = new TextEditor();
+		int rawEditorPage = addPage(editor, getEditorInput());
+		setPageText(rawEditorPage, editor.getTitle());
+		setPartName(editor.getTitle());
+	}
+
+	private IDocument getDocument() {
+		return editor.getDocumentProvider().getDocument(editor.getEditorInput());
+	}
+
+	private void refreshForm() {
+		final IDocument doc = getDocument();
+		final String sContents = doc.get();
+
+		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
+		try {
+			descriptor.load(new StringReader(sContents));
+
+			sectionInstance.setServerURL(descriptor.getHawkURL());
+			sectionInstance.setInstanceName(descriptor.getHawkInstance());
+			sectionContent.setRepositoryURL(descriptor.getHawkRepository());
+			sectionContent.setFilePatterns(descriptor.getHawkFilePatterns());
+		} catch (IOException e) {
+			Activator.getDefault().logError(e);
+		}
+	}
+
+	private void writeFile() {
+		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
+		descriptor.setHawkURL(sectionInstance.getServerURL());
+		descriptor.setHawkInstance(sectionInstance.getInstanceName());
+		descriptor.setHawkRepository(sectionContent.getRepositoryURL());
+		descriptor.setHawkFilePatterns(sectionContent.getFilePatterns());
+
+		final StringWriter sW = new StringWriter();
+		try {
+			descriptor.save(sW);
+
+			final IDocument doc = getDocument();
+			doc.set(sW.toString());
+		} catch (IOException e) {
+			Activator.getDefault().logError(e);
+		}
+	}
+
+	@Override
+	protected void addPages() {
+		try {
+			createFormBasedEditorPage();
+			createRawTextEditorPage();
+			getDocument().addDocumentListener(new IDocumentListener() {
+				@Override
+				public void documentAboutToBeChanged(DocumentEvent event) {
+					// ignore
+				}
+
+				@Override
+				public void documentChanged(DocumentEvent event) {
+					refreshForm();
+				}
+			});
+
+			// load initial contents
+			refreshForm();
+		} catch (Exception ex) {
+			Activator.getDefault().logError(ex);
+		}
+	}
 }

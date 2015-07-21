@@ -1,8 +1,11 @@
 package uk.ac.york.mondo.integration.hawk.emf.dt;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -57,5 +60,11 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	public void logError(Throwable t) {
+		getLog().log(new Status(IStatus.ERROR,
+			FrameworkUtil.getBundle(Activator.class).getSymbolicName(),
+			t.getMessage(), t));
 	}
 }
