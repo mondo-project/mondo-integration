@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="49">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="52">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="ch.qos.logback.core" version="1.0.7.v20121108-1250"/>
@@ -38,6 +38,21 @@
 <unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201507171531"/>
 <unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201507171531"/>
 <repository location="file:/usr/userfs/a/agd516/Documents/mondo-hawk/org.hawk.updatesite/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201507161642"/>
+<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201507161642"/>
+<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201507161642"/>
+<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201507161642"/>
+<repository location="http://download.eclipse.org/epsilon/interim/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20150123-0452"/>
+<unit id="org.eclipse.xsd.mapping.feature.group" version="2.8.0.v20150123-0452"/>
+<unit id="org.eclipse.xsd.mapping.editor.feature.group" version="2.9.0.v20150123-0452"/>
+<unit id="org.eclipse.xsd.feature.group" version="2.10.0.v20150123-0452"/>
+<unit id="org.eclipse.xsd.ecore.converter.feature.group" version="2.9.0.v20150123-0452"/>
+<repository location="http://download.eclipse.org/releases/luna/"/>
 </location>
 </locations>
 <environment>
