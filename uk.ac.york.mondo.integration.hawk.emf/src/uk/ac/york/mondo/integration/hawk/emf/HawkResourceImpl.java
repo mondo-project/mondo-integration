@@ -140,7 +140,6 @@ public class HawkResourceImpl extends ResourceImpl {
 						.getEFactory(me.metamodelUri);
 				final EObject obj = factory.create(eClass);
 				nodeIdToEObjectMap.put(me.id, obj);
-				getContents().add(obj);
 
 				for (AttributeSlot s : me.attributes) {
 					if (!s.isSet)
@@ -184,6 +183,11 @@ public class HawkResourceImpl extends ResourceImpl {
 							continue;
 						}
 						sourceObj.eSet(feature, target);
+					}
+
+					// Root level: only objects without containers
+					if (sourceObj.eContainer() == null) {
+						getContents().add(sourceObj);
 					}
 				}
 			}
