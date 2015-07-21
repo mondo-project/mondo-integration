@@ -57,7 +57,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	 * Form section with the ability to mask modification notifications temporarily.
 	 */
 	private static abstract class FormSection {
-		protected boolean ignoreChanges;
 		protected Composite cContents;
 
 		public FormSection(FormToolkit toolkit, Composite parent, String title, String description) {
@@ -69,14 +68,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		    this.cContents =  toolkit.createComposite(sectionContent, SWT.WRAP);
 		    sectionContent.setClient(cContents);
-		}
-
-		public void ignoreModifications() {
-			this.ignoreChanges = true;
-		}
-
-		public void notifyModifications() {
-			this.ignoreChanges = false;
 		}
 	}
 
@@ -129,8 +120,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		@Override
 		public void modifyText(ModifyEvent e) {
-			if (ignoreChanges) return;
-
 			if (e.widget == fldRepositoryURL.getText()) {
 				repositoryURLChanged();
 			} else if (e.widget == fldFilePatterns.getText()) {
@@ -139,17 +128,17 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public void setFilePatterns(String[] patterns) {
-			final String newText = HawkMultiPageEditor.concat(patterns, ",");
-			final String oldText = fldFilePatterns.getText().getText();
-			if (!isEqual(oldText, newText)) {
-				fldFilePatterns.getText().setText(newText);
-			}
+			final Text text = fldFilePatterns.getText();
+			text.removeModifyListener(this);
+			text.setText(HawkMultiPageEditor.concat(patterns, ","));
+			text.addModifyListener(this);
 		}
 
 		public void setRepositoryURL(String url) {
-			if (!isEqual(getRepositoryURL(), url)) {
-				fldRepositoryURL.getText().setText(url);
-			}
+			final Text text = fldRepositoryURL.getText();
+			text.removeModifyListener(this);
+			text.setText(url);
+			text.addModifyListener(this);
 		}
 
 		protected abstract void filePatternsChanged();
@@ -191,15 +180,17 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public void setInstanceName(String name) {
-			if (!isEqual(getInstanceName(), name)) {
-				fldInstanceName.getText().setText(name);
-			}
+			final Text text = fldInstanceName.getText();
+			text.removeModifyListener(this);
+			text.setText(name);
+			text.addModifyListener(this);
 		}
 
 		public void setServerURL(String url) {
-			if (!isEqual(getServerURL(), url)) {
-				fldServerURL.getText().setText(url);
-			}
+			final Text text = fldServerURL.getText();
+			text.removeModifyListener(this);
+			text.setText(url);
+			text.addModifyListener(this);
 		}
 
 		protected abstract void instanceNameChanged();
@@ -357,20 +348,13 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		try {
 			descriptor.load(new StringReader(sContents));
 
-			// We need to tell the form *not* to notify us of these changes, or
-			// we'll be regenerating the document for no reason.
-			sectionInstance.ignoreModifications();
 			sectionInstance.setServerURL(descriptor.getHawkURL());
 			sectionInstance.setInstanceName(descriptor.getHawkInstance());
 
-			sectionContent.ignoreModifications();
 			sectionContent.setRepositoryURL(descriptor.getHawkRepository());
 			sectionContent.setFilePatterns(descriptor.getHawkFilePatterns());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
-		} finally {
-			sectionInstance.notifyModifications();
-			sectionContent.notifyModifications();
 		}
 	}
 
