@@ -6,14 +6,20 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.operation.*;
+
 import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+
 import java.io.*;
+
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
+
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -126,10 +132,13 @@ public class NewRemoteHawkModelDescriptorWizard extends Wizard implements INewWi
 	/**
 	 * We will initialize file contents with a sample text.
 	 */
-
-	private InputStream openContentStream() {
-		String contents =
-			"This is the initial file contents for *.hawkmodel file that should be word-sorted in the Preview page of the multi-page editor";
+	private InputStream openContentStream() throws IOException {
+		HawkModelDescriptor md = new HawkModelDescriptor();
+		md.setHawkURL("http://example.com/thrift/hawk");
+		md.setHawkInstance("example");
+		StringWriter sW = new StringWriter();
+		md.save(sW);
+		String contents = sW.toString();
 		return new ByteArrayInputStream(contents.getBytes());
 	}
 

@@ -51,8 +51,8 @@ public class HawkModelDescriptor {
 
 	private String hawkURL;
 	private String hawkInstance;
-	private String hawkRepository;
-	private String[] hawkFilePatterns;
+	private String hawkRepository = DEFAULT_REPOSITORY;
+	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
 
 	public HawkModelDescriptor() {}
 

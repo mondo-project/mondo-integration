@@ -53,118 +53,32 @@ import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
  */
 public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeListener {
 
-	private static abstract class ContentSection implements ModifyListener {
-		private final FormField fldFilePatterns;
-		private final FormField fldRepositoryURL;
+	/**
+	 * Form section with the ability to mask modification notifications temporarily.
+	 */
+	private static abstract class FormSection {
+		protected boolean ignoreChanges;
+		protected Composite cContents;
 
-		public ContentSection(FormToolkit toolkit, Composite parent) {
+		public FormSection(FormToolkit toolkit, Composite parent, String title, String description) {
 		    final Section sectionContent = toolkit.createSection(parent, Section.TITLE_BAR|Section.DESCRIPTION);
-		    sectionContent.setText("Contents");
-		    sectionContent.setDescription("Filters on the contents of the index to be read as a model");
+		    sectionContent.setText(title);
+		    sectionContent.setDescription(description);
 		    TableWrapData tdSectionContent = new TableWrapData(TableWrapData.FILL_GRAB);
 		    sectionContent.setLayoutData(tdSectionContent);
 
-		    final Composite cContents =  toolkit.createComposite(sectionContent, SWT.WRAP);
+		    this.cContents =  toolkit.createComposite(sectionContent, SWT.WRAP);
 		    sectionContent.setClient(cContents);
-		    cContents.setLayout(createTableWrapLayout(2));
-
-		    this.fldRepositoryURL = new FormField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
-		    this.fldFilePatterns = new FormField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
-
-		    fldRepositoryURL.getText().addModifyListener(this);
-		    fldFilePatterns.getText().addModifyListener(this);
 		}
 
-		public String[] getFilePatterns() {
-			return fldFilePatterns.getText().getText().split(",");
+		public void ignoreModifications() {
+			this.ignoreChanges = true;
 		}
 
-		public String getRepositoryURL() {
-			return fldRepositoryURL.getText().getText();
+		public void notifyModifications() {
+			this.ignoreChanges = false;
 		}
-
-		@Override
-		public void modifyText(ModifyEvent e) {
-			if (e.widget == fldRepositoryURL.getText()) {
-				repositoryURLChanged();
-			} else if (e.widget == fldFilePatterns.getText()) {
-				filePatternsChanged();
-			}
-		}
-
-		public void setFilePatterns(String[] patterns) {
-			// Avoid triggering filePatternsChanged unnecessarily
-			final String newText = HawkMultiPageEditor.concat(patterns, ",");
-			final String oldText = fldFilePatterns.getText().getText();
-			if (!isEqual(oldText, newText)) {
-				fldFilePatterns.getText().setText(newText);
-			}
-		}
-
-		public void setRepositoryURL(String url) {
-			// Avoid triggering repositoryURLChanged unnecessarily
-			if (!isEqual(getRepositoryURL(), url)) {
-				fldRepositoryURL.getText().setText(url);
-			}
-		}
-
-		protected abstract void filePatternsChanged();
-		protected abstract void repositoryURLChanged();
 	}
-
-	private static abstract class InstanceSection implements ModifyListener {
-		private final FormField fldInstanceName;
-		private final FormField fldServerURL;
-
-		public InstanceSection(FormToolkit toolkit, Composite parent) {
-		    final Section section = toolkit.createSection(parent, Section.TITLE_BAR|Section.DESCRIPTION);
-		    section.setText("Instance");
-		    section.setDescription("Access details for the remote Hawk instance.");
-		    section.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-
-		    final Composite client =  toolkit.createComposite(section, SWT.NONE);
-			section.setClient(client);
-		    client.setLayout(createTableWrapLayout(2));
-
-		    this.fldServerURL = new FormField(toolkit, client, "Server URL:", "");
-		    this.fldInstanceName = new FormField(toolkit, client, "Instance name:", "");
-		    fldServerURL.getText().addModifyListener(this);
-		    fldInstanceName.getText().addModifyListener(this);
-		}
-
-		public String getInstanceName() {
-			return fldInstanceName.getText().getText();
-		}
-
-		public String getServerURL() {
-			return fldServerURL.getText().getText();
-		}
-
-		@Override
-		public void modifyText(ModifyEvent e) {
-			if (e.widget == fldServerURL.getText()) {
-				serverURLChanged();
-			} else if (e.widget == fldInstanceName.getText()) {
-				instanceNameChanged();
-			}
-		}
-
-		public void setInstanceName(String name) {
-			if (!isEqual(getInstanceName(), name)) {
-				fldInstanceName.getText().setText(name);
-			}
-		}
-
-		public void setServerURL(String url) {
-			if (!isEqual(getServerURL(), url)) {
-				fldServerURL.getText().setText(url);
-			}
-		}
-
-		protected abstract void instanceNameChanged();
-		protected abstract void serverURLChanged();
-	}
-
 
 	/**
 	 * Paired label and text field.
@@ -188,6 +102,108 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		public Text getText() {
 			return text;
 		}
+	}
+
+	private static abstract class ContentSection extends FormSection implements ModifyListener {
+		private final FormField fldFilePatterns;
+		private final FormField fldRepositoryURL;
+
+		public ContentSection(FormToolkit toolkit, Composite parent) {
+			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
+		    cContents.setLayout(createTableWrapLayout(2));
+
+		    this.fldRepositoryURL = new FormField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
+		    this.fldFilePatterns = new FormField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
+
+		    fldRepositoryURL.getText().addModifyListener(this);
+		    fldFilePatterns.getText().addModifyListener(this);
+		}
+
+		public String[] getFilePatterns() {
+			return fldFilePatterns.getText().getText().split(",");
+		}
+
+		public String getRepositoryURL() {
+			return fldRepositoryURL.getText().getText();
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (ignoreChanges) return;
+
+			if (e.widget == fldRepositoryURL.getText()) {
+				repositoryURLChanged();
+			} else if (e.widget == fldFilePatterns.getText()) {
+				filePatternsChanged();
+			}
+		}
+
+		public void setFilePatterns(String[] patterns) {
+			final String newText = HawkMultiPageEditor.concat(patterns, ",");
+			final String oldText = fldFilePatterns.getText().getText();
+			if (!isEqual(oldText, newText)) {
+				fldFilePatterns.getText().setText(newText);
+			}
+		}
+
+		public void setRepositoryURL(String url) {
+			if (!isEqual(getRepositoryURL(), url)) {
+				fldRepositoryURL.getText().setText(url);
+			}
+		}
+
+		protected abstract void filePatternsChanged();
+		protected abstract void repositoryURLChanged();
+	}
+
+	private static abstract class InstanceSection extends FormSection implements ModifyListener {
+		private final FormField fldInstanceName;
+		private final FormField fldServerURL;
+		private boolean ignoreChanges;
+
+		public InstanceSection(FormToolkit toolkit, Composite parent) {
+			super(toolkit, parent, "Instance", "Access details for the remote Hawk instance.");
+		    cContents.setLayout(createTableWrapLayout(2));
+
+		    this.fldServerURL = new FormField(toolkit, cContents, "Server URL:", "");
+		    this.fldInstanceName = new FormField(toolkit, cContents, "Instance name:", "");
+		    fldServerURL.getText().addModifyListener(this);
+		    fldInstanceName.getText().addModifyListener(this);
+		}
+
+		public String getInstanceName() {
+			return fldInstanceName.getText().getText();
+		}
+
+		public String getServerURL() {
+			return fldServerURL.getText().getText();
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (ignoreChanges) return;
+
+			if (e.widget == fldServerURL.getText()) {
+				serverURLChanged();
+			} else if (e.widget == fldInstanceName.getText()) {
+				instanceNameChanged();
+			}
+		}
+
+		public void setInstanceName(String name) {
+			if (!isEqual(getInstanceName(), name)) {
+				fldInstanceName.getText().setText(name);
+			}
+		}
+
+		public void setServerURL(String url) {
+			if (!isEqual(getServerURL(), url)) {
+				fldServerURL.getText().setText(url);
+			}
+		}
+
+		protected abstract void instanceNameChanged();
+		protected abstract void serverURLChanged();
 	}
 
 	private static final int RAW_EDITOR_PAGE_INDEX = 1;
@@ -310,12 +326,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		form.getBody().setLayout(layout);
 
 		this.sectionInstance = new InstanceSection(toolkit, form.getBody()) {
-			@Override protected void instanceNameChanged() { writeFile(); }
-			@Override protected void serverURLChanged()    { writeFile(); }
+			@Override protected void instanceNameChanged() { refreshRawText(); }
+			@Override protected void serverURLChanged()    { refreshRawText(); }
 		};
 		this.sectionContent = new ContentSection(toolkit, form.getBody()) {
-			@Override protected void filePatternsChanged()  { writeFile(); }
-			@Override protected void repositoryURLChanged() { writeFile(); }
+			@Override protected void filePatternsChanged()  { refreshRawText(); }
+			@Override protected void repositoryURLChanged() { refreshRawText(); }
 		};
 
 		int index = addPage(form);
@@ -341,16 +357,24 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		try {
 			descriptor.load(new StringReader(sContents));
 
+			// We need to tell the form *not* to notify us of these changes, or
+			// we'll be regenerating the document for no reason.
+			sectionInstance.ignoreModifications();
 			sectionInstance.setServerURL(descriptor.getHawkURL());
 			sectionInstance.setInstanceName(descriptor.getHawkInstance());
+
+			sectionContent.ignoreModifications();
 			sectionContent.setRepositoryURL(descriptor.getHawkRepository());
 			sectionContent.setFilePatterns(descriptor.getHawkFilePatterns());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
+		} finally {
+			sectionInstance.notifyModifications();
+			sectionContent.notifyModifications();
 		}
 	}
 
-	private void writeFile() {
+	private void refreshRawText() {
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.setHawkURL(sectionInstance.getServerURL());
 		descriptor.setHawkInstance(sectionInstance.getInstanceName());
