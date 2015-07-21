@@ -56,13 +56,17 @@ import uk.ac.york.mondo.integration.api.ScalarList._Fields;
  * instance within the server.
  * <li>{@link #PROPERTY_HAWK_REPOSITORY} (optional) is the URL of the VCS
  * repository within Hawk that contains the models of interest, or
- * <code>*</code> if all repositories should be considered (the default).
+ * <code>*</code> if all repositories should be considered (the default, as in
+ * {@link #DEFAULT_REPOSITORY}).
  * <li>{@link #PROPERTY_HAWK_FILES} (optional) is a comma-separated list of file
  * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
- * files should be considered (the default).
+ * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
  * </ul>
  */
 public class HawkResourceImpl extends ResourceImpl {
+
+	public static final String DEFAULT_FILES = "*";
+	public static final String DEFAULT_REPOSITORY = DEFAULT_FILES;
 
 	public static final String PROPERTY_HAWK_FILES = "hawk.files";
 	public static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
@@ -122,8 +126,8 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		this.hawkURL = requiredProperty(props, PROPERTY_HAWK_URL);
 		this.hawkInstance = requiredProperty(props, PROPERTY_HAWK_INSTANCE);
-		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, "*");
-		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, "*").split(",");
+		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
+		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(",");
 		try {
 			final Hawk.Client client = new Hawk.Client(new TCompactProtocol(new THttpClient(hawkURL)));
 			final List<ModelElement> elems = client.getModel(hawkInstance,
