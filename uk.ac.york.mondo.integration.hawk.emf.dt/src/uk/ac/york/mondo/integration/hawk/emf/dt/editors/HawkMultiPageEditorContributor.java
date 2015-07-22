@@ -6,17 +6,23 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IDEActionFactory;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+
+import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 
 /**
  * Manages the installation/deinstallation of global actions for multi-page editors.
@@ -24,8 +30,9 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
  * Multi-page contributor replaces the contributors for the individual editors in the multi-page editor.
  */
 public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarContributor {
+	private static final String EMF_EDITOR_ID = "org.eclipse.emf.ecore.presentation.EcoreEditorID";
 	private IEditorPart activeEditorPart;
-	private Action sampleAction;
+	private Action emfOpenAction;
 
 	/**
 	 * Creates a multi-page contributor.
@@ -36,16 +43,14 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 	}
 
 	/**
-	 * Returns the action registed with the given text editor.
+	 * Returns the action registered with the given text editor.
 	 * @return IAction or null if editor is null.
 	 */
 	protected IAction getAction(ITextEditor editor, String actionID) {
 		return (editor == null ? null : editor.getAction(actionID));
 	}
 
-	/* (non-JavaDoc)
-	 * Method declared in AbstractMultiPageEditorActionBarContributor.
-	 */
+	@Override
 	public void setActivePage(IEditorPart part) {
 		if (activeEditorPart == part)
 			return;
@@ -89,25 +94,40 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 	}
 
 	private void createActions() {
-		sampleAction = new Action() {
+		emfOpenAction = new Action() {
 			public void run() {
-				MessageDialog.openInformation(null, "MONDO Remote Hawk EMF Driver UI", "Sample Action Executed");
+				if (activeEditorPart == null) {
+					return;
+				}
+				
+				final IEditorInput existingInput = activeEditorPart.getEditorInput();
+				if (existingInput instanceof IFileEditorInput) {
+					IFileEditorInput existingFileInput = (IFileEditorInput) existingInput;
+					final IFileEditorInput newFileInput = new FileEditorInput(existingFileInput.getFile());
+					try {
+						final IWorkbench workbench = PlatformUI.getWorkbench();
+						final IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+						page.openEditor(newFileInput, EMF_EDITOR_ID, true, IWorkbenchPage.MATCH_ID | IWorkbenchPage.MATCH_INPUT);
+					} catch (Throwable e) {
+						Activator.getDefault().logError(e);
+					}
+				}
 			}
 		};
-		sampleAction.setText("Open with EMF");
-		sampleAction.setToolTipText("Opens the model with the generic editor provided by Ecore");
-		sampleAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+		emfOpenAction.setText("Open with EMF");
+		emfOpenAction.setToolTipText("Opens the model with the generic editor provided by Ecore");
+		emfOpenAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(IDE.SharedImages.IMG_OBJS_TASK_TSK));
 	}
 
 	public void contributeToMenu(IMenuManager manager) {
-		IMenuManager menu = new MenuManager("Editor &Menu");
+		IMenuManager menu = new MenuManager("&Hawk");
 		manager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, menu);
-		menu.add(sampleAction);
+		menu.add(emfOpenAction);
 	}
 
 	public void contributeToToolBar(IToolBarManager manager) {
 		manager.add(new Separator());
-		manager.add(sampleAction);
+		manager.add(emfOpenAction);
 	}
 }

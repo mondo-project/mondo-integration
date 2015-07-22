@@ -36,9 +36,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.forms.IFormColors;
+import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
@@ -52,6 +53,45 @@ import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
  * for editing the raw text on the second page.
  */
 public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeListener {
+
+	private class DetailsFormPage extends FormPage {
+		private InstanceSection instanceSection;
+		private ContentSection contentSection;
+
+		private DetailsFormPage(String id, String title) {
+			super(HawkMultiPageEditor.this, id, title);
+		}
+
+		@Override
+		protected void createFormContent(IManagedForm managedForm) {
+			super.createFormContent(managedForm);
+			
+			final FormToolkit toolkit = managedForm.getToolkit();
+			TableWrapLayout layout = new TableWrapLayout();
+			layout.numColumns = 1;
+			final Composite formBody = managedForm.getForm().getBody();
+			formBody.setLayout(layout);
+
+			this.instanceSection = new InstanceSection(toolkit, formBody) {
+				@Override protected void instanceNameChanged() { refreshRawText(); }
+				@Override protected void serverURLChanged()    { refreshRawText(); }
+			};
+			this.contentSection = new ContentSection(toolkit, formBody) {
+				@Override protected void filePatternsChanged()  { refreshRawText(); }
+				@Override protected void repositoryURLChanged() { refreshRawText(); }
+			};
+
+			refreshForm();
+		}
+
+		public InstanceSection getInstanceSection() {
+			return instanceSection;
+		}
+
+		public ContentSection getContentSection() {
+			return contentSection;
+		}
+	}
 
 	/**
 	 * Form section with the ability to mask modification notifications temporarily.
@@ -221,23 +261,14 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		return cContentsLayout;
 	}
 
-	/**
-	 * Equality with {@link Object#equals(Object)}, safe against null values.
-	 */
-	private static boolean isEqual(Object a, Object b) {
-		return a == null && b == null || a != null && a.equals(b);
-	}
-
 	/** The text editor used in page 0. */
 	private TextEditor editor;
-
-	private ContentSection sectionContent;
-
-	private InstanceSection sectionInstance;
+	private DetailsFormPage detailsPage;
 
 	public HawkMultiPageEditor() {
 		super();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		// TODO still need an action for opening as an EMF model
 	}
 
 	/**
@@ -307,25 +338,9 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 	}
 
-	private void createFormBasedEditorPage() {
-		final FormToolkit toolkit = createToolkit(getContainer().getDisplay());
-		final ScrolledForm form = toolkit.createScrolledForm(getContainer());
-		form.setText("Remote Hawk Model Descriptor");
-
-		TableWrapLayout layout = new TableWrapLayout();
-		layout.numColumns = 1;
-		form.getBody().setLayout(layout);
-
-		this.sectionInstance = new InstanceSection(toolkit, form.getBody()) {
-			@Override protected void instanceNameChanged() { refreshRawText(); }
-			@Override protected void serverURLChanged()    { refreshRawText(); }
-		};
-		this.sectionContent = new ContentSection(toolkit, form.getBody()) {
-			@Override protected void filePatternsChanged()  { refreshRawText(); }
-			@Override protected void repositoryURLChanged() { refreshRawText(); }
-		};
-
-		int index = addPage(form);
+	private void createFormBasedEditorPage() throws PartInitException {
+		detailsPage = new DetailsFormPage("details", "Remote Hawk Model Descriptor");
+		int index = addPage(detailsPage);
 		setPageText(index, "Descriptor");
 	}
 
@@ -348,11 +363,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		try {
 			descriptor.load(new StringReader(sContents));
 
-			sectionInstance.setServerURL(descriptor.getHawkURL());
-			sectionInstance.setInstanceName(descriptor.getHawkInstance());
-
-			sectionContent.setRepositoryURL(descriptor.getHawkRepository());
-			sectionContent.setFilePatterns(descriptor.getHawkFilePatterns());
+			detailsPage.getInstanceSection().setServerURL(descriptor.getHawkURL());
+			detailsPage.getInstanceSection().setInstanceName(descriptor.getHawkInstance());
+			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
+			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
@@ -360,10 +374,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 	private void refreshRawText() {
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
-		descriptor.setHawkURL(sectionInstance.getServerURL());
-		descriptor.setHawkInstance(sectionInstance.getInstanceName());
-		descriptor.setHawkRepository(sectionContent.getRepositoryURL());
-		descriptor.setHawkFilePatterns(sectionContent.getFilePatterns());
+		descriptor.setHawkURL(detailsPage.getInstanceSection().getServerURL());
+		descriptor.setHawkInstance(detailsPage.getInstanceSection().getInstanceName());
+		descriptor.setHawkRepository(detailsPage.getContentSection().getRepositoryURL());
+		descriptor.setHawkFilePatterns(detailsPage.getContentSection().getFilePatterns());
 
 		final StringWriter sW = new StringWriter();
 		try {
@@ -392,9 +406,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 					refreshForm();
 				}
 			});
-
-			// load initial contents
-			refreshForm();
 		} catch (Exception ex) {
 			Activator.getDefault().logError(ex);
 		}
