@@ -39,6 +39,9 @@ import org.eclipse.ui.forms.IFormColors;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.FormText;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
@@ -63,14 +66,31 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		@Override
+		public boolean isEditor() {
+			return true;
+		}
+
+		@Override
 		protected void createFormContent(IManagedForm managedForm) {
 			super.createFormContent(managedForm);
-			
+			managedForm.getForm().setText("Remote Hawk Descriptor");
+
 			final FormToolkit toolkit = managedForm.getToolkit();
 			TableWrapLayout layout = new TableWrapLayout();
 			layout.numColumns = 1;
 			final Composite formBody = managedForm.getForm().getBody();
 			formBody.setLayout(layout);
+
+			final FormText formText = toolkit.createFormText(formBody, true);
+			formText.setText("<form><p><a href=\"reopenEcore\">Open with the Ecore editor</a></p></form>", true, true);
+			formText.addHyperlinkListener(new HyperlinkAdapter() {
+				@Override
+				public void linkActivated(HyperlinkEvent e) {
+					if ("reopenEcore".equals(e.getHref())) {
+						HawkMultiPageEditorContributor.reopenWithEcoreEditor(HawkMultiPageEditor.this);
+					}
+				}
+			});
 
 			this.instanceSection = new InstanceSection(toolkit, formBody) {
 				@Override protected void instanceNameChanged() { refreshRawText(); }
@@ -80,8 +100,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
 				@Override protected void repositoryURLChanged() { refreshRawText(); }
 			};
-
-			refreshForm();
 		}
 
 		public InstanceSection getInstanceSection() {
@@ -340,7 +358,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 	private void createFormBasedEditorPage() throws PartInitException {
 		detailsPage = new DetailsFormPage("details", "Remote Hawk Model Descriptor");
-		int index = addPage(detailsPage);
+		int index = addPage(detailsPage, getEditorInput());
 		setPageText(index, "Descriptor");
 	}
 
@@ -406,8 +424,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 					refreshForm();
 				}
 			});
+			refreshForm();
 		} catch (Exception ex) {
 			Activator.getDefault().logError(ex);
 		}
 	}
+
 }

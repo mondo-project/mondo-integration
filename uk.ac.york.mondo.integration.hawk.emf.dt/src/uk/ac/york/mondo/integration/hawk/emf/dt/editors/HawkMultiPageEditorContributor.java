@@ -59,7 +59,6 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 
 		IActionBars actionBars = getActionBars();
 		if (actionBars != null) {
-
 			ITextEditor editor = (part instanceof ITextEditor) ? (ITextEditor) part : null;
 
 			actionBars.setGlobalActionHandler(
@@ -99,35 +98,40 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 				if (activeEditorPart == null) {
 					return;
 				}
-				
-				final IEditorInput existingInput = activeEditorPart.getEditorInput();
-				if (existingInput instanceof IFileEditorInput) {
-					IFileEditorInput existingFileInput = (IFileEditorInput) existingInput;
-					final IFileEditorInput newFileInput = new FileEditorInput(existingFileInput.getFile());
-					try {
-						final IWorkbench workbench = PlatformUI.getWorkbench();
-						final IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-						page.openEditor(newFileInput, EMF_EDITOR_ID, true, IWorkbenchPage.MATCH_ID | IWorkbenchPage.MATCH_INPUT);
-					} catch (Throwable e) {
-						Activator.getDefault().logError(e);
-					}
-				}
+				reopenWithEcoreEditor(activeEditorPart);
 			}
 		};
 		emfOpenAction.setText("Open with EMF");
 		emfOpenAction.setToolTipText("Opens the model with the generic editor provided by Ecore");
-		emfOpenAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(IDE.SharedImages.IMG_OBJS_TASK_TSK));
+		emfOpenAction.setImageDescriptor(Activator.getImageDescriptor("/icons/EcoreModelFile.gif"));
 	}
 
+	@Override
 	public void contributeToMenu(IMenuManager manager) {
 		IMenuManager menu = new MenuManager("&Hawk");
 		manager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, menu);
 		menu.add(emfOpenAction);
 	}
 
+	@Override
 	public void contributeToToolBar(IToolBarManager manager) {
 		manager.add(new Separator());
 		manager.add(emfOpenAction);
 	}
+
+	public static void reopenWithEcoreEditor(IEditorPart activeEditorPart) {
+		final IEditorInput existingInput = activeEditorPart.getEditorInput();
+		if (existingInput instanceof IFileEditorInput) {
+			IFileEditorInput existingFileInput = (IFileEditorInput) existingInput;
+			final IFileEditorInput newFileInput = new FileEditorInput(existingFileInput.getFile());
+			try {
+				final IWorkbench workbench = PlatformUI.getWorkbench();
+				final IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+				page.openEditor(newFileInput, HawkMultiPageEditorContributor.EMF_EDITOR_ID, true, IWorkbenchPage.MATCH_ID | IWorkbenchPage.MATCH_INPUT);
+			} catch (Throwable e) {
+				Activator.getDefault().logError(e);
+			}
+		}
+	}
+
 }
