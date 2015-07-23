@@ -432,9 +432,9 @@ class ModelElement {
 	attr String metamodelUri;
 	@doc(d="Name of the type that the model element is an instance of") 
 	attr String typeName;
-	@doc(d="Slots holding the values of the model element's attributes")
+	@doc(d="Slots holding the values of the model element's attributes, if any", optional="true")
 	val AttributeSlot[*] attributes;
-	@doc(d="Slots holding the values of the model element's references")
+	@doc(d="Slots holding the values of the model element's references, if any", optional="true")
 	val ReferenceSlot[*] references;
 }
 
@@ -448,7 +448,7 @@ class Slot {
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element") 
 class AttributeSlot extends Slot {
-	@doc(d="A heterogeneous list with the scalar values for the attribute slot.") 
+	@doc(d="If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list.", optional="true") 
 	val ScalarList values;
 }
 
@@ -461,6 +461,7 @@ class ReferenceSlot extends Slot {
 @thrift(union="true")
 @doc(d="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.")
 class ScalarOrReference {
+    attr boolean vBoolean;
 	attr byte vByte;
 	attr short vShort;
 	attr int vInteger;
@@ -474,6 +475,7 @@ class ScalarOrReference {
 @doc(d="Union type for a homogeneous collection of scalar values.")
 class ScalarList {
 	attr EByteArray vBytes;
+	attr boolean[*] vBooleans;
 	attr short[*] vShorts;
 	attr int[*] vIntegers;
 	attr long[*] vLongs;

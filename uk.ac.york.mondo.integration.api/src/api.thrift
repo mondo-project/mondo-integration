@@ -125,21 +125,23 @@ struct ReferenceSlot {
 
 union ScalarList {
 	 /*  */ 1: required binary vBytes,
-	 /*  */ 2: required list<i16> vShorts,
-	 /*  */ 3: required list<i32> vIntegers,
-	 /*  */ 4: required list<i64> vLongs,
-	 /*  */ 5: required list<double> vDoubles,
-	 /*  */ 6: required list<string> vStrings,
+	 /*  */ 2: required list<bool> vBooleans,
+	 /*  */ 3: required list<i16> vShorts,
+	 /*  */ 4: required list<i32> vIntegers,
+	 /*  */ 5: required list<i64> vLongs,
+	 /*  */ 6: required list<double> vDoubles,
+	 /*  */ 7: required list<string> vStrings,
 }
 
 union ScalarOrReference {
-	 /*  */ 1: required byte vByte,
-	 /*  */ 2: required i16 vShort,
-	 /*  */ 3: required i32 vInteger,
-	 /*  */ 4: required i64 vLong,
-	 /*  */ 5: required double vDouble,
-	 /*  */ 6: required string vString,
-	 /*  */ 7: required string vReference,
+	 /*  */ 1: required bool vBoolean,
+	 /*  */ 2: required byte vByte,
+	 /*  */ 3: required i16 vShort,
+	 /*  */ 4: required i32 vInteger,
+	 /*  */ 5: required i64 vLong,
+	 /*  */ 6: required double vDouble,
+	 /*  */ 7: required string vString,
+	 /*  */ 8: required string vReference,
 }
 
 struct Slot {
@@ -183,7 +185,7 @@ exception VCSAuthorizationFailed {
 struct AttributeSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 	 /* Indicates whether the slot has a value set or not. */ 2: required bool isSet,
-	 /* A heterogeneous list with the scalar values for the attribute slot. */ 3: required ScalarList values,
+	 /* If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list. */ 3: optional ScalarList values,
 }
 
 struct CollaborationQueryInvocationSpecification {
@@ -212,8 +214,8 @@ struct ModelElement {
 	 /* Unique ID of the model element. */ 1: required string id,
 	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
 	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
-	 /* Slots holding the values of the model element's attributes. */ 4: required list<AttributeSlot> attributes,
-	 /* Slots holding the values of the model element's references. */ 5: required list<ReferenceSlot> references,
+	 /* Slots holding the values of the model element's attributes, if any. */ 4: optional list<AttributeSlot> attributes,
+	 /* Slots holding the values of the model element's references, if any. */ 5: optional list<ReferenceSlot> references,
 }
 
 struct ModelElementChange {

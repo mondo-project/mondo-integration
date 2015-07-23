@@ -864,13 +864,15 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
         eType="#//AttributeSlot" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Slots holding the values of the model element's attributes"/>
+        <details key="d" value="Slots holding the values of the model element's attributes, if any"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
         eType="#//ReferenceSlot" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Slots holding the values of the model element's references"/>
+        <details key="d" value="Slots holding the values of the model element's references, if any"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -896,7 +898,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="values" eType="#//ScalarList"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="A heterogeneous list with the scalar values for the attribute slot."/>
+        <details key="d" value="If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list."/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -918,6 +921,7 @@
     <eAnnotations source="doc">
       <details key="d" value="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections."/>
     </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
@@ -934,6 +938,8 @@
       <details key="d" value="Union type for a homogeneous collection of scalar values."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBooleans" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShorts" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vIntegers" upperBound="-1"
