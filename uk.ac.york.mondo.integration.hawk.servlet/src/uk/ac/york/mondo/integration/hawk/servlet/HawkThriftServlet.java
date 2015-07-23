@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -329,8 +330,16 @@ public class HawkThriftServlet extends TServlet {
 			final List<ModelElement> elems = new ArrayList<>();
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
-					for (ModelElementNode meNode : fileNode.getModelElements()) {
+					LOGGER.info("Retrieving elements from {}", filePath);
+
+					Set<ModelElementNode> modelElements = fileNode.getModelElements();
+					int i = 0;
+					for (ModelElementNode meNode : modelElements) {
 						elems.add(encodeModelElement(meNode));
+						i++;
+						if (i % 1000 == 0) {
+							LOGGER.info("Retrieved {}/{} model elements", i, modelElements.size());
+						}
 					}
 				}
 				tx.success();
@@ -433,38 +442,38 @@ public class HawkThriftServlet extends TServlet {
 			s.name = slotEntry.getKey();
 
 			final Object value = slotEntry.getValue();
-				s.values = new ScalarList();
+			s.values = new ScalarList();
 
-				if (value instanceof Collection) {
-					final Collection<?> cValue = (Collection<?>) value;
-					if (!cValue.isEmpty()) {
-						s.values = new ScalarList();
-						encodeNonEmptyListAttributeSlot(s, value, cValue);
-					} else {
-						// empty list <-> isSet=true and s.values=null
-						s.values = null;
-					}
-				} else if (value instanceof Byte) {
-					s.values.setVBytes(new byte[] { (byte) value });
-				} else if (value instanceof Float) {
-					s.values.setVDoubles(Arrays.asList((double) value));
-				} else if (value instanceof Double) {
-					s.values.setVDoubles(Arrays.asList((double) value));
-				} else if (value instanceof Integer) {
-					s.values.setVIntegers(Arrays.asList((int) value));
-				} else if (value instanceof Long) {
-					s.values.setVLongs(Arrays.asList((long) value));
-				} else if (value instanceof Short) {
-					s.values.setVShorts(Arrays.asList((short) value));
-				} else if (value instanceof String) {
-					s.values.setVStrings(Arrays.asList((String) value));
-				} else if (value instanceof Boolean) {
-					s.values.setVBooleans(Arrays.asList((Boolean) value));
+			if (value instanceof Collection) {
+				final Collection<?> cValue = (Collection<?>) value;
+				if (!cValue.isEmpty()) {
+					s.values = new ScalarList();
+					encodeNonEmptyListAttributeSlot(s, value, cValue);
 				} else {
-					throw new IllegalArgumentException(String.format(
-							"Unsupported value type '%s'", value.getClass()
-									.getName()));
+					// empty list <-> isSet=true and s.values=null
+					s.values = null;
 				}
+			} else if (value instanceof Byte) {
+				s.values.setVBytes(new byte[] { (byte) value });
+			} else if (value instanceof Float) {
+				s.values.setVDoubles(Arrays.asList((double) value));
+			} else if (value instanceof Double) {
+				s.values.setVDoubles(Arrays.asList((double) value));
+			} else if (value instanceof Integer) {
+				s.values.setVIntegers(Arrays.asList((int) value));
+			} else if (value instanceof Long) {
+				s.values.setVLongs(Arrays.asList((long) value));
+			} else if (value instanceof Short) {
+				s.values.setVShorts(Arrays.asList((short) value));
+			} else if (value instanceof String) {
+				s.values.setVStrings(Arrays.asList((String) value));
+			} else if (value instanceof Boolean) {
+				s.values.setVBooleans(Arrays.asList((Boolean) value));
+			} else {
+				throw new IllegalArgumentException(String.format(
+						"Unsupported value type '%s'", value.getClass()
+								.getName()));
+			}
 
 			assert s.values.getFieldValue() != null : "The union field should have a value";
 			return s;

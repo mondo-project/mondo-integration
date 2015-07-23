@@ -259,10 +259,8 @@ public class HawkResourceImpl extends ResourceImpl {
 					Arrays.asList(descriptor.getHawkFilePatterns()));
 
 			// Do a first pass, creating all the objects with their attributes
-			// and saving their graph IDs
-			// into the One Map to bind them.
-			final Registry packageRegistry = getResourceSet()
-					.getPackageRegistry();
+			// and saving their graph IDs into the One Map to bind them.
+			final Registry packageRegistry = getResourceSet().getPackageRegistry();
 			final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
 			for (ModelElement me : elems) {
 				final EClass eClass = getEClass(packageRegistry, me);
@@ -277,10 +275,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				}
 			}
 
-			/*
-			 * On the second pass, fill in the references and add objects not
-			 * contained anywhere to the root level.
-			 */
+			// On the second pass, fill in the references.
 			for (ModelElement me : elems) {
 				final EObject sourceObj = nodeIdToEObjectMap.get(me.id);
 
@@ -315,10 +310,12 @@ public class HawkResourceImpl extends ResourceImpl {
 						}
 					}
 				}
+			}
 
-				// Root level: only objects without containers
-				if (sourceObj.eContainer() == null) {
-					getContents().add(sourceObj);
+			// On the third pass, add elements which still don't have containers as root elements
+			for (EObject eo : nodeIdToEObjectMap.values()) {
+				if (eo.eContainer() == null) {
+					getContents().add(eo);
 				}
 			}
 		} catch (TException e) {
