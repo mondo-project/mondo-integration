@@ -412,13 +412,18 @@ public class HawkCommandProvider implements CommandProvider {
 			sbuf.append(String.format("Element %s:\n\t", me.id));
 			sbuf.append(String.format("Metamodel: %s\n\t", me.metamodelUri));
 			sbuf.append(String.format("Type: %s\n\t", me.typeName));
-			sbuf.append("Attributes:");
-			for (AttributeSlot s : me.attributes) {
-				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.values));
+			if (me.isSetAttributes()) {
+				sbuf.append("Attributes:");
+				for (AttributeSlot s : me.attributes) {
+					sbuf.append(String
+							.format("\n\t\t%s = %s", s.name, s.values));
+				}
 			}
-			sbuf.append("\n\tReferences:");
-			for (ReferenceSlot s : me.references) {
-				sbuf.append(String.format("\n\t\t%s = %s", s.name, s.ids));
+			if (me.isSetReferences()) {
+				sbuf.append("\n\tReferences:");
+				for (ReferenceSlot s : me.references) {
+					sbuf.append(String.format("\n\t\t%s = %s", s.name, s.ids));
+				}
 			}
 		}
 		return sbuf.toString();
