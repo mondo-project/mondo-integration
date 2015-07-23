@@ -332,13 +332,12 @@ public class HawkThriftServlet extends TServlet {
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
 
-					Set<ModelElementNode> modelElements = fileNode.getModelElements();
 					int i = 0;
-					for (ModelElementNode meNode : modelElements) {
+					for (ModelElementNode meNode : fileNode.getModelElements()) {
 						elems.add(encodeModelElement(meNode));
 						i++;
 						if (i % 1000 == 0) {
-							LOGGER.info("Retrieved {}/{} model elements", i, modelElements.size());
+							LOGGER.info("Retrieved {} model elements", i);
 						}
 					}
 				}
