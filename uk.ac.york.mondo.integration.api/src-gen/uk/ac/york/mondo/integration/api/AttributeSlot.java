@@ -39,8 +39,7 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AttributeSlot");
 
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField IS_SET_FIELD_DESC = new org.apache.thrift.protocol.TField("isSet", org.apache.thrift.protocol.TType.BOOL, (short)2);
-  private static final org.apache.thrift.protocol.TField VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("values", org.apache.thrift.protocol.TType.STRUCT, (short)3);
+  private static final org.apache.thrift.protocol.TField VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("values", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,14 +48,12 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
   }
 
   public String name; // required
-  public boolean isSet; // required
-  public ScalarList values; // optional
+  public ScalarList values; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     NAME((short)1, "name"),
-    IS_SET((short)2, "isSet"),
-    VALUES((short)3, "values");
+    VALUES((short)2, "values");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -73,9 +70,7 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
       switch(fieldId) {
         case 1: // NAME
           return NAME;
-        case 2: // IS_SET
-          return IS_SET;
-        case 3: // VALUES
+        case 2: // VALUES
           return VALUES;
         default:
           return null;
@@ -117,17 +112,12 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
   }
 
   // isset id assignments
-  private static final int __ISSET_ISSET_ID = 0;
-  private byte __isset_bitfield = 0;
-  private static final _Fields optionals[] = {_Fields.VALUES};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IS_SET, new org.apache.thrift.meta_data.FieldMetaData("isSet", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
-    tmpMap.put(_Fields.VALUES, new org.apache.thrift.meta_data.FieldMetaData("values", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+    tmpMap.put(_Fields.VALUES, new org.apache.thrift.meta_data.FieldMetaData("values", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ScalarList.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AttributeSlot.class, metaDataMap);
@@ -138,23 +128,20 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
 
   public AttributeSlot(
     String name,
-    boolean isSet)
+    ScalarList values)
   {
     this();
     this.name = name;
-    this.isSet = isSet;
-    setIsSetIsSet(true);
+    this.values = values;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public AttributeSlot(AttributeSlot other) {
-    __isset_bitfield = other.__isset_bitfield;
     if (other.isSetName()) {
       this.name = other.name;
     }
-    this.isSet = other.isSet;
     if (other.isSetValues()) {
       this.values = new ScalarList(other.values);
     }
@@ -167,8 +154,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
   @Override
   public void clear() {
     this.name = null;
-    setIsSetIsSet(false);
-    this.isSet = false;
     this.values = null;
   }
 
@@ -194,29 +179,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     if (!value) {
       this.name = null;
     }
-  }
-
-  public boolean isIsSet() {
-    return this.isSet;
-  }
-
-  public AttributeSlot setIsSet(boolean isSet) {
-    this.isSet = isSet;
-    setIsSetIsSet(true);
-    return this;
-  }
-
-  public void unsetIsSet() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  /** Returns true if field isSet is set (has been assigned a value) and false otherwise */
-  public boolean isSetIsSet() {
-    return EncodingUtils.testBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  public void setIsSetIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ISSET_ISSET_ID, value);
   }
 
   public ScalarList getValues() {
@@ -253,14 +215,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
       }
       break;
 
-    case IS_SET:
-      if (value == null) {
-        unsetIsSet();
-      } else {
-        setIsSet((Boolean)value);
-      }
-      break;
-
     case VALUES:
       if (value == null) {
         unsetValues();
@@ -276,9 +230,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     switch (field) {
     case NAME:
       return getName();
-
-    case IS_SET:
-      return Boolean.valueOf(isIsSet());
 
     case VALUES:
       return getValues();
@@ -296,8 +247,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     switch (field) {
     case NAME:
       return isSetName();
-    case IS_SET:
-      return isSetIsSet();
     case VALUES:
       return isSetValues();
     }
@@ -326,15 +275,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
         return false;
     }
 
-    boolean this_present_isSet = true;
-    boolean that_present_isSet = true;
-    if (this_present_isSet || that_present_isSet) {
-      if (!(this_present_isSet && that_present_isSet))
-        return false;
-      if (this.isSet != that.isSet)
-        return false;
-    }
-
     boolean this_present_values = true && this.isSetValues();
     boolean that_present_values = true && that.isSetValues();
     if (this_present_values || that_present_values) {
@@ -355,11 +295,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     list.add(present_name);
     if (present_name)
       list.add(name);
-
-    boolean present_isSet = true;
-    list.add(present_isSet);
-    if (present_isSet)
-      list.add(isSet);
 
     boolean present_values = true && (isSetValues());
     list.add(present_values);
@@ -383,16 +318,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     }
     if (isSetName()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, other.name);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetIsSet()).compareTo(other.isSetIsSet());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIsSet()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.isSet, other.isSet);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -435,19 +360,13 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("isSet:");
-    sb.append(this.isSet);
-    first = false;
-    if (isSetValues()) {
-      if (!first) sb.append(", ");
-      sb.append("values:");
-      if (this.values == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.values);
-      }
-      first = false;
+    sb.append("values:");
+    if (this.values == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.values);
     }
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -457,7 +376,9 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     if (name == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
     }
-    // alas, we cannot check 'isSet' because it's a primitive and you chose the non-beans generator.
+    if (values == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'values' was not present! Struct: " + toString());
+    }
     // check for sub-struct validity
   }
 
@@ -471,8 +392,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
-      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -505,15 +424,7 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // IS_SET
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.isSet = iprot.readBool();
-              struct.setIsSetIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // VALUES
+          case 2: // VALUES
             if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
               struct.values = new ScalarList();
               struct.values.read(iprot);
@@ -530,9 +441,6 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetIsSet()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isSet' was not found in serialized data! Struct: " + toString());
-      }
       struct.validate();
     }
 
@@ -545,15 +453,10 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
         oprot.writeString(struct.name);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(IS_SET_FIELD_DESC);
-      oprot.writeBool(struct.isSet);
-      oprot.writeFieldEnd();
       if (struct.values != null) {
-        if (struct.isSetValues()) {
-          oprot.writeFieldBegin(VALUES_FIELD_DESC);
-          struct.values.write(oprot);
-          oprot.writeFieldEnd();
-        }
+        oprot.writeFieldBegin(VALUES_FIELD_DESC);
+        struct.values.write(oprot);
+        oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -573,15 +476,7 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
     public void write(org.apache.thrift.protocol.TProtocol prot, AttributeSlot struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       oprot.writeString(struct.name);
-      oprot.writeBool(struct.isSet);
-      BitSet optionals = new BitSet();
-      if (struct.isSetValues()) {
-        optionals.set(0);
-      }
-      oprot.writeBitSet(optionals, 1);
-      if (struct.isSetValues()) {
-        struct.values.write(oprot);
-      }
+      struct.values.write(oprot);
     }
 
     @Override
@@ -589,14 +484,9 @@ public class AttributeSlot implements org.apache.thrift.TBase<AttributeSlot, Att
       TTupleProtocol iprot = (TTupleProtocol) prot;
       struct.name = iprot.readString();
       struct.setNameIsSet(true);
-      struct.isSet = iprot.readBool();
-      struct.setIsSetIsSet(true);
-      BitSet incoming = iprot.readBitSet(1);
-      if (incoming.get(0)) {
-        struct.values = new ScalarList();
-        struct.values.read(iprot);
-        struct.setValuesIsSet(true);
-      }
+      struct.values = new ScalarList();
+      struct.values.read(iprot);
+      struct.setValuesIsSet(true);
     }
   }
 

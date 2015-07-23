@@ -395,26 +395,31 @@ public class HawkThriftServlet extends TServlet {
 			meNode.getSlotValues(attrs, refs);
 
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
+				// to save bandwidth, we do not send unset attributes
+				if (attr.getValue() == null) continue;
 				me.addToAttributes(encodeAttributeSlot(attr));
 			}
 			for (Map.Entry<String, Object> ref : refs.entrySet()) {
+				// to save bandwidth, we do not send unset references
+				if (ref.getValue() == null) continue;
 				me.addToReferences(encodeReferenceSlot(ref));
 			}
 			return me;
 		}
 
 		private ReferenceSlot encodeReferenceSlot(Entry<String, Object> slotEntry) {
+			assert slotEntry.getValue() != null;
+
 			ReferenceSlot s = new ReferenceSlot();
 			s.name = slotEntry.getKey();
 
 			final Object value = slotEntry.getValue();
-			s.isSet = value != null;
 			s.ids = new ArrayList<>();
 			if (value instanceof Collection) {
 				for (Object o : (Collection<?>)value) {
 					s.ids.add(o.toString());
 				}
-			} else if (s.isSet) {
+			} else {
 				s.ids.add(value.toString());
 			}
 
@@ -422,15 +427,12 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
+			assert slotEntry.getValue() != null;
+
 			AttributeSlot s = new AttributeSlot();
 			s.name = slotEntry.getKey();
 
 			final Object value = slotEntry.getValue();
-			if (value == null) {
-				s.isSet = false;
-				s.values = null;
-			} else {
-				s.isSet = true;
 				s.values = new ScalarList();
 
 				if (value instanceof Collection) {
@@ -463,10 +465,8 @@ public class HawkThriftServlet extends TServlet {
 							"Unsupported value type '%s'", value.getClass()
 									.getName()));
 				}
-			}
 
-			assert s.values == null || s.values.getSetField() != null && s.values.getFieldValue() != null
-					: "The union field should either be null or have a value";
+			assert s.values.getFieldValue() != null : "The union field should have a value";
 			return s;
 		}
 

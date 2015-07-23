@@ -39,8 +39,7 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ReferenceSlot");
 
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField IS_SET_FIELD_DESC = new org.apache.thrift.protocol.TField("isSet", org.apache.thrift.protocol.TType.BOOL, (short)2);
-  private static final org.apache.thrift.protocol.TField IDS_FIELD_DESC = new org.apache.thrift.protocol.TField("ids", org.apache.thrift.protocol.TType.LIST, (short)3);
+  private static final org.apache.thrift.protocol.TField IDS_FIELD_DESC = new org.apache.thrift.protocol.TField("ids", org.apache.thrift.protocol.TType.LIST, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,14 +48,12 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
   }
 
   public String name; // required
-  public boolean isSet; // required
   public List<String> ids; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     NAME((short)1, "name"),
-    IS_SET((short)2, "isSet"),
-    IDS((short)3, "ids");
+    IDS((short)2, "ids");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -73,9 +70,7 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
       switch(fieldId) {
         case 1: // NAME
           return NAME;
-        case 2: // IS_SET
-          return IS_SET;
-        case 3: // IDS
+        case 2: // IDS
           return IDS;
         default:
           return null;
@@ -117,15 +112,11 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
   }
 
   // isset id assignments
-  private static final int __ISSET_ISSET_ID = 0;
-  private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IS_SET, new org.apache.thrift.meta_data.FieldMetaData("isSet", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.IDS, new org.apache.thrift.meta_data.FieldMetaData("ids", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
@@ -138,13 +129,10 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
 
   public ReferenceSlot(
     String name,
-    boolean isSet,
     List<String> ids)
   {
     this();
     this.name = name;
-    this.isSet = isSet;
-    setIsSetIsSet(true);
     this.ids = ids;
   }
 
@@ -152,11 +140,9 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
    * Performs a deep copy on <i>other</i>.
    */
   public ReferenceSlot(ReferenceSlot other) {
-    __isset_bitfield = other.__isset_bitfield;
     if (other.isSetName()) {
       this.name = other.name;
     }
-    this.isSet = other.isSet;
     if (other.isSetIds()) {
       List<String> __this__ids = new ArrayList<String>(other.ids);
       this.ids = __this__ids;
@@ -170,8 +156,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
   @Override
   public void clear() {
     this.name = null;
-    setIsSetIsSet(false);
-    this.isSet = false;
     this.ids = null;
   }
 
@@ -197,29 +181,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     if (!value) {
       this.name = null;
     }
-  }
-
-  public boolean isIsSet() {
-    return this.isSet;
-  }
-
-  public ReferenceSlot setIsSet(boolean isSet) {
-    this.isSet = isSet;
-    setIsSetIsSet(true);
-    return this;
-  }
-
-  public void unsetIsSet() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  /** Returns true if field isSet is set (has been assigned a value) and false otherwise */
-  public boolean isSetIsSet() {
-    return EncodingUtils.testBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  public void setIsSetIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ISSET_ISSET_ID, value);
   }
 
   public int getIdsSize() {
@@ -271,14 +232,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
       }
       break;
 
-    case IS_SET:
-      if (value == null) {
-        unsetIsSet();
-      } else {
-        setIsSet((Boolean)value);
-      }
-      break;
-
     case IDS:
       if (value == null) {
         unsetIds();
@@ -294,9 +247,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     switch (field) {
     case NAME:
       return getName();
-
-    case IS_SET:
-      return Boolean.valueOf(isIsSet());
 
     case IDS:
       return getIds();
@@ -314,8 +264,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     switch (field) {
     case NAME:
       return isSetName();
-    case IS_SET:
-      return isSetIsSet();
     case IDS:
       return isSetIds();
     }
@@ -344,15 +292,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
         return false;
     }
 
-    boolean this_present_isSet = true;
-    boolean that_present_isSet = true;
-    if (this_present_isSet || that_present_isSet) {
-      if (!(this_present_isSet && that_present_isSet))
-        return false;
-      if (this.isSet != that.isSet)
-        return false;
-    }
-
     boolean this_present_ids = true && this.isSetIds();
     boolean that_present_ids = true && that.isSetIds();
     if (this_present_ids || that_present_ids) {
@@ -373,11 +312,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     list.add(present_name);
     if (present_name)
       list.add(name);
-
-    boolean present_isSet = true;
-    list.add(present_isSet);
-    if (present_isSet)
-      list.add(isSet);
 
     boolean present_ids = true && (isSetIds());
     list.add(present_ids);
@@ -401,16 +335,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     }
     if (isSetName()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, other.name);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetIsSet()).compareTo(other.isSetIsSet());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIsSet()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.isSet, other.isSet);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -453,10 +377,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("isSet:");
-    sb.append(this.isSet);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("ids:");
     if (this.ids == null) {
       sb.append("null");
@@ -473,7 +393,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     if (name == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
     }
-    // alas, we cannot check 'isSet' because it's a primitive and you chose the non-beans generator.
     if (ids == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'ids' was not present! Struct: " + toString());
     }
@@ -490,8 +409,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
-      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -524,15 +441,7 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // IS_SET
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.isSet = iprot.readBool();
-              struct.setIsSetIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // IDS
+          case 2: // IDS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
@@ -558,9 +467,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetIsSet()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isSet' was not found in serialized data! Struct: " + toString());
-      }
       struct.validate();
     }
 
@@ -573,9 +479,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
         oprot.writeString(struct.name);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(IS_SET_FIELD_DESC);
-      oprot.writeBool(struct.isSet);
-      oprot.writeFieldEnd();
       if (struct.ids != null) {
         oprot.writeFieldBegin(IDS_FIELD_DESC);
         {
@@ -606,7 +509,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
     public void write(org.apache.thrift.protocol.TProtocol prot, ReferenceSlot struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       oprot.writeString(struct.name);
-      oprot.writeBool(struct.isSet);
       {
         oprot.writeI32(struct.ids.size());
         for (String _iter12 : struct.ids)
@@ -621,8 +523,6 @@ public class ReferenceSlot implements org.apache.thrift.TBase<ReferenceSlot, Ref
       TTupleProtocol iprot = (TTupleProtocol) prot;
       struct.name = iprot.readString();
       struct.setNameIsSet(true);
-      struct.isSet = iprot.readBool();
-      struct.setIsSetIsSet(true);
       {
         org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
         struct.ids = new ArrayList<String>(_list13.size);

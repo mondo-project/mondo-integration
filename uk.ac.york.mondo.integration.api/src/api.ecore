@@ -864,14 +864,14 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
         eType="#//AttributeSlot" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Slots holding the values of the model element's attributes, if any"/>
+        <details key="d" value="Slots holding the values of the model element's attributes, if any have been set"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
         eType="#//ReferenceSlot" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Slots holding the values of the model element's references, if any"/>
+        <details key="d" value="Slots holding the values of the model element's references, if any have been set"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
@@ -885,11 +885,6 @@
         <details key="d" value="The name of the model element property the value of which is stored in this slot"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isSet" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
-      <eAnnotations source="doc">
-        <details key="d" value="Indicates whether the slot has a value set or not"/>
-      </eAnnotations>
-    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AttributeSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
@@ -899,7 +894,6 @@
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list."/>
-        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

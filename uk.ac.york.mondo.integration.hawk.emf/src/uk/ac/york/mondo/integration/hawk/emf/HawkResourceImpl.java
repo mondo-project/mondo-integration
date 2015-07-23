@@ -209,8 +209,6 @@ public class HawkResourceImpl extends ResourceImpl {
 	private EStructuralFeature setStructuralFeatureFromSlot(
 			final EClass eClass, final EObject eObject, AttributeSlot slot)
 			throws IOException {
-		assert slot.isSet : "This method should only be called for slots with set values";
-
 		final EStructuralFeature feature = eClass.getEStructuralFeature(slot.name);
 		final EClassifier eType = feature.getEType();
 
@@ -274,8 +272,6 @@ public class HawkResourceImpl extends ResourceImpl {
 
 				if (me.isSetAttributes()) {
 					for (AttributeSlot s : me.attributes) {
-						if (!s.isSet)
-							continue;
 						setStructuralFeatureFromSlot(eClass, obj, s);
 					}
 				}
@@ -290,10 +286,6 @@ public class HawkResourceImpl extends ResourceImpl {
 
 				if (me.isSetReferences()) {
 					for (ReferenceSlot s : me.references) {
-						if (!s.isSet) {
-							continue;
-						}
-
 						final EClass eClass = getEClass(packageRegistry, me);
 						final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
 						if (feature.isMany()) {

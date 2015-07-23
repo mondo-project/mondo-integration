@@ -39,7 +39,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Slot");
 
   private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField IS_SET_FIELD_DESC = new org.apache.thrift.protocol.TField("isSet", org.apache.thrift.protocol.TType.BOOL, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,12 +47,10 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
   }
 
   public String name; // required
-  public boolean isSet; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    NAME((short)1, "name"),
-    IS_SET((short)2, "isSet");
+    NAME((short)1, "name");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,8 +67,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
       switch(fieldId) {
         case 1: // NAME
           return NAME;
-        case 2: // IS_SET
-          return IS_SET;
         default:
           return null;
       }
@@ -112,15 +107,11 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
   }
 
   // isset id assignments
-  private static final int __ISSET_ISSET_ID = 0;
-  private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IS_SET, new org.apache.thrift.meta_data.FieldMetaData("isSet", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Slot.class, metaDataMap);
   }
@@ -129,24 +120,19 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
   }
 
   public Slot(
-    String name,
-    boolean isSet)
+    String name)
   {
     this();
     this.name = name;
-    this.isSet = isSet;
-    setIsSetIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public Slot(Slot other) {
-    __isset_bitfield = other.__isset_bitfield;
     if (other.isSetName()) {
       this.name = other.name;
     }
-    this.isSet = other.isSet;
   }
 
   public Slot deepCopy() {
@@ -156,8 +142,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
   @Override
   public void clear() {
     this.name = null;
-    setIsSetIsSet(false);
-    this.isSet = false;
   }
 
   public String getName() {
@@ -184,29 +168,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     }
   }
 
-  public boolean isIsSet() {
-    return this.isSet;
-  }
-
-  public Slot setIsSet(boolean isSet) {
-    this.isSet = isSet;
-    setIsSetIsSet(true);
-    return this;
-  }
-
-  public void unsetIsSet() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  /** Returns true if field isSet is set (has been assigned a value) and false otherwise */
-  public boolean isSetIsSet() {
-    return EncodingUtils.testBit(__isset_bitfield, __ISSET_ISSET_ID);
-  }
-
-  public void setIsSetIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ISSET_ISSET_ID, value);
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case NAME:
@@ -217,14 +178,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
       }
       break;
 
-    case IS_SET:
-      if (value == null) {
-        unsetIsSet();
-      } else {
-        setIsSet((Boolean)value);
-      }
-      break;
-
     }
   }
 
@@ -232,9 +185,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     switch (field) {
     case NAME:
       return getName();
-
-    case IS_SET:
-      return Boolean.valueOf(isIsSet());
 
     }
     throw new IllegalStateException();
@@ -249,8 +199,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     switch (field) {
     case NAME:
       return isSetName();
-    case IS_SET:
-      return isSetIsSet();
     }
     throw new IllegalStateException();
   }
@@ -277,15 +225,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
         return false;
     }
 
-    boolean this_present_isSet = true;
-    boolean that_present_isSet = true;
-    if (this_present_isSet || that_present_isSet) {
-      if (!(this_present_isSet && that_present_isSet))
-        return false;
-      if (this.isSet != that.isSet)
-        return false;
-    }
-
     return true;
   }
 
@@ -297,11 +236,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     list.add(present_name);
     if (present_name)
       list.add(name);
-
-    boolean present_isSet = true;
-    list.add(present_isSet);
-    if (present_isSet)
-      list.add(isSet);
 
     return list.hashCode();
   }
@@ -320,16 +254,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     }
     if (isSetName()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, other.name);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetIsSet()).compareTo(other.isSetIsSet());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetIsSet()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.isSet, other.isSet);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -361,10 +285,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
       sb.append(this.name);
     }
     first = false;
-    if (!first) sb.append(", ");
-    sb.append("isSet:");
-    sb.append(this.isSet);
-    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -374,7 +294,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     if (name == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
     }
-    // alas, we cannot check 'isSet' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
   }
 
@@ -388,8 +307,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
-      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -422,14 +339,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // IS_SET
-            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-              struct.isSet = iprot.readBool();
-              struct.setIsSetIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -438,9 +347,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetIsSet()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'isSet' was not found in serialized data! Struct: " + toString());
-      }
       struct.validate();
     }
 
@@ -453,9 +359,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
         oprot.writeString(struct.name);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(IS_SET_FIELD_DESC);
-      oprot.writeBool(struct.isSet);
-      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -474,7 +377,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
     public void write(org.apache.thrift.protocol.TProtocol prot, Slot struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       oprot.writeString(struct.name);
-      oprot.writeBool(struct.isSet);
     }
 
     @Override
@@ -482,8 +384,6 @@ public class Slot implements org.apache.thrift.TBase<Slot, Slot._Fields>, java.i
       TTupleProtocol iprot = (TTupleProtocol) prot;
       struct.name = iprot.readString();
       struct.setNameIsSet(true);
-      struct.isSet = iprot.readBool();
-      struct.setIsSetIsSet(true);
     }
   }
 
