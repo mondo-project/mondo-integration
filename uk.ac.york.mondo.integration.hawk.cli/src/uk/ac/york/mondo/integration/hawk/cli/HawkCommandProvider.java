@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -53,7 +53,7 @@ public class HawkCommandProvider implements CommandProvider {
 		final String url = requiredArgument(intp, "url");
 
 		final THttpClient transport = new THttpClient(url);
-		client = new Hawk.Client(new TCompactProtocol(transport));
+		client = new Hawk.Client(new TTupleProtocol(transport));
 		currentInstance = null;
 
 		transport.open();

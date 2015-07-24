@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphIterable;
@@ -400,7 +400,7 @@ public class HawkThriftServlet extends TServlet {
 
 	public HawkThriftServlet() {
 		super(new Hawk.Processor<Hawk.Iface>(new Iface()),
-				new TCompactProtocol.Factory());
+				new TTupleProtocol.Factory());
 	}
 
 }
