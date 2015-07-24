@@ -890,10 +890,10 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="values" eType="#//ScalarList"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Variant"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Heterogeneous list with the scalar values for the attribute slot."/>
+        <details key="d" value="Variant value of the slot."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -904,7 +904,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="A homogeneous list with the identifiers of the referenced elements."/>
+        <details key="d" value="Identifiers of the referenced elements."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -920,17 +920,24 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vReference" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vReference" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ScalarList">
+  <eClassifiers xsi:type="ecore:EClass" name="Variant">
     <eAnnotations source="thrift">
       <details key="union" value="true"/>
     </eAnnotations>
     <eAnnotations source="doc">
-      <details key="d" value="Union type for a homogeneous collection of scalar values."/>
+      <details key="d" value="Union type for a single scalar value or a homogeneous collection of scalar values."/>
     </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBooleans" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>

@@ -34,25 +34,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked"})
-public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList._Fields> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ScalarList");
-  private static final org.apache.thrift.protocol.TField V_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("vBytes", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField V_BOOLEANS_FIELD_DESC = new org.apache.thrift.protocol.TField("vBooleans", org.apache.thrift.protocol.TType.LIST, (short)2);
-  private static final org.apache.thrift.protocol.TField V_SHORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("vShorts", org.apache.thrift.protocol.TType.LIST, (short)3);
-  private static final org.apache.thrift.protocol.TField V_INTEGERS_FIELD_DESC = new org.apache.thrift.protocol.TField("vIntegers", org.apache.thrift.protocol.TType.LIST, (short)4);
-  private static final org.apache.thrift.protocol.TField V_LONGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vLongs", org.apache.thrift.protocol.TType.LIST, (short)5);
-  private static final org.apache.thrift.protocol.TField V_DOUBLES_FIELD_DESC = new org.apache.thrift.protocol.TField("vDoubles", org.apache.thrift.protocol.TType.LIST, (short)6);
-  private static final org.apache.thrift.protocol.TField V_STRINGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vStrings", org.apache.thrift.protocol.TType.LIST, (short)7);
+public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Variant");
+  private static final org.apache.thrift.protocol.TField V_BYTE_FIELD_DESC = new org.apache.thrift.protocol.TField("vByte", org.apache.thrift.protocol.TType.BYTE, (short)1);
+  private static final org.apache.thrift.protocol.TField V_BOOLEAN_FIELD_DESC = new org.apache.thrift.protocol.TField("vBoolean", org.apache.thrift.protocol.TType.BOOL, (short)2);
+  private static final org.apache.thrift.protocol.TField V_SHORT_FIELD_DESC = new org.apache.thrift.protocol.TField("vShort", org.apache.thrift.protocol.TType.I16, (short)3);
+  private static final org.apache.thrift.protocol.TField V_INTEGER_FIELD_DESC = new org.apache.thrift.protocol.TField("vInteger", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField V_LONG_FIELD_DESC = new org.apache.thrift.protocol.TField("vLong", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField V_DOUBLE_FIELD_DESC = new org.apache.thrift.protocol.TField("vDouble", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
+  private static final org.apache.thrift.protocol.TField V_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("vString", org.apache.thrift.protocol.TType.STRING, (short)7);
+  private static final org.apache.thrift.protocol.TField V_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("vBytes", org.apache.thrift.protocol.TType.STRING, (short)8);
+  private static final org.apache.thrift.protocol.TField V_BOOLEANS_FIELD_DESC = new org.apache.thrift.protocol.TField("vBooleans", org.apache.thrift.protocol.TType.LIST, (short)9);
+  private static final org.apache.thrift.protocol.TField V_SHORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("vShorts", org.apache.thrift.protocol.TType.LIST, (short)10);
+  private static final org.apache.thrift.protocol.TField V_INTEGERS_FIELD_DESC = new org.apache.thrift.protocol.TField("vIntegers", org.apache.thrift.protocol.TType.LIST, (short)11);
+  private static final org.apache.thrift.protocol.TField V_LONGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vLongs", org.apache.thrift.protocol.TType.LIST, (short)12);
+  private static final org.apache.thrift.protocol.TField V_DOUBLES_FIELD_DESC = new org.apache.thrift.protocol.TField("vDoubles", org.apache.thrift.protocol.TType.LIST, (short)13);
+  private static final org.apache.thrift.protocol.TField V_STRINGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vStrings", org.apache.thrift.protocol.TType.LIST, (short)14);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    V_BYTES((short)1, "vBytes"),
-    V_BOOLEANS((short)2, "vBooleans"),
-    V_SHORTS((short)3, "vShorts"),
-    V_INTEGERS((short)4, "vIntegers"),
-    V_LONGS((short)5, "vLongs"),
-    V_DOUBLES((short)6, "vDoubles"),
-    V_STRINGS((short)7, "vStrings");
+    V_BYTE((short)1, "vByte"),
+    V_BOOLEAN((short)2, "vBoolean"),
+    V_SHORT((short)3, "vShort"),
+    V_INTEGER((short)4, "vInteger"),
+    V_LONG((short)5, "vLong"),
+    V_DOUBLE((short)6, "vDouble"),
+    V_STRING((short)7, "vString"),
+    V_BYTES((short)8, "vBytes"),
+    V_BOOLEANS((short)9, "vBooleans"),
+    V_SHORTS((short)10, "vShorts"),
+    V_INTEGERS((short)11, "vIntegers"),
+    V_LONGS((short)12, "vLongs"),
+    V_DOUBLES((short)13, "vDoubles"),
+    V_STRINGS((short)14, "vStrings");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -67,19 +81,33 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // V_BYTES
+        case 1: // V_BYTE
+          return V_BYTE;
+        case 2: // V_BOOLEAN
+          return V_BOOLEAN;
+        case 3: // V_SHORT
+          return V_SHORT;
+        case 4: // V_INTEGER
+          return V_INTEGER;
+        case 5: // V_LONG
+          return V_LONG;
+        case 6: // V_DOUBLE
+          return V_DOUBLE;
+        case 7: // V_STRING
+          return V_STRING;
+        case 8: // V_BYTES
           return V_BYTES;
-        case 2: // V_BOOLEANS
+        case 9: // V_BOOLEANS
           return V_BOOLEANS;
-        case 3: // V_SHORTS
+        case 10: // V_SHORTS
           return V_SHORTS;
-        case 4: // V_INTEGERS
+        case 11: // V_INTEGERS
           return V_INTEGERS;
-        case 5: // V_LONGS
+        case 12: // V_LONGS
           return V_LONGS;
-        case 6: // V_DOUBLES
+        case 13: // V_DOUBLES
           return V_DOUBLES;
-        case 7: // V_STRINGS
+        case 14: // V_STRINGS
           return V_STRINGS;
         default:
           return null;
@@ -123,6 +151,20 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.V_BYTE, new org.apache.thrift.meta_data.FieldMetaData("vByte", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+    tmpMap.put(_Fields.V_BOOLEAN, new org.apache.thrift.meta_data.FieldMetaData("vBoolean", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.V_SHORT, new org.apache.thrift.meta_data.FieldMetaData("vShort", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
+    tmpMap.put(_Fields.V_INTEGER, new org.apache.thrift.meta_data.FieldMetaData("vInteger", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.V_LONG, new org.apache.thrift.meta_data.FieldMetaData("vLong", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.V_DOUBLE, new org.apache.thrift.meta_data.FieldMetaData("vDouble", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
+    tmpMap.put(_Fields.V_STRING, new org.apache.thrift.meta_data.FieldMetaData("vString", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.V_BYTES, new org.apache.thrift.meta_data.FieldMetaData("vBytes", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.V_BOOLEANS, new org.apache.thrift.meta_data.FieldMetaData("vBooleans", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -144,68 +186,110 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ScalarList.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Variant.class, metaDataMap);
   }
 
-  public ScalarList() {
+  public Variant() {
     super();
   }
 
-  public ScalarList(_Fields setField, Object value) {
+  public Variant(_Fields setField, Object value) {
     super(setField, value);
   }
 
-  public ScalarList(ScalarList other) {
+  public Variant(Variant other) {
     super(other);
   }
-  public ScalarList deepCopy() {
-    return new ScalarList(this);
+  public Variant deepCopy() {
+    return new Variant(this);
   }
 
-  public static ScalarList vBytes(ByteBuffer value) {
-    ScalarList x = new ScalarList();
+  public static Variant vByte(byte value) {
+    Variant x = new Variant();
+    x.setVByte(value);
+    return x;
+  }
+
+  public static Variant vBoolean(boolean value) {
+    Variant x = new Variant();
+    x.setVBoolean(value);
+    return x;
+  }
+
+  public static Variant vShort(short value) {
+    Variant x = new Variant();
+    x.setVShort(value);
+    return x;
+  }
+
+  public static Variant vInteger(int value) {
+    Variant x = new Variant();
+    x.setVInteger(value);
+    return x;
+  }
+
+  public static Variant vLong(long value) {
+    Variant x = new Variant();
+    x.setVLong(value);
+    return x;
+  }
+
+  public static Variant vDouble(double value) {
+    Variant x = new Variant();
+    x.setVDouble(value);
+    return x;
+  }
+
+  public static Variant vString(String value) {
+    Variant x = new Variant();
+    x.setVString(value);
+    return x;
+  }
+
+  public static Variant vBytes(ByteBuffer value) {
+    Variant x = new Variant();
     x.setVBytes(value);
     return x;
   }
 
-  public static ScalarList vBytes(byte[] value) {
-    ScalarList x = new ScalarList();
+  public static Variant vBytes(byte[] value) {
+    Variant x = new Variant();
     x.setVBytes(ByteBuffer.wrap(Arrays.copyOf(value, value.length)));
     return x;
   }
 
-  public static ScalarList vBooleans(List<Boolean> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vBooleans(List<Boolean> value) {
+    Variant x = new Variant();
     x.setVBooleans(value);
     return x;
   }
 
-  public static ScalarList vShorts(List<Short> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vShorts(List<Short> value) {
+    Variant x = new Variant();
     x.setVShorts(value);
     return x;
   }
 
-  public static ScalarList vIntegers(List<Integer> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vIntegers(List<Integer> value) {
+    Variant x = new Variant();
     x.setVIntegers(value);
     return x;
   }
 
-  public static ScalarList vLongs(List<Long> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vLongs(List<Long> value) {
+    Variant x = new Variant();
     x.setVLongs(value);
     return x;
   }
 
-  public static ScalarList vDoubles(List<Double> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vDoubles(List<Double> value) {
+    Variant x = new Variant();
     x.setVDoubles(value);
     return x;
   }
 
-  public static ScalarList vStrings(List<String> value) {
-    ScalarList x = new ScalarList();
+  public static Variant vStrings(List<String> value) {
+    Variant x = new Variant();
     x.setVStrings(value);
     return x;
   }
@@ -214,6 +298,41 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
     switch (setField) {
+      case V_BYTE:
+        if (value instanceof Byte) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Byte for field 'vByte', but got " + value.getClass().getSimpleName());
+      case V_BOOLEAN:
+        if (value instanceof Boolean) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Boolean for field 'vBoolean', but got " + value.getClass().getSimpleName());
+      case V_SHORT:
+        if (value instanceof Short) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Short for field 'vShort', but got " + value.getClass().getSimpleName());
+      case V_INTEGER:
+        if (value instanceof Integer) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Integer for field 'vInteger', but got " + value.getClass().getSimpleName());
+      case V_LONG:
+        if (value instanceof Long) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Long for field 'vLong', but got " + value.getClass().getSimpleName());
+      case V_DOUBLE:
+        if (value instanceof Double) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Double for field 'vDouble', but got " + value.getClass().getSimpleName());
+      case V_STRING:
+        if (value instanceof String) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type String for field 'vString', but got " + value.getClass().getSimpleName());
       case V_BYTES:
         if (value instanceof ByteBuffer) {
           break;
@@ -259,6 +378,69 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
       switch (setField) {
+        case V_BYTE:
+          if (field.type == V_BYTE_FIELD_DESC.type) {
+            Byte vByte;
+            vByte = iprot.readByte();
+            return vByte;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_BOOLEAN:
+          if (field.type == V_BOOLEAN_FIELD_DESC.type) {
+            Boolean vBoolean;
+            vBoolean = iprot.readBool();
+            return vBoolean;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_SHORT:
+          if (field.type == V_SHORT_FIELD_DESC.type) {
+            Short vShort;
+            vShort = iprot.readI16();
+            return vShort;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_INTEGER:
+          if (field.type == V_INTEGER_FIELD_DESC.type) {
+            Integer vInteger;
+            vInteger = iprot.readI32();
+            return vInteger;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_LONG:
+          if (field.type == V_LONG_FIELD_DESC.type) {
+            Long vLong;
+            vLong = iprot.readI64();
+            return vLong;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_DOUBLE:
+          if (field.type == V_DOUBLE_FIELD_DESC.type) {
+            Double vDouble;
+            vDouble = iprot.readDouble();
+            return vDouble;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_STRING:
+          if (field.type == V_STRING_FIELD_DESC.type) {
+            String vString;
+            vString = iprot.readString();
+            return vString;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         case V_BYTES:
           if (field.type == V_BYTES_FIELD_DESC.type) {
             ByteBuffer vBytes;
@@ -394,6 +576,34 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
   @Override
   protected void standardSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
+      case V_BYTE:
+        Byte vByte = (Byte)value_;
+        oprot.writeByte(vByte);
+        return;
+      case V_BOOLEAN:
+        Boolean vBoolean = (Boolean)value_;
+        oprot.writeBool(vBoolean);
+        return;
+      case V_SHORT:
+        Short vShort = (Short)value_;
+        oprot.writeI16(vShort);
+        return;
+      case V_INTEGER:
+        Integer vInteger = (Integer)value_;
+        oprot.writeI32(vInteger);
+        return;
+      case V_LONG:
+        Long vLong = (Long)value_;
+        oprot.writeI64(vLong);
+        return;
+      case V_DOUBLE:
+        Double vDouble = (Double)value_;
+        oprot.writeDouble(vDouble);
+        return;
+      case V_STRING:
+        String vString = (String)value_;
+        oprot.writeString(vString);
+        return;
       case V_BYTES:
         ByteBuffer vBytes = (ByteBuffer)value_;
         oprot.writeBinary(vBytes);
@@ -474,6 +684,34 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
     _Fields setField = _Fields.findByThriftId(fieldID);
     if (setField != null) {
       switch (setField) {
+        case V_BYTE:
+          Byte vByte;
+          vByte = iprot.readByte();
+          return vByte;
+        case V_BOOLEAN:
+          Boolean vBoolean;
+          vBoolean = iprot.readBool();
+          return vBoolean;
+        case V_SHORT:
+          Short vShort;
+          vShort = iprot.readI16();
+          return vShort;
+        case V_INTEGER:
+          Integer vInteger;
+          vInteger = iprot.readI32();
+          return vInteger;
+        case V_LONG:
+          Long vLong;
+          vLong = iprot.readI64();
+          return vLong;
+        case V_DOUBLE:
+          Double vDouble;
+          vDouble = iprot.readDouble();
+          return vDouble;
+        case V_STRING:
+          String vString;
+          vString = iprot.readString();
+          return vString;
         case V_BYTES:
           ByteBuffer vBytes;
           vBytes = iprot.readBinary();
@@ -573,6 +811,34 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
   @Override
   protected void tupleSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
+      case V_BYTE:
+        Byte vByte = (Byte)value_;
+        oprot.writeByte(vByte);
+        return;
+      case V_BOOLEAN:
+        Boolean vBoolean = (Boolean)value_;
+        oprot.writeBool(vBoolean);
+        return;
+      case V_SHORT:
+        Short vShort = (Short)value_;
+        oprot.writeI16(vShort);
+        return;
+      case V_INTEGER:
+        Integer vInteger = (Integer)value_;
+        oprot.writeI32(vInteger);
+        return;
+      case V_LONG:
+        Long vLong = (Long)value_;
+        oprot.writeI64(vLong);
+        return;
+      case V_DOUBLE:
+        Double vDouble = (Double)value_;
+        oprot.writeDouble(vDouble);
+        return;
+      case V_STRING:
+        String vString = (String)value_;
+        oprot.writeString(vString);
+        return;
       case V_BYTES:
         ByteBuffer vBytes = (ByteBuffer)value_;
         oprot.writeBinary(vBytes);
@@ -651,6 +917,20 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
   @Override
   protected org.apache.thrift.protocol.TField getFieldDesc(_Fields setField) {
     switch (setField) {
+      case V_BYTE:
+        return V_BYTE_FIELD_DESC;
+      case V_BOOLEAN:
+        return V_BOOLEAN_FIELD_DESC;
+      case V_SHORT:
+        return V_SHORT_FIELD_DESC;
+      case V_INTEGER:
+        return V_INTEGER_FIELD_DESC;
+      case V_LONG:
+        return V_LONG_FIELD_DESC;
+      case V_DOUBLE:
+        return V_DOUBLE_FIELD_DESC;
+      case V_STRING:
+        return V_STRING_FIELD_DESC;
       case V_BYTES:
         return V_BYTES_FIELD_DESC;
       case V_BOOLEANS:
@@ -684,6 +964,98 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
     return _Fields.findByThriftId(fieldId);
   }
 
+
+  public byte getVByte() {
+    if (getSetField() == _Fields.V_BYTE) {
+      return (Byte)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vByte' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVByte(byte value) {
+    setField_ = _Fields.V_BYTE;
+    value_ = value;
+  }
+
+  public boolean getVBoolean() {
+    if (getSetField() == _Fields.V_BOOLEAN) {
+      return (Boolean)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vBoolean' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVBoolean(boolean value) {
+    setField_ = _Fields.V_BOOLEAN;
+    value_ = value;
+  }
+
+  public short getVShort() {
+    if (getSetField() == _Fields.V_SHORT) {
+      return (Short)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vShort' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVShort(short value) {
+    setField_ = _Fields.V_SHORT;
+    value_ = value;
+  }
+
+  public int getVInteger() {
+    if (getSetField() == _Fields.V_INTEGER) {
+      return (Integer)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vInteger' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVInteger(int value) {
+    setField_ = _Fields.V_INTEGER;
+    value_ = value;
+  }
+
+  public long getVLong() {
+    if (getSetField() == _Fields.V_LONG) {
+      return (Long)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vLong' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVLong(long value) {
+    setField_ = _Fields.V_LONG;
+    value_ = value;
+  }
+
+  public double getVDouble() {
+    if (getSetField() == _Fields.V_DOUBLE) {
+      return (Double)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vDouble' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVDouble(double value) {
+    setField_ = _Fields.V_DOUBLE;
+    value_ = value;
+  }
+
+  public String getVString() {
+    if (getSetField() == _Fields.V_STRING) {
+      return (String)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vString' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVString(String value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.V_STRING;
+    value_ = value;
+  }
 
   public byte[] getVBytes() {
     setVBytes(org.apache.thrift.TBaseHelper.rightSize(bufferForVBytes()));
@@ -793,6 +1165,41 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
     value_ = value;
   }
 
+  public boolean isSetVByte() {
+    return setField_ == _Fields.V_BYTE;
+  }
+
+
+  public boolean isSetVBoolean() {
+    return setField_ == _Fields.V_BOOLEAN;
+  }
+
+
+  public boolean isSetVShort() {
+    return setField_ == _Fields.V_SHORT;
+  }
+
+
+  public boolean isSetVInteger() {
+    return setField_ == _Fields.V_INTEGER;
+  }
+
+
+  public boolean isSetVLong() {
+    return setField_ == _Fields.V_LONG;
+  }
+
+
+  public boolean isSetVDouble() {
+    return setField_ == _Fields.V_DOUBLE;
+  }
+
+
+  public boolean isSetVString() {
+    return setField_ == _Fields.V_STRING;
+  }
+
+
   public boolean isSetVBytes() {
     return setField_ == _Fields.V_BYTES;
   }
@@ -829,19 +1236,19 @@ public class ScalarList extends org.apache.thrift.TUnion<ScalarList, ScalarList.
 
 
   public boolean equals(Object other) {
-    if (other instanceof ScalarList) {
-      return equals((ScalarList)other);
+    if (other instanceof Variant) {
+      return equals((Variant)other);
     } else {
       return false;
     }
   }
 
-  public boolean equals(ScalarList other) {
+  public boolean equals(Variant other) {
     return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
   @Override
-  public int compareTo(ScalarList other) {
+  public int compareTo(Variant other) {
     int lastComparison = org.apache.thrift.TBaseHelper.compareTo(getSetField(), other.getSetField());
     if (lastComparison == 0) {
       return org.apache.thrift.TBaseHelper.compareTo(getFieldValue(), other.getFieldValue());

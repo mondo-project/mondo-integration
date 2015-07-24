@@ -42,7 +42,8 @@ import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
-import uk.ac.york.mondo.integration.api.ScalarList._Fields;
+import uk.ac.york.mondo.integration.api.Variant;
+import uk.ac.york.mondo.integration.api.Variant._Fields;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 /**
@@ -84,20 +85,23 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EStructuralFeature feature) throws IOException {
 		// TODO not sure, need to test
 
-		if (!slot.values.isSetVBytes()) {
+		if (!slot.value.isSetVBytes() && !slot.value.isSetVByte()) {
 			throw new IOException(
 					String.format(
 							"Expected to receive bytes for feature '%s' in type '%s', but did not",
 							feature.getName(), eClass.getName()));
 		} else if (feature.isMany() || feature.getEType() == EcorePackage.Literals.EBYTE_ARRAY) {
-			final EList<Byte> bytes = new BasicEList<Byte>(
-					slot.values.getVBytes().length);
-			for (byte b : slot.values.getVBytes()) {
-				bytes.add(b);
+			final EList<Byte> bytes = new BasicEList<Byte>();
+			if (slot.value.isSetVBytes()) {
+				for (byte b : slot.value.getVBytes()) {
+					bytes.add(b);
+				}
+			} else {
+				bytes.add(slot.value.getVByte());
 			}
 			eObject.eSet(feature, bytes);
 		} else {
-			final byte b = slot.values.getVBytes()[0];
+			final byte b = slot.value.getVByte();
 			eObject.eSet(feature, b);
 		}
 	}
@@ -111,17 +115,17 @@ public class HawkResourceImpl extends ResourceImpl {
 		} else if (eType == EcorePackage.Literals.EFLOAT) {
 			setStructuralFeatureFromFloat(eClass, eObject, slot, feature);
 		} else if (eType == EcorePackage.Literals.EDOUBLE) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, _Fields.V_DOUBLES);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
 		} else if (eType == EcorePackage.Literals.EINT) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, _Fields.V_INTEGERS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
 		} else if (eType == EcorePackage.Literals.ELONG) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, _Fields.V_LONGS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
 		} else if (eType == EcorePackage.Literals.ESHORT) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, _Fields.V_SHORTS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
 		} else if (eType == EcorePackage.Literals.ESTRING) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_STRINGS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
 		} else if (eType == EcorePackage.Literals.EBOOLEAN) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_BOOLEANS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
 		} else {
 			throw new IOException(String.format("Unknown ECore data type '%s'", eType));
 		}
@@ -131,19 +135,23 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject eObject, AttributeSlot slot,
 			final EStructuralFeature feature, final EEnum enumType)
 			throws IOException {
-		if (!slot.values.isSetVStrings()) {
+		if (!slot.value.isSetVStrings() && !slot.value.isSetVString()) {
 			throw new IOException(
-					String.format(
-							"Expected to receive strings for feature '%s' in type '%s' with many='%s', but did not",
-							feature.getName(), eClass.getName(), feature.isMany()));
+				String.format(
+					"Expected to receive strings for feature '%s' in type '%s' with many='%s', but did not",
+					feature.getName(), eClass.getName(), feature.isMany()));
 		} else if (feature.isMany()) {
 			List<EEnumLiteral> literals = new ArrayList<>();
-			for (String s : slot.values.getVStrings()) {
-				literals.add(enumType.getEEnumLiteral(s));
+			if (slot.value.isSetVStrings()) {
+				for (String s : slot.value.getVStrings()) {
+					literals.add(enumType.getEEnumLiteral(s));
+				}
+			} else {
+				literals.add(enumType.getEEnumLiteral(slot.value.getVString()));
 			}
 			eObject.eSet(feature, literals);
 		} else {
-			final EEnumLiteral enumLiteral = enumType.getEEnumLiteral(slot.values.getVStrings().get(0));
+			final EEnumLiteral enumLiteral = enumType.getEEnumLiteral(slot.value.getVString());
 			eObject.eSet(feature, enumLiteral);
 		}
 	}
@@ -151,20 +159,24 @@ public class HawkResourceImpl extends ResourceImpl {
 	private void setStructuralFeatureFromFloat(final EClass eClass,
 			final EObject eObject, AttributeSlot slot,
 			final EStructuralFeature feature) throws IOException {
-		if (!slot.values.isSetVDoubles()) {
+		if (!slot.value.isSetVDoubles() && !slot.value.isSetVDouble()) {
 			throw new IOException(
 					String.format(
 							"Expected to receive doubles for feature '%s' in type '%s', but did not",
 							feature.getName(), eClass.getName()));
 
 		} else if (feature.isMany()) {
-			final EList<Float> floats = new BasicEList<Float>(slot.values.getVDoubles().size());
-			for (double d : slot.values.getVDoubles()) {
-				floats.add((float) d);
+			final EList<Float> floats = new BasicEList<Float>();
+			if (slot.value.isSetVDoubles()) {
+				for (double d : slot.value.getVDoubles()) {
+					floats.add((float) d);
+				}
+			} else {
+				floats.add((float)slot.value.getVDouble());
 			}
 			eObject.eSet(feature, floats);
 		} else {
-			final double d = slot.values.getVDoubles().get(0);
+			final double d = slot.value.getVDouble();
 			eObject.eSet(feature, (float) d);
 		}
 	}
@@ -187,17 +199,17 @@ public class HawkResourceImpl extends ResourceImpl {
 		} else if (Float.class.isAssignableFrom(instanceClass)) {
 			setStructuralFeatureFromFloat(eClass, eObject, slot, feature);
 		} else if (Double.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_DOUBLES);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
 		} else if (Integer.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_INTEGERS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
 		} else if (Long.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_LONGS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
 		} else if (Short.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_SHORTS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
 		} else if (String.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_STRINGS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
 		} else if (Boolean.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, _Fields.V_BOOLEANS);
+			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
 		} else {
 			throw new IOException(String.format(
 					"Unknown data type %s with isMany = false and instance class %s",
@@ -225,23 +237,23 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	private void setStructuralFeatureWithExpectedType(
 			final EClass eClass, final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final _Fields expectedType)
+			final EStructuralFeature feature, final Variant._Fields expectedMultiType, _Fields expectedSingleType)
 			throws IOException {
-		if (!slot.values.isSet(expectedType)) {
+		if (!slot.value.isSet(expectedMultiType) && !slot.value.isSet(expectedSingleType)) {
 			throw new IOException(
 					String.format(
 							"Expected to receive '%s' for feature '%s' in type '%s' with many='%s', but did not",
-							expectedType, feature.getName(), eClass.getName(),
+							expectedMultiType, feature.getName(), eClass.getName(),
 							feature.isMany()));
+		} else if (feature.isMany() && slot.value.isSet(expectedMultiType)) {
+			eObject.eSet(feature, ECollections.toEList(
+				(Iterable<?>) slot.value.getFieldValue(expectedMultiType)));
 		} else if (feature.isMany()) {
-			eObject.eSet(feature, ECollections
-					.toEList((Iterable<?>) slot.values
-							.getFieldValue(expectedType)));
+			eObject.eSet(feature, ECollections.asEList(
+				slot.value.getFieldValue(expectedSingleType)));
 		} else {
-			final Iterable<?> slotValues = (Iterable<?>) slot.values
-					.getFieldValue(expectedType);
-			final Object first = slotValues.iterator().next();
-			eObject.eSet(feature, first);
+			final Object elem = slot.value.getFieldValue(expectedSingleType);
+			eObject.eSet(feature, elem);
 		}
 	}
 

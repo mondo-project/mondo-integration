@@ -41,9 +41,9 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
   private static final org.apache.thrift.protocol.TField V_SHORT_FIELD_DESC = new org.apache.thrift.protocol.TField("vShort", org.apache.thrift.protocol.TType.I16, (short)3);
   private static final org.apache.thrift.protocol.TField V_INTEGER_FIELD_DESC = new org.apache.thrift.protocol.TField("vInteger", org.apache.thrift.protocol.TType.I32, (short)4);
   private static final org.apache.thrift.protocol.TField V_LONG_FIELD_DESC = new org.apache.thrift.protocol.TField("vLong", org.apache.thrift.protocol.TType.I64, (short)5);
-  private static final org.apache.thrift.protocol.TField V_DOUBLE_FIELD_DESC = new org.apache.thrift.protocol.TField("vDouble", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
-  private static final org.apache.thrift.protocol.TField V_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("vString", org.apache.thrift.protocol.TType.STRING, (short)7);
-  private static final org.apache.thrift.protocol.TField V_REFERENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("vReference", org.apache.thrift.protocol.TType.STRING, (short)8);
+  private static final org.apache.thrift.protocol.TField V_REFERENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("vReference", org.apache.thrift.protocol.TType.I64, (short)6);
+  private static final org.apache.thrift.protocol.TField V_DOUBLE_FIELD_DESC = new org.apache.thrift.protocol.TField("vDouble", org.apache.thrift.protocol.TType.DOUBLE, (short)7);
+  private static final org.apache.thrift.protocol.TField V_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("vString", org.apache.thrift.protocol.TType.STRING, (short)8);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -52,9 +52,9 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
     V_SHORT((short)3, "vShort"),
     V_INTEGER((short)4, "vInteger"),
     V_LONG((short)5, "vLong"),
-    V_DOUBLE((short)6, "vDouble"),
-    V_STRING((short)7, "vString"),
-    V_REFERENCE((short)8, "vReference");
+    V_REFERENCE((short)6, "vReference"),
+    V_DOUBLE((short)7, "vDouble"),
+    V_STRING((short)8, "vString");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -79,12 +79,12 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
           return V_INTEGER;
         case 5: // V_LONG
           return V_LONG;
-        case 6: // V_DOUBLE
-          return V_DOUBLE;
-        case 7: // V_STRING
-          return V_STRING;
-        case 8: // V_REFERENCE
+        case 6: // V_REFERENCE
           return V_REFERENCE;
+        case 7: // V_DOUBLE
+          return V_DOUBLE;
+        case 8: // V_STRING
+          return V_STRING;
         default:
           return null;
       }
@@ -137,11 +137,11 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.V_LONG, new org.apache.thrift.meta_data.FieldMetaData("vLong", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.V_REFERENCE, new org.apache.thrift.meta_data.FieldMetaData("vReference", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.V_DOUBLE, new org.apache.thrift.meta_data.FieldMetaData("vDouble", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
     tmpMap.put(_Fields.V_STRING, new org.apache.thrift.meta_data.FieldMetaData("vString", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.V_REFERENCE, new org.apache.thrift.meta_data.FieldMetaData("vReference", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ScalarOrReference.class, metaDataMap);
@@ -192,6 +192,12 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
     return x;
   }
 
+  public static ScalarOrReference vReference(long value) {
+    ScalarOrReference x = new ScalarOrReference();
+    x.setVReference(value);
+    return x;
+  }
+
   public static ScalarOrReference vDouble(double value) {
     ScalarOrReference x = new ScalarOrReference();
     x.setVDouble(value);
@@ -201,12 +207,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
   public static ScalarOrReference vString(String value) {
     ScalarOrReference x = new ScalarOrReference();
     x.setVString(value);
-    return x;
-  }
-
-  public static ScalarOrReference vReference(String value) {
-    ScalarOrReference x = new ScalarOrReference();
-    x.setVReference(value);
     return x;
   }
 
@@ -239,6 +239,11 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
           break;
         }
         throw new ClassCastException("Was expecting value of type Long for field 'vLong', but got " + value.getClass().getSimpleName());
+      case V_REFERENCE:
+        if (value instanceof Long) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Long for field 'vReference', but got " + value.getClass().getSimpleName());
       case V_DOUBLE:
         if (value instanceof Double) {
           break;
@@ -249,11 +254,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
           break;
         }
         throw new ClassCastException("Was expecting value of type String for field 'vString', but got " + value.getClass().getSimpleName());
-      case V_REFERENCE:
-        if (value instanceof String) {
-          break;
-        }
-        throw new ClassCastException("Was expecting value of type String for field 'vReference', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -309,6 +309,15 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case V_REFERENCE:
+          if (field.type == V_REFERENCE_FIELD_DESC.type) {
+            Long vReference;
+            vReference = iprot.readI64();
+            return vReference;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         case V_DOUBLE:
           if (field.type == V_DOUBLE_FIELD_DESC.type) {
             Double vDouble;
@@ -323,15 +332,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
             String vString;
             vString = iprot.readString();
             return vString;
-          } else {
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
-            return null;
-          }
-        case V_REFERENCE:
-          if (field.type == V_REFERENCE_FIELD_DESC.type) {
-            String vReference;
-            vReference = iprot.readString();
-            return vReference;
           } else {
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
@@ -368,6 +368,10 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
         Long vLong = (Long)value_;
         oprot.writeI64(vLong);
         return;
+      case V_REFERENCE:
+        Long vReference = (Long)value_;
+        oprot.writeI64(vReference);
+        return;
       case V_DOUBLE:
         Double vDouble = (Double)value_;
         oprot.writeDouble(vDouble);
@@ -375,10 +379,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
       case V_STRING:
         String vString = (String)value_;
         oprot.writeString(vString);
-        return;
-      case V_REFERENCE:
-        String vReference = (String)value_;
-        oprot.writeString(vReference);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -410,6 +410,10 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
           Long vLong;
           vLong = iprot.readI64();
           return vLong;
+        case V_REFERENCE:
+          Long vReference;
+          vReference = iprot.readI64();
+          return vReference;
         case V_DOUBLE:
           Double vDouble;
           vDouble = iprot.readDouble();
@@ -418,10 +422,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
           String vString;
           vString = iprot.readString();
           return vString;
-        case V_REFERENCE:
-          String vReference;
-          vReference = iprot.readString();
-          return vReference;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -453,6 +453,10 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
         Long vLong = (Long)value_;
         oprot.writeI64(vLong);
         return;
+      case V_REFERENCE:
+        Long vReference = (Long)value_;
+        oprot.writeI64(vReference);
+        return;
       case V_DOUBLE:
         Double vDouble = (Double)value_;
         oprot.writeDouble(vDouble);
@@ -460,10 +464,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
       case V_STRING:
         String vString = (String)value_;
         oprot.writeString(vString);
-        return;
-      case V_REFERENCE:
-        String vReference = (String)value_;
-        oprot.writeString(vReference);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -483,12 +483,12 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
         return V_INTEGER_FIELD_DESC;
       case V_LONG:
         return V_LONG_FIELD_DESC;
+      case V_REFERENCE:
+        return V_REFERENCE_FIELD_DESC;
       case V_DOUBLE:
         return V_DOUBLE_FIELD_DESC;
       case V_STRING:
         return V_STRING_FIELD_DESC;
-      case V_REFERENCE:
-        return V_REFERENCE_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -574,6 +574,19 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
     value_ = value;
   }
 
+  public long getVReference() {
+    if (getSetField() == _Fields.V_REFERENCE) {
+      return (Long)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vReference' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVReference(long value) {
+    setField_ = _Fields.V_REFERENCE;
+    value_ = value;
+  }
+
   public double getVDouble() {
     if (getSetField() == _Fields.V_DOUBLE) {
       return (Double)getFieldValue();
@@ -598,20 +611,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
   public void setVString(String value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.V_STRING;
-    value_ = value;
-  }
-
-  public String getVReference() {
-    if (getSetField() == _Fields.V_REFERENCE) {
-      return (String)getFieldValue();
-    } else {
-      throw new RuntimeException("Cannot get field 'vReference' because union is currently set to " + getFieldDesc(getSetField()).name);
-    }
-  }
-
-  public void setVReference(String value) {
-    if (value == null) throw new NullPointerException();
-    setField_ = _Fields.V_REFERENCE;
     value_ = value;
   }
 
@@ -640,6 +639,11 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
   }
 
 
+  public boolean isSetVReference() {
+    return setField_ == _Fields.V_REFERENCE;
+  }
+
+
   public boolean isSetVDouble() {
     return setField_ == _Fields.V_DOUBLE;
   }
@@ -647,11 +651,6 @@ public class ScalarOrReference extends org.apache.thrift.TUnion<ScalarOrReferenc
 
   public boolean isSetVString() {
     return setField_ == _Fields.V_STRING;
-  }
-
-
-  public boolean isSetVReference() {
-    return setField_ == _Fields.V_REFERENCE;
   }
 
 

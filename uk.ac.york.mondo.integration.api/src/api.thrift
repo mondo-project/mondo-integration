@@ -119,17 +119,7 @@ struct OperationModel {
 
 struct ReferenceSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* A homogeneous list with the identifiers of the referenced elements. */ 2: required list<i64> ids,
-}
-
-union ScalarList {
-	 /*  */ 1: required binary vBytes,
-	 /*  */ 2: required list<bool> vBooleans,
-	 /*  */ 3: required list<i16> vShorts,
-	 /*  */ 4: required list<i32> vIntegers,
-	 /*  */ 5: required list<i64> vLongs,
-	 /*  */ 6: required list<double> vDoubles,
-	 /*  */ 7: required list<string> vStrings,
+	 /* Identifiers of the referenced elements. */ 2: required list<i64> ids,
 }
 
 union ScalarOrReference {
@@ -138,9 +128,9 @@ union ScalarOrReference {
 	 /*  */ 3: required i16 vShort,
 	 /*  */ 4: required i32 vInteger,
 	 /*  */ 5: required i64 vLong,
-	 /*  */ 6: required double vDouble,
-	 /*  */ 7: required string vString,
-	 /*  */ 8: required string vReference,
+	 /*  */ 6: required i64 vReference,
+	 /*  */ 7: required double vDouble,
+	 /*  */ 8: required string vString,
 }
 
 struct Slot {
@@ -180,9 +170,26 @@ exception VCSAuthenticationFailed {
 exception VCSAuthorizationFailed {
 }
 
+union Variant {
+	 /*  */ 1: required byte vByte,
+	 /*  */ 2: required bool vBoolean,
+	 /*  */ 3: required i16 vShort,
+	 /*  */ 4: required i32 vInteger,
+	 /*  */ 5: required i64 vLong,
+	 /*  */ 6: required double vDouble,
+	 /*  */ 7: required string vString,
+	 /*  */ 8: required binary vBytes,
+	 /*  */ 9: required list<bool> vBooleans,
+	 /*  */ 10: required list<i16> vShorts,
+	 /*  */ 11: required list<i32> vIntegers,
+	 /*  */ 12: required list<i64> vLongs,
+	 /*  */ 13: required list<double> vDoubles,
+	 /*  */ 14: required list<string> vStrings,
+}
+
 struct AttributeSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list. */ 2: required ScalarList values,
+	 /* Variant value of the slot. */ 2: required Variant value,
 }
 
 struct CollaborationQueryInvocationSpecification {
@@ -222,9 +229,9 @@ struct ModelElementChange {
 }
 
 /* The majority of service operations provided by the MONDO
-   		platform require user authentication (indicated in the top-left  
-   		cell of each operation table) to prevent unaccountable use. 
-   		As such, the platform needs to provide basic user management service operations 
+   		platform require user authentication (indicated in the top-left
+   		cell of each operation table) to prevent unaccountable use.
+   		As such, the platform needs to provide basic user management service operations
    		for creating, updating and deleting user accounts. */
 service Users {
   /* Creates a new platform user. Auth needed: Yes */
@@ -304,8 +311,8 @@ service Hawk {
   /* Registers a set of file-based metamodels with a Hawk instance. Auth needed: Yes */
   void registerMetamodels(
 	/* The name of the Hawk instance. */ 1: required string name, 
-	/* The metamodels to register. 
-	   			More than one metamodel files can be provided in one 
+	/* The metamodels to register.
+	   			More than one metamodel files can be provided in one
 	   			go to accomodate fragmented metamodels. */ 2: required list<File> metamodel, 
   )
   throws (
@@ -496,7 +503,7 @@ service Hawk {
 	
 }
 
-/* The following service operations expose the capabilities of the offline collaboration framework 
+/* The following service operations expose the capabilities of the offline collaboration framework
    developed in Work Package 4. The framework is discussed in detail in D4.3. */
 service OfflineCollaboration {
   /* Performs the checkout operation. Auth needed: Yes */
@@ -588,7 +595,7 @@ service OfflineCollaboration {
    version of the ATL transformation language which is currently under development and
    will be presented in M24 in D3.3. */
 service CloudATL {
-  /* Invokes a cloud-based transformation in a batch non-blocking mode. 
+  /* Invokes a cloud-based transformation in a batch non-blocking mode.
      			Returns a token that can be used to check the status of the transformation. Auth needed: Yes */
   string launch(
 	/* The ATL source-code of the transformation. */ 1: required string transformation, 

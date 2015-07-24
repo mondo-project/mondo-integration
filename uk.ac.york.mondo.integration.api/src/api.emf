@@ -446,13 +446,13 @@ class Slot {
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class AttributeSlot extends Slot {
-	@doc(d="Heterogeneous list with the scalar values for the attribute slot.")
-	val ScalarList values;
+	@doc(d="Variant value of the slot.")
+	val Variant value;
 }
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class ReferenceSlot extends Slot {
-	@doc(d="A homogeneous list with the identifiers of the referenced elements.")
+	@doc(d="Identifiers of the referenced elements.")
 	val long[*] ids;
 }
 
@@ -464,14 +464,25 @@ class ScalarOrReference {
 	attr short vShort;
 	attr int vInteger;
 	attr long vLong;
+	attr long vReference;
 	attr double vDouble;
 	attr String vString;
-	attr String vReference;
 }
 
 @thrift(union="true")
-@doc(d="Union type for a homogeneous collection of scalar values.")
-class ScalarList {
+@doc(d="Union type for a single scalar value or a homogeneous collection of scalar values.")
+class Variant {
+	// If we only have one value, even if it should be a list, it's
+	// better to use this so we don't use space specifying "size 1".
+	attr byte vByte;
+	attr boolean vBoolean;
+	attr short vShort;
+	attr int vInteger;
+	attr long vLong;
+	attr double vDouble;
+	attr String vString;
+
+	// Only for when we have 2 or more values!
 	attr EByteArray vBytes;
 	attr boolean[*] vBooleans;
 	attr short[*] vShorts;

@@ -409,7 +409,7 @@ public class HawkCommandProvider implements CommandProvider {
 				sbuf.append("Attributes:");
 				for (AttributeSlot s : me.attributes) {
 					sbuf.append(String
-							.format("\n\t\t%s = %s", s.name, s.values));
+							.format("\n\t\t%s = %s", s.name, s.value));
 				}
 			}
 			if (me.isSetReferences()) {

@@ -24,7 +24,7 @@ import org.hawk.graph.ModelElementNode;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
-import uk.ac.york.mondo.integration.api.ScalarList;
+import uk.ac.york.mondo.integration.api.Variant;
 
 /**
  * Collection of methods for converting Hawk {@link ModelElementNode}s into Thrift {@link ModelElement}s.
@@ -49,9 +49,11 @@ public class HawkModelElementEncoder {
 			me.addToAttributes(encodeAttributeSlot(attr));
 		}
 		for (Map.Entry<String, Object> ref : refs.entrySet()) {
-			// to save bandwidth, we do not send unset references
+			// to save bandwidth, we do not send unset or empty references 
 			if (ref.getValue() == null) continue;
-			me.addToReferences(encodeReferenceSlot(ref));
+			final ReferenceSlot encodeReferenceSlot = encodeReferenceSlot(ref);
+			if (encodeReferenceSlot.ids.isEmpty()) continue;
+			me.addToReferences(encodeReferenceSlot);
 		}
 		return me;
 	}
@@ -82,46 +84,58 @@ public class HawkModelElementEncoder {
 		s.name = slotEntry.getKey();
 	
 		final Object value = slotEntry.getValue();
-		s.values = new ScalarList();
-	
+		s.value = new Variant();
+
 		if (value instanceof Collection) {
 			final Collection<?> cValue = (Collection<?>) value;
-			if (!cValue.isEmpty()) {
-				s.values = new ScalarList();
+			final int cSize = cValue.size();
+			if (cSize == 1) {
+				// use the single value attrs if we only have one value (saves
+				// 1-5 bytes on TTupleTransport)
+				encodeSingleValueAttributeSlot(s, cValue.iterator().next());
+			} else if (cSize > 0) {
+				s.value = new Variant();
 				encodeNonEmptyListAttributeSlot(s, value, cValue);
 			} else {
 				// empty list <-> isSet=true and s.values=null
-				s.values = null;
+				s.value = null;
 			}
-		} else if (value instanceof Byte) {
-			s.values.setVBytes(new byte[] { (byte) value });
-		} else if (value instanceof Float) {
-			s.values.setVDoubles(Arrays.asList((double) value));
-		} else if (value instanceof Double) {
-			s.values.setVDoubles(Arrays.asList((double) value));
-		} else if (value instanceof Integer) {
-			s.values.setVIntegers(Arrays.asList((int) value));
-		} else if (value instanceof Long) {
-			s.values.setVLongs(Arrays.asList((long) value));
-		} else if (value instanceof Short) {
-			s.values.setVShorts(Arrays.asList((short) value));
-		} else if (value instanceof String) {
-			s.values.setVStrings(Arrays.asList((String) value));
-		} else if (value instanceof Boolean) {
-			s.values.setVBooleans(Arrays.asList((Boolean) value));
 		} else {
+			encodeSingleValueAttributeSlot(s, value);
+		}
+
+		if (!s.value.isSet()) {
 			throw new IllegalArgumentException(String.format(
 					"Unsupported value type '%s'", value.getClass()
 							.getName()));
 		}
-	
-		assert s.values.getFieldValue() != null : "The union field should have a value";
+
+		assert s.value.getFieldValue() != null : "The union field should have a value";
 		return s;
 	}
 
+	private static void encodeSingleValueAttributeSlot(AttributeSlot s, final Object value) {
+		if (value instanceof Byte) {
+			s.value.setVByte((byte) value);
+		} else if (value instanceof Float) {
+			s.value.setVDouble((double) value);
+		} else if (value instanceof Double) {
+			s.value.setVDouble((double) value);
+		} else if (value instanceof Integer) {
+			s.value.setVInteger((int) value);
+		} else if (value instanceof Long) {
+			s.value.setVLong((long) value);
+		} else if (value instanceof Short) {
+			s.value.setVShort((short) value);
+		} else if (value instanceof String) {
+			s.value.setVString((String) value);
+		} else if (value instanceof Boolean) {
+			s.value.setVBoolean((Boolean) value);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
-	private static void encodeNonEmptyListAttributeSlot(AttributeSlot s,
-			final Object value, final Collection<?> cValue) {
+	private static void encodeNonEmptyListAttributeSlot(AttributeSlot s, final Object value, final Collection<?> cValue) {
 		final Iterator<?> it = cValue.iterator();
 		final Object o = it.next();
 		if (o instanceof Byte) {
@@ -131,26 +145,26 @@ public class HawkModelElementEncoder {
 				bbuf.put((byte)it.next());
 			}
 			bbuf.flip();
-			s.values.setVBytes(bbuf);
+			s.value.setVBytes(bbuf);
 		} else if (o instanceof Float) {
 			final ArrayList<Double> l = new ArrayList<Double>(cValue.size());
 			l.add((double)o);
 			while (it.hasNext()) {
 				l.add((double)it.next());
 			}
-			s.values.setVDoubles(l);
+			s.value.setVDoubles(l);
 		} else if (o instanceof Double) {
-			s.values.setVDoubles(new ArrayList<Double>((Collection<Double>)cValue));
+			s.value.setVDoubles(new ArrayList<Double>((Collection<Double>)cValue));
 		} else if (o instanceof Integer) {
-			s.values.setVIntegers(new ArrayList<Integer>((Collection<Integer>)cValue));
+			s.value.setVIntegers(new ArrayList<Integer>((Collection<Integer>)cValue));
 		} else if (o instanceof Long) {
-			s.values.setVLongs(new ArrayList<Long>((Collection<Long>)cValue));
+			s.value.setVLongs(new ArrayList<Long>((Collection<Long>)cValue));
 		} else if (o instanceof Short) {
-			s.values.setVShorts(new ArrayList<Short>((Collection<Short>)cValue));
+			s.value.setVShorts(new ArrayList<Short>((Collection<Short>)cValue));
 		} else if (o instanceof String) {
-			s.values.setVStrings(new ArrayList<String>((Collection<String>)cValue));
+			s.value.setVStrings(new ArrayList<String>((Collection<String>)cValue));
 		} else if (o instanceof Boolean) {
-			s.values.setVBooleans(new ArrayList<Boolean>((Collection<Boolean>)cValue));
+			s.value.setVBooleans(new ArrayList<Boolean>((Collection<Boolean>)cValue));
 		} else if (o != null) {
 			throw new IllegalArgumentException(String.format("Unsupported element type '%s'", value.getClass().getName()));
 		} else {
