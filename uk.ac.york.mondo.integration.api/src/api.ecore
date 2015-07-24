@@ -846,7 +846,7 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
       <eAnnotations source="doc">
         <details key="d" value="Unique ID of the model element"/>
       </eAnnotations>
@@ -901,7 +901,7 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="A homogeneous list with the identifiers of the referenced elements."/>
