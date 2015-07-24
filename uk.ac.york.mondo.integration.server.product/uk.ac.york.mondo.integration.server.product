@@ -30,7 +30,7 @@
    </plugins>
 
    <features>
-      <feature id="uk.ac.york.mondo.integration.hawk.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.servlet.feature" version="1.0.0.qualifier"/>
       <feature id="uk.ac.york.mondo.integration.server.feature" version="1.0.0.qualifier"/>
       <feature id="uk.ac.york.mondo.integration.server.deps.feature"/>
       <feature id="org.hawk.neo4jv2.feature"/>
