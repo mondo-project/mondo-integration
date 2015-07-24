@@ -22,15 +22,15 @@ package mondo_api;
 // and authentication exceptions could happen.
 
 @doc(d="The majority of service operations provided by the MONDO
-		platform require user authentication (indicated in the top-left  
-		cell of each operation table) to prevent unaccountable use. 
-		As such, the platform needs to provide basic user management service operations 
+		platform require user authentication (indicated in the top-left
+		cell of each operation table) to prevent unaccountable use.
+		As such, the platform needs to provide basic user management service operations
 		for creating, updating and deleting user accounts.")
 class Users {
 	@doc(d="Creates a new platform user")
 	op void createUser (
 		@doc(d="A unique identifier for the user") String username,
-		@doc(d="The desired password") String password,	
+		@doc(d="The desired password") String password,
 		@doc(d="The profile of the user") UserProfile profile
 	) throws UserExists;
 
@@ -43,7 +43,7 @@ class Users {
 
 	@doc(d="Updates the profile of a platform user")
 	op void updateUser (
-		@doc(d="The name of the user to update the profile of") String username,	
+		@doc(d="The name of the user to update the profile of") String username,
 		@doc(d="The updated profile of the user") UserProfile profile
 	) throws UserNotFound;
 
@@ -71,26 +71,26 @@ class Hawk {
 	op void removeInstance(
 		@doc(d="The name of the Hawk instance to remove") String name
 	) throws HawkInstanceNotFound;
-	
+
 	@doc(d="Starts a stopped Hawk instance")
 	op void startInstance(
 		@doc(d="The name of the Hawk instance to start") String name,
 		@doc(d="The admin password for encrypting credentials") String adminPassword
 	) throws HawkInstanceNotFound;
-	
+
 	@doc(d="Stops a running Hawk instance")
 	op void stopInstance(
 		@doc(d="The name of the Hawk instance to stop") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Registers a set of file-based metamodels with a Hawk instance")
 	op void registerMetamodels (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The metamodels to register. 
-			More than one metamodel files can be provided in one 
+		@doc(d="The metamodels to register.
+			More than one metamodel files can be provided in one
 			go to accomodate fragmented metamodels.") File[*] metamodel
 	) throws HawkInstanceNotFound, InvalidMetamodel, HawkInstanceNotRunning;
-	
+
 	@doc(d="Unregisters a metamodel from a Hawk instance")
 	op void unregisterMetamodel (
 		@doc(d="The name of the Hawk instance") String name,
@@ -104,7 +104,7 @@ class Hawk {
 
     @doc(d="Lists the supported query languages and their status")
     op String[*] listQueryLanguages(
-    	@doc(d="The name of the Hawk instance") String name
+	@doc(d="The name of the Hawk instance") String name
     );
 
 	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
@@ -114,7 +114,7 @@ class Hawk {
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
-	
+
 	@doc(d="Returns populated model elements for the provided proxies")
 	op ModelElement[*] resolveProxies (
 		@doc(d="The name of the Hawk instance") String name,
@@ -134,7 +134,7 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository to stop monitoring") String uri
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Lists the URIs of the repositories monitored by a Hawk instance")
 	op String[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name
@@ -142,13 +142,13 @@ class Hawk {
 
 	@doc(d="Lists the available repository types in this installation")
 	op String[*] listRepositoryTypes();
-	
+
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the indexed repository") String repository
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Sets the base polling period and max interval of a Hawk instance")
 	op void configurePolling (
 		@doc(d="The name of the Hawk instance") String name,
@@ -161,7 +161,7 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the new derived attribute") DerivedAttributeSpec spec
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidDerivedAttributeSpec;
-	
+
 	@doc(d="Remove a derived attribute from a Hawk instance")
 	op void removeDerivedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
@@ -169,24 +169,24 @@ class Hawk {
 			Only the first three fields of the spec
 			need to be populated") DerivedAttributeSpec spec
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated")
 	op DerivedAttributeSpec[*] listDerivedAttributes (
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Add a new indexed attribute to a Hawk instance")
 	op void addIndexedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the new indexed attribute") IndexedAttributeSpec spec
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidIndexedAttributeSpec;
-	
+
 	@doc(d="Remove a indexed attribute from a Hawk instance")
 	op void removeIndexedAttribute (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The details of the indexed attribute to be removed") IndexedAttributeSpec spec
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	
+
 	@doc(d="Lists the indexed attributes of a Hawk instance")
 	op IndexedAttributeSpec[*] listIndexedAttributes (
 		@doc(d="The name of the Hawk instance") String name
@@ -264,7 +264,7 @@ class InvalidPollingConfiguration {
 
 
 @doc(d="
-The following service operations expose the capabilities of the offline collaboration framework 
+The following service operations expose the capabilities of the offline collaboration framework
 developed in Work Package 4. The framework is discussed in detail in D4.3.
 ")
 // Services related to offline collaboration should go here
@@ -384,8 +384,8 @@ version of the ATL transformation language which is currently under development 
 will be presented in M24 in D3.3
 ")
 class CloudATL {
-	
-	@doc(d="Invokes a cloud-based transformation in a batch non-blocking mode. 
+
+	@doc(d="Invokes a cloud-based transformation in a batch non-blocking mode.
 			Returns a token that can be used to check the status of the transformation.")
 	op String launch (
 		@doc(d="The ATL source-code of the transformation") String transformation,
@@ -427,11 +427,11 @@ class ReactiveATL {
 @doc(d="Represents a model element")
 class ModelElement {
     /* Idea: use only longs for id + metamodel + typename and add operations for asking the types in a metamodel? */
-	@doc(d="Unique ID of the model element") 
+	@doc(d="Unique ID of the model element")
 	attr long ~id;
-	@doc(d="URI of the metamodel to which the type of the element belongs") 
+	@doc(d="URI of the metamodel to which the type of the element belongs")
 	attr String metamodelUri;
-	@doc(d="Name of the type that the model element is an instance of") 
+	@doc(d="Name of the type that the model element is an instance of")
 	attr String typeName;
 	@doc(d="Slots holding the values of the model element's attributes, if any have been set", optional="true")
 	val AttributeSlot[*] attributes;
@@ -439,22 +439,22 @@ class ModelElement {
 	val ReferenceSlot[*] references;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+@doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class Slot {
-	@doc(d="The name of the model element property the value of which is stored in this slot") 
+	@doc(d="The name of the model element property the value of which is stored in this slot")
 	attr String name;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+@doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class AttributeSlot extends Slot {
-	@doc(d="If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list.") 
+	@doc(d="Heterogeneous list with the scalar values for the attribute slot.")
 	val ScalarList values;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a property of a model element") 
+@doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class ReferenceSlot extends Slot {
     /* Idea: use only long instead of strings */
-	@doc(d="A homogeneous list with the identifiers of the referenced elements.") 
+	@doc(d="A homogeneous list with the identifiers of the referenced elements.")
 	val long[*] ids;
 }
 
@@ -483,13 +483,13 @@ class ScalarList {
 	attr String[*] vStrings;
 }
 
-@doc(d="Captures information about source/target models of ATL transformations") 
+@doc(d="Captures information about source/target models of ATL transformations")
 class ModelSpec {
 	@doc(d="The local name of the model in the transformation")
 	attr String name;
-	@doc(d="The URI from which the model will be loaded or to which it will be persisted") 
+	@doc(d="The URI from which the model will be loaded or to which it will be persisted")
 	attr String uri;
-	@doc(d="The URIs of the metamodels to which elements of the model conform") 
+	@doc(d="The URIs of the metamodels to which elements of the model conform")
 	attr String[*] metamodelUris;
 }
 
@@ -498,7 +498,7 @@ class IndexedAttributeSpec {
 	@doc(d="The URI of the metamodel to which the indexed attribute belongs")
 	attr String metamodelUri;
 	@doc(d="The name of the type to which the indexed attribute belongs")
-	attr String typeName; 
+	attr String typeName;
 	@doc(d="The name of the indexed attribute")
 	attr String attributeName;
 }
@@ -527,9 +527,9 @@ class DerivedAttributeSpec {
 
 @doc(d="Used to report the status of a long-running transformation by CloudATL")
 class TransformationStatus {
-	@doc(d="True if the transformation has finished, false otherwise")	
+	@doc(d="True if the transformation has finished, false otherwise")
 	attr boolean finished;
-	@doc(d="Time passed since the start of execution")	
+	@doc(d="Time passed since the start of execution")
 	attr long elapsed;
 	@doc(d="Description of the error that caused the transformation to fail")
 	attr String error;

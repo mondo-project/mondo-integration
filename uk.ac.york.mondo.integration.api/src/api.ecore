@@ -893,7 +893,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="values" eType="#//ScalarList"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="If set, a non-empty heterogeneous list with the scalar values for the attribute slot. If unset, with isSet=false means unset attribute, and with isSet=true means empty list."/>
+        <details key="d" value="Heterogeneous list with the scalar values for the attribute slot."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
