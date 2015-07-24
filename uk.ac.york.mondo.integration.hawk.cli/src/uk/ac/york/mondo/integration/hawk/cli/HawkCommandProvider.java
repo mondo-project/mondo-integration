@@ -48,7 +48,6 @@ public class HawkCommandProvider implements CommandProvider {
 
 	/* CONNECTION HANDLING */
 
-	@SuppressWarnings("restriction")
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
