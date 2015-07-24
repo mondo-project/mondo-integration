@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/uk.ac.york.mondo.integration.clients.cli.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.clients.cli.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.emf.dt.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.emf.dt.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.emf.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.emf.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <category-def name="hawk" label="Hawk"/>
+</site>
