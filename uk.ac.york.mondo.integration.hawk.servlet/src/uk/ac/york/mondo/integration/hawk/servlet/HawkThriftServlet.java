@@ -335,7 +335,14 @@ public class HawkThriftServlet extends TServlet {
 						}
 					}
 				}
-				// sort to improve gzip compression ratio (from 1.22MB to 1.03MB in set0.xmi)
+
+				/*
+				 * Sort to improve gzip compression ratio (from 1.22MB to 1.03MB
+				 * in set0.xmi, taking into account ACKs and using tuple+gzip).
+				 * Sorting by metamodel+type+ID has no discernible improvement
+				 * over metamodel+type (and uses up more CPU time), and sorting
+				 * by ID only does not improve compression ratios.
+				 */
 				Collections.sort(elems, new Comparator<ModelElement>() {
 					@Override
 					public int compare(ModelElement o1, ModelElement o2) {
