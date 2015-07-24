@@ -11,7 +11,6 @@
 package uk.ac.york.mondo.integration.hawk.cli;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -20,21 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.GzipDecompressingEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpContext;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TTupleProtocol;
-import org.apache.thrift.transport.THttpClient;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
@@ -47,47 +32,12 @@ import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
+import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
- * The gzip interceptors were obtained from this example in the Apache HTTP Components
- * library:
- *
- * http://hc.apache.org/httpcomponents-client-4.2.x/httpclient/examples/org/apache/http/examples/client/ClientGZipContentCompression.java
  */
 public class HawkCommandProvider implements CommandProvider {
-
-	private final class GZipResponseInterceptor implements HttpResponseInterceptor {
-		@Override
-		public void process(HttpResponse response, HttpContext context)
-				throws HttpException, IOException {
-			HttpEntity entity = response.getEntity();
-			if (entity != null) {
-				Header ceheader = entity.getContentEncoding();
-				if (ceheader != null) {
-					HeaderElement[] codecs = ceheader.getElements();
-					for (int i = 0; i < codecs.length; i++) {
-						if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-							response.setEntity(new GzipDecompressingEntity(
-									response.getEntity()));
-							return;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private final class GZipRequestInterceptor implements
-			HttpRequestInterceptor {
-		@Override
-		public void process(HttpRequest request, HttpContext context)
-				throws HttpException, IOException {
-			if (!request.containsHeader("Accept-Encoding")) {
-				request.addHeader("Accept-Encoding", "gzip");
-			}
-		}
-	}
 
 	private Hawk.Client client;
 	private String currentInstance;
@@ -102,18 +52,8 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
-		final HttpClient httpClient = HttpClientBuilder.create()
-			.addInterceptorFirst(new GZipRequestInterceptor())
-			.addInterceptorFirst(new GZipResponseInterceptor())
-			.build();
-		final THttpClient transport = new THttpClient(url, httpClient);
-		client = new Hawk.Client(new TTupleProtocol(transport));
+		client = APIUtils.connectToHawk(url);
 		currentInstance = null;
-
-		transport.open();
-		if (transport.isOpen()) {
-			return String.format("Connected to URL %s", url);
-		}
 		return null;
 	}
 

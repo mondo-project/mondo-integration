@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.transport.THttpClient;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -45,6 +43,7 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.ScalarList._Fields;
+import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 /**
  * EMF driver that reads a remote model from a Hawk index.
@@ -252,7 +251,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		this.descriptor.load(inputStream);
 
 		try {
-			final Hawk.Client client = new Hawk.Client(new TCompactProtocol(new THttpClient(descriptor.getHawkURL())));
+			final Hawk.Client client = APIUtils.connectToHawk(descriptor.getHawkURL());
 			final List<ModelElement> elems = client.getModel(
 					descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),

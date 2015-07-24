@@ -11,11 +11,10 @@ public class Customizer extends JettyCustomizer {
 	@Override
 	public Object customizeContext(Object context,
 			Dictionary<String, ?> settings) {
-		// TODO Auto-generated method stub
-		GzipHandler handler = new GzipHandler();
 		if (context instanceof ContextHandler) {
+			final GzipHandler gzipHandler = new GzipHandler();
 			final ContextHandler contextHandler = (ContextHandler)context;
-			contextHandler.setHandler(handler);
+			contextHandler.setHandler(gzipHandler);
 		}
 		return super.customizeContext(context, settings);
 	}
