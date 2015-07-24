@@ -14,6 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -333,6 +335,16 @@ public class HawkThriftServlet extends TServlet {
 						}
 					}
 				}
+				// sort to improve gzip compression ratio (from 1.22MB to 1.03MB in set0.xmi)
+				Collections.sort(elems, new Comparator<ModelElement>() {
+					@Override
+					public int compare(ModelElement o1, ModelElement o2) {
+						final int compareMetamodels = o1.metamodelUri.compareTo(o2.metamodelUri);
+						if (compareMetamodels == 0) {
+							return o1.typeName.compareTo(o2.typeName);
+						} else return compareMetamodels;
+					}
+				});
 				tx.success();
 				return elems;
 			} catch (Exception ex) {
