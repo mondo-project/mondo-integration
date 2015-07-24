@@ -35,7 +35,7 @@ public class HawkModelElementEncoder {
 
 	public static ModelElement encodeModelElement(ModelElementNode meNode) throws Exception {
 		ModelElement me = new ModelElement();
-		me.id = meNode.getNode().getId().toString();
+		me.id = (long)meNode.getNode().getId();
 		me.typeName = meNode.getTypeNode().getTypeName();
 		me.metamodelUri = meNode.getTypeNode().getMetamodelName();
 	
@@ -66,10 +66,10 @@ public class HawkModelElementEncoder {
 		s.ids = new ArrayList<>();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
-				s.ids.add(o.toString());
+				s.ids.add((long)o);
 			}
 		} else {
-			s.ids.add(value.toString());
+			s.ids.add((long)value);
 		}
 	
 		return s;

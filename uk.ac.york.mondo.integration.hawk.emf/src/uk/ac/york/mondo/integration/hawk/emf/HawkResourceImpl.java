@@ -260,7 +260,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			// Do a first pass, creating all the objects with their attributes
 			// and saving their graph IDs into the One Map to bind them.
 			final Registry packageRegistry = getResourceSet().getPackageRegistry();
-			final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+			final Map<Long, EObject> nodeIdToEObjectMap = new HashMap<>();
 			for (ModelElement me : elems) {
 				final EClass eClass = getEClass(packageRegistry, me);
 				final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
@@ -284,7 +284,7 @@ public class HawkResourceImpl extends ResourceImpl {
 						final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
 						if (feature.isMany()) {
 							final EList<EObject> value = new BasicEList<>();
-							for (String targetId : s.ids) {
+							for (Long targetId : s.ids) {
 								final EObject targets = nodeIdToEObjectMap.get(targetId);
 								if (targets == null) {
 									LOGGER.warn(
@@ -297,7 +297,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 							sourceObj.eSet(feature, value);
 						} else {
-							final String targetId = s.ids.get(0);
+							final Long targetId = s.ids.get(0);
 							final EObject target = nodeIdToEObjectMap.get(targetId);
 							if (target == null) {
 								LOGGER.warn(
