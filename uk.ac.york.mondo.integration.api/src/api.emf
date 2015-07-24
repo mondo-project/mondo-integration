@@ -426,7 +426,6 @@ class ReactiveATL {
 
 @doc(d="Represents a model element")
 class ModelElement {
-    /* Idea: use only longs for id + metamodel + typename and add operations for asking the types in a metamodel? */
 	@doc(d="Unique ID of the model element")
 	attr long ~id;
 	@doc(d="URI of the metamodel to which the type of the element belongs")
@@ -453,7 +452,6 @@ class AttributeSlot extends Slot {
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class ReferenceSlot extends Slot {
-    /* Idea: use only long instead of strings */
 	@doc(d="A homogeneous list with the identifiers of the referenced elements.")
 	val long[*] ids;
 }

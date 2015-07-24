@@ -9,7 +9,7 @@
   </eAnnotations>
   <eClassifiers xsi:type="ecore:EClass" name="Users">
     <eAnnotations source="doc">
-      <details key="d" value="The majority of service operations provided by the MONDO&#xA;&#x9;&#x9;platform require user authentication (indicated in the top-left  &#xA;&#x9;&#x9;cell of each operation table) to prevent unaccountable use. &#xA;&#x9;&#x9;As such, the platform needs to provide basic user management service operations &#xA;&#x9;&#x9;for creating, updating and deleting user accounts."/>
+      <details key="d" value="The majority of service operations provided by the MONDO&#xA;&#x9;&#x9;platform require user authentication (indicated in the top-left&#xA;&#x9;&#x9;cell of each operation table) to prevent unaccountable use.&#xA;&#x9;&#x9;As such, the platform needs to provide basic user management service operations&#xA;&#x9;&#x9;for creating, updating and deleting user accounts."/>
     </eAnnotations>
     <eOperations name="createUser" eExceptions="#//UserExists">
       <eAnnotations source="doc">
@@ -143,7 +143,7 @@
       </eParameters>
       <eParameters name="metamodel" upperBound="-1" eType="#//File">
         <eAnnotations source="doc">
-          <details key="d" value="The metamodels to register. &#xA;&#x9;&#x9;&#x9;More than one metamodel files can be provided in one &#xA;&#x9;&#x9;&#x9;go to accomodate fragmented metamodels."/>
+          <details key="d" value="The metamodels to register.&#xA;&#x9;&#x9;&#x9;More than one metamodel files can be provided in one&#xA;&#x9;&#x9;&#x9;go to accomodate fragmented metamodels."/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -533,7 +533,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaboration">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The following service operations expose the capabilities of the offline collaboration framework &#xA;developed in Work Package 4. The framework is discussed in detail in D4.3.&#xA;"/>
+      <details key="d" value="&#xA;The following service operations expose the capabilities of the offline collaboration framework&#xA;developed in Work Package 4. The framework is discussed in detail in D4.3.&#xA;"/>
     </eAnnotations>
     <eOperations name="checkout" upperBound="-1" eType="#//CollaborationResource"
         eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//CollaborationResourceNotFound">
@@ -765,7 +765,7 @@
     <eOperations name="launch" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         eExceptions="#//InvalidTransformation #//InvalidModelSpec">
       <eAnnotations source="doc">
-        <details key="d" value="Invokes a cloud-based transformation in a batch non-blocking mode. &#xA;&#x9;&#x9;&#x9;Returns a token that can be used to check the status of the transformation."/>
+        <details key="d" value="Invokes a cloud-based transformation in a batch non-blocking mode.&#xA;&#x9;&#x9;&#x9;Returns a token that can be used to check the status of the transformation."/>
       </eAnnotations>
       <eParameters name="transformation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
