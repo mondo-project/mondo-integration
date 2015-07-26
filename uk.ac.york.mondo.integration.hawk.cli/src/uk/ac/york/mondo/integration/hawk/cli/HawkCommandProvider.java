@@ -24,6 +24,7 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
+import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
@@ -246,7 +247,7 @@ public class HawkCommandProvider implements CommandProvider {
 		}
 
 		final List<ModelElement> elems = client.getModel(currentInstance, repo, patterns);
-		return formatModelElements(elems);
+		return formatModelElements(elems, "");
 	}
 
 	public Object _hawkResolveProxies(CommandInterpreter intp) throws Exception {
@@ -254,7 +255,7 @@ public class HawkCommandProvider implements CommandProvider {
 
 		final List<String> ids = readRemainingArguments(intp);
 		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids);
-		return formatModelElements(elems);
+		return formatModelElements(elems, "");
 	}
 
 	/* INDEXED ATTRIBUTES */
@@ -393,7 +394,7 @@ public class HawkCommandProvider implements CommandProvider {
 		}
 	}
 
-	private Object formatModelElements(final List<ModelElement> elems) {
+	private Object formatModelElements(final List<ModelElement> elems, String indent) {
 		final StringBuffer sbuf = new StringBuffer();
 		boolean isFirst = true;
 		for (ModelElement me : elems) {
@@ -402,20 +403,26 @@ public class HawkCommandProvider implements CommandProvider {
 			} else {
 				sbuf.append("\n");
 			}
-			sbuf.append(String.format("Element %s:\n\t", me.id));
-			sbuf.append(String.format("Metamodel: %s\n\t", me.metamodelUri));
-			sbuf.append(String.format("Type: %s\n\t", me.typeName));
+			sbuf.append(String.format("%sElement %s:\n\t", indent, me.id));
+			sbuf.append(String.format("%sMetamodel: %s\n\t", indent, me.metamodelUri));
+			sbuf.append(String.format("%sType: %s\n\t", indent, me.typeName));
 			if (me.isSetAttributes()) {
-				sbuf.append("Attributes:");
+				sbuf.append(indent + "Attributes:");
 				for (AttributeSlot s : me.attributes) {
 					sbuf.append(String
-							.format("\n\t\t%s = %s", s.name, s.value));
+							.format("\n\t\t%s%s = %s", indent, s.name, s.value));
 				}
 			}
 			if (me.isSetReferences()) {
-				sbuf.append("\n\tReferences:");
+				sbuf.append("\n\t" + indent + "References:");
 				for (ReferenceSlot s : me.references) {
-					sbuf.append(String.format("\n\t\t%s = %s", s.name, s.ids));
+					sbuf.append(String.format("\n\t\t%s%s = %s", indent, s.name, s.ids));
+				}
+			}
+			if (me.isSetContainers()) {
+				sbuf.append("\n\t" + indent + "Contained elements:");
+				for (ContainerSlot s : me.containers) {
+					sbuf.append(String.format("\n\t\t%s%s = %s", indent, s.name, formatModelElements(s.elements, indent + "\t\t")));
 				}
 			}
 		}

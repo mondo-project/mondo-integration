@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
+import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
@@ -270,65 +272,15 @@ public class HawkResourceImpl extends ResourceImpl {
 					Arrays.asList(descriptor.getHawkFilePatterns()));
 
 			// Do a first pass, creating all the objects with their attributes
-			// and saving their graph IDs into the One Map to bind them.
+			// and containers and saving their graph IDs into the One Map to bind them.
 			final Registry packageRegistry = getResourceSet().getPackageRegistry();
 			final Map<Long, EObject> nodeIdToEObjectMap = new HashMap<>();
-			for (ModelElement me : elems) {
-				final EClass eClass = getEClass(packageRegistry, me);
-				final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
-				final EObject obj = factory.create(eClass);
-				nodeIdToEObjectMap.put(me.id, obj);
-
-				if (me.isSetAttributes()) {
-					for (AttributeSlot s : me.attributes) {
-						setStructuralFeatureFromSlot(eClass, obj, s);
-					}
-				}
-			}
+			final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
+			final List<EObject> rootEObjects = createEObjects(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
+			getContents().addAll(rootEObjects);
 
 			// On the second pass, fill in the references.
-			for (ModelElement me : elems) {
-				final EObject sourceObj = nodeIdToEObjectMap.get(me.id);
-
-				if (me.isSetReferences()) {
-					for (ReferenceSlot s : me.references) {
-						final EClass eClass = getEClass(packageRegistry, me);
-						final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
-						if (feature.isMany()) {
-							final EList<EObject> value = new BasicEList<>();
-							for (Long targetId : s.ids) {
-								final EObject targets = nodeIdToEObjectMap.get(targetId);
-								if (targets == null) {
-									LOGGER.warn(
-											"Could not find ModelElement with id {} for feature {} of class {}, skipping",
-											targetId, feature, eClass);
-									continue;
-								}
-								value.add(targets);
-							}
-
-							sourceObj.eSet(feature, value);
-						} else {
-							final Long targetId = s.ids.get(0);
-							final EObject target = nodeIdToEObjectMap.get(targetId);
-							if (target == null) {
-								LOGGER.warn(
-										"Could not find ModelElement with id {} for feature {} of class {}, skipping",
-										targetId, feature, eClass);
-								continue;
-							}
-							sourceObj.eSet(feature, target);
-						}
-					}
-				}
-			}
-
-			// On the third pass, add elements which still don't have containers as root elements
-			for (EObject eo : nodeIdToEObjectMap.values()) {
-				if (eo.eContainer() == null) {
-					getContents().add(eo);
-				}
-			}
+			fillInReferences(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw new IOException(e);
@@ -336,6 +288,93 @@ public class HawkResourceImpl extends ResourceImpl {
 			LOGGER.error(e.getMessage(), e);
 			throw e;
 		}
+	}
+
+	private void fillInReferences(final List<ModelElement> elems,
+			final Registry packageRegistry,
+			final Map<Long, EObject> nodeIdToEObjectMap,
+			final Map<ModelElement, EObject> meToEObject) throws IOException {
+		for (ModelElement me : elems) {
+			final EObject sourceObj = meToEObject.get(me);
+
+			if (me.isSetReferences()) {
+				for (ReferenceSlot s : me.references) {
+					final EClass eClass = getEClass(packageRegistry, me);
+					final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
+					if (feature.isMany()) {
+						final EList<EObject> value = new BasicEList<>();
+						for (Long targetId : s.ids) {
+							final EObject targets = nodeIdToEObjectMap.get(targetId);
+							if (targets == null) {
+								LOGGER.warn(
+										"Could not find ModelElement with id {} for feature {} of class {}, skipping",
+										targetId, feature, eClass);
+								continue;
+							}
+							value.add(targets);
+						}
+
+						sourceObj.eSet(feature, value);
+					} else {
+						final Long targetId = s.ids.get(0);
+						final EObject target = nodeIdToEObjectMap.get(targetId);
+						if (target == null) {
+							LOGGER.warn(
+									"Could not find ModelElement with id {} for feature {} of class {}, skipping",
+									targetId, feature, eClass);
+							continue;
+						}
+						sourceObj.eSet(feature, target);
+					}
+				}
+			}
+
+			if (me.isSetContainers()) {
+				for (ContainerSlot s : me.getContainers()) {
+					fillInReferences(s.elements, packageRegistry, nodeIdToEObjectMap, meToEObject);
+				}
+			}
+		}
+	}
+
+	private List<EObject> createEObjects(final List<ModelElement> elems, final Registry packageRegistry, final Map<Long, EObject> nodeIdToEObjectMap, Map<ModelElement, EObject> meToEObject) throws IOException {
+		final List<EObject> eObjects = new ArrayList<>();
+		for (ModelElement me : elems) {
+			final EObject parent = createEObject(packageRegistry, nodeIdToEObjectMap, me);
+			eObjects.add(parent);
+			meToEObject.put(me, parent);
+
+			if (me.isSetContainers()) {
+				for (ContainerSlot s : me.containers) {
+					final EStructuralFeature sf = parent.eClass().getEStructuralFeature(s.name);
+					final List<EObject> children = createEObjects(s.elements, packageRegistry, nodeIdToEObjectMap, meToEObject);
+					if (sf.isMany()) {
+						parent.eSet(sf, ECollections.toEList(children));
+					} else if (!children.isEmpty()) {
+						parent.eSet(sf, children.get(0));
+					}
+				}
+			}
+		}
+		return eObjects;
+	}
+
+	private EObject createEObject(final Registry packageRegistry,
+			final Map<Long, EObject> nodeIdToEObjectMap, ModelElement me)
+			throws IOException {
+		final EClass eClass = getEClass(packageRegistry, me);
+		final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
+		final EObject obj = factory.create(eClass);
+
+		if (me.isSetId()) {
+			nodeIdToEObjectMap.put(me.id, obj);
+		}
+		if (me.isSetAttributes()) {
+			for (AttributeSlot s : me.attributes) {
+				setStructuralFeatureFromSlot(eClass, obj, s);
+			}
+		}
+		return obj;
 	}
 
 	@Override

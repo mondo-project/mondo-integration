@@ -14,8 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,19 +158,18 @@ public class HawkThriftServlet extends TServlet {
 			final GraphWrapper gw = new GraphWrapper(graph);
 			final List<ModelElement> resolved = new ArrayList<ModelElement>();
 			try (IGraphTransaction tx = graph.beginTransaction()) {
+				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
 				for (String id : ids) {
 					try {
-						ModelElementNode me = gw.getModelElementNodeById(id);
-						resolved.add(HawkModelElementEncoder.encodeModelElement(me));
+						encoder.encode(id);
 					} catch (Exception ex) {
 						LOGGER.error(ex.getMessage(), ex);
 					}
 				}
+				return new ArrayList<ModelElement>(encoder.getRootElements());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
-
-			return resolved;
 		}
 
 		@Override
@@ -321,39 +318,16 @@ public class HawkThriftServlet extends TServlet {
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
 			// TODO filtering by repository
-			final List<ModelElement> elems = new ArrayList<>();
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
+				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
-
-					int i = 0;
 					for (ModelElementNode meNode : fileNode.getModelElements()) {
-						elems.add(HawkModelElementEncoder.encodeModelElement(meNode));
-						i++;
-						if (i % 1000 == 0) {
-							LOGGER.info("Retrieved {} model elements", i);
-						}
+						encoder.encode(meNode);
 					}
 				}
 
-				/*
-				 * Sort to improve gzip compression ratio (from 1.22MB to 1.03MB
-				 * in set0.xmi, taking into account ACKs and using tuple+gzip).
-				 * Sorting by metamodel+type+ID has no discernible improvement
-				 * over metamodel+type (and uses up more CPU time), and sorting
-				 * by ID only does not improve compression ratios.
-				 */
-				Collections.sort(elems, new Comparator<ModelElement>() {
-					@Override
-					public int compare(ModelElement o1, ModelElement o2) {
-						final int compareMetamodels = o1.metamodelUri.compareTo(o2.metamodelUri);
-						if (compareMetamodels == 0) {
-							return o1.typeName.compareTo(o2.typeName);
-						} else return compareMetamodels;
-					}
-				});
-				tx.success();
-				return elems;
+				return new ArrayList<>(encoder.getRootElements());
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
 				throw new TException(ex);

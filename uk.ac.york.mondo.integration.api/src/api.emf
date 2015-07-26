@@ -426,7 +426,7 @@ class ReactiveATL {
 
 @doc(d="Represents a model element")
 class ModelElement {
-	@doc(d="Unique ID of the model element")
+	@doc(d="Unique ID of the model element", optional="true")
 	attr long ~id;
 	@doc(d="URI of the metamodel to which the type of the element belongs")
 	attr String metamodelUri;
@@ -436,6 +436,8 @@ class ModelElement {
 	val AttributeSlot[*] attributes;
 	@doc(d="Slots holding the values of the model element's references, if any have been set", optional="true")
 	val ReferenceSlot[*] references;
+	@doc(d="Slots holding contained model elements, if any have been set", optional="true")
+	val ContainerSlot[*] containers;
 }
 
 @doc(d="Represents a slot that can store the value(s) of a property of a model element")
@@ -444,16 +446,23 @@ class Slot {
 	attr String name;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a property of a model element")
+@doc(d="Represents a slot that can store the value(s) of an attribute of a model element")
 class AttributeSlot extends Slot {
 	@doc(d="Variant value of the slot.")
 	val Variant value;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a property of a model element")
+@doc(d="Represents a slot that can store the value(s) of a reference  of a model element")
 class ReferenceSlot extends Slot {
 	@doc(d="Identifiers of the referenced elements.")
 	val long[*] ids;
+}
+
+// @thrift.map(key="name", value="elements")
+@doc(d="Represents a slot that can store other model elements within a model element")
+class ContainerSlot extends Slot {
+	@doc(d="Contained elements for this slot.")
+	val ModelElement[*] elements;
 }
 
 @thrift(union="true")

@@ -220,6 +220,12 @@ struct ModelElement {
 	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
 	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,
 	 /* Slots holding the values of the model element's references, if any have been set. */ 5: optional list<ReferenceSlot> references,
+	 /* Slots holding contained model elements, if any have been set. */ 6: optional list<ContainerSlot> containers,
+}
+
+struct ContainerSlot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Contained elements for this slot. */ 2: required list<ModelElement> elements,
 }
 
 struct ModelElementChange {

@@ -849,6 +849,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
       <eAnnotations source="doc">
         <details key="d" value="Unique ID of the model element"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="metamodelUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
@@ -875,6 +876,13 @@
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="containers" upperBound="-1"
+        eType="#//ContainerSlot" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Slots holding contained model elements, if any have been set"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Slot">
     <eAnnotations source="doc">
@@ -888,7 +896,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AttributeSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
-      <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
+      <details key="d" value="Represents a slot that can store the value(s) of an attribute of a model element"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Variant"
         containment="true">
@@ -899,12 +907,23 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReferenceSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
-      <details key="d" value="Represents a slot that can store the value(s) of a property of a model element"/>
+      <details key="d" value="Represents a slot that can store the value(s) of a reference  of a model element"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Identifiers of the referenced elements."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ContainerSlot" eSuperTypes="#//Slot">
+    <eAnnotations source="doc">
+      <details key="d" value="Represents a slot that can store other model elements within a model element"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="elements" upperBound="-1"
+        eType="#//ModelElement" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Contained elements for this slot."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

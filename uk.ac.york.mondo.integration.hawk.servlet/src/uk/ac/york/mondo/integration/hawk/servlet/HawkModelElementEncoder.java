@@ -12,33 +12,72 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
+import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Variant;
 
 /**
- * Collection of methods for converting Hawk {@link ModelElementNode}s into Thrift {@link ModelElement}s.
+ * Encodes a graph of Hawk {@link ModelElementNode}s into Thrift
+ * {@link ModelElement}s. This is an accumulator: the user should
+ * call {@link #encode(ModelElementNode)} repeatedly
+ * and then finally call {@link #getRootElements()}.
  */
 public class HawkModelElementEncoder {
 
-	private HawkModelElementEncoder() {}
+	private final GraphWrapper graph;
 
-	public static ModelElement encodeModelElement(ModelElementNode meNode) throws Exception {
-		ModelElement me = new ModelElement();
-		me.id = (long)meNode.getNode().getId();
-		me.typeName = meNode.getTypeNode().getTypeName();
-		me.metamodelUri = meNode.getTypeNode().getMetamodelName();
-	
+	private final Map<Long, ModelElement> encoded = new HashMap<>();
+	private final Map<ModelElement, Boolean> rootElements = new IdentityHashMap<>();
+
+	public HawkModelElementEncoder(GraphWrapper gw) {
+		this.graph = gw;
+	}
+
+	public Set<ModelElement> getRootElements() {
+		return rootElements.keySet();
+	}
+
+	public void encode(String id) throws Exception {
+		final ModelElementNode me = graph.getModelElementNodeById(id);
+		encodeInternal(me);
+	}
+
+	public void encode(ModelElementNode meNode) throws Exception {
+		assert meNode.getNode().getGraph() == this.graph.getGraph()
+			: "The node should belong to the same graph as this encoder";
+		encodeInternal(meNode);
+	}
+
+	private ModelElement encodeInternal(ModelElementNode meNode) throws Exception {
+		final ModelElement existing = encoded.get(meNode.getId());
+		if (existing != null) {
+			return existing;
+		}
+
+		final ModelElement me = new ModelElement();
+		me.setTypeName(meNode.getTypeNode().getTypeName());
+		me.setMetamodelUri(meNode.getTypeNode().getMetamodelName());
+
+		// we won't set the ID until someone refers to it, but we
+		// need to keep track of the element for later
+		encoded.put(meNode.getId(), me);
+
+		// initially, the model element is not contained in any other
+		rootElements.put(me, true);
+
 		final Map<String, Object> attrs = new HashMap<>();
 		final Map<String, Object> refs = new HashMap<>();
 		meNode.getSlotValues(attrs, refs);
@@ -51,33 +90,70 @@ public class HawkModelElementEncoder {
 		for (Map.Entry<String, Object> ref : refs.entrySet()) {
 			// to save bandwidth, we do not send unset or empty references 
 			if (ref.getValue() == null) continue;
-			final ReferenceSlot encodeReferenceSlot = encodeReferenceSlot(ref);
-			if (encodeReferenceSlot.ids.isEmpty()) continue;
-			me.addToReferences(encodeReferenceSlot);
+
+			if (meNode.isContainment(ref.getKey())) {
+				final ContainerSlot slot = encodeContainerSlot(ref);
+				if (slot.elements.isEmpty()) continue;
+				me.addToContainers(slot);
+			} else {
+				final ReferenceSlot slot = encodeReferenceSlot(ref);
+				if (slot.ids.isEmpty()) continue;
+				me.addToReferences(slot);
+			}
 		}
 		return me;
 	}
 
-	public static ReferenceSlot encodeReferenceSlot(Entry<String, Object> slotEntry) {
+	private ContainerSlot encodeContainerSlot(Entry<String, Object> slotEntry) throws Exception {
 		assert slotEntry.getValue() != null;
-	
+
+		ContainerSlot s = new ContainerSlot();
+		s.name = slotEntry.getKey();
+
+		final Object value = slotEntry.getValue();
+		if (value instanceof Collection) {
+			for (Object o : (Collection<?>)value) {
+				final ModelElementNode meNode = graph.getModelElementNodeById((long)o);
+				final ModelElement me = encodeInternal(meNode);
+				s.addToElements(me);
+				rootElements.remove(me);
+			}
+		} else {
+			final ModelElementNode meNode = graph.getModelElementNodeById((long)value);
+			final ModelElement me = encodeInternal(meNode);
+			s.addToElements(me);
+			rootElements.remove(me);
+		}
+
+		return s;
+	}
+
+	private ReferenceSlot encodeReferenceSlot(Entry<String, Object> slotEntry) throws Exception {
+		assert slotEntry.getValue() != null;
+
 		ReferenceSlot s = new ReferenceSlot();
 		s.name = slotEntry.getKey();
-	
+
 		final Object value = slotEntry.getValue();
 		s.ids = new ArrayList<>();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
-				s.ids.add((long)o);
+				s.addToIds((long)o);
 			}
 		} else {
-			s.ids.add((long)value);
+			s.addToIds((long)value);
 		}
-	
+
+		for (Long id : s.ids) {
+			final ModelElementNode meNode = graph.getModelElementNodeById(id);
+			final ModelElement me = encodeInternal(meNode);
+			me.setId(id);
+		}
+
 		return s;
 	}
 
-	public static AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
+	private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
 		assert slotEntry.getValue() != null;
 	
 		AttributeSlot s = new AttributeSlot();
@@ -114,7 +190,7 @@ public class HawkModelElementEncoder {
 		return s;
 	}
 
-	private static void encodeSingleValueAttributeSlot(AttributeSlot s, final Object value) {
+	private void encodeSingleValueAttributeSlot(AttributeSlot s, final Object value) {
 		if (value instanceof Byte) {
 			s.value.setVByte((byte) value);
 		} else if (value instanceof Float) {
@@ -135,7 +211,7 @@ public class HawkModelElementEncoder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void encodeNonEmptyListAttributeSlot(AttributeSlot s, final Object value, final Collection<?> cValue) {
+	private void encodeNonEmptyListAttributeSlot(AttributeSlot s, final Object value, final Collection<?> cValue) {
 		final Iterator<?> it = cValue.iterator();
 		final Object o = it.next();
 		if (o instanceof Byte) {
