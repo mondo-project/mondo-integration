@@ -39,7 +39,8 @@ public class HawkModelElementEncoder {
 
 	private final GraphWrapper graph;
 
-	private final Map<Long, ModelElement> encoded = new HashMap<>();
+	private final Map<String, ModelElement> encoded = new HashMap<>();
+	private final Map<String, Integer> nodeIdToExternalId = new HashMap<>();
 	private final Map<ModelElement, Boolean> rootElements = new IdentityHashMap<>();
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
@@ -74,6 +75,7 @@ public class HawkModelElementEncoder {
 		// we won't set the ID until someone refers to it, but we
 		// need to keep track of the element for later
 		encoded.put(meNode.getId(), me);
+		nodeIdToExternalId.put(meNode.getId(), nodeIdToExternalId.size());
 
 		// initially, the model element is not contained in any other
 		rootElements.put(me, true);
@@ -138,19 +140,20 @@ public class HawkModelElementEncoder {
 		s.ids = new ArrayList<>();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
-				s.addToIds((long)o);
+				addToIds(o, s);
 			}
 		} else {
-			s.addToIds((long)value);
-		}
-
-		for (Long id : s.ids) {
-			final ModelElementNode meNode = graph.getModelElementNodeById(id);
-			final ModelElement me = encodeInternal(meNode);
-			me.setId(id);
+			addToIds(value, s);
 		}
 
 		return s;
+	}
+
+	private void addToIds(Object o, ReferenceSlot s) throws Exception {
+		final String referencedId = o.toString();
+		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
+		encodeInternal(meNode);
+		s.addToIds(nodeIdToExternalId.get(referencedId));
 	}
 
 	private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {

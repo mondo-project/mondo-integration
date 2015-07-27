@@ -274,7 +274,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			// Do a first pass, creating all the objects with their attributes
 			// and containers and saving their graph IDs into the One Map to bind them.
 			final Registry packageRegistry = getResourceSet().getPackageRegistry();
-			final Map<Long, EObject> nodeIdToEObjectMap = new HashMap<>();
+			final Map<Integer, EObject> nodeIdToEObjectMap = new HashMap<>();
 			final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
 			final List<EObject> rootEObjects = createEObjects(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
 			getContents().addAll(rootEObjects);
@@ -292,7 +292,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	private void fillInReferences(final List<ModelElement> elems,
 			final Registry packageRegistry,
-			final Map<Long, EObject> nodeIdToEObjectMap,
+			final Map<Integer, EObject> nodeIdToEObjectMap,
 			final Map<ModelElement, EObject> meToEObject) throws IOException {
 		for (ModelElement me : elems) {
 			final EObject sourceObj = meToEObject.get(me);
@@ -337,7 +337,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
-	private List<EObject> createEObjects(final List<ModelElement> elems, final Registry packageRegistry, final Map<Long, EObject> nodeIdToEObjectMap, Map<ModelElement, EObject> meToEObject) throws IOException {
+	private List<EObject> createEObjects(final List<ModelElement> elems, final Registry packageRegistry, final Map<Integer, EObject> nodeIdToEObjectMap, Map<ModelElement, EObject> meToEObject) throws IOException {
 		final List<EObject> eObjects = new ArrayList<>();
 		for (ModelElement me : elems) {
 			final EObject parent = createEObject(packageRegistry, nodeIdToEObjectMap, me);
@@ -360,7 +360,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	private EObject createEObject(final Registry packageRegistry,
-			final Map<Long, EObject> nodeIdToEObjectMap, ModelElement me)
+			final Map<Integer, EObject> nodeIdToEObjectMap, ModelElement me)
 			throws IOException {
 		final EClass eClass = getEClass(packageRegistry, me);
 		final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
