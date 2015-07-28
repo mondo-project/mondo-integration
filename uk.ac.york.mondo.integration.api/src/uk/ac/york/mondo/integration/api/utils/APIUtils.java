@@ -7,11 +7,16 @@
  *
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
+ *    Abel Gómez - Generic methods
  *******************************************************************************/
 package uk.ac.york.mondo.integration.api.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
@@ -27,9 +32,23 @@ public class APIUtils {
 	}
 
 	public static Hawk.Client connectToHawk(String url) throws TTransportException {
-		final HttpClient httpClient = APIUtils. createGZipAwareHttpClient();
-		final THttpClient transport = new THttpClient(url, httpClient);
-		return new Hawk.Client(new TTupleProtocol(transport));
+		return connectTo(Hawk.Client.class, url);
+	}
+	
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException {
+		try {
+			final HttpClient httpClient = APIUtils. createGZipAwareHttpClient();
+			final THttpClient transport = new THttpClient(url, httpClient);
+			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
+			return constructor.newInstance(new TTupleProtocol(transport));
+		} catch (InstantiationException 
+				| IllegalAccessException 
+				| IllegalArgumentException 
+				| InvocationTargetException 
+				| NoSuchMethodException
+				| SecurityException e) {
+			throw new TTransportException(e);
+		}
 	}
 
 	@SuppressWarnings("restriction")
