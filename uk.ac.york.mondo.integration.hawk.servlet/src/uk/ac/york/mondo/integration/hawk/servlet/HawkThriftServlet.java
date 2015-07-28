@@ -155,8 +155,6 @@ public class HawkThriftServlet extends TServlet {
 			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
-			final GraphWrapper gw = new GraphWrapper(graph);
-			final List<ModelElement> resolved = new ArrayList<ModelElement>();
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
 				for (String id : ids) {
