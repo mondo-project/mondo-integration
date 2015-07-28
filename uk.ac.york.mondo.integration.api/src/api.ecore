@@ -793,6 +793,16 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="kill" eExceptions="#//TransformationTokenNotFound">
+      <eAnnotations source="doc">
+        <details key="d" value="Kills a previously invoked transformation"/>
+      </eAnnotations>
+      <eParameters name="token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="A valid token returned by a previous call to launch()"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReactiveATL">
     <eAnnotations source="doc">
@@ -846,9 +856,9 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
       <eAnnotations source="doc">
-        <details key="d" value="Unique ID for the model element (only needed if referenced from another element)"/>
+        <details key="d" value="Unique ID of the model element"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>

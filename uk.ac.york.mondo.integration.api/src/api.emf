@@ -397,6 +397,11 @@ class CloudATL {
 	op TransformationStatus getStatus (
 		@doc(d="A valid token returned by a previous call to launch()") String token
 	) throws TransformationTokenNotFound;
+	
+	@doc(d="Kills a previously invoked transformation")
+	op void kill (
+		@doc(d="A valid token returned by a previous call to launch()") String token
+	) throws TransformationTokenNotFound;
 }
 
 @doc(d="
@@ -426,8 +431,8 @@ class ReactiveATL {
 
 @doc(d="Represents a model element")
 class ModelElement {
-	@doc(d="Unique ID for the model element (only needed if referenced from another element)", optional="true")
-	attr int ~id;
+	@doc(d="Unique ID of the model element", optional="true")
+	attr long ~id;
 	@doc(d="URI of the metamodel to which the type of the element belongs")
 	attr String metamodelUri;
 	@doc(d="Name of the type that the model element is an instance of")

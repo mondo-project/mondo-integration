@@ -123,14 +123,14 @@ struct ReferenceSlot {
 }
 
 union ScalarOrReference {
-	 /*  */ 1: required bool vBoolean,
-	 /*  */ 2: required byte vByte,
-	 /*  */ 3: required i16 vShort,
-	 /*  */ 4: required i32 vInteger,
-	 /*  */ 5: required i64 vLong,
-	 /*  */ 6: required i64 vReference,
-	 /*  */ 7: required double vDouble,
-	 /*  */ 8: required string vString,
+	 /*  */ 1: optional bool vBoolean,
+	 /*  */ 2: optional byte vByte,
+	 /*  */ 3: optional i16 vShort,
+	 /*  */ 4: optional i32 vInteger,
+	 /*  */ 5: optional i64 vLong,
+	 /*  */ 6: optional i64 vReference,
+	 /*  */ 7: optional double vDouble,
+	 /*  */ 8: optional string vString,
 }
 
 struct Slot {
@@ -171,20 +171,20 @@ exception VCSAuthorizationFailed {
 }
 
 union Variant {
-	 /*  */ 1: required byte vByte,
-	 /*  */ 2: required bool vBoolean,
-	 /*  */ 3: required i16 vShort,
-	 /*  */ 4: required i32 vInteger,
-	 /*  */ 5: required i64 vLong,
-	 /*  */ 6: required double vDouble,
-	 /*  */ 7: required string vString,
-	 /*  */ 8: required binary vBytes,
-	 /*  */ 9: required list<bool> vBooleans,
-	 /*  */ 10: required list<i16> vShorts,
-	 /*  */ 11: required list<i32> vIntegers,
-	 /*  */ 12: required list<i64> vLongs,
-	 /*  */ 13: required list<double> vDoubles,
-	 /*  */ 14: required list<string> vStrings,
+	 /*  */ 1: optional byte vByte,
+	 /*  */ 2: optional bool vBoolean,
+	 /*  */ 3: optional i16 vShort,
+	 /*  */ 4: optional i32 vInteger,
+	 /*  */ 5: optional i64 vLong,
+	 /*  */ 6: optional double vDouble,
+	 /*  */ 7: optional string vString,
+	 /*  */ 8: optional binary vBytes,
+	 /*  */ 9: optional list<bool> vBooleans,
+	 /*  */ 10: optional list<i16> vShorts,
+	 /*  */ 11: optional list<i32> vIntegers,
+	 /*  */ 12: optional list<i64> vLongs,
+	 /*  */ 13: optional list<double> vDoubles,
+	 /*  */ 14: optional list<string> vStrings,
 }
 
 struct AttributeSlot {
@@ -215,7 +215,7 @@ exception InvalidModelSpec {
 }
 
 struct ModelElement {
-	 /* Unique ID for the model element (only needed if referenced from another element). */ 1: optional i32 id,
+	 /* Unique ID of the model element. */ 1: optional i64 id,
 	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
 	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
 	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,
@@ -235,10 +235,10 @@ struct ModelElementChange {
 }
 
 /* The majority of service operations provided by the MONDO
-   		platform require user authentication (indicated in the top-left
-   		cell of each operation table) to prevent unaccountable use.
-   		As such, the platform needs to provide basic user management service operations
-   		for creating, updating and deleting user accounts. */
+		platform require user authentication (indicated in the top-left
+		cell of each operation table) to prevent unaccountable use.
+		As such, the platform needs to provide basic user management service operations
+		for creating, updating and deleting user accounts. */
 service Users {
   /* Creates a new platform user. Auth needed: Yes */
   void createUser(
@@ -276,7 +276,7 @@ service Users {
 }
 
 /* The following service operations expose the capabilities of the Hawk heterogeneous model indexing
-   framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3. */
+framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3. */
 service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
@@ -318,8 +318,8 @@ service Hawk {
   void registerMetamodels(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The metamodels to register.
-	   			More than one metamodel files can be provided in one
-	   			go to accomodate fragmented metamodels. */ 2: required list<File> metamodel, 
+			More than one metamodel files can be provided in one
+			go to accomodate fragmented metamodels. */ 2: required list<File> metamodel, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -449,8 +449,8 @@ service Hawk {
   void removeDerivedAttribute(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The details of the derived attribute to be removed.
-	   			Only the first three fields of the spec
-	   			need to be populated. */ 2: required DerivedAttributeSpec spec, 
+			Only the first three fields of the spec
+			need to be populated. */ 2: required DerivedAttributeSpec spec, 
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -510,7 +510,7 @@ service Hawk {
 }
 
 /* The following service operations expose the capabilities of the offline collaboration framework
-   developed in Work Package 4. The framework is discussed in detail in D4.3. */
+developed in Work Package 4. The framework is discussed in detail in D4.3. */
 service OfflineCollaboration {
   /* Performs the checkout operation. Auth needed: Yes */
   list<CollaborationResource> checkout(
@@ -598,11 +598,11 @@ service OfflineCollaboration {
 }
 
 /* The following service operations expose the capabilities of the cloud-enabled
-   version of the ATL transformation language which is currently under development and
-   will be presented in M24 in D3.3. */
+version of the ATL transformation language which is currently under development and
+will be presented in M24 in D3.3. */
 service CloudATL {
   /* Invokes a cloud-based transformation in a batch non-blocking mode.
-     			Returns a token that can be used to check the status of the transformation. Auth needed: Yes */
+			Returns a token that can be used to check the status of the transformation. Auth needed: Yes */
   string launch(
 	/* The ATL source-code of the transformation. */ 1: required string transformation, 
 	/* The input models of the transformation. */ 2: required list<ModelSpec> source, 
@@ -621,14 +621,22 @@ service CloudATL {
 	1: TransformationTokenNotFound err1 /* The specified transformation token does not exist within the invokved MONDO instance. */ 
 	) 
 	
+  /* Kills a previously invoked transformation. Auth needed: Yes */
+  void kill(
+	/* A valid token returned by a previous call to launch(). */ 1: required string token, 
+  )
+  throws (
+	1: TransformationTokenNotFound err1 /* The specified transformation token does not exist within the invokved MONDO instance. */ 
+	) 
+	
 }
 
 /* The following service operations expose the capabilities of the reactive
-   version of the ATL transformation language which is discussed in D3.2. */
+version of the ATL transformation language which is discussed in D3.2. */
 service ReactiveATL {
   /* Launches a cloud-based transformation in reactive mode.
-     	    The transformation keeps running until it is explicitly stopped.
-     	    Returns a token that can be used to control the transformation. Auth needed: Yes */
+	    The transformation keeps running until it is explicitly stopped.
+	    Returns a token that can be used to control the transformation. Auth needed: Yes */
   string launch(
 	/* The ATL source-code of the transformation. */ 1: required string transformation, 
 	/* The input models of the transformation. */ 2: required list<ModelSpec> source, 
