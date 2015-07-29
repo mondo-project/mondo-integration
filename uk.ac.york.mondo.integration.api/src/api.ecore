@@ -783,6 +783,11 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="getJobs" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Lists the ids of the transformation jobs tracked by this server"/>
+      </eAnnotations>
+    </eOperations>
     <eOperations name="getStatus" eType="#//TransformationStatus" eExceptions="#//TransformationTokenNotFound">
       <eAnnotations source="doc">
         <details key="d" value="Returns the status of a previously invoked transformation"/>

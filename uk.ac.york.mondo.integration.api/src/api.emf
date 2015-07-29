@@ -393,6 +393,9 @@ class CloudATL {
 		@doc(d="The target models of the transformation") ModelSpec[*] target
 	) throws InvalidTransformation, InvalidModelSpec;
 
+	@doc(d="Lists the ids of the transformation jobs tracked by this server")
+	op String[*] getJobs ();
+
 	@doc(d="Returns the status of a previously invoked transformation")
 	op TransformationStatus getStatus (
 		@doc(d="A valid token returned by a previous call to launch()") String token

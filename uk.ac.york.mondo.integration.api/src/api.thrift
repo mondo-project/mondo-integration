@@ -613,6 +613,10 @@ service CloudATL {
 	2: InvalidModelSpec err2 /* The model specification is not valid: the model or the metamodels are inaccessible or invalid. */ 
 	) 
 	
+  /* Lists the ids of the transformation jobs tracked by this server. Auth needed: Yes */
+  list<string> getJobs(
+  )
+	
   /* Returns the status of a previously invoked transformation. Auth needed: Yes */
   TransformationStatus getStatus(
 	/* A valid token returned by a previous call to launch(). */ 1: required string token, 
