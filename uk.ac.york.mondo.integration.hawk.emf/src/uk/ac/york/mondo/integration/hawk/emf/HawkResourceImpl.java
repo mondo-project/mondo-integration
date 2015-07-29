@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
@@ -54,7 +57,6 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils;
 public class HawkResourceImpl extends ResourceImpl {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
-	private HawkModelDescriptor descriptor;
 
 	public HawkResourceImpl() {
 	}
@@ -260,10 +262,39 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	@Override
-	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		this.descriptor = new HawkModelDescriptor();
-		this.descriptor.load(inputStream);
+	public void load(Map<?, ?> options) throws IOException {
+		if (uri.hasAbsolutePath() && uri.scheme() != null && uri.scheme().startsWith("hawk+")) {
+			// construct HawkModelDescriptor from URI on the fly
+			final HawkModelDescriptor descriptor = new HawkModelDescriptor();
+			final String instanceURL = uri.trimQuery().toString().replaceFirst("hawk[+]",  "");
+			descriptor.setHawkURL(instanceURL);
 
+			final List<NameValuePair> pairs = URLEncodedUtils.parse(uri.query(), Charset.forName("UTF-8"));
+			for (NameValuePair pair : pairs) {
+				switch (pair.getName()) {
+				case "instance":
+					descriptor.setHawkInstance(pair.getValue()); break;
+				case "filePatterns":
+					descriptor.setHawkFilePatterns(pair.getValue().split(",")); break;
+				case "repository":
+					descriptor.setHawkRepository(pair.getValue()); break;
+				}
+			}
+
+			doLoad(descriptor);
+		} else {
+			super.load(options);
+		}
+	}
+
+	@Override
+	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		HawkModelDescriptor descriptor = new HawkModelDescriptor();
+		descriptor.load(inputStream);
+		doLoad(descriptor);
+	}
+
+	private void doLoad(HawkModelDescriptor descriptor) throws IOException {
 		try {
 			final Hawk.Client client = APIUtils.connectToHawk(descriptor.getHawkURL());
 			final List<ModelElement> elems = client.getModel(
