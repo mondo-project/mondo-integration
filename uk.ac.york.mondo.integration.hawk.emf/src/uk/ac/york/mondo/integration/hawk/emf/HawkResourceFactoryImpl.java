@@ -14,9 +14,9 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 
-public class HawkResourceFactory implements Factory {
+public class HawkResourceFactoryImpl implements Factory {
 
-	public HawkResourceFactory() {
+	public HawkResourceFactoryImpl() {
 		// TODO get credentials from Eclipse preferences?
 	}
 
