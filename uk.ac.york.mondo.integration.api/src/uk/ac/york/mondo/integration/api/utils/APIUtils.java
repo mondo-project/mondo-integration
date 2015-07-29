@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -55,16 +54,18 @@ public class APIUtils {
 	@SuppressWarnings({ "restriction", "deprecation" })
 	private static HttpClient createGZipAwareHttpClient() {
 		/*
-		 * Apache HttpClient 4.3 and later deprecate this class in favour of
-		 * HttpClientBuilder, but Hadoop 2.7.x (used by CloudATL) uses Apache
+		 * Apache HttpClient 4.3 and later deprecate DefaultHttpClient in favour
+		 * of HttpClientBuilder, but Hadoop 2.7.x (used by CloudATL) uses Apache
 		 * HttpClient 4.2.5. Until Hadoop upgrades to HttpClient 4.3+, we'll
-		 * have to keep using this deprecated API. After that, we'll be able
-		 * to replace this bit of code with something like:
+		 * have to keep using this deprecated API. After that, we'll be able to
+		 * replace this bit of code with something like:
 		 *
+		 * <pre>
 		 *  return HttpClientBuilder.create()
 		 *      .addInterceptorFirst(new GZipRequestInterceptor())
-		 *      .addInterceptorFirst(new GZipResponseInterceptor()).build();
-		 *
+		 *   .addInterceptorFirst(new GZipResponseInterceptor())
+		 *   .build();
+		 * </pre>
 		 */
 		final DefaultHttpClient client = new DefaultHttpClient();
 		client.addRequestInterceptor(new GZipRequestInterceptor());

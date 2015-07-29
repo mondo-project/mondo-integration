@@ -216,8 +216,8 @@ exception InvalidModelSpec {
 
 struct ModelElement {
 	 /* Unique ID of the model element. */ 1: optional i32 id,
-	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
-	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
+	 /* URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). */ 2: optional string metamodelUri,
+	 /* Name of the type that the model element is an instance of (not set if equal to that of the previous model element). */ 3: optional string typeName,
 	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,
 	 /* Slots holding the values of the model element's references, if any have been set. */ 5: optional list<ReferenceSlot> references,
 	 /* Slots holding contained model elements, if any have been set. */ 6: optional list<ContainerSlot> containers,

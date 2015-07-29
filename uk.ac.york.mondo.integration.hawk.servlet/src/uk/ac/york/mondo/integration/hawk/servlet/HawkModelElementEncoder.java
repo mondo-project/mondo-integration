@@ -13,12 +13,14 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
@@ -39,16 +41,113 @@ public class HawkModelElementEncoder {
 
 	private final GraphWrapper graph;
 
-	private final Map<String, ModelElement> encoded = new HashMap<>();
+	private final Map<String, ModelElement> nodeIdToElement = new HashMap<>();
+	private final Map<ModelElement, String> elementToNodeId = new IdentityHashMap<>();
+
 	private final Map<String, Integer> nodeIdToExternalId = new HashMap<>();
 	private final Map<ModelElement, Boolean> rootElements = new IdentityHashMap<>();
+
+	private String lastMetamodelURI, lastTypename;
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
 	}
 
-	public Set<ModelElement> getRootElements() {
-		return rootElements.keySet();
+	public List<ModelElement> getRootElements() {
+		/*
+		 * We need to have a consistent traversal order across multiple
+		 * encodings of the same elements. CloudATL depends on reliable URI
+		 * fragments, and it may retrieve the model more than once.
+		 * 
+		 * We'll sort the tree by node ID, so we won't have to resend the node
+		 * IDs as strings (those can take up quite a bit of space for small
+		 * objects).
+		 */
+		final List<ModelElement> lRoots = new ArrayList<>(rootElements.keySet());
+		sortByNodeIds(lRoots);
+
+		/*
+		 * Now that we have a tree with a well-defined order, we can do some
+		 * additional optimizations. We can use in-order positions as implicit
+		 * IDs, and we can also reduce the repetition of typenames and metamodel
+		 * URIs.
+		 */
+		final HashMap<Integer, Integer> positions = new HashMap<>();
+		computePreorderPositionMap(lRoots, positions, 0);
+		lastMetamodelURI = lastTypename = null;
+		optimizeTree(lRoots, positions);
+
+		return lRoots;
+	}
+
+	private void sortByNodeIds(List<ModelElement> elems) {
+		Collections.sort(elems, new Comparator<ModelElement>() {
+			@Override
+			public int compare(ModelElement l, ModelElement r) {
+				final String lId = elementToNodeId.get(l);
+				final String rId = elementToNodeId.get(r);
+				return lId.compareTo(rId);
+			}
+		});
+
+		for (ModelElement e : elems) {
+			if (e.isSetContainers()) {
+				for (ContainerSlot s : e.containers) {
+					sortByNodeIds(s.elements);
+				}
+			}
+		}
+	}
+
+	private int computePreorderPositionMap(Collection<ModelElement> elems, Map<Integer, Integer> id2pos, int i) {
+		for (ModelElement elem : elems) {
+			if (elem.isSetId()) {
+				id2pos.put(elem.id, i);
+			}
+			i++;
+
+			if (elem.isSetContainers()) {
+				for (ContainerSlot s : elem.containers) {
+					i = computePreorderPositionMap(s.elements, id2pos, i);
+				}
+			}
+		}
+		return i;
+	}
+
+	private void optimizeTree(Collection<ModelElement> elems, Map<Integer, Integer> mePositions) {
+		for (ModelElement me : elems) {
+			// we'll use the position instead of an explicit ID
+			me.unsetId();
+
+			if (me.isSetReferences()) {
+				for (ReferenceSlot r : me.getReferences()) {
+					final List<Integer> ids = r.ids;
+					for (int i = 0; i < ids.size(); i++) {
+						final Integer id = ids.get(i);
+						ids.set(i, mePositions.get(id));
+					}
+				}
+			}
+
+			// we don't repeat typenames or metamodel URIs if they're the same as the previous element's
+			final String currTypename = me.getTypeName();
+			final String currMetamodelURI = me.getMetamodelUri();
+			if (lastTypename != null && lastTypename.equals(currTypename)) {
+				me.unsetTypeName();
+			}
+			if (lastMetamodelURI != null && lastMetamodelURI.equals(currMetamodelURI)) {
+				me.unsetMetamodelUri();
+			}
+			lastTypename = currTypename;
+			lastMetamodelURI = currMetamodelURI;
+
+			if (me.isSetContainers()) {
+				for (ContainerSlot s : me.getContainers()) {
+					optimizeTree(s.elements, mePositions);
+				}
+			}
+		}
 	}
 
 	public void encode(String id) throws Exception {
@@ -63,7 +162,7 @@ public class HawkModelElementEncoder {
 	}
 
 	private ModelElement encodeInternal(ModelElementNode meNode) throws Exception {
-		final ModelElement existing = encoded.get(meNode.getId());
+		final ModelElement existing = nodeIdToElement.get(meNode.getId());
 		if (existing != null) {
 			return existing;
 		}
@@ -74,7 +173,8 @@ public class HawkModelElementEncoder {
 
 		// we won't set the ID until someone refers to it, but we
 		// need to keep track of the element for later
-		encoded.put(meNode.getId(), me);
+		nodeIdToElement.put(meNode.getId(), me);
+		elementToNodeId.put(me, meNode.getId());
 		nodeIdToExternalId.put(meNode.getId(), nodeIdToExternalId.size());
 
 		// initially, the model element is not contained in any other
@@ -252,31 +352,5 @@ public class HawkModelElementEncoder {
 			throw new IllegalArgumentException("Null values inside collections are not allowed");
 		}
 	}
-
-	/* uncomment when we can retrieve more interesting things through Hawk queries
-	private ScalarOrReference encodeScalarOrReferenceValue(Object o) {
-		final ScalarOrReference encoded = new ScalarOrReference();
-	
-		if (o instanceof Byte) {
-			encoded.setVByte((byte)o);
-		} else if (o instanceof Float || o instanceof Double) {
-			encoded.setVDouble((double)o);
-		} else if (o instanceof Integer) {
-			encoded.setVInteger((int)o);
-		} else if (o instanceof Long) {
-			encoded.setVLong((long)o);
-		} else if (o instanceof IGraphNode) {
-			encoded.setVReference(((IGraphNode)o).getId().toString());
-		} else if (o instanceof Short) {
-			encoded.setVShort((short)o);
-		} else if (o instanceof String) {
-			encoded.setVString(o.toString());
-		} else if (o instanceof Boolean) {
-			encoded.setVBoolean((boolean)o);
-		}
-	
-		return encoded;
-	}
-	*/
 
 }

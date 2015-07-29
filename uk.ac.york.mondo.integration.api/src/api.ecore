@@ -869,12 +869,14 @@
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="metamodelUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="URI of the metamodel to which the type of the element belongs"/>
+        <details key="d" value="URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="typeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Name of the type that the model element is an instance of"/>
+        <details key="d" value="Name of the type that the model element is an instance of (not set if equal to that of the previous model element)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"

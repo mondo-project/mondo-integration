@@ -52,8 +52,8 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
   }
 
   public int id; // optional
-  public String metamodelUri; // required
-  public String typeName; // required
+  public String metamodelUri; // optional
+  public String typeName; // optional
   public List<AttributeSlot> attributes; // optional
   public List<ReferenceSlot> references; // optional
   public List<ContainerSlot> containers; // optional
@@ -134,15 +134,15 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
   // isset id assignments
   private static final int __ID_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
-  private static final _Fields optionals[] = {_Fields.ID,_Fields.ATTRIBUTES,_Fields.REFERENCES,_Fields.CONTAINERS};
+  private static final _Fields optionals[] = {_Fields.ID,_Fields.METAMODEL_URI,_Fields.TYPE_NAME,_Fields.ATTRIBUTES,_Fields.REFERENCES,_Fields.CONTAINERS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.METAMODEL_URI, new org.apache.thrift.meta_data.FieldMetaData("metamodelUri", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.METAMODEL_URI, new org.apache.thrift.meta_data.FieldMetaData("metamodelUri", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.TYPE_NAME, new org.apache.thrift.meta_data.FieldMetaData("typeName", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.TYPE_NAME, new org.apache.thrift.meta_data.FieldMetaData("typeName", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.ATTRIBUTES, new org.apache.thrift.meta_data.FieldMetaData("attributes", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
@@ -158,15 +158,6 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
   }
 
   public ModelElement() {
-  }
-
-  public ModelElement(
-    String metamodelUri,
-    String typeName)
-  {
-    this();
-    this.metamodelUri = metamodelUri;
-    this.typeName = typeName;
   }
 
   /**
@@ -707,6 +698,7 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
       sb.append(this.id);
       first = false;
     }
+    if (isSetMetamodelUri()) {
     if (!first) sb.append(", ");
     sb.append("metamodelUri:");
     if (this.metamodelUri == null) {
@@ -715,6 +707,8 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
       sb.append(this.metamodelUri);
     }
     first = false;
+    }
+    if (isSetTypeName()) {
     if (!first) sb.append(", ");
     sb.append("typeName:");
     if (this.typeName == null) {
@@ -723,6 +717,7 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
       sb.append(this.typeName);
     }
     first = false;
+    }
     if (isSetAttributes()) {
       if (!first) sb.append(", ");
       sb.append("attributes:");
@@ -759,12 +754,6 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
-    if (metamodelUri == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'metamodelUri' was not present! Struct: " + toString());
-    }
-    if (typeName == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'typeName' was not present! Struct: " + toString());
-    }
     // check for sub-struct validity
   }
 
@@ -906,14 +895,18 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
         oprot.writeFieldEnd();
       }
       if (struct.metamodelUri != null) {
+        if (struct.isSetMetamodelUri()) {
         oprot.writeFieldBegin(METAMODEL_URI_FIELD_DESC);
         oprot.writeString(struct.metamodelUri);
         oprot.writeFieldEnd();
       }
+      }
       if (struct.typeName != null) {
+        if (struct.isSetTypeName()) {
         oprot.writeFieldBegin(TYPE_NAME_FIELD_DESC);
         oprot.writeString(struct.typeName);
         oprot.writeFieldEnd();
+      }
       }
       if (struct.attributes != null) {
         if (struct.isSetAttributes()) {
@@ -974,24 +967,34 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, ModelElement struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      oprot.writeString(struct.metamodelUri);
-      oprot.writeString(struct.typeName);
       BitSet optionals = new BitSet();
       if (struct.isSetId()) {
         optionals.set(0);
       }
-      if (struct.isSetAttributes()) {
+      if (struct.isSetMetamodelUri()) {
         optionals.set(1);
       }
-      if (struct.isSetReferences()) {
+      if (struct.isSetTypeName()) {
         optionals.set(2);
       }
-      if (struct.isSetContainers()) {
+      if (struct.isSetAttributes()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetReferences()) {
+        optionals.set(4);
+      }
+      if (struct.isSetContainers()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetId()) {
         oprot.writeI32(struct.id);
+      }
+      if (struct.isSetMetamodelUri()) {
+        oprot.writeString(struct.metamodelUri);
+      }
+      if (struct.isSetTypeName()) {
+        oprot.writeString(struct.typeName);
       }
       if (struct.isSetAttributes()) {
         {
@@ -1025,16 +1028,20 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ModelElement struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      struct.metamodelUri = iprot.readString();
-      struct.setMetamodelUriIsSet(true);
-      struct.typeName = iprot.readString();
-      struct.setTypeNameIsSet(true);
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.id = iprot.readI32();
         struct.setIdIsSet(true);
       }
       if (incoming.get(1)) {
+        struct.metamodelUri = iprot.readString();
+        struct.setMetamodelUriIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.typeName = iprot.readString();
+        struct.setTypeNameIsSet(true);
+      }
+      if (incoming.get(3)) {
         {
           org.apache.thrift.protocol.TList _list87 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.attributes = new ArrayList<AttributeSlot>(_list87.size);
@@ -1048,7 +1055,7 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
         }
         struct.setAttributesIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(4)) {
         {
           org.apache.thrift.protocol.TList _list90 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.references = new ArrayList<ReferenceSlot>(_list90.size);
@@ -1062,7 +1069,7 @@ public class ModelElement implements org.apache.thrift.TBase<ModelElement, Model
         }
         struct.setReferencesIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(5)) {
         {
           org.apache.thrift.protocol.TList _list93 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.containers = new ArrayList<ContainerSlot>(_list93.size);

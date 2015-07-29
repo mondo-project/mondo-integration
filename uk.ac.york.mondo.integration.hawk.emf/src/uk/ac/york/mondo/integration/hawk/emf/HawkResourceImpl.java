@@ -58,6 +58,11 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
 
+	// By default, we use implicit IDs (position within preorder traversal)
+	private boolean useExplicitIds = false;
+
+	private String lastTypename, lastMetamodelURI;
+
 	public HawkResourceImpl() {
 	}
 
@@ -307,6 +312,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			final Registry packageRegistry = getResourceSet().getPackageRegistry();
 			final Map<Integer, EObject> nodeIdToEObjectMap = new HashMap<>();
 			final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
+			lastTypename = lastMetamodelURI = null;
 			final List<EObject> rootEObjects = createEObjects(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
 			getContents().addAll(rootEObjects);
 
@@ -393,18 +399,35 @@ public class HawkResourceImpl extends ResourceImpl {
 	private EObject createEObject(final Registry packageRegistry,
 			final Map<Integer, EObject> nodeIdToEObjectMap, ModelElement me)
 			throws IOException {
+
+		if (!me.isSetTypeName()) {
+			me.setTypeName(lastTypename);
+		}
+		if (!me.isSetMetamodelUri()) {
+			me.setMetamodelUri(lastMetamodelURI);
+		}
+		lastTypename = me.getTypeName();
+		lastMetamodelURI = me.getMetamodelUri();
+
 		final EClass eClass = getEClass(packageRegistry, me);
 		final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
 		final EObject obj = factory.create(eClass);
 
-		if (me.isSetId()) {
-			nodeIdToEObjectMap.put(me.id, obj);
+		if (useExplicitIds) {
+			if (me.isSetId()) {
+				nodeIdToEObjectMap.put(me.id, obj);
+			}
+		} else {
+			// Use preorder position as implicit ID
+			nodeIdToEObjectMap.put(nodeIdToEObjectMap.size(), obj);
 		}
+
 		if (me.isSetAttributes()) {
 			for (AttributeSlot s : me.attributes) {
 				setStructuralFeatureFromSlot(eClass, obj, s);
 			}
 		}
+
 		return obj;
 	}
 

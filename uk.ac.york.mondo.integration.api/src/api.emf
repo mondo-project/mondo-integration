@@ -436,9 +436,9 @@ class ReactiveATL {
 class ModelElement {
 	@doc(d="Unique ID of the model element", optional="true")
 	attr int ~id;
-	@doc(d="URI of the metamodel to which the type of the element belongs")
+	@doc(d="URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element)", optional="true")
 	attr String metamodelUri;
-	@doc(d="Name of the type that the model element is an instance of")
+	@doc(d="Name of the type that the model element is an instance of (not set if equal to that of the previous model element)", optional="true")
 	attr String typeName;
 	@doc(d="Slots holding the values of the model element's attributes, if any have been set", optional="true")
 	val AttributeSlot[*] attributes;
