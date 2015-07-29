@@ -303,7 +303,7 @@ public class HawkResourceImpl extends ResourceImpl {
 					final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
 					if (feature.isMany()) {
 						final EList<EObject> value = new BasicEList<>();
-						for (Long targetId : s.ids) {
+						for (Integer targetId : s.ids) {
 							final EObject targets = nodeIdToEObjectMap.get(targetId);
 							if (targets == null) {
 								LOGGER.warn(
@@ -316,7 +316,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 						sourceObj.eSet(feature, value);
 					} else {
-						final Long targetId = s.ids.get(0);
+						final Integer targetId = s.ids.get(0);
 						final EObject target = nodeIdToEObjectMap.get(targetId);
 						if (target == null) {
 							LOGGER.warn(

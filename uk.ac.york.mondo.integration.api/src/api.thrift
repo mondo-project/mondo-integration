@@ -119,7 +119,7 @@ struct OperationModel {
 
 struct ReferenceSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Identifiers of the referenced elements. */ 2: required list<i64> ids,
+	 /* Identifiers of the referenced elements. */ 2: required list<i32> ids,
 }
 
 union ScalarOrReference {
@@ -215,7 +215,7 @@ exception InvalidModelSpec {
 }
 
 struct ModelElement {
-	 /* Unique ID of the model element. */ 1: optional i64 id,
+	 /* Unique ID of the model element. */ 1: optional i32 id,
 	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
 	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
 	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,

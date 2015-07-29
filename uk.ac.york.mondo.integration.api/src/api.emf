@@ -435,7 +435,7 @@ class ReactiveATL {
 @doc(d="Represents a model element")
 class ModelElement {
 	@doc(d="Unique ID of the model element", optional="true")
-	attr long ~id;
+	attr int ~id;
 	@doc(d="URI of the metamodel to which the type of the element belongs")
 	attr String metamodelUri;
 	@doc(d="Name of the type that the model element is an instance of")
@@ -463,7 +463,7 @@ class AttributeSlot extends Slot {
 @doc(d="Represents a slot that can store the value(s) of a reference  of a model element")
 class ReferenceSlot extends Slot {
 	@doc(d="Identifiers of the referenced elements.")
-	val long[*] ids;
+	val int[*] ids;
 }
 
 // @thrift.map(key="name", value="elements")
