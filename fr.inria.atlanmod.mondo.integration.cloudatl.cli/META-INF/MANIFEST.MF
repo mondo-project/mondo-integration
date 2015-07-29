@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MONDO Integration - CloudATL CLI
+Bundle-SymbolicName: fr.inria.atlanmod.mondo.integration.cloudatl.cli;singleton:=true
+Bundle-Version: 0.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.equinox.console,
+ uk.ac.york.mondo.integration.api;bundle-version="1.0.0",
+ org.eclipse.equinox.ds;bundle-version="1.4.200",
+ org.apache.thrift;bundle-version="0.9.2",
+ org.apache.httpcomponents.httpcore;bundle-version="4.3.3",
+ org.apache.httpcomponents.httpclient;bundle-version="4.3.6"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: component.xml
