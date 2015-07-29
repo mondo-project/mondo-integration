@@ -119,7 +119,7 @@ struct OperationModel {
 
 struct ReferenceSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Identifiers of the referenced elements. */ 2: required list<i64> ids,
+	 /* Identifiers of the referenced elements. */ 2: required list<i32> ids,
 }
 
 union ScalarOrReference {

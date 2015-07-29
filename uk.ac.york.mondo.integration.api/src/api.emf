@@ -460,7 +460,7 @@ class AttributeSlot extends Slot {
 @doc(d="Represents a slot that can store the value(s) of a reference  of a model element")
 class ReferenceSlot extends Slot {
 	@doc(d="Identifiers of the referenced elements.")
-	val long[*] ids;
+	val int[*] ids;
 }
 
 // @thrift.map(key="name", value="elements")

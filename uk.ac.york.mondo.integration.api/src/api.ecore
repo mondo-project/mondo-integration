@@ -919,7 +919,7 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a slot that can store the value(s) of a reference  of a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Identifiers of the referenced elements."/>

@@ -152,8 +152,10 @@ public class HawkModelElementEncoder {
 	private void addToIds(Object o, ReferenceSlot s) throws Exception {
 		final String referencedId = o.toString();
 		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
-		encodeInternal(meNode);
-		s.addToIds(nodeIdToExternalId.get(referencedId));
+		final ModelElement me = encodeInternal(meNode);
+		final Integer externalId = nodeIdToExternalId.get(referencedId);
+		me.setId(externalId);
+		s.addToIds(externalId);
 	}
 
 	private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
