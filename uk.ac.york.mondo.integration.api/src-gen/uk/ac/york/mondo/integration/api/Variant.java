@@ -454,13 +454,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_BOOLEANS_FIELD_DESC.type) {
             List<Boolean> vBooleans;
             {
-              org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
-              vBooleans = new ArrayList<Boolean>(_list16.size);
-              boolean _elem17;
-              for (int _i18 = 0; _i18 < _list16.size; ++_i18)
+              org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+              vBooleans = new ArrayList<Boolean>(_list24.size);
+              boolean _elem25;
+              for (int _i26 = 0; _i26 < _list24.size; ++_i26)
               {
-                _elem17 = iprot.readBool();
-                vBooleans.add(_elem17);
+                _elem25 = iprot.readBool();
+                vBooleans.add(_elem25);
               }
               iprot.readListEnd();
             }
@@ -473,13 +473,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_SHORTS_FIELD_DESC.type) {
             List<Short> vShorts;
             {
-              org.apache.thrift.protocol.TList _list19 = iprot.readListBegin();
-              vShorts = new ArrayList<Short>(_list19.size);
-              short _elem20;
-              for (int _i21 = 0; _i21 < _list19.size; ++_i21)
+              org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
+              vShorts = new ArrayList<Short>(_list27.size);
+              short _elem28;
+              for (int _i29 = 0; _i29 < _list27.size; ++_i29)
               {
-                _elem20 = iprot.readI16();
-                vShorts.add(_elem20);
+                _elem28 = iprot.readI16();
+                vShorts.add(_elem28);
               }
               iprot.readListEnd();
             }
@@ -492,13 +492,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_INTEGERS_FIELD_DESC.type) {
             List<Integer> vIntegers;
             {
-              org.apache.thrift.protocol.TList _list22 = iprot.readListBegin();
-              vIntegers = new ArrayList<Integer>(_list22.size);
-              int _elem23;
-              for (int _i24 = 0; _i24 < _list22.size; ++_i24)
+              org.apache.thrift.protocol.TList _list30 = iprot.readListBegin();
+              vIntegers = new ArrayList<Integer>(_list30.size);
+              int _elem31;
+              for (int _i32 = 0; _i32 < _list30.size; ++_i32)
               {
-                _elem23 = iprot.readI32();
-                vIntegers.add(_elem23);
+                _elem31 = iprot.readI32();
+                vIntegers.add(_elem31);
               }
               iprot.readListEnd();
             }
@@ -511,13 +511,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_LONGS_FIELD_DESC.type) {
             List<Long> vLongs;
             {
-              org.apache.thrift.protocol.TList _list25 = iprot.readListBegin();
-              vLongs = new ArrayList<Long>(_list25.size);
-              long _elem26;
-              for (int _i27 = 0; _i27 < _list25.size; ++_i27)
+              org.apache.thrift.protocol.TList _list33 = iprot.readListBegin();
+              vLongs = new ArrayList<Long>(_list33.size);
+              long _elem34;
+              for (int _i35 = 0; _i35 < _list33.size; ++_i35)
               {
-                _elem26 = iprot.readI64();
-                vLongs.add(_elem26);
+                _elem34 = iprot.readI64();
+                vLongs.add(_elem34);
               }
               iprot.readListEnd();
             }
@@ -530,13 +530,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_DOUBLES_FIELD_DESC.type) {
             List<Double> vDoubles;
             {
-              org.apache.thrift.protocol.TList _list28 = iprot.readListBegin();
-              vDoubles = new ArrayList<Double>(_list28.size);
-              double _elem29;
-              for (int _i30 = 0; _i30 < _list28.size; ++_i30)
+              org.apache.thrift.protocol.TList _list36 = iprot.readListBegin();
+              vDoubles = new ArrayList<Double>(_list36.size);
+              double _elem37;
+              for (int _i38 = 0; _i38 < _list36.size; ++_i38)
               {
-                _elem29 = iprot.readDouble();
-                vDoubles.add(_elem29);
+                _elem37 = iprot.readDouble();
+                vDoubles.add(_elem37);
               }
               iprot.readListEnd();
             }
@@ -549,13 +549,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
           if (field.type == V_STRINGS_FIELD_DESC.type) {
             List<String> vStrings;
             {
-              org.apache.thrift.protocol.TList _list31 = iprot.readListBegin();
-              vStrings = new ArrayList<String>(_list31.size);
-              String _elem32;
-              for (int _i33 = 0; _i33 < _list31.size; ++_i33)
+              org.apache.thrift.protocol.TList _list39 = iprot.readListBegin();
+              vStrings = new ArrayList<String>(_list39.size);
+              String _elem40;
+              for (int _i41 = 0; _i41 < _list39.size; ++_i41)
               {
-                _elem32 = iprot.readString();
-                vStrings.add(_elem32);
+                _elem40 = iprot.readString();
+                vStrings.add(_elem40);
               }
               iprot.readListEnd();
             }
@@ -612,9 +612,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.BOOL, vBooleans.size()));
-          for (boolean _iter34 : vBooleans)
+          for (boolean _iter42 : vBooleans)
           {
-            oprot.writeBool(_iter34);
+            oprot.writeBool(_iter42);
           }
           oprot.writeListEnd();
         }
@@ -623,9 +623,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Short> vShorts = (List<Short>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I16, vShorts.size()));
-          for (short _iter35 : vShorts)
+          for (short _iter43 : vShorts)
           {
-            oprot.writeI16(_iter35);
+            oprot.writeI16(_iter43);
           }
           oprot.writeListEnd();
         }
@@ -634,9 +634,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Integer> vIntegers = (List<Integer>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, vIntegers.size()));
-          for (int _iter36 : vIntegers)
+          for (int _iter44 : vIntegers)
           {
-            oprot.writeI32(_iter36);
+            oprot.writeI32(_iter44);
           }
           oprot.writeListEnd();
         }
@@ -645,9 +645,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Long> vLongs = (List<Long>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, vLongs.size()));
-          for (long _iter37 : vLongs)
+          for (long _iter45 : vLongs)
           {
-            oprot.writeI64(_iter37);
+            oprot.writeI64(_iter45);
           }
           oprot.writeListEnd();
         }
@@ -656,9 +656,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Double> vDoubles = (List<Double>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, vDoubles.size()));
-          for (double _iter38 : vDoubles)
+          for (double _iter46 : vDoubles)
           {
-            oprot.writeDouble(_iter38);
+            oprot.writeDouble(_iter46);
           }
           oprot.writeListEnd();
         }
@@ -667,9 +667,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<String> vStrings = (List<String>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, vStrings.size()));
-          for (String _iter39 : vStrings)
+          for (String _iter47 : vStrings)
           {
-            oprot.writeString(_iter39);
+            oprot.writeString(_iter47);
           }
           oprot.writeListEnd();
         }
@@ -719,13 +719,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_BOOLEANS:
           List<Boolean> vBooleans;
           {
-            org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-            vBooleans = new ArrayList<Boolean>(_list40.size);
-            boolean _elem41;
-            for (int _i42 = 0; _i42 < _list40.size; ++_i42)
+            org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
+            vBooleans = new ArrayList<Boolean>(_list48.size);
+            boolean _elem49;
+            for (int _i50 = 0; _i50 < _list48.size; ++_i50)
             {
-              _elem41 = iprot.readBool();
-              vBooleans.add(_elem41);
+              _elem49 = iprot.readBool();
+              vBooleans.add(_elem49);
             }
             iprot.readListEnd();
           }
@@ -733,13 +733,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_SHORTS:
           List<Short> vShorts;
           {
-            org.apache.thrift.protocol.TList _list43 = iprot.readListBegin();
-            vShorts = new ArrayList<Short>(_list43.size);
-            short _elem44;
-            for (int _i45 = 0; _i45 < _list43.size; ++_i45)
+            org.apache.thrift.protocol.TList _list51 = iprot.readListBegin();
+            vShorts = new ArrayList<Short>(_list51.size);
+            short _elem52;
+            for (int _i53 = 0; _i53 < _list51.size; ++_i53)
             {
-              _elem44 = iprot.readI16();
-              vShorts.add(_elem44);
+              _elem52 = iprot.readI16();
+              vShorts.add(_elem52);
             }
             iprot.readListEnd();
           }
@@ -747,13 +747,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_INTEGERS:
           List<Integer> vIntegers;
           {
-            org.apache.thrift.protocol.TList _list46 = iprot.readListBegin();
-            vIntegers = new ArrayList<Integer>(_list46.size);
-            int _elem47;
-            for (int _i48 = 0; _i48 < _list46.size; ++_i48)
+            org.apache.thrift.protocol.TList _list54 = iprot.readListBegin();
+            vIntegers = new ArrayList<Integer>(_list54.size);
+            int _elem55;
+            for (int _i56 = 0; _i56 < _list54.size; ++_i56)
             {
-              _elem47 = iprot.readI32();
-              vIntegers.add(_elem47);
+              _elem55 = iprot.readI32();
+              vIntegers.add(_elem55);
             }
             iprot.readListEnd();
           }
@@ -761,13 +761,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_LONGS:
           List<Long> vLongs;
           {
-            org.apache.thrift.protocol.TList _list49 = iprot.readListBegin();
-            vLongs = new ArrayList<Long>(_list49.size);
-            long _elem50;
-            for (int _i51 = 0; _i51 < _list49.size; ++_i51)
+            org.apache.thrift.protocol.TList _list57 = iprot.readListBegin();
+            vLongs = new ArrayList<Long>(_list57.size);
+            long _elem58;
+            for (int _i59 = 0; _i59 < _list57.size; ++_i59)
             {
-              _elem50 = iprot.readI64();
-              vLongs.add(_elem50);
+              _elem58 = iprot.readI64();
+              vLongs.add(_elem58);
             }
             iprot.readListEnd();
           }
@@ -775,13 +775,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_DOUBLES:
           List<Double> vDoubles;
           {
-            org.apache.thrift.protocol.TList _list52 = iprot.readListBegin();
-            vDoubles = new ArrayList<Double>(_list52.size);
-            double _elem53;
-            for (int _i54 = 0; _i54 < _list52.size; ++_i54)
+            org.apache.thrift.protocol.TList _list60 = iprot.readListBegin();
+            vDoubles = new ArrayList<Double>(_list60.size);
+            double _elem61;
+            for (int _i62 = 0; _i62 < _list60.size; ++_i62)
             {
-              _elem53 = iprot.readDouble();
-              vDoubles.add(_elem53);
+              _elem61 = iprot.readDouble();
+              vDoubles.add(_elem61);
             }
             iprot.readListEnd();
           }
@@ -789,13 +789,13 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         case V_STRINGS:
           List<String> vStrings;
           {
-            org.apache.thrift.protocol.TList _list55 = iprot.readListBegin();
-            vStrings = new ArrayList<String>(_list55.size);
-            String _elem56;
-            for (int _i57 = 0; _i57 < _list55.size; ++_i57)
+            org.apache.thrift.protocol.TList _list63 = iprot.readListBegin();
+            vStrings = new ArrayList<String>(_list63.size);
+            String _elem64;
+            for (int _i65 = 0; _i65 < _list63.size; ++_i65)
             {
-              _elem56 = iprot.readString();
-              vStrings.add(_elem56);
+              _elem64 = iprot.readString();
+              vStrings.add(_elem64);
             }
             iprot.readListEnd();
           }
@@ -847,9 +847,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.BOOL, vBooleans.size()));
-          for (boolean _iter58 : vBooleans)
+          for (boolean _iter66 : vBooleans)
           {
-            oprot.writeBool(_iter58);
+            oprot.writeBool(_iter66);
           }
           oprot.writeListEnd();
         }
@@ -858,9 +858,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Short> vShorts = (List<Short>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I16, vShorts.size()));
-          for (short _iter59 : vShorts)
+          for (short _iter67 : vShorts)
           {
-            oprot.writeI16(_iter59);
+            oprot.writeI16(_iter67);
           }
           oprot.writeListEnd();
         }
@@ -869,9 +869,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Integer> vIntegers = (List<Integer>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, vIntegers.size()));
-          for (int _iter60 : vIntegers)
+          for (int _iter68 : vIntegers)
           {
-            oprot.writeI32(_iter60);
+            oprot.writeI32(_iter68);
           }
           oprot.writeListEnd();
         }
@@ -880,9 +880,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Long> vLongs = (List<Long>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, vLongs.size()));
-          for (long _iter61 : vLongs)
+          for (long _iter69 : vLongs)
           {
-            oprot.writeI64(_iter61);
+            oprot.writeI64(_iter69);
           }
           oprot.writeListEnd();
         }
@@ -891,9 +891,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<Double> vDoubles = (List<Double>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, vDoubles.size()));
-          for (double _iter62 : vDoubles)
+          for (double _iter70 : vDoubles)
           {
-            oprot.writeDouble(_iter62);
+            oprot.writeDouble(_iter70);
           }
           oprot.writeListEnd();
         }
@@ -902,9 +902,9 @@ public class Variant extends org.apache.thrift.TUnion<Variant, Variant._Fields> 
         List<String> vStrings = (List<String>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, vStrings.size()));
-          for (String _iter63 : vStrings)
+          for (String _iter71 : vStrings)
           {
-            oprot.writeString(_iter63);
+            oprot.writeString(_iter71);
           }
           oprot.writeListEnd();
         }

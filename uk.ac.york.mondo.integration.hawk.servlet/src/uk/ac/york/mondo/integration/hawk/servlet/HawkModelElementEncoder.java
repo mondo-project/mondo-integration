@@ -13,14 +13,12 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
@@ -33,73 +31,63 @@ import uk.ac.york.mondo.integration.api.Variant;
 
 /**
  * Encodes a graph of Hawk {@link ModelElementNode}s into Thrift
- * {@link ModelElement}s. This is an accumulator: the user should
- * call {@link #encode(ModelElementNode)} repeatedly
- * and then finally call {@link #getRootElements()}.
+ * {@link ModelElement}s. This is an accumulator: the user should specify the
+ * encoding options, call {@link #encode(ModelElementNode)} repeatedly and then
+ * finally call {@link #getRootElements()}.
+ *
+ * Depending on whether we intend to send the entire model or not, it might make
+ * sense to call {@link #setElementNodeIDs(boolean)} accordingly before any
+ * calls to {@link #encode(ModelElementNode)}.
  */
 public class HawkModelElementEncoder {
 
 	private final GraphWrapper graph;
 
 	private final Map<String, ModelElement> nodeIdToElement = new HashMap<>();
-	private final Map<ModelElement, String> elementToNodeId = new IdentityHashMap<>();
-
-	private final Map<String, Integer> nodeIdToExternalId = new HashMap<>();
-	private final Map<ModelElement, Boolean> rootElements = new IdentityHashMap<>();
+	private final Set<ModelElement> rootElements = new IdentityLinkedHashSet<>();
 
 	private String lastMetamodelURI, lastTypename;
+	private boolean sendElementNodeIDs = false;
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
 	}
 
-	public List<ModelElement> getRootElements() {
-		/*
-		 * We need to have a consistent traversal order across multiple
-		 * encodings of the same elements. CloudATL depends on reliable URI
-		 * fragments, and it may retrieve the model more than once.
+	/**
+	 * If <code>true</code>, the encoder will include node IDs in the model elements. Otherwise,
+	 * it will not include them (the default).
 		 * 
-		 * We'll sort the tree by node ID, so we won't have to resend the node
-		 * IDs as strings (those can take up quite a bit of space for small
-		 * objects).
+	 * Note: if we do not include node IDs, it will not be possible to resolve non-containment
+	 * references to the encoded elements from elements that were not encoded. Therefore, setting
+	 * this to <code>false</code> is only advisable when we're encoding an entire model. 
 		 */
-		final List<ModelElement> lRoots = new ArrayList<>(rootElements.keySet());
-		sortByNodeIds(lRoots);
+	public boolean isSendElementNodeIDs() {
+		return sendElementNodeIDs;
+	}
 
-		/*
-		 * Now that we have a tree with a well-defined order, we can do some
-		 * additional optimizations. We can use in-order positions as implicit
-		 * IDs, and we can also reduce the repetition of typenames and metamodel
-		 * URIs.
-		 */
-		final HashMap<Integer, Integer> positions = new HashMap<>();
-		computePreorderPositionMap(lRoots, positions, 0);
+	/**
+	 * Changes the value of {@link #isSendElementNodeIDs()}.
+	 */
+	public void setElementNodeIDs(boolean newValue) {
+		this.sendElementNodeIDs = newValue;
+			}
+
+	/**
+	 * Returns the list of the encoded {@link ModelElement}s that are not
+	 * contained within any other encoded {@link ModelElement}s.
+	 */
+	public List<ModelElement> getRootElements() {
+		final List<ModelElement> lRoots = new ArrayList<>(rootElements);
+
+		final HashMap<String, Integer> id2pos = new HashMap<>();
+		computePreorderPositionMap(lRoots, id2pos, 0);
 		lastMetamodelURI = lastTypename = null;
-		optimizeTree(lRoots, positions);
+		optimizeTree(lRoots, id2pos);
 
 		return lRoots;
 	}
 
-	private void sortByNodeIds(List<ModelElement> elems) {
-		Collections.sort(elems, new Comparator<ModelElement>() {
-			@Override
-			public int compare(ModelElement l, ModelElement r) {
-				final String lId = elementToNodeId.get(l);
-				final String rId = elementToNodeId.get(r);
-				return lId.compareTo(rId);
-			}
-		});
-
-		for (ModelElement e : elems) {
-			if (e.isSetContainers()) {
-				for (ContainerSlot s : e.containers) {
-					sortByNodeIds(s.elements);
-				}
-			}
-		}
-	}
-
-	private int computePreorderPositionMap(Collection<ModelElement> elems, Map<Integer, Integer> id2pos, int i) {
+	private int computePreorderPositionMap(Collection<ModelElement> elems, Map<String, Integer> id2pos, int i) {
 		for (ModelElement elem : elems) {
 			if (elem.isSetId()) {
 				id2pos.put(elem.id, i);
@@ -115,17 +103,40 @@ public class HawkModelElementEncoder {
 		return i;
 	}
 
-	private void optimizeTree(Collection<ModelElement> elems, Map<Integer, Integer> mePositions) {
+	private void optimizeTree(Collection<ModelElement> elems, Map<String, Integer> id2pos) {
 		for (ModelElement me : elems) {
-			// we'll use the position instead of an explicit ID
-			me.unsetId();
+			if (!isSendElementNodeIDs()) {
+				me.unsetId();
+			}
 
+			// We replace id-based references with position-based references, when we can:
+			// the referenced element may not have been encoded. In that case, we'll need
+			// to preserve the actual node ID, so we may request that element later on.
 			if (me.isSetReferences()) {
 				for (ReferenceSlot r : me.getReferences()) {
-					final List<Integer> ids = r.ids;
-					for (int i = 0; i < ids.size(); i++) {
-						final Integer id = ids.get(i);
-						ids.set(i, mePositions.get(id));
+					final List<String> oldIds = r.ids;
+					
+					final List<String> newIds = new ArrayList<>();
+					final List<Integer> positions = new ArrayList<>();
+					for (String id : oldIds) {
+						final Integer pos = id2pos.get(id);
+						if (pos != null) {
+							positions.add(pos);
+						} else {
+							newIds.add(id);
+						}
+					}
+
+					if (newIds.isEmpty()) {
+						r.unsetIds();
+					} else {
+						r.setIds(newIds);
+					}
+
+					if (positions.isEmpty()) {
+						r.unsetPositions();
+					} else {
+						r.setPositions(positions);
 					}
 				}
 			}
@@ -144,7 +155,7 @@ public class HawkModelElementEncoder {
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.getContainers()) {
-					optimizeTree(s.elements, mePositions);
+					optimizeTree(s.elements, id2pos);
 				}
 			}
 		}
@@ -174,11 +185,9 @@ public class HawkModelElementEncoder {
 		// we won't set the ID until someone refers to it, but we
 		// need to keep track of the element for later
 		nodeIdToElement.put(meNode.getId(), me);
-		elementToNodeId.put(me, meNode.getId());
-		nodeIdToExternalId.put(meNode.getId(), nodeIdToExternalId.size());
 
 		// initially, the model element is not contained in any other
-		rootElements.put(me, true);
+		rootElements.add(me);
 
 		final Map<String, Object> attrs = new HashMap<>();
 		final Map<String, Object> refs = new HashMap<>();
@@ -253,9 +262,8 @@ public class HawkModelElementEncoder {
 		final String referencedId = o.toString();
 		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
 		final ModelElement me = encodeInternal(meNode);
-		final Integer externalId = nodeIdToExternalId.get(referencedId);
-		me.setId(externalId);
-		s.addToIds(externalId);
+		me.setId(meNode.getId());
+		s.addToIds(meNode.getId());
 	}
 
 	private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {

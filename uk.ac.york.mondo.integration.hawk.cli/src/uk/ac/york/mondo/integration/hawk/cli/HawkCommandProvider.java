@@ -416,7 +416,7 @@ public class HawkCommandProvider implements CommandProvider {
 			if (me.isSetReferences()) {
 				sbuf.append("\n\t" + indent + "References:");
 				for (ReferenceSlot s : me.references) {
-					sbuf.append(String.format("\n\t\t%s%s = %s", indent, s.name, s.ids));
+					sbuf.append(String.format("\n\t\t%s%s = ids(%s), positions(%s)", indent, s.name, s.ids, s.positions));
 				}
 			}
 			if (me.isSetContainers()) {

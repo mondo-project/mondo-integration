@@ -58,20 +58,36 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
 
-	// By default, we use implicit IDs (position within preorder traversal)
-	private boolean useExplicitIds = false;
+	/**
+	 * Accumulator during the loading process, to be discarded after
+	 * reconstructing the model. Keeps track of IDs, positions,
+	 * {@link ModelElement}s and {@link EObject}s.
+	 */
+	private static class LoaderState {
+		private final Registry packageRegistry;
+		private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+		private final List<EObject> allEObjects = new ArrayList<>();
+		private final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
 
 	private String lastTypename, lastMetamodelURI;
 
-	public HawkResourceImpl() {
+		public LoaderState(Registry registry) {
+			this.packageRegistry = registry;
 	}
 
-	public HawkResourceImpl(URI uri) {
-		super(uri);
+		public EObject get(int position) {
+			return allEObjects.get(position);
 	}
 
-	private EClass getEClass(final Registry packageRegistry, ModelElement me)
-			throws IOException {
+		public EObject get(String id) {
+			return nodeIdToEObjectMap.get(id);
+		}
+
+		public EObject get(ModelElement me) {
+			return meToEObject.get(me);
+		}
+
+		public EClass getEClass(ModelElement me) throws IOException {
 		final EPackage pkg = packageRegistry.getEPackage(me.metamodelUri);
 		if (pkg == null) {
 			throw new IOException(String.format(
@@ -87,6 +103,38 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 		final EClass eClass = (EClass) eClassifier;
 		return eClass;
+	}
+
+		public EFactory getEFactory(ModelElement me) {
+			return packageRegistry.getEFactory(me.metamodelUri);
+		}
+
+		public EObject create(ModelElement me) throws IOException {
+			if (!me.isSetTypeName()) {
+				me.setTypeName(lastTypename);
+			}
+			if (!me.isSetMetamodelUri()) {
+				me.setMetamodelUri(lastMetamodelURI);
+			}
+			lastTypename      = me.getTypeName();
+			lastMetamodelURI  = me.getMetamodelUri();
+
+			final EObject obj = getEFactory(me).create(getEClass(me));
+			if (me.isSetId()) {
+				nodeIdToEObjectMap.put(me.id, obj);
+			}
+			allEObjects.add(obj);
+			meToEObject.put(me, obj);
+
+			return obj;
+		}
+	}
+
+	public HawkResourceImpl() {
+	}
+
+	public HawkResourceImpl(URI uri) {
+		super(uri);
 	}
 
 	private void setStructuralFeatureFromByte(final EClass eClass,
@@ -310,14 +358,12 @@ public class HawkResourceImpl extends ResourceImpl {
 			// Do a first pass, creating all the objects with their attributes
 			// and containers and saving their graph IDs into the One Map to bind them.
 			final Registry packageRegistry = getResourceSet().getPackageRegistry();
-			final Map<Integer, EObject> nodeIdToEObjectMap = new HashMap<>();
-			final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
-			lastTypename = lastMetamodelURI = null;
-			final List<EObject> rootEObjects = createEObjects(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
+			final LoaderState state = new LoaderState(packageRegistry);
+			final List<EObject> rootEObjects = createEObjects(elems, state);
 			getContents().addAll(rootEObjects);
 
 			// On the second pass, fill in the references.
-			fillInReferences(elems, packageRegistry, nodeIdToEObjectMap, meToEObject);
+			fillInReferences(elems, state);
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw new IOException(e);
@@ -327,64 +373,60 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
-	private void fillInReferences(final List<ModelElement> elems,
-			final Registry packageRegistry,
-			final Map<Integer, EObject> nodeIdToEObjectMap,
-			final Map<ModelElement, EObject> meToEObject) throws IOException {
+	private void fillInReferences(final List<ModelElement> elems, final LoaderState state) throws IOException {
 		for (ModelElement me : elems) {
-			final EObject sourceObj = meToEObject.get(me);
+			final EObject sourceObj = state.get(me);
 
 			if (me.isSetReferences()) {
 				for (ReferenceSlot s : me.references) {
-					final EClass eClass = getEClass(packageRegistry, me);
+					final EClass eClass = state.getEClass(me);
 					final EStructuralFeature feature = eClass.getEStructuralFeature(s.name);
-					if (feature.isMany()) {
 						final EList<EObject> value = new BasicEList<>();
-						for (Integer targetId : s.ids) {
-							final EObject targets = nodeIdToEObjectMap.get(targetId);
-							if (targets == null) {
+
+					if (s.isSetIds()) {
+						for (String targetId : s.ids) {
+							final EObject target = state.get(targetId);
+							if (target == null) {
 								LOGGER.warn(
 										"Could not find ModelElement with id {} for feature {} of class {}, skipping",
 										targetId, feature, eClass);
 								continue;
 							}
-							value.add(targets);
+							value.add(target);
+						}
+					}
+					if (s.isSetPositions()) {
+						for (Integer targetPos : s.positions) {
+							value.add(state.get(targetPos));
+						}
 						}
 
+					if (feature.isMany()) {
 						sourceObj.eSet(feature, value);
-					} else {
-						final Integer targetId = s.ids.get(0);
-						final EObject target = nodeIdToEObjectMap.get(targetId);
-						if (target == null) {
-							LOGGER.warn(
-									"Could not find ModelElement with id {} for feature {} of class {}, skipping",
-									targetId, feature, eClass);
-							continue;
-						}
-						sourceObj.eSet(feature, target);
+					} else if (!value.isEmpty()) {
+						sourceObj.eSet(feature, value.get(0));
 					}
 				}
 			}
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.getContainers()) {
-					fillInReferences(s.elements, packageRegistry, nodeIdToEObjectMap, meToEObject);
+					fillInReferences(s.elements, state);
 				}
 			}
 		}
 	}
 
-	private List<EObject> createEObjects(final List<ModelElement> elems, final Registry packageRegistry, final Map<Integer, EObject> nodeIdToEObjectMap, Map<ModelElement, EObject> meToEObject) throws IOException {
+	private List<EObject> createEObjects(final List<ModelElement> elems, final LoaderState state) throws IOException {
 		final List<EObject> eObjects = new ArrayList<>();
 		for (ModelElement me : elems) {
-			final EObject parent = createEObject(packageRegistry, nodeIdToEObjectMap, me);
+			final EObject parent = createEObject(me, state);
 			eObjects.add(parent);
-			meToEObject.put(me, parent);
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.containers) {
 					final EStructuralFeature sf = parent.eClass().getEStructuralFeature(s.name);
-					final List<EObject> children = createEObjects(s.elements, packageRegistry, nodeIdToEObjectMap, meToEObject);
+					final List<EObject> children = createEObjects(s.elements, state);
 					if (sf.isMany()) {
 						parent.eSet(sf, ECollections.toEList(children));
 					} else if (!children.isEmpty()) {
@@ -396,33 +438,11 @@ public class HawkResourceImpl extends ResourceImpl {
 		return eObjects;
 	}
 
-	private EObject createEObject(final Registry packageRegistry,
-			final Map<Integer, EObject> nodeIdToEObjectMap, ModelElement me)
-			throws IOException {
-
-		if (!me.isSetTypeName()) {
-			me.setTypeName(lastTypename);
-		}
-		if (!me.isSetMetamodelUri()) {
-			me.setMetamodelUri(lastMetamodelURI);
-		}
-		lastTypename = me.getTypeName();
-		lastMetamodelURI = me.getMetamodelUri();
-
-		final EClass eClass = getEClass(packageRegistry, me);
-		final EFactory factory = packageRegistry.getEFactory(me.metamodelUri);
-		final EObject obj = factory.create(eClass);
-
-		if (useExplicitIds) {
-			if (me.isSetId()) {
-				nodeIdToEObjectMap.put(me.id, obj);
-			}
-		} else {
-			// Use preorder position as implicit ID
-			nodeIdToEObjectMap.put(nodeIdToEObjectMap.size(), obj);
-		}
+	private EObject createEObject(final ModelElement me, final LoaderState state) throws IOException {
+		final EObject obj = state.create(me);
 
 		if (me.isSetAttributes()) {
+			final EClass eClass = state.getEClass(me);
 			for (AttributeSlot s : me.attributes) {
 				setStructuralFeatureFromSlot(eClass, obj, s);
 			}

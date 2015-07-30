@@ -861,9 +861,9 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Unique ID of the model element"/>
+        <details key="d" value="Unique ID of the model element (not set if using position-based references)"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
@@ -924,12 +924,20 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReferenceSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
-      <details key="d" value="Represents a slot that can store the value(s) of a reference  of a model element"/>
+      <details key="d" value="Represents a slot that can store the value(s) of a reference  of a model element. Only one of positions or ids is used at a time."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="positions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Positions of the referenced elements."/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Identifiers of the referenced elements."/>
+        <details key="d" value="Unique identifiers of the referenced elements."/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -1138,7 +1146,7 @@
   <eClassifiers xsi:type="ecore:EDataType" name="EByteArray" instanceClassName="byte[]"/>
   <eClassifiers xsi:type="ecore:EClass" name="File">
     <eAnnotations source="doc">
-      <details key="exclude" value="true"/>
+      <details key="d" value="A file to be sent through the network"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" eType="#//EByteArray"/>
