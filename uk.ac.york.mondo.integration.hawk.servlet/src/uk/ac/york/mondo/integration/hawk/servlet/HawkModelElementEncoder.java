@@ -70,7 +70,7 @@ public class HawkModelElementEncoder {
 	 */
 	public void setElementNodeIDs(boolean newValue) {
 		this.sendElementNodeIDs = newValue;
-			}
+	}
 
 	/**
 	 * Returns the list of the encoded {@link ModelElement}s that are not

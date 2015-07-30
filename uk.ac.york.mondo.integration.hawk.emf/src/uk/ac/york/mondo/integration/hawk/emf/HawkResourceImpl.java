@@ -13,7 +13,6 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,8 +20,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
@@ -69,15 +66,15 @@ public class HawkResourceImpl extends ResourceImpl {
 		private final List<EObject> allEObjects = new ArrayList<>();
 		private final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
 
-	private String lastTypename, lastMetamodelURI;
+		private String lastTypename, lastMetamodelURI;
 
 		public LoaderState(Registry registry) {
 			this.packageRegistry = registry;
-	}
+		}
 
 		public EObject get(int position) {
 			return allEObjects.get(position);
-	}
+		}
 
 		public EObject get(String id) {
 			return nodeIdToEObjectMap.get(id);
@@ -88,22 +85,24 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 
 		public EClass getEClass(ModelElement me) throws IOException {
-		final EPackage pkg = packageRegistry.getEPackage(me.metamodelUri);
-		if (pkg == null) {
-			throw new IOException(String.format(
-					"Could not find EPackage with URI '%s' in the registry %s",
-					me.metamodelUri, packageRegistry));
-		}
+			final EPackage pkg = packageRegistry.getEPackage(me.metamodelUri);
+			if (pkg == null) {
+				throw new IOException(
+						String.format(
+								"Could not find EPackage with URI '%s' in the registry %s",
+								me.metamodelUri, packageRegistry));
+			}
 
-		final EClassifier eClassifier = pkg.getEClassifier(me.typeName);
-		if (!(eClassifier instanceof EClass)) {
-			throw new IOException(String.format(
-					"Received an element of type '%s', which is not an EClass",
-					eClassifier));
+			final EClassifier eClassifier = pkg.getEClassifier(me.typeName);
+			if (!(eClassifier instanceof EClass)) {
+				throw new IOException(
+						String.format(
+								"Received an element of type '%s', which is not an EClass",
+								eClassifier));
+			}
+			final EClass eClass = (EClass) eClassifier;
+			return eClass;
 		}
-		final EClass eClass = (EClass) eClassifier;
-		return eClass;
-	}
 
 		public EFactory getEFactory(ModelElement me) {
 			return packageRegistry.getEFactory(me.metamodelUri);
@@ -130,11 +129,17 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
+	private HawkModelDescriptor descriptor;
+
 	public HawkResourceImpl() {
 	}
 
 	public HawkResourceImpl(URI uri) {
 		super(uri);
+	}
+
+	public HawkResourceImpl(HawkModelDescriptor descriptor) {
+		this.descriptor = descriptor;
 	}
 
 	private void setStructuralFeatureFromByte(final EClass eClass,
@@ -316,24 +321,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	@Override
 	public void load(Map<?, ?> options) throws IOException {
-		if (uri.hasAbsolutePath() && uri.scheme() != null && uri.scheme().startsWith("hawk+")) {
-			// construct HawkModelDescriptor from URI on the fly
-			final HawkModelDescriptor descriptor = new HawkModelDescriptor();
-			final String instanceURL = uri.trimQuery().toString().replaceFirst("hawk[+]",  "");
-			descriptor.setHawkURL(instanceURL);
-
-			final List<NameValuePair> pairs = URLEncodedUtils.parse(uri.query(), Charset.forName("UTF-8"));
-			for (NameValuePair pair : pairs) {
-				switch (pair.getName()) {
-				case "instance":
-					descriptor.setHawkInstance(pair.getValue()); break;
-				case "filePatterns":
-					descriptor.setHawkFilePatterns(pair.getValue().split(",")); break;
-				case "repository":
-					descriptor.setHawkRepository(pair.getValue()); break;
-				}
-			}
-
+		if (descriptor != null) {
 			doLoad(descriptor);
 		} else {
 			super.load(options);
@@ -452,8 +440,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	@Override
-	protected void doSave(OutputStream outputStream, Map<?, ?> options)
-			throws IOException {
+	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 }
