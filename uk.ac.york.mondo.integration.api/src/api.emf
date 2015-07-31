@@ -199,6 +199,13 @@ class Hawk {
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
+	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance.")
+	op ModelElement[*] getRootElements (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath
+	);
+
     /*
 	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
 	op ModelElementChange[*] watchModelChanges(
@@ -460,11 +467,23 @@ class AttributeSlot extends Slot {
 	val Variant value;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a reference  of a model element. Only one of positions or ids is used at a time.")
+@doc(d="
+Represents a slot that can store the value(s) of a reference  of a model element.
+References can be expressed as positions within a result tree (using pre-order traversal)
+or IDs. position/positions and id/ids are mutually exclusive. At least one position or one
+ID must be given.
+")
 class ReferenceSlot extends Slot {
-	@doc(d="Positions of the referenced elements.", optional="true")
+    @doc(d="Position of the referenced element (if there is only one position-based reference in this slot)", optional="true")
+    val int position;
+
+	@doc(d="Positions of the referenced elements (if more than one).", optional="true")
 	val int[*] positions;
-	@doc(d="Unique identifiers of the referenced elements.", optional="true")
+
+    @doc(d="Unique identifier of the referenced element (if there is only one ID based reference in this slot)", optional="true")
+    val String ~id;
+
+	@doc(d="Unique identifiers of the referenced elements (if more than one).", optional="true")
 	val String[*] ids;
 }
 

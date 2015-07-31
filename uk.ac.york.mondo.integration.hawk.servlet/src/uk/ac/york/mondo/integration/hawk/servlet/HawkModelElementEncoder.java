@@ -129,12 +129,18 @@ public class HawkModelElementEncoder {
 
 					if (newIds.isEmpty()) {
 						r.unsetIds();
+					} else if (newIds.size() == 1) {
+						r.unsetIds();
+						r.setId(newIds.get(0));
 					} else {
 						r.setIds(newIds);
 					}
 
 					if (positions.isEmpty()) {
 						r.unsetPositions();
+					} else if (positions.size() == 1) {
+						r.unsetPositions();
+						r.setPosition(positions.get(0));
 					} else {
 						r.setPositions(positions);
 					}
@@ -152,6 +158,8 @@ public class HawkModelElementEncoder {
 			}
 			lastTypename = currTypename;
 			lastMetamodelURI = currMetamodelURI;
+
+			// TODO remove AttributeSlots with default values?
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.getContainers()) {

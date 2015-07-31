@@ -119,8 +119,10 @@ struct OperationModel {
 
 struct ReferenceSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Positions of the referenced elements. */ 2: optional list<i32> positions,
-	 /* Unique identifiers of the referenced elements. */ 3: optional list<string> ids,
+	 /* Position of the referenced element (if there is only one position-based reference in this slot). */ 2: optional i32 position,
+	 /* Positions of the referenced elements (if more than one). */ 3: optional list<i32> positions,
+	 /* Unique identifier of the referenced element (if there is only one ID based reference in this slot). */ 4: optional string id,
+	 /* Unique identifiers of the referenced elements (if more than one). */ 5: optional list<string> ids,
 }
 
 union ScalarOrReference {
@@ -508,6 +510,13 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
+  /* Returns the root objects of one or more models indexed in a Hawk instance. Auth needed: Yes */
+  list<ModelElement> getRootElements(
+	/* The name of the Hawk instance. */ 1: required string name,
+	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
+	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
+  )
+
 }
 
 /* The following service operations expose the capabilities of the offline collaboration framework

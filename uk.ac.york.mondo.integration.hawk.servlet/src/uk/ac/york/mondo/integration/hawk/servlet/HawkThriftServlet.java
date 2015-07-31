@@ -312,16 +312,35 @@ public class HawkThriftServlet extends TServlet {
 
 		@Override
 		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			return collectElements(name, filePath, CollectElements.ALL);
+		}
+
+		@Override
+		public List<ModelElement> getRootElements(String name, String repositoryUri, List<String> filePath) throws TException {
+			return collectElements(name, filePath, CollectElements.ONLY_ROOTS);
+		}
+
+		private List<ModelElement> collectElements(String name,
+				List<String> filePath, final CollectElements collectType)
+				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
 			// TODO filtering by repository
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+				encoder.setElementNodeIDs(false);
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
-					for (ModelElementNode meNode : fileNode.getModelElements()) {
-						encoder.encode(meNode);
+
+					if (collectType == CollectElements.ALL) {
+						for (ModelElementNode meNode : fileNode.getModelElements()) {
+							encoder.encode(meNode);
+						}
+					} else {
+						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
+							encoder.encode(meNode);
+						}
 					}
 				}
 
@@ -387,6 +406,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 	}
 
+	private static enum CollectElements { ALL, ONLY_ROOTS; }
 	private static final long serialVersionUID = 1L;
 
 	public HawkThriftServlet() {
