@@ -1,4 +1,5 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -12,9 +13,27 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
+
+<!-- Put site-specific property overrides in this file. -->
+
 <configuration>
   <property>
-    <name>yarn.resourcemanager.hostname</name>
-    <value>192.168.56.10</value>
+    <name>dfs.replication</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:/opt/hadoop/data/dfs/namenode</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:/opt/hadoop/data/dfs/datanode</value>
+  </property>
+  <property>
+    <name>dfs.permissions</name>
+    <value>false</value>
   </property>
 </configuration>
+
+
+

@@ -15,6 +15,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,9 +45,13 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.osgi.framework.Bundle;
 
 import uk.ac.york.mondo.integration.api.CloudATL;
 import uk.ac.york.mondo.integration.api.InvalidModelSpec;
@@ -170,6 +176,7 @@ public class CloudAtlThriftServlet extends TServlet {
 				Job job = Job.getInstance(getConfiguration(), ATLMRMaster.DEFAULT_JOB_NAME);
 				
 				Configuration conf = job.getConfiguration();
+				conf.set("mapreduce.app-submission.cross-platform", "true");
 
 				// Configure classes
 				job.setJarByClass(ATLMRMaster.class);
@@ -209,17 +216,28 @@ public class CloudAtlThriftServlet extends TServlet {
 				// Configure ATL related inputs/outputs
 				job.getConfiguration().set(ATLMRMaster.TRANSFORMATION, transformation);
 				job.getConfiguration().set(ATLMRMaster.SOURCE_METAMODEL, source.getMetamodelUris().get(0));
-				job.getConfiguration().set(ATLMRMaster.TARGET_METAMODEL, source.getMetamodelUris().get(0));
+				job.getConfiguration().set(ATLMRMaster.TARGET_METAMODEL, target.getMetamodelUris().get(0));
 				job.getConfiguration().set(ATLMRMaster.INPUT_MODEL, source.getUri());
 				job.getConfiguration().set(ATLMRMaster.OUTPUT_MODEL, target.getUri());
-
+				
+				Bundle bundle = Platform.getBundle(CloudAtlServletPlugin.PLUGIN_ID);
+				IPath path = new org.eclipse.core.runtime.Path("libs");
+				URL fileURL = FileLocator.find(bundle, path, null);
+				
+				String localJarsDir = new File(FileLocator.resolve(fileURL).toURI()).getAbsolutePath();
+				String hdfsJarsDir = "/temp/hadoop/atlrm/libs";
+				
+				// TODO: This JobHelper needs to be updated to the new API
+				JobHelper.copyLocalJarsToHdfs(localJarsDir, hdfsJarsDir, conf);
+				JobHelper.addHdfsJarsToDistributedCache(hdfsJarsDir, configuration);
+				
 				Logger.getGlobal().log(Level.INFO, "Sending Job");
 				job.submit();
 				Logger.getGlobal().log(Level.INFO, "Job sent");
 				
 				return job.getJobID().toString();
 
-			} catch (IOException | InterruptedException | ClassNotFoundException e) {
+			} catch (IOException | InterruptedException | ClassNotFoundException | URISyntaxException e) {
 				throw new TException(e);
 			}
 		}
@@ -242,7 +260,11 @@ public class CloudAtlThriftServlet extends TServlet {
 			TransformationStatus transformationStatus = new TransformationStatus();
 			try {
 				Job job = cluster.getJob(JobID.forName(token));
-				transformationStatus.setElapsed(System.currentTimeMillis() - job.getStartTime());
+				if (job.getStatus().isJobComplete()) {
+					transformationStatus.setElapsed(job.getFinishTime() - job.getStartTime());
+				} else {
+					transformationStatus.setElapsed(System.currentTimeMillis() - job.getStartTime());
+				}
 				transformationStatus.setError(job.getStatus().getFailureInfo());
 				transformationStatus.setFinished(job.getStatus().isJobComplete());
 			} catch (IOException | InterruptedException e) {

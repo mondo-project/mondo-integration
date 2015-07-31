@@ -11,6 +11,7 @@
 package fr.inria.atlanmod.mondo.integration.cloudatl.cli;
 
 import java.net.ConnectException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		if (client != null) {
 			client.getInputProtocol().getTransport().close();
 			client = null;
-			return String.format("Connection closed");
+			return "Connection closed";
 		}
 		else {
 			return "Connection already closed";
@@ -62,13 +63,13 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		ModelSpec target = new ModelSpec(output, Arrays.asList(new String[] { targetmm }));
 		
 		String id = client.launch(transformation, source, target);
-		return String.format("Launched Job with id '%s'", id);
+		return MessageFormat.format("Launched Job with id ''{0}''", id);
 	}
 
 	public Object _cloudAtlList(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		List<String> ids = client.getJobs();
-		return String.format("Job ids: %s", ids.toString());
+		return MessageFormat.format("Job ids: {0}", ids.toString());
 
 	}
 
@@ -76,14 +77,14 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		checkConnected();
 		String id = requiredArgument(intp, "id");
 		TransformationStatus status = client.getStatus(id);
-		return String.format("Job id: %s, %s, elapsed time: %d", id, status.isFinished() ? "FINISHED" : "RUNNING", status.elapsed);
+		return MessageFormat.format("Job id: {0}, {1}, elapsed time: {2} ms", id, status.isFinished() ? "FINISHED" : "RUNNING", status.elapsed);
 	}
 	
 	public Object _cloudAtlKill(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		String id = requiredArgument(intp, "id");
 		client.kill(id);
-		return String.format("Killed job with id '%s'", id);
+		return MessageFormat.format("Killed job with id ''{0}''", id);
 
 	}
 	
@@ -108,7 +109,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		String value = intp.nextArgument();
 		if (value == null) {
 			throw new IllegalArgumentException(
-				String.format("Required argument '%s' has not been provided", argumentName));
+				MessageFormat.format("Required argument ''{0}'' has not been provided", argumentName));
 		}
 		return value;
 	}
