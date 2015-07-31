@@ -39,7 +39,7 @@ public class CloudATL {
 
   public interface Iface {
 
-    public String launch(String transformation, List<ModelSpec> source, List<ModelSpec> target) throws InvalidTransformation, InvalidModelSpec, org.apache.thrift.TException;
+    public String launch(String transformation, ModelSpec source, ModelSpec target) throws InvalidTransformation, InvalidModelSpec, org.apache.thrift.TException;
 
     public List<String> getJobs() throws org.apache.thrift.TException;
 
@@ -51,7 +51,7 @@ public class CloudATL {
 
   public interface AsyncIface {
 
-    public void launch(String transformation, List<ModelSpec> source, List<ModelSpec> target, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void launch(String transformation, ModelSpec source, ModelSpec target, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getJobs(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -81,13 +81,13 @@ public class CloudATL {
       super(iprot, oprot);
     }
 
-    public String launch(String transformation, List<ModelSpec> source, List<ModelSpec> target) throws InvalidTransformation, InvalidModelSpec, org.apache.thrift.TException
+    public String launch(String transformation, ModelSpec source, ModelSpec target) throws InvalidTransformation, InvalidModelSpec, org.apache.thrift.TException
     {
       send_launch(transformation, source, target);
       return recv_launch();
     }
 
-    public void send_launch(String transformation, List<ModelSpec> source, List<ModelSpec> target) throws org.apache.thrift.TException
+    public void send_launch(String transformation, ModelSpec source, ModelSpec target) throws org.apache.thrift.TException
     {
       launch_args args = new launch_args();
       args.setTransformation(transformation);
@@ -201,7 +201,7 @@ public class CloudATL {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void launch(String transformation, List<ModelSpec> source, List<ModelSpec> target, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void launch(String transformation, ModelSpec source, ModelSpec target, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       launch_call method_call = new launch_call(transformation, source, target, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -210,9 +210,9 @@ public class CloudATL {
 
     public static class launch_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String transformation;
-      private List<ModelSpec> source;
-      private List<ModelSpec> target;
-      public launch_call(String transformation, List<ModelSpec> source, List<ModelSpec> target, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private ModelSpec source;
+      private ModelSpec target;
+      public launch_call(String transformation, ModelSpec source, ModelSpec target, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.transformation = transformation;
         this.source = source;
@@ -698,8 +698,8 @@ public class CloudATL {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("launch_args");
 
     private static final org.apache.thrift.protocol.TField TRANSFORMATION_FIELD_DESC = new org.apache.thrift.protocol.TField("transformation", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField SOURCE_FIELD_DESC = new org.apache.thrift.protocol.TField("source", org.apache.thrift.protocol.TType.LIST, (short)2);
-    private static final org.apache.thrift.protocol.TField TARGET_FIELD_DESC = new org.apache.thrift.protocol.TField("target", org.apache.thrift.protocol.TType.LIST, (short)3);
+    private static final org.apache.thrift.protocol.TField SOURCE_FIELD_DESC = new org.apache.thrift.protocol.TField("source", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField TARGET_FIELD_DESC = new org.apache.thrift.protocol.TField("target", org.apache.thrift.protocol.TType.STRUCT, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -708,8 +708,8 @@ public class CloudATL {
     }
 
     public String transformation; // required
-    public List<ModelSpec> source; // required
-    public List<ModelSpec> target; // required
+    public ModelSpec source; // required
+    public ModelSpec target; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -782,11 +782,9 @@ public class CloudATL {
       tmpMap.put(_Fields.TRANSFORMATION, new org.apache.thrift.meta_data.FieldMetaData("transformation", org.apache.thrift.TFieldRequirementType.REQUIRED, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.SOURCE, new org.apache.thrift.meta_data.FieldMetaData("source", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-              new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelSpec.class))));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelSpec.class)));
       tmpMap.put(_Fields.TARGET, new org.apache.thrift.meta_data.FieldMetaData("target", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-              new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelSpec.class))));
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelSpec.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(launch_args.class, metaDataMap);
     }
@@ -796,8 +794,8 @@ public class CloudATL {
 
     public launch_args(
       String transformation,
-      List<ModelSpec> source,
-      List<ModelSpec> target)
+      ModelSpec source,
+      ModelSpec target)
     {
       this();
       this.transformation = transformation;
@@ -813,18 +811,10 @@ public class CloudATL {
         this.transformation = other.transformation;
       }
       if (other.isSetSource()) {
-        List<ModelSpec> __this__source = new ArrayList<ModelSpec>(other.source.size());
-        for (ModelSpec other_element : other.source) {
-          __this__source.add(new ModelSpec(other_element));
-        }
-        this.source = __this__source;
+        this.source = new ModelSpec(other.source);
       }
       if (other.isSetTarget()) {
-        List<ModelSpec> __this__target = new ArrayList<ModelSpec>(other.target.size());
-        for (ModelSpec other_element : other.target) {
-          __this__target.add(new ModelSpec(other_element));
-        }
-        this.target = __this__target;
+        this.target = new ModelSpec(other.target);
       }
     }
 
@@ -863,26 +853,11 @@ public class CloudATL {
       }
     }
 
-    public int getSourceSize() {
-      return (this.source == null) ? 0 : this.source.size();
-    }
-
-    public java.util.Iterator<ModelSpec> getSourceIterator() {
-      return (this.source == null) ? null : this.source.iterator();
-    }
-
-    public void addToSource(ModelSpec elem) {
-      if (this.source == null) {
-        this.source = new ArrayList<ModelSpec>();
-      }
-      this.source.add(elem);
-    }
-
-    public List<ModelSpec> getSource() {
+    public ModelSpec getSource() {
       return this.source;
     }
 
-    public launch_args setSource(List<ModelSpec> source) {
+    public launch_args setSource(ModelSpec source) {
       this.source = source;
       return this;
     }
@@ -902,26 +877,11 @@ public class CloudATL {
       }
     }
 
-    public int getTargetSize() {
-      return (this.target == null) ? 0 : this.target.size();
-    }
-
-    public java.util.Iterator<ModelSpec> getTargetIterator() {
-      return (this.target == null) ? null : this.target.iterator();
-    }
-
-    public void addToTarget(ModelSpec elem) {
-      if (this.target == null) {
-        this.target = new ArrayList<ModelSpec>();
-      }
-      this.target.add(elem);
-    }
-
-    public List<ModelSpec> getTarget() {
+    public ModelSpec getTarget() {
       return this.target;
     }
 
-    public launch_args setTarget(List<ModelSpec> target) {
+    public launch_args setTarget(ModelSpec target) {
       this.target = target;
       return this;
     }
@@ -955,7 +915,7 @@ public class CloudATL {
         if (value == null) {
           unsetSource();
         } else {
-          setSource((List<ModelSpec>)value);
+          setSource((ModelSpec)value);
         }
         break;
 
@@ -963,7 +923,7 @@ public class CloudATL {
         if (value == null) {
           unsetTarget();
         } else {
-          setTarget((List<ModelSpec>)value);
+          setTarget((ModelSpec)value);
         }
         break;
 
@@ -1164,6 +1124,12 @@ public class CloudATL {
         throw new org.apache.thrift.protocol.TProtocolException("Required field 'target' was not present! Struct: " + toString());
       }
       // check for sub-struct validity
+      if (source != null) {
+        source.validate();
+      }
+      if (target != null) {
+        target.validate();
+      }
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -1209,38 +1175,18 @@ public class CloudATL {
               }
               break;
             case 2: // SOURCE
-              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                {
-                  org.apache.thrift.protocol.TList _list256 = iprot.readListBegin();
-                  struct.source = new ArrayList<ModelSpec>(_list256.size);
-                  ModelSpec _elem257;
-                  for (int _i258 = 0; _i258 < _list256.size; ++_i258)
-                  {
-                    _elem257 = new ModelSpec();
-                    _elem257.read(iprot);
-                    struct.source.add(_elem257);
-                  }
-                  iprot.readListEnd();
-                }
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.source = new ModelSpec();
+                struct.source.read(iprot);
                 struct.setSourceIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
             case 3: // TARGET
-              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
-                {
-                  org.apache.thrift.protocol.TList _list259 = iprot.readListBegin();
-                  struct.target = new ArrayList<ModelSpec>(_list259.size);
-                  ModelSpec _elem260;
-                  for (int _i261 = 0; _i261 < _list259.size; ++_i261)
-                  {
-                    _elem260 = new ModelSpec();
-                    _elem260.read(iprot);
-                    struct.target.add(_elem260);
-                  }
-                  iprot.readListEnd();
-                }
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.target = new ModelSpec();
+                struct.target.read(iprot);
                 struct.setTargetIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1268,26 +1214,12 @@ public class CloudATL {
         }
         if (struct.source != null) {
           oprot.writeFieldBegin(SOURCE_FIELD_DESC);
-          {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.source.size()));
-            for (ModelSpec _iter262 : struct.source)
-            {
-              _iter262.write(oprot);
-            }
-            oprot.writeListEnd();
-          }
+          struct.source.write(oprot);
           oprot.writeFieldEnd();
         }
         if (struct.target != null) {
           oprot.writeFieldBegin(TARGET_FIELD_DESC);
-          {
-            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.target.size()));
-            for (ModelSpec _iter263 : struct.target)
-            {
-              _iter263.write(oprot);
-            }
-            oprot.writeListEnd();
-          }
+          struct.target.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -1308,20 +1240,8 @@ public class CloudATL {
       public void write(org.apache.thrift.protocol.TProtocol prot, launch_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         oprot.writeString(struct.transformation);
-        {
-          oprot.writeI32(struct.source.size());
-          for (ModelSpec _iter264 : struct.source)
-          {
-            _iter264.write(oprot);
-          }
-        }
-        {
-          oprot.writeI32(struct.target.size());
-          for (ModelSpec _iter265 : struct.target)
-          {
-            _iter265.write(oprot);
-          }
-        }
+        struct.source.write(oprot);
+        struct.target.write(oprot);
       }
 
       @Override
@@ -1329,29 +1249,11 @@ public class CloudATL {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         struct.transformation = iprot.readString();
         struct.setTransformationIsSet(true);
-        {
-          org.apache.thrift.protocol.TList _list266 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.source = new ArrayList<ModelSpec>(_list266.size);
-          ModelSpec _elem267;
-          for (int _i268 = 0; _i268 < _list266.size; ++_i268)
-          {
-            _elem267 = new ModelSpec();
-            _elem267.read(iprot);
-            struct.source.add(_elem267);
-          }
-        }
+        struct.source = new ModelSpec();
+        struct.source.read(iprot);
         struct.setSourceIsSet(true);
-        {
-          org.apache.thrift.protocol.TList _list269 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.target = new ArrayList<ModelSpec>(_list269.size);
-          ModelSpec _elem270;
-          for (int _i271 = 0; _i271 < _list269.size; ++_i271)
-          {
-            _elem270 = new ModelSpec();
-            _elem270.read(iprot);
-            struct.target.add(_elem270);
-          }
-        }
+        struct.target = new ModelSpec();
+        struct.target.read(iprot);
         struct.setTargetIsSet(true);
       }
     }
@@ -2494,13 +2396,13 @@ public class CloudATL {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list272 = iprot.readListBegin();
-                  struct.success = new ArrayList<String>(_list272.size);
-                  String _elem273;
-                  for (int _i274 = 0; _i274 < _list272.size; ++_i274)
+                  org.apache.thrift.protocol.TList _list256 = iprot.readListBegin();
+                  struct.success = new ArrayList<String>(_list256.size);
+                  String _elem257;
+                  for (int _i258 = 0; _i258 < _list256.size; ++_i258)
                   {
-                    _elem273 = iprot.readString();
-                    struct.success.add(_elem273);
+                    _elem257 = iprot.readString();
+                    struct.success.add(_elem257);
                   }
                   iprot.readListEnd();
                 }
@@ -2528,9 +2430,9 @@ public class CloudATL {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.success.size()));
-            for (String _iter275 : struct.success)
+            for (String _iter259 : struct.success)
             {
-              oprot.writeString(_iter275);
+              oprot.writeString(_iter259);
             }
             oprot.writeListEnd();
           }
@@ -2561,9 +2463,9 @@ public class CloudATL {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (String _iter276 : struct.success)
+            for (String _iter260 : struct.success)
             {
-              oprot.writeString(_iter276);
+              oprot.writeString(_iter260);
             }
           }
         }
@@ -2575,13 +2477,13 @@ public class CloudATL {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list277 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.success = new ArrayList<String>(_list277.size);
-            String _elem278;
-            for (int _i279 = 0; _i279 < _list277.size; ++_i279)
+            org.apache.thrift.protocol.TList _list261 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.success = new ArrayList<String>(_list261.size);
+            String _elem262;
+            for (int _i263 = 0; _i263 < _list261.size; ++_i263)
             {
-              _elem278 = iprot.readString();
-              struct.success.add(_elem278);
+              _elem262 = iprot.readString();
+              struct.success.add(_elem262);
             }
           }
           struct.setSuccessIsSet(true);

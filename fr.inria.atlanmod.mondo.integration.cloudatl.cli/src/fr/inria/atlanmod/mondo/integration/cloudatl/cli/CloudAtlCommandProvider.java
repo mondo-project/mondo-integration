@@ -58,10 +58,10 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		String input = requiredArgument(intp, "input-location");
 		String output = requiredArgument(intp, "output-location");
 		
-		ModelSpec source = new ModelSpec("input", input, Arrays.asList(new String[] { sourcemm }));
-		ModelSpec target = new ModelSpec("output", output, Arrays.asList(new String[] { targetmm }));
+		ModelSpec source = new ModelSpec(input, Arrays.asList(new String[] { sourcemm }));
+		ModelSpec target = new ModelSpec(output, Arrays.asList(new String[] { targetmm }));
 		
-		String id = client.launch(transformation, Arrays.asList(new ModelSpec[] { source }), Arrays.asList(new ModelSpec[] { target }));
+		String id = client.launch(transformation, source, target);
 		return String.format("Launched Job with id '%s'", id);
 	}
 

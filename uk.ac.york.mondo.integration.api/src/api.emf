@@ -389,8 +389,16 @@ class CloudATL {
 			Returns a token that can be used to check the status of the transformation.")
 	op String launch (
 		@doc(d="The ATL source-code of the transformation") String transformation,
+		/*
 		@doc(d="The input models of the transformation") ModelSpec[*] source,
 		@doc(d="The target models of the transformation") ModelSpec[*] target
+		
+		Changed for simplicity for the first prototype, multiple input/output models
+		is not suported by the first ATL-MR prototype
+		
+		*/ 
+		@doc(d="The input models of the transformation") ModelSpec source,
+		@doc(d="The target models of the transformation") ModelSpec target
 	) throws InvalidTransformation, InvalidModelSpec;
 
 	@doc(d="Lists the ids of the transformation jobs tracked by this server")
@@ -511,8 +519,13 @@ class Variant {
 
 @doc(d="Captures information about source/target models of ATL transformations")
 class ModelSpec {
+	/*
+	
+	This field is not used
+	
 	@doc(d="The local name of the model in the transformation")
 	attr String name;
+	*/
 	@doc(d="The URI from which the model will be loaded or to which it will be persisted")
 	attr String uri;
 	@doc(d="The URIs of the metamodels to which elements of the model conform")
