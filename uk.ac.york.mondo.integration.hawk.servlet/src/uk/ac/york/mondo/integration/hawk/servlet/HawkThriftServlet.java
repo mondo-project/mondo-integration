@@ -164,7 +164,7 @@ public class HawkThriftServlet extends TServlet {
 						LOGGER.error(ex.getMessage(), ex);
 					}
 				}
-				return new ArrayList<ModelElement>(encoder.getRootElements());
+				return new ArrayList<ModelElement>(encoder.getElements());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -334,17 +334,23 @@ public class HawkThriftServlet extends TServlet {
 					LOGGER.info("Retrieving elements from {}", filePath);
 
 					if (collectType == CollectElements.ALL) {
+						// We're going to send the entire model, so we want containment + no node IDs for efficiency
+						encoder.setElementNodeIDs(false);
+						encoder.setUseContainment(true);
 						for (ModelElementNode meNode : fileNode.getModelElements()) {
 							encoder.encode(meNode);
 						}
 					} else {
+						// We're only going to send the roots, so we want a flat list and explicit node IDs 
+						encoder.setElementNodeIDs(true);
+						encoder.setUseContainment(false);
 						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
 							encoder.encode(meNode);
 						}
 					}
 				}
 
-				return new ArrayList<>(encoder.getRootElements());
+				return new ArrayList<>(encoder.getElements());
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
 				throw new TException(ex);

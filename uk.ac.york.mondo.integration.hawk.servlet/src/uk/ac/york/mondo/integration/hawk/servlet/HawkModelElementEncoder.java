@@ -33,7 +33,7 @@ import uk.ac.york.mondo.integration.api.Variant;
  * Encodes a graph of Hawk {@link ModelElementNode}s into Thrift
  * {@link ModelElement}s. This is an accumulator: the user should specify the
  * encoding options, call {@link #encode(ModelElementNode)} repeatedly and then
- * finally call {@link #getRootElements()}.
+ * finally call {@link #getElements()}.
  *
  * Depending on whether we intend to send the entire model or not, it might make
  * sense to call {@link #setElementNodeIDs(boolean)} accordingly before any
@@ -47,20 +47,23 @@ public class HawkModelElementEncoder {
 	private final Set<ModelElement> rootElements = new IdentityLinkedHashSet<>();
 
 	private String lastMetamodelURI, lastTypename;
+
 	private boolean sendElementNodeIDs = false;
+	private boolean useContainment = true;
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
 	}
 
 	/**
-	 * If <code>true</code>, the encoder will include node IDs in the model elements. Otherwise,
-	 * it will not include them (the default).
-		 * 
-	 * Note: if we do not include node IDs, it will not be possible to resolve non-containment
-	 * references to the encoded elements from elements that were not encoded. Therefore, setting
-	 * this to <code>false</code> is only advisable when we're encoding an entire model. 
-		 */
+	 * If <code>true</code>, the encoder will include node IDs in the model
+	 * elements. Otherwise, it will not include them (the default).
+	 *
+	 * Note: if we do not include node IDs, it will not be possible to resolve
+	 * non-containment references to the encoded elements from elements that
+	 * were not encoded. Therefore, setting this to <code>false</code> is only
+	 * advisable when we're encoding an entire model.
+	 */
 	public boolean isSendElementNodeIDs() {
 		return sendElementNodeIDs;
 	}
@@ -73,10 +76,26 @@ public class HawkModelElementEncoder {
 	}
 
 	/**
+	 * If <code>true</code>, the nodes contained within the encoded nodes will
+	 * be retrieved eagerly as well and placed inside the container nodes.
+	 * Otherwise, only the requested nodes will be retrieved, and the encoder
+	 * will produce a flat list that will only use reference- and position-
+	 * based IDs.
+	 */
+	public boolean isUseContainment() {
+		return useContainment;
+	}
+
+	/** Changes the value of {@link #isUseContainment()}. */
+	public void setUseContainment(boolean useContainment) {
+		this.useContainment = useContainment;
+	}
+
+	/**
 	 * Returns the list of the encoded {@link ModelElement}s that are not
 	 * contained within any other encoded {@link ModelElement}s.
 	 */
-	public List<ModelElement> getRootElements() {
+	public List<ModelElement> getElements() {
 		final List<ModelElement> lRoots = new ArrayList<>(rootElements);
 
 		final HashMap<String, Integer> id2pos = new HashMap<>();
@@ -187,6 +206,7 @@ public class HawkModelElementEncoder {
 		}
 
 		final ModelElement me = new ModelElement();
+		me.setId(meNode.getId());
 		me.setTypeName(meNode.getTypeNode().getTypeName());
 		me.setMetamodelUri(meNode.getTypeNode().getMetamodelName());
 
@@ -200,7 +220,7 @@ public class HawkModelElementEncoder {
 		final Map<String, Object> attrs = new HashMap<>();
 		final Map<String, Object> refs = new HashMap<>();
 		meNode.getSlotValues(attrs, refs);
-	
+
 		for (Map.Entry<String, Object> attr : attrs.entrySet()) {
 			// to save bandwidth, we do not send unset attributes
 			if (attr.getValue() == null) continue;
@@ -210,7 +230,7 @@ public class HawkModelElementEncoder {
 			// to save bandwidth, we do not send unset or empty references 
 			if (ref.getValue() == null) continue;
 
-			if (meNode.isContainment(ref.getKey())) {
+			if (useContainment && meNode.isContainment(ref.getKey())) {
 				final ContainerSlot slot = encodeContainerSlot(ref);
 				if (slot.elements.isEmpty()) continue;
 				me.addToContainers(slot);
@@ -269,8 +289,9 @@ public class HawkModelElementEncoder {
 	private void addToIds(Object o, ReferenceSlot s) throws Exception {
 		final String referencedId = o.toString();
 		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
-		final ModelElement me = encodeInternal(meNode);
-		me.setId(meNode.getId());
+		if (useContainment) {
+			encodeInternal(meNode);
+		}
 		s.addToIds(meNode.getId());
 	}
 

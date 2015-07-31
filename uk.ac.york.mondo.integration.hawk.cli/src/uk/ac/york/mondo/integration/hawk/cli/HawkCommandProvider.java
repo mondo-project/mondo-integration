@@ -30,6 +30,8 @@ import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
@@ -238,16 +240,11 @@ public class HawkCommandProvider implements CommandProvider {
 	}
 
 	public Object _hawkGetModel(CommandInterpreter intp) throws Exception {
-		checkInstanceSelected();
+		return listModelElements(intp, true);
+	}
 
-		final String repo = requiredArgument(intp, "repo");
-		final List<String> patterns = readRemainingArguments(intp);
-		if (patterns.isEmpty()) {
-			patterns.add("*");
-		}
-
-		final List<ModelElement> elems = client.getModel(currentInstance, repo, patterns);
-		return formatModelElements(elems, "");
+	public Object _hawkGetRoots(CommandInterpreter intp) throws Exception {
+		return listModelElements(intp, false);
 	}
 
 	public Object _hawkResolveProxies(CommandInterpreter intp) throws Exception {
@@ -433,6 +430,25 @@ public class HawkCommandProvider implements CommandProvider {
 		return sbuf.toString();
 	}
 
+	private Object listModelElements(CommandInterpreter intp,
+			final boolean entireModel) throws Exception {
+		checkInstanceSelected();
+
+		final String repo = requiredArgument(intp, "repo");
+		final List<String> patterns = readRemainingArguments(intp);
+		if (patterns.isEmpty()) {
+			patterns.add("*");
+		}
+
+		List<ModelElement> elems;
+		if (entireModel) {
+			elems = client.getModel(currentInstance, repo, patterns);
+		} else {
+			elems = client.getRootElements(currentInstance, repo, patterns);
+		}
+		return formatModelElements(elems, "");
+	}
+
 	/**
 	 * Reads an expected argument from the interpreter.
 	 * @throws IllegalArgumentException The argument has not been provided.
@@ -464,34 +480,35 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
-		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
+		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
 		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
+		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");
 		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n\t");
-		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
-		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
+		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
-		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
+		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
 		sbuf.append("--Queries--\n\t");
+		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
+		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
 		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n\t");
-		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the instance of the specified files within the repo\n\t");
 		sbuf.append("hawkResolveProxies <ids...> - retrieves model elements by ID\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
-		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
 		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n");
+		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
 		sbuf.append("--Indexed attributes--\n\t");
 		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
-		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
 		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
+		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
 		return sbuf.toString();
 	}
 
