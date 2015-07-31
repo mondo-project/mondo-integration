@@ -157,6 +157,8 @@ public class HawkThriftServlet extends TServlet {
 			final IGraphDatabase graph = model.getGraph();
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
+				encoder.setElementNodeIDs(true);
+				encoder.setUseContainment(false);
 				for (String id : ids) {
 					try {
 						encoder.encode(id);
