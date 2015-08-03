@@ -13,6 +13,8 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +52,7 @@ public class HawkModelElementEncoder {
 
 	private boolean sendElementNodeIDs = false;
 	private boolean useContainment = true;
+	private boolean sortByNodeIDs = true;
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
@@ -91,12 +94,32 @@ public class HawkModelElementEncoder {
 		this.useContainment = useContainment;
 	}
 
+
+	/**
+	 * If <code>true</code>, the tree of {@link ModelElement}s will be sorted
+	 * per-level by node ID. This may be necessary if we want to get consistent
+	 * ordering over different access methods, e.g. lazy vs greedy loading.
+	 */
+	public boolean isSortByNodeIDs() {
+		return sortByNodeIDs;
+	}
+
+	/**
+	 * Changes the value of {@link #isSortByNodeIDs()}.
+	 */
+	public void setSortByNodeIDs(boolean sortByNodeIDs) {
+		this.sortByNodeIDs = sortByNodeIDs;
+	}
+
 	/**
 	 * Returns the list of the encoded {@link ModelElement}s that are not
 	 * contained within any other encoded {@link ModelElement}s.
 	 */
 	public List<ModelElement> getElements() {
 		final List<ModelElement> lRoots = new ArrayList<>(rootElements);
+		if (isSortByNodeIDs()) {
+			sortTreeByNodeId(lRoots);
+		}
 
 		final HashMap<String, Integer> id2pos = new HashMap<>();
 		computePreorderPositionMap(lRoots, id2pos, 0);
@@ -104,6 +127,22 @@ public class HawkModelElementEncoder {
 		optimizeTree(lRoots, id2pos);
 
 		return lRoots;
+	}
+
+	private void sortTreeByNodeId(List<ModelElement> elements) {
+		Collections.sort(elements, new Comparator<ModelElement>() {
+			public int compare(ModelElement l, ModelElement r) {
+				return l.getId().compareTo(r.getId());
+			}
+		});
+
+		for (ModelElement me : elements) {
+			if (me.isSetContainers()) {
+				for (ContainerSlot s : me.getContainers()) {
+					sortTreeByNodeId(s.elements);
+				}
+			}
+		}
 	}
 
 	private int computePreorderPositionMap(Collection<ModelElement> elems, Map<String, Integer> id2pos, int i) {

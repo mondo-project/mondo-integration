@@ -45,8 +45,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
-import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
-import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Variant;
@@ -58,291 +56,26 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils;
  */
 public class HawkResourceImpl extends ResourceImpl {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
-
-	private static final boolean IS_PROXY = true;
-	private static final boolean IS_NOT_PROXY = false;
 	private static final String HAWK_FRAGMENT_PREFIX = "hawk:";
 
-	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+	private static final boolean IS_NOT_PROXY = false;
+	private static final boolean IS_PROXY = true;
+	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
 
-	private class Loader {
-		private final List<EObject> allEObjects = new ArrayList<>();
-		private final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
-
-		private String lastTypename, lastMetamodelURI;
-
-		public EObject get(int position) {
-			return allEObjects.get(position);
-		}
-
-		public EObject get(ModelElement me) {
-			return meToEObject.get(me);
-		}
-
-		public EObject add(ModelElement me) throws IOException {
-			if (me.isSetMetamodelUri()) {
-				lastMetamodelURI = me.getMetamodelUri();
-			} else {
-				me.setMetamodelUri(lastMetamodelURI);
-			}
-
-			if (me.isSetTypeName()) {
-				lastTypename = me.getTypeName();
-			} else {
-				me.setTypeName(lastTypename);
-			}
-
-			final EObject obj = createEObject(me, IS_NOT_PROXY);
-			allEObjects.add(obj);
-			meToEObject.put(me, obj);
-
-			return obj;
-		}
-
-		public final void load() throws HawkInstanceNotFound,
-				HawkInstanceNotRunning, TException, IOException {
-			List<ModelElement> elems;
-			if (descriptor.isLazy()) {
-				elems = client.getRootElements(
-						descriptor.getHawkInstance(),
-						descriptor.getHawkRepository(),
-						Arrays.asList(descriptor.getHawkFilePatterns()));
-			} else {
-				elems = client.getModel(
-						descriptor.getHawkInstance(),
-						descriptor.getHawkRepository(),
-						Arrays.asList(descriptor.getHawkFilePatterns()));
-			}
-			
-			final List<EObject> rootEObjects = createEObjects(elems);
-			getContents().addAll(rootEObjects);
-			fillInReferences(elems);
-		}
-
-		private List<EObject> createEObjects(final List<ModelElement> elems) throws IOException {
-			final List<EObject> eObjects = new ArrayList<>();
-			for (ModelElement me : elems) {
-				final ModelElement me1 = me;
-				final EObject parent = add(me1);
-				eObjects.add(parent);
-	
-				if (me.isSetContainers()) {
-					for (ContainerSlot s : me.containers) {
-						final EStructuralFeature sf = parent.eClass().getEStructuralFeature(s.name);
-						final List<EObject> children = createEObjects(s.elements);
-						if (sf.isMany()) {
-							parent.eSet(sf, ECollections.toEList(children));
-						} else if (!children.isEmpty()) {
-							parent.eSet(sf, children.get(0));
-						}
-					}
-				}
-			}
-			return eObjects;
-		}
-
-		/**
-		 * Fills in references during initial loading: the main difference is that for
-		 * initial loading, we can support positions.
-		 */
-		private void fillInReferences(final List<ModelElement> elems) throws IOException {
-			final Registry packageRegistry = getResourceSet().getPackageRegistry();
-
-			for (ModelElement me : elems) {
-				final EObject sourceObj = get(me);
-
-				if (me.isSetReferences()) {
-					for (ReferenceSlot s : me.references) {
-						final EClass eClass = getEClass(me.getMetamodelUri(), me.getTypeName(), packageRegistry);
-						final EReference feature = (EReference) eClass.getEStructuralFeature(s.name);
-						final EList<EObject> value = new BasicEList<>();
-
-						if (s.isSetId()) {
-							addEObjectWithNodeId(eClass, feature, value, s.id);
-						}
-						if (s.isSetIds()) {
-							for (String targetId : s.ids) {
-								addEObjectWithNodeId(eClass, feature, value, targetId);
-							}
-						}
-						if (s.isSetPosition()) {
-							value.add(get(s.position));
-						}
-						if (s.isSetPositions()) {
-							for (Integer targetPos : s.positions) {
-								value.add(get(targetPos));
-							}
-						}
-
-						if (feature.isMany()) {
-							sourceObj.eSet(feature, value);
-						} else if (!value.isEmpty()) {
-							sourceObj.eSet(feature, value.get(0));
-						}
-					}
-				}
-		
-				if (me.isSetContainers()) {
-					for (ContainerSlot s : me.getContainers()) {
-						fillInReferences(s.elements);
-					}
-				}
-			}
-		}
-
-	}
-
-
-	private HawkModelDescriptor descriptor;
-
-	private Client client;
-
-	public HawkResourceImpl() {
-	}
-
-	public HawkResourceImpl(URI uri) {
-		super(uri);
-	}
-
-	public HawkResourceImpl(HawkModelDescriptor descriptor) {
-		this.descriptor = descriptor;
-	}
-
-	@Override
-	public void load(Map<?, ?> options) throws IOException {
-		if (descriptor != null) {
-			doLoad(descriptor);
-		} else {
-			super.load(options);
-		}
-	}
-
-	@Override
-	public EObject getEObject(String uriFragment) {
-		if (uriFragment.startsWith(HAWK_FRAGMENT_PREFIX)) {
-			final String id = uriFragment.replaceFirst(HAWK_FRAGMENT_PREFIX, "");
-
-			final EObject existing = nodeIdToEObjectMap.get(id);
-			if (existing != null && !existing.eIsProxy()) {
-				return existing;
-			}
-
-			// fetch missing model element from network
-			try {
-				final List<ModelElement> elems = client.resolveProxies(
-					descriptor.getHawkInstance(), Arrays.asList(id)
-				);
-				if (elems.isEmpty()) {
-					LOGGER.warn("Could not resolve object with id {}", id);
-					return null;
-				} else if (elems.size() > 1) {
-					LOGGER.warn("More than object was resolved for id {}!", id);
-				}
-
-				final ModelElement elem = elems.get(0);
-				final EObject obj = createEObject(elem, IS_NOT_PROXY);
-				// fill in references?
-				return obj;
-			} catch (TException|IOException e) {
-				LOGGER.error(e.getMessage(), e);
-				return null;
-			}
-		}
-
-		return super.getEObject(uriFragment);
-	}
-
-	@Override
-	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
-		HawkModelDescriptor descriptor = new HawkModelDescriptor();
-		descriptor.load(inputStream);
-		doLoad(descriptor);
-	}
-
-	@Override
-	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
-		throw new UnsupportedOperationException();
-	}
-
-	private void doLoad(HawkModelDescriptor descriptor) throws IOException {
-		try {
-			this.descriptor = descriptor;
-			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
-			new Loader().load();
-		} catch (TException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new IOException(e);
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw e;
-		}
-	}
-
-	private EObject createEObject(ModelElement me, boolean isProxy) throws IOException {
-		final Registry registry = getResourceSet().getPackageRegistry();
-		final EFactory factory = registry.getEFactory(me.metamodelUri);
-		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
-		final EObject obj = factory.create(eClass);
-	
-		if (me.isSetId()) {
-			nodeIdToEObjectMap.put(me.id, obj);
-			if (isProxy && obj instanceof InternalEObject) {
-				final InternalEObject internal = (InternalEObject)obj;
-				internal.eSetProxyURI(HawkResourceImpl.this.getURI().appendFragment(HAWK_FRAGMENT_PREFIX + me.id));
-			}
-		}
-	
-		if (me.isSetAttributes()) {
-			for (AttributeSlot s : me.attributes) {
-				setStructuralFeatureFromSlot(eClass, obj, s);
-			}
-		}
-	
-		return obj;
-	}
-
-	/**
-	 * Adds an EObject representing the model element with <code>targetId</code> to
-	 * the indicated list. Greedy loaders may create the EObject on the fly, while
-	 * lazy loaders may initially use a proxy.
-	 * @throws IOException 
-	 */
-	private void addEObjectWithNodeId(EClass eClass, EReference ref, EList<EObject> value, String targetId) throws IOException {
-		final EObject existing = nodeIdToEObjectMap.get(targetId);
-		if (existing == null) {
-			if (descriptor.isLazy()) {
-				final ModelElement me = new ModelElement();
-				me.setId(targetId);
-				me.setMetamodelUri(eClass.getEPackage().getNsURI());
-				me.setTypeName(ref.getEReferenceType().getName());
-				final EObject proxy = createEObject(me, IS_PROXY);
-				value.add(proxy);
-			} else {
-				LOGGER.warn(
-						"Could not find ModelElement with id {} for feature {} of class {}, skipping",
-						targetId, ref, eClass);
-			}
-		} else {
-			value.add(existing);
-		}
-	}
-
-	private static EClass getEClass(String metamodelUri, String typeName, final Registry packageRegistry) {
+	private static EClass getEClass(String metamodelUri, String typeName,
+			final Registry packageRegistry) {
 		final EPackage pkg = packageRegistry.getEPackage(metamodelUri);
 		if (pkg == null) {
-			throw new NoSuchElementException(
-					String.format(
-							"Could not find EPackage with URI '%s' in the registry %s",
-							metamodelUri, packageRegistry));
+			throw new NoSuchElementException(String.format(
+					"Could not find EPackage with URI '%s' in the registry %s",
+					metamodelUri, packageRegistry));
 		}
-	
+
 		final EClassifier eClassifier = pkg.getEClassifier(typeName);
 		if (!(eClassifier instanceof EClass)) {
-			throw new NoSuchElementException(
-					String.format(
-							"Received an element of type '%s', which is not an EClass",
-							eClassifier));
+			throw new NoSuchElementException(String.format(
+					"Received an element of type '%s', which is not an EClass",
+					eClassifier));
 		}
 		final EClass eClass = (EClass) eClassifier;
 		return eClass;
@@ -373,7 +106,6 @@ public class HawkResourceImpl extends ResourceImpl {
 			eObject.eSet(feature, b);
 		}
 	}
-
 	private static void setStructuralFeatureFromEcoreType(final EClass eClass,
 			final EObject eObject, AttributeSlot slot,
 			final EStructuralFeature feature, final EClassifier eType)
@@ -440,7 +172,7 @@ public class HawkResourceImpl extends ResourceImpl {
 					floats.add((float) d);
 				}
 			} else {
-				floats.add((float)slot.value.getVDouble());
+				floats.add((float) slot.value.getVDouble());
 			}
 			eObject.eSet(feature, floats);
 		} else {
@@ -523,6 +255,262 @@ public class HawkResourceImpl extends ResourceImpl {
 			final Object elem = slot.value.getFieldValue(expectedSingleType);
 			eObject.eSet(feature, elem);
 		}
+	}
+
+	private HawkModelDescriptor descriptor;
+	private Client client;
+
+	// Only for the initial load (allEObjects is cleared afterwards)
+	private String lastTypename, lastMetamodelURI;
+	private final List<EObject> allEObjects = new ArrayList<>();
+
+	// Only until references are filled in
+	private final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
+
+	// Persistent (needed to resolve references with lazy loading)
+	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+
+	public HawkResourceImpl() {
+	}
+
+	public HawkResourceImpl(HawkModelDescriptor descriptor) {
+		this.descriptor = descriptor;
+	}
+
+	public HawkResourceImpl(URI uri) {
+		super(uri);
+	}
+
+	@Override
+	public EObject getEObject(String uriFragment) {
+		if (uriFragment.startsWith(HAWK_FRAGMENT_PREFIX)) {
+			final String id = uriFragment.replaceFirst(HAWK_FRAGMENT_PREFIX, "");
+
+			final EObject existing = nodeIdToEObjectMap.get(id);
+			if (existing != null && !existing.eIsProxy()) {
+				return existing;
+			}
+
+			// fetch missing model element from network
+			try {
+				final List<ModelElement> elems = client.resolveProxies(
+					descriptor.getHawkInstance(), Arrays.asList(id));
+				if (elems.isEmpty()) {
+					LOGGER.warn("Could not resolve object with id {}", id);
+					return null;
+				} else if (elems.size() > 1) {
+					LOGGER.warn("More than object was resolved for id {}!", id);
+				}
+
+				final ModelElement elem = elems.get(0);
+				final EObject obj = createEObject(elem, IS_NOT_PROXY);
+				fillInReferences(getResourceSet().getPackageRegistry(), elem, obj);
+				return obj;
+			} catch (TException | IOException e) {
+				LOGGER.error(e.getMessage(), e);
+				return null;
+			}
+		}
+
+		return super.getEObject(uriFragment);
+	}
+
+	@Override
+	public void load(Map<?, ?> options) throws IOException {
+		if (descriptor != null) {
+			doLoad(descriptor);
+		} else {
+			super.load(options);
+		}
+	}
+
+	/**
+	 * Adds an EObject representing the model element with <code>targetId</code>
+	 * to the indicated list. Greedy loaders may create the EObject on the fly,
+	 * while lazy loaders may initially use a proxy (as they won't have a copy
+	 * of the real {@link ModelElement}).
+	 * 
+	 * @throws IOException
+	 */
+	private void addEObjectWithNodeId(EClass eClass, EReference ref, EList<EObject> value, String targetId) throws IOException {
+		final EObject existing = nodeIdToEObjectMap.get(targetId);
+		if (existing == null) {
+			if (descriptor.isLazy()) {
+				final ModelElement me = new ModelElement();
+				me.setId(targetId);
+				me.setMetamodelUri(eClass.getEPackage().getNsURI());
+				me.setTypeName(ref.getEReferenceType().getName());
+				final EObject proxy = createEObject(me, IS_PROXY);
+				value.add(proxy);
+			} else {
+				LOGGER.warn(
+						"Could not find ModelElement with id {} for feature {} of class {}, skipping",
+						targetId, ref, eClass);
+			}
+		} else {
+			value.add(existing);
+		}
+	}
+
+	private EObject createEObject(ModelElement me, boolean isProxy) throws IOException {
+		final Registry registry = getResourceSet().getPackageRegistry();
+		final EFactory factory = registry.getEFactory(me.metamodelUri);
+		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
+		final EObject obj = factory.create(eClass);
+
+		if (me.isSetId()) {
+			nodeIdToEObjectMap.put(me.id, obj);
+			if (isProxy && obj instanceof InternalEObject) {
+				final InternalEObject internal = (InternalEObject) obj;
+				internal.eSetProxyURI(HawkResourceImpl.this.getURI()
+						.appendFragment(HAWK_FRAGMENT_PREFIX + me.id));
+			}
+		}
+
+		if (me.isSetAttributes()) {
+			for (AttributeSlot s : me.attributes) {
+				setStructuralFeatureFromSlot(eClass, obj, s);
+			}
+		}
+
+		return obj;
+	}
+
+	private List<EObject> createEObjectTree(final List<ModelElement> elems) throws IOException {
+		final List<EObject> eObjects = new ArrayList<>();
+		for (ModelElement me : elems) {
+			if (me.isSetMetamodelUri()) {
+				lastMetamodelURI = me.getMetamodelUri();
+			} else {
+				me.setMetamodelUri(lastMetamodelURI);
+			}
+			
+			if (me.isSetTypeName()) {
+				lastTypename = me.getTypeName();
+			} else {
+				me.setTypeName(lastTypename);
+			}
+			
+			final EObject obj = createEObject(me, IS_NOT_PROXY);
+			allEObjects.add(obj);
+			meToEObject.put(me, obj);
+			final EObject parent = obj;
+			eObjects.add(parent);
+
+			if (me.isSetContainers()) {
+				for (ContainerSlot s : me.containers) {
+					final EStructuralFeature sf = parent.eClass().getEStructuralFeature(s.name);
+					final List<EObject> children = createEObjectTree(s.elements);
+					if (sf.isMany()) {
+						parent.eSet(sf, ECollections.toEList(children));
+					} else if (!children.isEmpty()) {
+						parent.eSet(sf, children.get(0));
+					}
+				}
+			}
+		}
+		return eObjects;
+	}
+
+	private void doLoad(HawkModelDescriptor descriptor) throws IOException {
+		try {
+			this.descriptor = descriptor;
+			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
+
+			List<ModelElement> elems;
+			if (descriptor.isLazy()) {
+				elems = client.getRootElements(descriptor.getHawkInstance(),
+					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkFilePatterns()));
+			} else {
+				elems = client.getModel(descriptor.getHawkInstance(),
+					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkFilePatterns()));
+			}
+
+			final List<EObject> rootEObjects = createEObjectTree(elems);
+			getContents().addAll(rootEObjects);
+			fillInReferences(elems);
+
+			// Position-based references are only supported for the initial load
+			// (esp. greedy loading). Clear this list to avoid using up too much
+			// memory.
+			allEObjects.clear();
+		} catch (TException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw new IOException(e);
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	private void fillInReferences(final List<ModelElement> elems) throws IOException {
+		final Registry packageRegistry = getResourceSet().getPackageRegistry();
+
+		for (ModelElement me : elems) {
+			final EObject sourceObj = meToEObject.remove(me);
+			fillInReferences(packageRegistry, me, sourceObj);
+		}
+	}
+
+	private void fillInReferences(final Registry packageRegistry, ModelElement me, final EObject sourceObj) throws IOException {
+		if (me.isSetReferences()) {
+			for (ReferenceSlot s : me.references) {
+				final EClass eClass = getEClass(me.getMetamodelUri(), me.getTypeName(), packageRegistry);
+				final EReference feature = (EReference) eClass.getEStructuralFeature(s.name);
+				final EList<EObject> value = new BasicEList<>();
+
+				// We always start from the roots, so we always set things from the containment side
+				if (feature.isContainer()) {
+					continue;
+				}
+
+				if (s.isSetId()) {
+					addEObjectWithNodeId(eClass, feature, value, s.id);
+				}
+				if (s.isSetIds()) {
+					for (String targetId : s.ids) {
+						addEObjectWithNodeId(eClass, feature, value, targetId);
+					}
+				}
+
+				// Note: using position-based references after the initial load is not supported
+				if (s.isSetPosition()) {
+					value.add(allEObjects.get(s.position));
+				}
+				if (s.isSetPositions()) {
+					for (Integer targetPos : s.positions) {
+						value.add(allEObjects.get(targetPos));
+					}
+				}
+
+				if (feature.isMany()) {
+					sourceObj.eSet(feature, value);
+				} else if (!value.isEmpty()) {
+					sourceObj.eSet(feature, value.get(0));
+				}
+			}
+		}
+
+		if (me.isSetContainers()) {
+			for (ContainerSlot s : me.getContainers()) {
+				fillInReferences(s.elements);
+			}
+		}
+	}
+
+	@Override
+	protected void doLoad(InputStream inputStream, Map<?, ?> options) throws IOException {
+		HawkModelDescriptor descriptor = new HawkModelDescriptor();
+		descriptor.load(inputStream);
+		doLoad(descriptor);
+	}
+
+	@Override
+	protected void doSave(OutputStream outputStream, Map<?, ?> options)
+			throws IOException {
+		throw new UnsupportedOperationException();
 	}
 
 }
