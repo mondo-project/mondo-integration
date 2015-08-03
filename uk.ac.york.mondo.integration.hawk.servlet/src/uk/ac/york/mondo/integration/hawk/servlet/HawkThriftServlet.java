@@ -331,7 +331,6 @@ public class HawkThriftServlet extends TServlet {
 			// TODO filtering by repository
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
-				encoder.setElementNodeIDs(false);
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
 

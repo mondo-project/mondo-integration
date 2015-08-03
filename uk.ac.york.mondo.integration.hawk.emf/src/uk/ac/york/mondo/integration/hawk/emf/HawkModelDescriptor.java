@@ -41,6 +41,7 @@ public class HawkModelDescriptor {
 
 	public static final String DEFAULT_FILES = "*";
 	public static final String DEFAULT_REPOSITORY = "*";
+	public static final boolean DEFAULT_LAZY = false;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkModelDescriptor.class);
 	private static final String FILE_PATTERN_SEP = ",";
@@ -48,11 +49,13 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
 	private static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
 	private static final String PROPERTY_HAWK_URL = "hawk.url";
+	private static final String PROPERTY_HAWK_LAZY = "hawk.lazy";
 
 	private String hawkURL;
 	private String hawkInstance;
 	private String hawkRepository = DEFAULT_REPOSITORY;
 	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
+	private boolean isLazy = DEFAULT_LAZY;
 
 	public HawkModelDescriptor() {}
 
@@ -100,6 +103,14 @@ public class HawkModelDescriptor {
 		this.hawkFilePatterns = hawkFilePatterns;
 	}
 
+	public boolean isLazy() {
+		return isLazy;
+	}
+
+	public void setLazy(boolean isLazy) {
+		this.isLazy = isLazy;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -114,6 +125,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_INSTANCE, hawkInstance);
 		props.setProperty(PROPERTY_HAWK_REPOSITORY, hawkRepository);
 		props.setProperty(PROPERTY_HAWK_FILES, concat(hawkFilePatterns, FILE_PATTERN_SEP));
+		props.setProperty(PROPERTY_HAWK_LAZY, Boolean.toString(isLazy));
 		return props;
 	}
 
@@ -122,6 +134,7 @@ public class HawkModelDescriptor {
 		this.hawkInstance = requiredProperty(props, PROPERTY_HAWK_INSTANCE);
 		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
 		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(FILE_PATTERN_SEP);
+		this.isLazy = Boolean.parseBoolean(optionalProperty(props, PROPERTY_HAWK_LAZY, DEFAULT_LAZY + ""));
 	}
 
 	private static String requiredProperty(Properties props, String name) throws IOException {
