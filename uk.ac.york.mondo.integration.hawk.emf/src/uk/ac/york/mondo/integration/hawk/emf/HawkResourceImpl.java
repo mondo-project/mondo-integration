@@ -54,6 +54,7 @@ import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Variant;
 import uk.ac.york.mondo.integration.api.Variant._Fields;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 /**
  * EMF driver that reads a remote model from a Hawk index.
@@ -612,7 +613,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
 
 		EObject obj;
-		if (descriptor.isLazy()) {
+		if (descriptor.getLoadingMode() != LoadingMode.GREEDY) {
 			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
 		} else {
 			final EFactory factory = registry.getEFactory(me.metamodelUri);
@@ -674,11 +675,12 @@ public class HawkResourceImpl extends ResourceImpl {
 			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
 
 			List<ModelElement> elems;
-			if (descriptor.isLazy()) {
+			if (descriptor.getLoadingMode() == LoadingMode.LAZY_CHILDREN) {
 				elems = client.getRootElements(descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
 					Arrays.asList(descriptor.getHawkFilePatterns()));
 			} else {
+				// TODO add special case for LAZY_ATTRIBUTES mode
 				elems = client.getModel(descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
 					Arrays.asList(descriptor.getHawkFilePatterns()));
@@ -688,10 +690,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			getContents().addAll(rootEObjects);
 			fillInReferences(elems);
 
-			// Position-based references are only supported for the initial load
-			// (esp. greedy loading). Clear this list to avoid using up too much
-			// memory.
-			allEObjects.clear();
+			// TODO refactor to separate loading state again, so it can be freed appropriately
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw new IOException(e);
@@ -721,10 +720,10 @@ public class HawkResourceImpl extends ResourceImpl {
 					continue;
 				}
 
-				if (descriptor.isLazy()) {
-					fillInLazyReferences(sourceObj, s, feature);
+				if (descriptor.getLoadingMode() == LoadingMode.LAZY_CHILDREN) {
+					markReferencesAsPending(sourceObj, s, feature);
 				} else {
-					fillInGreedyReferences(sourceObj, s, feature);
+					fillInReferences(sourceObj, s, feature);
 				}
 			}
 		}
@@ -736,17 +735,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
-	private void fillInLazyReferences(final EObject sourceObj, ReferenceSlot s, final EReference feature) {
-		if (s.isSetId()) {
-			getLazyStore().addLazyReferences(sourceObj, feature, Arrays.asList(s.id));
-		} else if (s.isSetIds()) {
-			getLazyStore().addLazyReferences(sourceObj, feature, s.ids);
-		}
-
-		// XXX position-based references are not supported when using lazy loading
-	}
-
-	private EList<EObject> fillInGreedyReferences(final EObject sourceObj, final ReferenceSlot s, final EReference feature) {
+	private EList<EObject> fillInReferences(final EObject sourceObj, final ReferenceSlot s, final EReference feature) {
 		final EList<EObject> value = new BasicEList<>();
 		if (s.isSetId()) {
 			value.add(nodeIdToEObjectMap.get(s.id));
@@ -773,6 +762,16 @@ public class HawkResourceImpl extends ResourceImpl {
 			sourceObj.eSet(feature, value.get(0));
 		}
 		return value;
+	}
+
+	private void markReferencesAsPending(final EObject sourceObj, ReferenceSlot s, final EReference feature) {
+		if (s.isSetId()) {
+			getLazyStore().addLazyReferences(sourceObj, feature, Arrays.asList(s.id));
+		} else if (s.isSetIds()) {
+			getLazyStore().addLazyReferences(sourceObj, feature, s.ids);
+		}
+
+		// XXX position-based references are not supported when using lazy loading
 	}
 
 	private LazyEStore getLazyStore() {
