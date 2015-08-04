@@ -222,6 +222,20 @@
           <details key="d" value="Proxy model element IDs to be resolved"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="addRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownRepositoryType #//VCSAuthenticationFailed">
       <eAnnotations source="doc">
@@ -417,6 +431,20 @@
           <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="getRootElements" upperBound="-1" eType="#//ModelElement">
       <eAnnotations source="doc">
@@ -435,6 +463,20 @@
       <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -951,7 +993,7 @@
       <eAnnotations source="doc">
         <details key="d" value="Position of the referenced element (if there is only one position-based reference in this slot)"/>
         <details key="optional" value="true"/>
-    </eAnnotations>
+      </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="positions" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" containment="true">

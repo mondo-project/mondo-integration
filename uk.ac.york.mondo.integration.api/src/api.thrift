@@ -372,6 +372,8 @@ service Hawk {
   list<ModelElement> resolveProxies(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids, 
+	/* Whether to include attributes (true) or not (false). */ 3:  bool includeAttributes = true,
+	/* Whether to include attributes (true) or not (false). */ 4:  bool includeReferences = true,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -383,7 +385,7 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository to monitor. */ 2: required string uri, 
 	/* The type of repository to be monitored. */ 3: required string type, 
-	/* A valid set of credentials that has read-access to the repository. */ 4: optional Credentials credentials, 
+	/* A valid set of credentials that has read-access to the repository. */ 4: Credentials credentials,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -504,6 +506,8 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri, 
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath, 
+	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
+	/* Whether to include attributes (true) or not (false). */ 5:  bool includeReferences = true,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -515,6 +519,8 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
+	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
+	/* Whether to include attributes (true) or not (false). */ 5:  bool includeReferences = true,
   )
 
 }
