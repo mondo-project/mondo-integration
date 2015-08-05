@@ -38,7 +38,7 @@ import uk.ac.york.mondo.integration.api.Variant;
  * finally call {@link #getElements()}.
  *
  * Depending on whether we intend to send the entire model or not, it might make
- * sense to call {@link #setElementNodeIDs(boolean)} accordingly before any
+ * sense to call {@link #setIncludeNodeIDs(boolean)} accordingly before any
  * calls to {@link #encode(ModelElementNode)}.
  */
 public class HawkModelElementEncoder {
@@ -53,6 +53,8 @@ public class HawkModelElementEncoder {
 	private boolean sendElementNodeIDs = false;
 	private boolean useContainment = true;
 	private boolean sortByNodeIDs = true;
+	private boolean includeAttributes = true, includeReferences = true;
+	private boolean discardContainerRefs = false;
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
@@ -65,16 +67,16 @@ public class HawkModelElementEncoder {
 	 * Note: if we do not include node IDs, it will not be possible to resolve
 	 * non-containment references to the encoded elements from elements that
 	 * were not encoded. Therefore, setting this to <code>false</code> is only
-	 * advisable when we're encoding an entire model.
+	 * advisable when we're encoding an entire model, including attributes.
 	 */
-	public boolean isSendElementNodeIDs() {
+	public boolean isIncludeNodeIDs() {
 		return sendElementNodeIDs;
 	}
 
 	/**
-	 * Changes the value of {@link #isSendElementNodeIDs()}.
+	 * Changes the value of {@link #isIncludeNodeIDs()}.
 	 */
-	public void setElementNodeIDs(boolean newValue) {
+	public void setIncludeNodeIDs(boolean newValue) {
 		this.sendElementNodeIDs = newValue;
 	}
 
@@ -109,6 +111,30 @@ public class HawkModelElementEncoder {
 	 */
 	public void setSortByNodeIDs(boolean sortByNodeIDs) {
 		this.sortByNodeIDs = sortByNodeIDs;
+	}
+
+	public boolean isIncludeAttributes() {
+		return includeAttributes;
+	}
+
+	public void setIncludeAttributes(boolean includeAttributes) {
+		this.includeAttributes = includeAttributes;
+	}
+
+	public boolean isIncludeReferences() {
+		return includeReferences;
+	}
+
+	public void setIncludeReferences(boolean includeReferences) {
+		this.includeReferences = includeReferences;
+	}
+
+	public boolean isDiscardContainerRefs() {
+		return discardContainerRefs;
+	}
+
+	public void setDiscardContainerRefs(boolean discardContainerRefs) {
+		this.discardContainerRefs = discardContainerRefs;
 	}
 
 	/**
@@ -163,7 +189,7 @@ public class HawkModelElementEncoder {
 
 	private void optimizeTree(Collection<ModelElement> elems, Map<String, Integer> id2pos) {
 		for (ModelElement me : elems) {
-			if (!isSendElementNodeIDs()) {
+			if (!isIncludeNodeIDs()) {
 				me.unsetId();
 			}
 
@@ -260,23 +286,30 @@ public class HawkModelElementEncoder {
 		final Map<String, Object> refs = new HashMap<>();
 		meNode.getSlotValues(attrs, refs);
 
-		for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-			// to save bandwidth, we do not send unset attributes
-			if (attr.getValue() == null) continue;
-			me.addToAttributes(encodeAttributeSlot(attr));
+		if (isIncludeAttributes()) {
+			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
+				// to save bandwidth, we do not send unset attributes
+				if (attr.getValue() == null) continue;
+				me.addToAttributes(encodeAttributeSlot(attr));
+			}
 		}
-		for (Map.Entry<String, Object> ref : refs.entrySet()) {
-			// to save bandwidth, we do not send unset or empty references 
-			if (ref.getValue() == null) continue;
+		if (isIncludeReferences()) {
+			for (Map.Entry<String, Object> ref : refs.entrySet()) {
+				// to save bandwidth, we do not send unset or empty references
+				if (ref.getValue() == null) continue;
 
-			if (useContainment && meNode.isContainment(ref.getKey())) {
-				final ContainerSlot slot = encodeContainerSlot(ref);
-				if (slot.elements.isEmpty()) continue;
-				me.addToContainers(slot);
-			} else {
-				final ReferenceSlot slot = encodeReferenceSlot(ref);
-				if (slot.ids.isEmpty()) continue;
-				me.addToReferences(slot);
+				if (useContainment && meNode.isContainment(ref.getKey())) {
+					final ContainerSlot slot = encodeContainerSlot(ref);
+					if (slot.elements.isEmpty()) continue;
+					me.addToContainers(slot);
+				} else if (useContainment && discardContainerRefs && meNode.isContainer(ref.getKey())) {
+					// skip this container reference: we're already using containment, so
+					// we assume we'll have the parent encoded as well.
+				} else {
+					final ReferenceSlot slot = encodeReferenceSlot(ref);
+					if (slot.ids.isEmpty()) continue;
+					me.addToReferences(slot);
+				}
 			}
 		}
 		return me;

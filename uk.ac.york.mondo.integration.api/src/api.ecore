@@ -231,7 +231,7 @@
       </eParameters>
       <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
         <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="d" value="Whether to include references (true) or not (false)"/>
           <details key="optional" value="true"/>
           <details key="default" value="true"/>
         </eAnnotations>
@@ -440,9 +440,16 @@
       </eParameters>
       <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
         <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="d" value="Whether to include references (true) or not (false)"/>
           <details key="optional" value="true"/>
           <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include node IDs (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="false"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -474,7 +481,7 @@
       </eParameters>
       <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
         <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="d" value="Whether to include references (true) or not (false)"/>
           <details key="optional" value="true"/>
           <details key="default" value="true"/>
         </eAnnotations>

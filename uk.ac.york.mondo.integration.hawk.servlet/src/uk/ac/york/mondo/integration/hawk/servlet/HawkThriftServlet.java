@@ -151,14 +151,16 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		public List<ModelElement> resolveProxies(String name, List<String> ids, boolean includeAttributes, boolean includeReferences) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
-				encoder.setElementNodeIDs(true);
+				encoder.setIncludeNodeIDs(true);
 				encoder.setUseContainment(false);
+				encoder.setIncludeAttributes(includeAttributes);
+				encoder.setIncludeReferences(includeReferences);
 				for (String id : ids) {
 					try {
 						encoder.encode(id);
@@ -313,17 +315,18 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
-			return collectElements(name, filePath, CollectElements.ALL);
+		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			return collectElements(name, filePath, CollectElements.ALL, includeAttributes, includeReferences, includeNodeIDs);
 		}
 
 		@Override
-		public List<ModelElement> getRootElements(String name, String repositoryUri, List<String> filePath) throws TException {
-			return collectElements(name, filePath, CollectElements.ONLY_ROOTS);
+		public List<ModelElement> getRootElements(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws TException {
+			return collectElements(name, filePath, CollectElements.ONLY_ROOTS, includeAttributes, includeReferences, true);
 		}
 
 		private List<ModelElement> collectElements(String name,
-				List<String> filePath, final CollectElements collectType)
+				List<String> filePath, final CollectElements collectType,
+				boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs)
 				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
@@ -331,19 +334,20 @@ public class HawkThriftServlet extends TServlet {
 			// TODO filtering by repository
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+				encoder.setIncludeAttributes(includeAttributes);
+				encoder.setIncludeReferences(includeReferences);
+				encoder.setIncludeNodeIDs(includeNodeIDs);
 				for (FileNode fileNode : gw.getFileNodes(filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
 
 					if (collectType == CollectElements.ALL) {
 						// We're going to send the entire model, so we want containment + no node IDs for efficiency
-						encoder.setElementNodeIDs(false);
 						encoder.setUseContainment(true);
 						for (ModelElementNode meNode : fileNode.getModelElements()) {
 							encoder.encode(meNode);
 						}
 					} else {
 						// We're only going to send the roots, so we want a flat list and explicit node IDs 
-						encoder.setElementNodeIDs(true);
 						encoder.setUseContainment(false);
 						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
 							encoder.encode(meNode);

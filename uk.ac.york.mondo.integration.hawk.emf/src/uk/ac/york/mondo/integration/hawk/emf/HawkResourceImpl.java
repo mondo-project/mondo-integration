@@ -29,6 +29,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EEnum;
@@ -49,6 +50,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Variant;
@@ -85,8 +88,11 @@ public class HawkResourceImpl extends ResourceImpl {
 		/** Values for the EAttributes and the EReferences that have been resolved through the network. */ 
 		private Map<EObject, Map<EStructuralFeature, Object>> store = new IdentityHashMap<>();
 
+		/** Objects for which we don't know their attributes yet (and their IDs). */
+		private Map<EObject, String> pendingAttrs = new IdentityHashMap<>();
+
 		/** Pending EReferences to be fetched.*/
-		private Map<EObject, Map<EStructuralFeature, List<String>>> refs = new IdentityHashMap<>();
+		private Map<EObject, Map<EStructuralFeature, List<String>>> pendingRefs = new IdentityHashMap<>();
 
 		@Override
 		public void unset(InternalEObject object, EStructuralFeature feature) {
@@ -94,7 +100,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			if (values != null) {
 				values.remove(feature);
 			} else {
-				Map<EStructuralFeature, List<String>> pending = refs.get(feature);
+				Map<EStructuralFeature, List<String>> pending = pendingRefs.get(feature);
 				if (pending != null) {
 					pending.remove(feature);
 				}
@@ -136,7 +142,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 
 			if (feature instanceof EReference) {
-				Map<EStructuralFeature, List<String>> pending = refs.get(object);
+				Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
 				if (pending != null) {
 					List<String> ids = pending.get(feature);
 					if (ids != null) {
@@ -271,20 +277,10 @@ public class HawkResourceImpl extends ResourceImpl {
 
 				Object value = values.get(feature);
 				if (value == null) {
-					Map<EStructuralFeature, List<String>> pending = refs.get(object);
-					if (pending != null) {
-						// This is a pending ref: resolve its proper value
-						List<String> ids = pending.remove(feature);
-						if (ids != null) {
-							final EList<EObject> eObjs = resolve(object, feature, ids);
-							if (feature.isMany()) {
-								value = eObjs;
-								values.put(feature, value);
-							} else if (!eObjs.isEmpty()) {
-								value = eObjs.get(0);
-								values.put(feature, value);
-							}
-						}
+					if (feature instanceof EReference) {
+						value = resolvePendingReference(object, feature, values);
+					} else if (feature instanceof EAttribute) {
+						value = resolvePendingAttribute(object, feature, values);
 					}
 				}
 
@@ -300,6 +296,56 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 		}
 
+		private Object resolvePendingAttribute(InternalEObject object,
+				EStructuralFeature feature,
+				Map<EStructuralFeature, Object> values)
+				throws HawkInstanceNotFound, HawkInstanceNotRunning,
+				TException, IOException {
+			Object value = null;
+			final String pendingId = pendingAttrs.remove(object);
+			if (pendingId != null) {
+				final List<ModelElement> elems = client.resolveProxies(
+					descriptor.getHawkInstance(), Arrays.asList(pendingId),
+					true, false);
+				if (elems.isEmpty()) {
+					LOGGER.warn("While retrieving attributes, resolveProxies returned an empty list");
+				} else {
+					final ModelElement me = elems.get(0);
+					final EClass eClass = getEClass(
+							me.getMetamodelUri(), me.getTypeName(),
+							getResourceSet().getPackageRegistry());
+					for (AttributeSlot s : me.attributes) {
+						setStructuralFeatureFromSlot(eClass, object, s);
+					}
+					value = values.get(feature);
+				}
+			}
+			return value;
+		}
+
+		private Object resolvePendingReference(InternalEObject object,
+				EStructuralFeature feature,
+				Map<EStructuralFeature, Object> values)
+				throws Exception {
+			Object value = null;
+			Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
+			if (pending != null) {
+				// This is a pending ref: resolve its proper value
+				List<String> ids = pending.remove(feature);
+				if (ids != null) {
+					final EList<EObject> eObjs = resolve(object, feature, ids);
+					if (feature.isMany()) {
+						value = eObjs;
+						values.put(feature, value);
+					} else if (!eObjs.isEmpty()) {
+						value = eObjs.get(0);
+						values.put(feature, value);
+					}
+				}
+			}
+			return value;
+		}
+
 		public EList<EObject> resolve(InternalEObject container, EStructuralFeature feature, List<String> ids) throws Exception {
 			// Filter the objects that need to be retrieved
 			final List<String> toBeFetched = new ArrayList<>();
@@ -310,7 +356,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 
 			// Fetch the eObjects, decode them and resolve references
-			List<ModelElement> elems = client.resolveProxies(descriptor.getHawkInstance(), toBeFetched);
+			List<ModelElement> elems = client.resolveProxies(descriptor.getHawkInstance(), toBeFetched, true, true);
 			List<EObject> fetchedEObjs = createEObjectTree(elems);
 			Iterator<ModelElement> itME = elems.iterator();
 			Iterator<EObject> itEO = fetchedEObjs.iterator();
@@ -366,12 +412,16 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 
 		public void addLazyReferences(EObject sourceObj, EReference feature, List<String> l) {
-			Map<EStructuralFeature, List<String>> allPending = refs.get(sourceObj);
+			Map<EStructuralFeature, List<String>> allPending = pendingRefs.get(sourceObj);
 			if (allPending == null) {
 				allPending = new IdentityHashMap<>();
-				refs.put(sourceObj, allPending);
+				pendingRefs.put(sourceObj, allPending);
 			}
 			allPending.put(feature, l);
+		}
+
+		public void addLazyAttributes(String id, EObject eObject) {
+			pendingAttrs.put(eObject, id);
 		}
 	}
 
@@ -628,6 +678,8 @@ public class HawkResourceImpl extends ResourceImpl {
 			for (AttributeSlot s : me.attributes) {
 				setStructuralFeatureFromSlot(eClass, obj, s);
 			}
+		} else if (descriptor.getLoadingMode() == LoadingMode.LAZY_ATTRIBUTES) {
+			getLazyStore().addLazyAttributes(me.id, obj);
 		}
 
 		return obj;
@@ -678,12 +730,12 @@ public class HawkResourceImpl extends ResourceImpl {
 			if (descriptor.getLoadingMode() == LoadingMode.LAZY_CHILDREN) {
 				elems = client.getRootElements(descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()));
+					Arrays.asList(descriptor.getHawkFilePatterns()), true, true);
 			} else {
-				// TODO add special case for LAZY_ATTRIBUTES mode
+				final boolean loadAttributes = descriptor.getLoadingMode() == LoadingMode.GREEDY;
 				elems = client.getModel(descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()));
+					Arrays.asList(descriptor.getHawkFilePatterns()), loadAttributes, true, !loadAttributes);
 			}
 
 			final List<EObject> rootEObjects = createEObjectTree(elems);

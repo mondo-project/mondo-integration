@@ -30,8 +30,6 @@ import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
-import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
-import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
@@ -251,7 +249,7 @@ public class HawkCommandProvider implements CommandProvider {
 		checkInstanceSelected();
 
 		final List<String> ids = readRemainingArguments(intp);
-		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids);
+		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids, true, true);
 		return formatModelElements(elems, "");
 	}
 
@@ -442,9 +440,9 @@ public class HawkCommandProvider implements CommandProvider {
 
 		List<ModelElement> elems;
 		if (entireModel) {
-			elems = client.getModel(currentInstance, repo, patterns);
+			elems = client.getModel(currentInstance, repo, patterns, true, true, false);
 		} else {
-			elems = client.getRootElements(currentInstance, repo, patterns);
+			elems = client.getRootElements(currentInstance, repo, patterns, true, true);
 		}
 		return formatModelElements(elems, "");
 	}
