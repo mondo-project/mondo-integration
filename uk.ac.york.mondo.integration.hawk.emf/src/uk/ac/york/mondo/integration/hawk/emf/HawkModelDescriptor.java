@@ -43,6 +43,11 @@ import org.slf4j.LoggerFactory;
  */
 public class HawkModelDescriptor {
 
+	/*
+	 * Note: all values of this enum must have names in uppercase, so the
+	 * loadingMode values of the <code>hawk+http(s)://</code> URLs will be case
+	 * insensitive.
+	 */
 	public static enum LoadingMode {
 		/**
 		 * Request every model element initially, including all attributes and

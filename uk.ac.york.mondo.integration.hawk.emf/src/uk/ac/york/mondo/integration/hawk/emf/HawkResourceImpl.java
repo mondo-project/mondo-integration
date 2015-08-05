@@ -13,13 +13,10 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -29,7 +26,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EFactory;
@@ -59,408 +55,18 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  */
 public class HawkResourceImpl extends ResourceImpl {
 
-	private static final class ImmutablePair<L, R> {
-		public final L left;
-		public final R right;
-
-		public ImmutablePair(L l, R r) {
-			this.left = l;
-			this.right = r;
-		}
-	}
-
 	/**
-	 * EStore implementation used for the lazy loading mode. Tries to avoid hitting the
-	 * network as much as possible (e.g. {@link #size} calls).
+	 * Internal state used only while loading a tree of {@link ModelElement}s. It's
+	 * kept separate so Java can reclaim the memory as soon as we're done with that
+	 * tree.
 	 */
-	private final class LazyEStore implements InternalEObject.EStore {
-		/**
-		 * Used to store the container of an object and the feature through
-		 * which the object is contained.
-		 */
-		private Map<EObject, ImmutablePair<EStructuralFeature, InternalEObject>> containers = new IdentityHashMap<>(); 
+	private final class TreeLoadingState {
+		// Only for the initial load (allEObjects is cleared afterwards)
+		public String lastTypename, lastMetamodelURI;
+		public final List<EObject> allEObjects = new ArrayList<>();
 
-		/** Values for the EAttributes and the EReferences that have been resolved through the network. */ 
-		private Map<EObject, Map<EStructuralFeature, Object>> store = new IdentityHashMap<>();
-
-		/** Objects for which we don't know their attributes yet (and their IDs). */
-		private Map<EObject, String> pendingAttrs = new IdentityHashMap<>();
-
-		/** Pending EReferences to be fetched.*/
-		private Map<EObject, Map<EStructuralFeature, List<String>>> pendingRefs = new IdentityHashMap<>();
-
-		@Override
-		public void unset(InternalEObject object, EStructuralFeature feature) {
-			final Map<EStructuralFeature, Object> values = store.get(object);
-			if (values != null) {
-				values.remove(feature);
-			} else {
-				Map<EStructuralFeature, List<String>> pending = pendingRefs.get(feature);
-				if (pending != null) {
-					pending.remove(feature);
-				}
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T[] toArray(InternalEObject object, EStructuralFeature feature, T[] array) {
-			final Object value = get(object, feature, -1);
-			if (value instanceof Collection) {
-				final Collection<?> c = (Collection<?>)value;
-				if (array.length != c.size()) {
-					array = (T[]) Array.newInstance(array.getClass().getComponentType(), c.size());
-				}
-				
-				final Iterator<?> it = c.iterator();
-				for (int i = 0; i < array.length && it.hasNext(); i++) {
-					array[i] = (T)it.next();
-				}
-			}
-			return array;
-		}
-
-		@Override
-		public Object[] toArray(InternalEObject object, EStructuralFeature feature) {
-			return toArray(object, feature, new Object[0]);
-		}
-
-		@Override
-		public int size(InternalEObject object, EStructuralFeature feature) {
-			// We can do this without hitting the network, even for refs
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values != null) {
-				Object value = values.get(feature);
-				if (value instanceof Collection) {
-					return ((Collection<?>)value).size();
-				}
-			}
-
-			if (feature instanceof EReference) {
-				Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
-				if (pending != null) {
-					List<String> ids = pending.get(feature);
-					if (ids != null) {
-						return ids.size();
-					}
-				}
-			}
-
-			return 0;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Object set(InternalEObject object, EStructuralFeature feature, int index, Object value) {
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values == null) {
-				values = new IdentityHashMap<EStructuralFeature, Object>();
-				store.put(object, values);
-			}
-
-			if (index == NO_INDEX || !feature.isMany()) {
-				return values.put(feature, value);
-			} else /* index != NO_INDEX && feature.isMany() */ {
-				List<Object> l = (List<Object>)values.get(feature);
-				if (l == null) {
-					l = new BasicEList<>();
-					values.put(feature, l);
-				}
-
-				Object oldValue = null;
-				if (index < l.size()) {
-					oldValue = l.set(index, value);
-				} else {
-					l.add(value);
-				}
-				return oldValue;
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Object remove(InternalEObject object, EStructuralFeature feature, int index) {
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values != null) {
-				List<Object> l = (List<Object>) values.get(feature);
-				if (l != null) {
-					return l.remove(index);
-				}
-			}
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Object move(InternalEObject object, EStructuralFeature feature, int targetIndex, int sourceIndex) {
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values != null) {
-				// We only cast to EList here because it already implements move
-				EList<Object> l = (EList<Object>) values.get(feature);
-				if (l != null) {
-					return l.move(targetIndex, sourceIndex);
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public int lastIndexOf(InternalEObject object, EStructuralFeature feature, Object value) {
-			final Object featureValue = get(object, feature, -1);
-			if (featureValue instanceof List) {
-				final List<?> l = (List<?>)featureValue;
-				for (int i = l.size() - 1; i > 0; i--) {
-					if (l.get(i).equals(value)) {
-						return i; 
-					}
-				}
-			}
-			return -1;
-		}
-
-		@Override
-		public int indexOf(InternalEObject object, EStructuralFeature feature, Object value) {
-			final Object featureValue = get(object, feature, -1);
-			if (featureValue instanceof List) {
-				final List<?> l = (List<?>)featureValue;
-				for (int i = 0; i < l.size(); i++) {
-					if (l.get(i).equals(value)) {
-						return i; 
-					}
-				}
-			}
-			return -1;
-		}
-
-		@Override
-		public boolean isSet(InternalEObject object, EStructuralFeature feature) {
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values == null) {
-				values = new IdentityHashMap<>();
-				store.put(object, values);
-			}
-
-			try {
-				if (values.containsKey(feature)) {
-					return true;
-				} else if (feature instanceof EAttribute) {
-					return resolvePendingAttribute(object, (EAttribute) feature, values) != null;
-				} else if (feature instanceof EReference) {
-					final Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
-					return pending != null && pending.containsKey(feature);
-				} else {
-					return false;
-				}
-			} catch (TException | IOException e) {
-				LOGGER.error(e.getMessage(), e);
-				return false;
-			}
-		}
-
-		@Override
-		public boolean isEmpty(InternalEObject object, EStructuralFeature feature) {
-			return size(object, feature) == 0;
-		}
-
-		@Override
-		public int hashCode(InternalEObject object, EStructuralFeature feature) {
-			final Object value = get(object, feature, -1);
-			return value != null ? value.hashCode() : 0;
-		}
-
-		@Override
-		public EStructuralFeature getContainingFeature(InternalEObject object) {
-			final ImmutablePair<EStructuralFeature, InternalEObject> immutablePair = containers.get(object);
-			return immutablePair == null ? null : immutablePair.left;
-		}
-
-		@Override
-		public InternalEObject getContainer(InternalEObject object) {
-			final ImmutablePair<EStructuralFeature, InternalEObject> immutablePair = containers.get(object);
-			return immutablePair == null ? null : immutablePair.right;
-		}
-
-		@Override
-		public Object get(InternalEObject object, EStructuralFeature feature, int index) {
-			try {
-				Map<EStructuralFeature, Object> values = store.get(object);
-				if (values == null) {
-					values = new IdentityHashMap<>();
-					store.put(object, values);
-				}
-
-				Object value = values.get(feature);
-				if (value == null) {
-					if (feature instanceof EReference) {
-						value = resolvePendingReference(object, (EReference)feature, values);
-					} else if (feature instanceof EAttribute) {
-						value = resolvePendingAttribute(object, (EAttribute)feature, values);
-					}
-				}
-
-				if (index == NO_INDEX || !feature.isMany()) {
-					return value;
-				} else {
-					final EList<?> l = (EList<?>)value;
-					return l.get(index);
-				}
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage(), e);
-				return null;
-			}
-		}
-
-		private Object resolvePendingAttribute(InternalEObject object,
-				EAttribute feature,
-				Map<EStructuralFeature, Object> values)
-				throws HawkInstanceNotFound, HawkInstanceNotRunning,
-				TException, IOException {
-			Object value = null;
-			final String pendingId = pendingAttrs.remove(object);
-			if (pendingId != null) {
-				final List<ModelElement> elems = client.resolveProxies(
-					descriptor.getHawkInstance(), Arrays.asList(pendingId),
-					true, false);
-				if (elems.isEmpty()) {
-					LOGGER.warn("While retrieving attributes, resolveProxies returned an empty list");
-				} else {
-					final ModelElement me = elems.get(0);
-					final EClass eClass = getEClass(
-							me.getMetamodelUri(), me.getTypeName(),
-							getResourceSet().getPackageRegistry());
-					for (AttributeSlot s : me.attributes) {
-						SlotDecodingUtils.setFromSlot(eClass, object, s);
-					}
-					value = values.get(feature);
-				}
-			}
-			return value;
-		}
-
-		private Object resolvePendingReference(InternalEObject object,
-				EReference feature,
-				Map<EStructuralFeature, Object> values)
-				throws Exception {
-			Object value = null;
-			Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
-			if (pending != null) {
-				if (descriptor.getLoadingMode().isGreedyReferences()) {
-					// The loading mode says we should prefetch all referenced nodes
-					final List<String> childrenIds = new ArrayList<>();
-					for (List<String> ids : pending.values()) {
-						childrenIds.addAll(ids);
-					}
-					resolveProxies(childrenIds);
-				}
-
-				// This is a pending ref: resolve its proper value
-				List<String> ids = pending.remove(feature);
-				if (ids != null) {
-					final EList<EObject> eObjs = resolveReference(object, feature, ids);
-					if (feature.isMany()) {
-						value = eObjs;
-						values.put(feature, value);
-					} else if (!eObjs.isEmpty()) {
-						value = eObjs.get(0);
-						values.put(feature, value);
-					}
-				}
-			}
-			return value;
-		}
-
-		private EList<EObject> resolveReference(InternalEObject container, EStructuralFeature feature, List<String> ids) throws Exception {
-			EList<EObject> fetchedEObjs = resolveProxies(ids);
-
-			// Add container (if any)
-			if (container != null) {
-				for (EObject eObj : fetchedEObjs) {
-					containers.put(eObj, new ImmutablePair<>(feature, container));
-				}
-			}
-
-			return fetchedEObjs;
-		}
-
-		private EList<EObject> resolveProxies(List<String> ids)
-				throws HawkInstanceNotFound, HawkInstanceNotRunning,
-				TException, IOException {
-			// Filter the objects that need to be retrieved
-			final List<String> toBeFetched = new ArrayList<>();
-			for (String id : ids) {
-				if (!nodeIdToEObjectMap.containsKey(id)) {
-					toBeFetched.add(id);
-				}
-			}
-
-			// Fetch the eObjects, decode them and resolve references
-			if (!toBeFetched.isEmpty()) {
-				// Prepare the state for possible position-based references
-				clearBatchStorage();
-
-				List<ModelElement> elems = client.resolveProxies(
-						descriptor.getHawkInstance(), toBeFetched,
-						descriptor.getLoadingMode().isGreedyAttributes(), true);
-				List<EObject> fetchedEObjs = createEObjectTree(elems);
-				Iterator<ModelElement> itME = elems.iterator();
-				Iterator<EObject> itEO = fetchedEObjs.iterator();
-				while (itME.hasNext()) {
-					final ModelElement me = itME.next();
-					final EObject eObj = itEO.next();
-					fillInReferences(getResourceSet().getPackageRegistry(), me, eObj);
-				}
-			}
-
-			// Rebuild the real EList now
-			final EList<EObject> finalList = new BasicEList<EObject>(ids.size());
-			for (String id : ids) {
-				final EObject eObject = nodeIdToEObjectMap.get(id);
-				assert eObject != null : "All eObjects should have been fetched by now";
-				finalList.add(eObject);
-			}
-			return finalList;
-		}
-
-		@Override
-		public EObject create(EClass eClass) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean contains(InternalEObject object, EStructuralFeature feature, Object value) {
-			return indexOf(object, feature, value) != -1;
-		}
-
-		@Override
-		public void clear(InternalEObject object, EStructuralFeature feature) {
-			Map<EStructuralFeature, Object> values = store.get(object);
-			if (values != null) {
-				EList<?> l = (EList<?>)values.get(feature);
-				if (l != null) {
-					l.clear();
-				}
-			} else {
-				
-			}
-		}
-
-		@Override
-		public void add(InternalEObject object, EStructuralFeature feature, int index, Object value) {
-			set(object, feature, index, value);
-		}
-
-		public void addLazyReferences(EObject sourceObj, EReference feature, List<String> l) {
-			Map<EStructuralFeature, List<String>> allPending = pendingRefs.get(sourceObj);
-			if (allPending == null) {
-				allPending = new IdentityHashMap<>();
-				pendingRefs.put(sourceObj, allPending);
-			}
-			allPending.put(feature, l);
-		}
-
-		public void addLazyAttributes(String id, EObject eObject) {
-			pendingAttrs.put(eObject, id);
-		}
+		// Only until references are filled in
+		public final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
@@ -488,17 +94,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	private HawkModelDescriptor descriptor;
 	private Client client;
 
-	// Only for the initial load (allEObjects is cleared afterwards)
-	private String lastTypename, lastMetamodelURI;
-	private final List<EObject> allEObjects = new ArrayList<>();
-
-	// Only until references are filled in
-	private final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
-
-	// Persistent (needed to resolve references with lazy loading)
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
-
-	// EStore for when we use lazy loading
 	private LazyEStore lazyEStore;
 
 	public HawkResourceImpl() {
@@ -521,11 +117,86 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
-	private void clearBatchStorage() {
-		// clear the state we don't need after loading a batch of elements
-		allEObjects.clear();
-		meToEObject.clear();
-		lastTypename = lastMetamodelURI = null;
+	public HawkModelDescriptor getDescriptor() {
+		return descriptor;
+	}
+
+	public void doLoad(HawkModelDescriptor descriptor) throws IOException {
+		try {
+			this.descriptor = descriptor;
+			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
+	
+			final LoadingMode mode = descriptor.getLoadingMode();
+			List<ModelElement> elems;
+			if (mode.isGreedyElements()) {
+				elems = client.getModel(descriptor.getHawkInstance(),
+					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true, !mode.isGreedyAttributes());
+			} else {
+				elems = client.getRootElements(descriptor.getHawkInstance(),
+						descriptor.getHawkRepository(),
+						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
+			}
+	
+			final TreeLoadingState state = new TreeLoadingState();
+			final List<EObject> rootEObjects = createEObjectTree(elems, state);
+			getContents().addAll(rootEObjects);
+			fillInReferences(elems, state);
+		} catch (TException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw new IOException(e);
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public EList<EObject> fetchNodes(List<String> ids)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning,
+			TException, IOException {
+		// Filter the objects that need to be retrieved
+		final List<String> toBeFetched = new ArrayList<>();
+		for (String id : ids) {
+			if (!nodeIdToEObjectMap.containsKey(id)) {
+				toBeFetched.add(id);
+			}
+		}
+	
+		// Fetch the eObjects, decode them and resolve references
+		if (!toBeFetched.isEmpty()) {
+			List<ModelElement> elems = client.resolveProxies(
+					descriptor.getHawkInstance(), toBeFetched,
+					descriptor.getLoadingMode().isGreedyAttributes(),
+					true);
+			final TreeLoadingState state = new TreeLoadingState();
+			createEObjectTree(elems, state);
+			fillInReferences(elems, state);
+		}
+
+		// Rebuild the real EList now
+		final EList<EObject> finalList = new BasicEList<EObject>(ids.size());
+		for (String id : ids) {
+			final EObject eObject = nodeIdToEObjectMap.get(id);
+			finalList.add(eObject);
+		}
+		return finalList;
+	}
+
+	public void fetchAttributes(InternalEObject object, final List<String> ids) throws IOException, HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final List<ModelElement> elems = client.resolveProxies(
+			descriptor.getHawkInstance(), ids,
+			true, false);
+		if (elems.isEmpty()) {
+			LOGGER.warn("While retrieving attributes, resolveProxies returned an empty list");
+		} else {
+			final ModelElement me = elems.get(0);
+			final EClass eClass = getEClass(
+					me.getMetamodelUri(), me.getTypeName(),
+					getResourceSet().getPackageRegistry());
+			for (AttributeSlot s : me.attributes) {
+				SlotDecodingUtils.setFromSlot(eClass, object, s);
+			}
+		}
 	}
 
 	private EObject createEObject(ModelElement me) throws IOException {
@@ -556,30 +227,30 @@ public class HawkResourceImpl extends ResourceImpl {
 		return obj;
 	}
 
-	private List<EObject> createEObjectTree(final List<ModelElement> elems) throws IOException {
+	private List<EObject> createEObjectTree(final List<ModelElement> elems, final TreeLoadingState state) throws IOException {
 		final List<EObject> eObjects = new ArrayList<>();
 		for (ModelElement me : elems) {
 			if (me.isSetMetamodelUri()) {
-				lastMetamodelURI = me.getMetamodelUri();
+				state.lastMetamodelURI = me.getMetamodelUri();
 			} else {
-				me.setMetamodelUri(lastMetamodelURI);
+				me.setMetamodelUri(state.lastMetamodelURI);
 			}
 			
 			if (me.isSetTypeName()) {
-				lastTypename = me.getTypeName();
+				state.lastTypename = me.getTypeName();
 			} else {
-				me.setTypeName(lastTypename);
+				me.setTypeName(state.lastTypename);
 			}
 			
 			final EObject obj = createEObject(me);
-			allEObjects.add(obj);
-			meToEObject.put(me, obj);
+			state.allEObjects.add(obj);
+			state.meToEObject.put(me, obj);
 			eObjects.add(obj);
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.containers) {
 					final EStructuralFeature sf = obj.eClass().getEStructuralFeature(s.name);
-					final List<EObject> children = createEObjectTree(s.elements);
+					final List<EObject> children = createEObjectTree(s.elements, state);
 					if (sf.isMany()) {
 						obj.eSet(sf, ECollections.toEList(children));
 					} else if (!children.isEmpty()) {
@@ -591,50 +262,16 @@ public class HawkResourceImpl extends ResourceImpl {
 		return eObjects;
 	}
 
-	private void doLoad(HawkModelDescriptor descriptor) throws IOException {
-		try {
-			this.descriptor = descriptor;
-			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
-
-			// prepare storage for possible position-based references
-			clearBatchStorage();
-
-			final LoadingMode mode = descriptor.getLoadingMode();
-			List<ModelElement> elems;
-			if (mode.isGreedyElements()) {
-				elems = client.getModel(descriptor.getHawkInstance(),
-					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true, !mode.isGreedyAttributes());
-			} else {
-				elems = client.getRootElements(descriptor.getHawkInstance(),
-						descriptor.getHawkRepository(),
-						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
-			}
-
-			final List<EObject> rootEObjects = createEObjectTree(elems);
-			getContents().addAll(rootEObjects);
-			fillInReferences(elems);
-
-			// TODO refactor to separate loading state again, so it can be freed appropriately
-		} catch (TException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new IOException(e);
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw e;
-		}
-	}
-
-	private void fillInReferences(final List<ModelElement> elems) throws IOException {
+	private void fillInReferences(final List<ModelElement> elems, TreeLoadingState state) throws IOException {
 		final Registry packageRegistry = getResourceSet().getPackageRegistry();
 
 		for (ModelElement me : elems) {
-			final EObject sourceObj = meToEObject.remove(me);
-			fillInReferences(packageRegistry, me, sourceObj);
+			final EObject sourceObj = state.meToEObject.remove(me);
+			fillInReferences(packageRegistry, me, sourceObj, state);
 		}
 	}
 
-	private void fillInReferences(final Registry packageRegistry, ModelElement me, final EObject sourceObj) throws IOException {
+	private void fillInReferences(final Registry packageRegistry, ModelElement me, final EObject sourceObj, final TreeLoadingState state) throws IOException {
 		if (me.isSetReferences()) {
 			for (ReferenceSlot s : me.references) {
 				final EClass eClass = getEClass(me.getMetamodelUri(), me.getTypeName(), packageRegistry);
@@ -645,62 +282,70 @@ public class HawkResourceImpl extends ResourceImpl {
 					continue;
 				}
 
-				if (descriptor.getLoadingMode().isGreedyElements()) {
-					fillInReferences(sourceObj, s, feature);
-				} else {
-					markReferencesAsPending(sourceObj, s, feature);
-				}
+				fillInReference(sourceObj, s, feature, state);
 			}
 		}
 
 		if (me.isSetContainers()) {
 			for (ContainerSlot s : me.getContainers()) {
-				fillInReferences(s.elements);
+				fillInReferences(s.elements, state);
 			}
 		}
 	}
 
-	private EList<EObject> fillInReferences(final EObject sourceObj, final ReferenceSlot s, final EReference feature) {
+	private void fillInReference(final EObject sourceObj, final ReferenceSlot s, final EReference feature, final TreeLoadingState state) {
+		/*
+		 * We first load all the elements we may already have (ID-based
+		 * references for loading modes that fetch every model element
+		 * in advance, and position-based references for all loading modes).
+		 */
 		final EList<EObject> value = new BasicEList<>();
-		if (s.isSetId()) {
-			value.add(nodeIdToEObjectMap.get(s.id));
-		}
-		if (s.isSetIds()) {
-			for (String targetId : s.ids) {
-				value.add(nodeIdToEObjectMap.get(targetId));
+		if (descriptor.getLoadingMode().isGreedyElements()) {
+			if (s.isSetId()) {
+				value.add(nodeIdToEObjectMap.get(s.id));
+			}
+			if (s.isSetIds()) {
+				for (String targetId : s.ids) {
+					value.add(nodeIdToEObjectMap.get(targetId));
+				}
 			}
 		}
-
 		if (s.isSetPosition()) {
-			value.add(allEObjects.get(s.position));
+			value.add(state.allEObjects.get(s.position));
 		}
 		if (s.isSetPositions()) {
 			for (Integer targetPos : s.positions) {
-				value.add(allEObjects.get(targetPos));
+				value.add(state.allEObjects.get(targetPos));
 			}
 		}
 
+		/*
+		 * We set the feature to the values we already have.
+		 */
 		if (feature.isMany()) {
 			sourceObj.eSet(feature, value);
 		} else if (!value.isEmpty()) {
 			sourceObj.eSet(feature, value.get(0));
 		}
-		return value;
-	}
 
-	private void markReferencesAsPending(final EObject sourceObj, ReferenceSlot s, final EReference feature) {
-		if (s.isSetId()) {
-			getLazyStore().addLazyReferences(sourceObj, feature, Arrays.asList(s.id));
-		} else if (s.isSetIds()) {
-			getLazyStore().addLazyReferences(sourceObj, feature, s.ids);
+		/*
+		 * If we're not fetching every element in advance, we will need
+		 * to tell the LazyEStore so it will resolve ID-based references
+		 * on the next get.
+		 */
+		if (!descriptor.getLoadingMode().isGreedyElements()) {
+			if (s.isSetId()) {
+				getLazyStore().addLazyReferences(sourceObj, feature, Arrays.asList(s.id));
+			}
+			if (s.isSetIds()) {
+				getLazyStore().addLazyReferences(sourceObj, feature, s.ids);
+			}
 		}
-
-		// XXX position-based references are not supported when using lazy loading
 	}
 
 	private LazyEStore getLazyStore() {
 		if (lazyEStore == null) {
-			lazyEStore = new LazyEStore();
+			lazyEStore = new LazyEStore(this);
 		}
 		return lazyEStore;
 	}
@@ -710,7 +355,6 @@ public class HawkResourceImpl extends ResourceImpl {
 		HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.load(inputStream);
 		doLoad(descriptor);
-		clearBatchStorage();
 	}
 
 	@Override

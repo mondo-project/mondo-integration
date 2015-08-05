@@ -54,7 +54,7 @@ public class HawkResourceFactoryImpl implements Factory {
 			case "repository":
 				descriptor.setHawkRepository(v); break;
 			case "loadingMode":
-				descriptor.setLoadingMode(LoadingMode.valueOf(v)); break;
+				descriptor.setLoadingMode(LoadingMode.valueOf(v.toUpperCase())); break;
 			}
 		}
 		return descriptor;
