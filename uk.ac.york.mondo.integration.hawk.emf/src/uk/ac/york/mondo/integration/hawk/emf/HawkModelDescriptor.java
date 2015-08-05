@@ -38,13 +38,45 @@ import org.slf4j.LoggerFactory;
  * <li>{@link #PROPERTY_HAWK_FILES} (optional) is a comma-separated list of file
  * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
  * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
+ * <li>{@link #PROPERTY_HAWK_LOADING_MODE} (optional) is a string with one of the
+ * values in {@link LoadingMode}, indicating how should the model be lodaded.</li>
  */
 public class HawkModelDescriptor {
 
 	public static enum LoadingMode {
-		GREEDY, // the entire model should be fetched at once
-		LAZY_ATTRIBUTES, // the structure should be fetched at once, attributes would be fetched on the fly
-		LAZY_CHILDREN;
+		/**
+		 * Request every model element initially, including all attributes and
+		 * references.
+		 */
+		GREEDY(true, true, true),
+
+		/** Request all references initially, and request attributes on demand. */
+		LAZY_ATTRIBUTES(true, false, true),
+
+		/**
+		 * Request only the root nodes' attributes and references initially. If
+		 * a reference is navigated, fetch all the nodes referenced by this node.
+		 */
+		LAZY_CHILDREN(false, true, true),
+
+		/**
+		 * Request only the root nodes' attributes and references initially. If
+		 * a reference is navigated, fetch all the nodes in this reference.
+		 */
+		LAZY_REFERENCES(false, true, false),
+
+		/**
+		 * Request only the root nodes without attributes. Load attributes on
+		 * demand, and fetch all references from a node when one is needed.
+		 */
+		LAZY_ATTRIBUTES_CHILDREN(false, false, true),
+
+		/**
+		 * Request only the root nodes without attributes. Load attributes and
+		 * references on demand.
+		 */
+		LAZY_ATTRIBUTES_REFERENCES(false, false, false)
+		;
 
 		public static String[] strings() {
 			final List<String> l = new ArrayList<>();
@@ -52,6 +84,46 @@ public class HawkModelDescriptor {
 				l.add(m.toString());
 			}
 			return l.toArray(new String[l.size()]);
+		}
+
+		private final boolean greedyElements, greedyAttributes, greedyReferences;
+
+		private LoadingMode(boolean greedyElements, boolean greedyAttributes, boolean greedyChildren) {
+			this.greedyElements = greedyElements;
+			this.greedyAttributes = greedyAttributes;
+			this.greedyReferences = greedyElements || greedyChildren;
+		}
+
+		/**
+		 * Returns <code>true</code> if all model elements should be fetched at
+		 * once. If <code>false</code>, only the root elements will be fetched.
+		 */
+		public boolean isGreedyElements() {
+			return greedyElements;
+		}
+
+		/**
+		 * Returns <code>true</code> if attributes should be fetched when first
+		 * fetching a node. If <code>false</code>, the attributes will be
+		 * fetched on the first isSet or get call on an EAttribute from EMF.
+		 */
+		public boolean isGreedyAttributes() {
+			return greedyAttributes;
+		}
+
+		/**
+		 * Returns <code>true</code> if all references in a node should be
+		 * fetched when first resolving one of those references. If
+		 * <code>false</code>, only the nodes in that reference will be
+		 * resolved.
+		 *
+		 * Setting this to <code>false</code> only makes sense if
+		 * {@link #isGreedyElements()} is set to <code>false</code>. If
+		 * {@link #isGreedyElements()} is true, we will already have all nodes
+		 * anyway: this setting can be safely ignored in that case.
+		 */
+		public boolean isGreedyReferences() {
+			return greedyReferences;
 		}
 	}
 

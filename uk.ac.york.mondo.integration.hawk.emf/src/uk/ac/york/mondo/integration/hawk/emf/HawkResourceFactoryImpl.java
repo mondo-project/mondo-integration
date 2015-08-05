@@ -19,6 +19,8 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
+
 public class HawkResourceFactoryImpl implements Factory {
 
 	public HawkResourceFactoryImpl() {
@@ -43,13 +45,16 @@ public class HawkResourceFactoryImpl implements Factory {
 
 		final List<NameValuePair> pairs = URLEncodedUtils.parse(uri.query(), Charset.forName("UTF-8"));
 		for (NameValuePair pair : pairs) {
+			final String v = pair.getValue();
 			switch (pair.getName()) {
 			case "instance":
-				descriptor.setHawkInstance(pair.getValue()); break;
+				descriptor.setHawkInstance(v); break;
 			case "filePatterns":
-				descriptor.setHawkFilePatterns(pair.getValue().split(",")); break;
+				descriptor.setHawkFilePatterns(v.split(",")); break;
 			case "repository":
-				descriptor.setHawkRepository(pair.getValue()); break;
+				descriptor.setHawkRepository(v); break;
+			case "loadingMode":
+				descriptor.setLoadingMode(LoadingMode.valueOf(v)); break;
 			}
 		}
 		return descriptor;

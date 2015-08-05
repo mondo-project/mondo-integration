@@ -32,15 +32,12 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
@@ -54,8 +51,6 @@ import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
-import uk.ac.york.mondo.integration.api.Variant;
-import uk.ac.york.mondo.integration.api.Variant._Fields;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
@@ -240,7 +235,26 @@ public class HawkResourceImpl extends ResourceImpl {
 		@Override
 		public boolean isSet(InternalEObject object, EStructuralFeature feature) {
 			Map<EStructuralFeature, Object> values = store.get(object);
-			return values != null && values.containsKey(feature);
+			if (values == null) {
+				values = new IdentityHashMap<>();
+				store.put(object, values);
+			}
+
+			try {
+				if (values.containsKey(feature)) {
+					return true;
+				} else if (feature instanceof EAttribute) {
+					return resolvePendingAttribute(object, (EAttribute) feature, values) != null;
+				} else if (feature instanceof EReference) {
+					final Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
+					return pending != null && pending.containsKey(feature);
+				} else {
+					return false;
+				}
+			} catch (TException | IOException e) {
+				LOGGER.error(e.getMessage(), e);
+				return false;
+			}
 		}
 
 		@Override
@@ -278,9 +292,9 @@ public class HawkResourceImpl extends ResourceImpl {
 				Object value = values.get(feature);
 				if (value == null) {
 					if (feature instanceof EReference) {
-						value = resolvePendingReference(object, feature, values);
+						value = resolvePendingReference(object, (EReference)feature, values);
 					} else if (feature instanceof EAttribute) {
-						value = resolvePendingAttribute(object, feature, values);
+						value = resolvePendingAttribute(object, (EAttribute)feature, values);
 					}
 				}
 
@@ -297,7 +311,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 
 		private Object resolvePendingAttribute(InternalEObject object,
-				EStructuralFeature feature,
+				EAttribute feature,
 				Map<EStructuralFeature, Object> values)
 				throws HawkInstanceNotFound, HawkInstanceNotRunning,
 				TException, IOException {
@@ -315,7 +329,7 @@ public class HawkResourceImpl extends ResourceImpl {
 							me.getMetamodelUri(), me.getTypeName(),
 							getResourceSet().getPackageRegistry());
 					for (AttributeSlot s : me.attributes) {
-						setStructuralFeatureFromSlot(eClass, object, s);
+						SlotDecodingUtils.setFromSlot(eClass, object, s);
 					}
 					value = values.get(feature);
 				}
@@ -324,16 +338,25 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 
 		private Object resolvePendingReference(InternalEObject object,
-				EStructuralFeature feature,
+				EReference feature,
 				Map<EStructuralFeature, Object> values)
 				throws Exception {
 			Object value = null;
 			Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
 			if (pending != null) {
+				if (descriptor.getLoadingMode().isGreedyReferences()) {
+					// The loading mode says we should prefetch all referenced nodes
+					final List<String> childrenIds = new ArrayList<>();
+					for (List<String> ids : pending.values()) {
+						childrenIds.addAll(ids);
+					}
+					resolveProxies(childrenIds);
+				}
+
 				// This is a pending ref: resolve its proper value
 				List<String> ids = pending.remove(feature);
 				if (ids != null) {
-					final EList<EObject> eObjs = resolve(object, feature, ids);
+					final EList<EObject> eObjs = resolveReference(object, feature, ids);
 					if (feature.isMany()) {
 						value = eObjs;
 						values.put(feature, value);
@@ -346,7 +369,22 @@ public class HawkResourceImpl extends ResourceImpl {
 			return value;
 		}
 
-		public EList<EObject> resolve(InternalEObject container, EStructuralFeature feature, List<String> ids) throws Exception {
+		private EList<EObject> resolveReference(InternalEObject container, EStructuralFeature feature, List<String> ids) throws Exception {
+			EList<EObject> fetchedEObjs = resolveProxies(ids);
+
+			// Add container (if any)
+			if (container != null) {
+				for (EObject eObj : fetchedEObjs) {
+					containers.put(eObj, new ImmutablePair<>(feature, container));
+				}
+			}
+
+			return fetchedEObjs;
+		}
+
+		private EList<EObject> resolveProxies(List<String> ids)
+				throws HawkInstanceNotFound, HawkInstanceNotRunning,
+				TException, IOException {
 			// Filter the objects that need to be retrieved
 			final List<String> toBeFetched = new ArrayList<>();
 			for (String id : ids) {
@@ -356,20 +394,20 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 
 			// Fetch the eObjects, decode them and resolve references
-			List<ModelElement> elems = client.resolveProxies(descriptor.getHawkInstance(), toBeFetched, true, true);
-			List<EObject> fetchedEObjs = createEObjectTree(elems);
-			Iterator<ModelElement> itME = elems.iterator();
-			Iterator<EObject> itEO = fetchedEObjs.iterator();
-			while (itME.hasNext()) {
-				final ModelElement me = itME.next();
-				final EObject eObj = itEO.next();
-				fillInReferences(getResourceSet().getPackageRegistry(), me, eObj);
-			}
+			if (!toBeFetched.isEmpty()) {
+				// Prepare the state for possible position-based references
+				clearBatchStorage();
 
-			// Add container (if any)
-			if (container != null) {
-				for (EObject eObj : fetchedEObjs) {
-					containers.put(eObj, new ImmutablePair<>(feature, container));
+				List<ModelElement> elems = client.resolveProxies(
+						descriptor.getHawkInstance(), toBeFetched,
+						descriptor.getLoadingMode().isGreedyAttributes(), true);
+				List<EObject> fetchedEObjs = createEObjectTree(elems);
+				Iterator<ModelElement> itME = elems.iterator();
+				Iterator<EObject> itEO = fetchedEObjs.iterator();
+				while (itME.hasNext()) {
+					final ModelElement me = itME.next();
+					final EObject eObj = itEO.next();
+					fillInReferences(getResourceSet().getPackageRegistry(), me, eObj);
 				}
 			}
 
@@ -446,181 +484,6 @@ public class HawkResourceImpl extends ResourceImpl {
 		return eClass;
 	}
 
-	private static void setStructuralFeatureFromByte(final EClass eClass,
-			final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature) throws IOException {
-		// TODO not sure, need to test
-
-		if (!slot.value.isSetVBytes() && !slot.value.isSetVByte()) {
-			throw new IOException(
-					String.format(
-							"Expected to receive bytes for feature '%s' in type '%s', but did not",
-							feature.getName(), eClass.getName()));
-		} else if (feature.isMany() || feature.getEType() == EcorePackage.Literals.EBYTE_ARRAY) {
-			final EList<Byte> bytes = new BasicEList<Byte>();
-			if (slot.value.isSetVBytes()) {
-				for (byte b : slot.value.getVBytes()) {
-					bytes.add(b);
-				}
-			} else {
-				bytes.add(slot.value.getVByte());
-			}
-			eObject.eSet(feature, bytes);
-		} else {
-			final byte b = slot.value.getVByte();
-			eObject.eSet(feature, b);
-		}
-	}
-	private static void setStructuralFeatureFromEcoreType(final EClass eClass,
-			final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final EClassifier eType)
-			throws IOException {
-		if (eType == EcorePackage.Literals.EBYTE_ARRAY || eType == EcorePackage.Literals.EBYTE) {
-			setStructuralFeatureFromByte(eClass, eObject, slot, feature);
-		} else if (eType == EcorePackage.Literals.EFLOAT) {
-			setStructuralFeatureFromFloat(eClass, eObject, slot, feature);
-		} else if (eType == EcorePackage.Literals.EDOUBLE) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
-		} else if (eType == EcorePackage.Literals.EINT) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
-		} else if (eType == EcorePackage.Literals.ELONG) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
-		} else if (eType == EcorePackage.Literals.ESHORT) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
-		} else if (eType == EcorePackage.Literals.ESTRING) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
-		} else if (eType == EcorePackage.Literals.EBOOLEAN) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
-		} else {
-			throw new IOException(String.format("Unknown ECore data type '%s'", eType));
-		}
-	}
-
-	private static void setStructuralFeatureFromEnum(final EClass eClass,
-			final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final EEnum enumType)
-			throws IOException {
-		if (!slot.value.isSetVStrings() && !slot.value.isSetVString()) {
-			throw new IOException(
-				String.format(
-					"Expected to receive strings for feature '%s' in type '%s' with many='%s', but did not",
-					feature.getName(), eClass.getName(), feature.isMany()));
-		} else if (feature.isMany()) {
-			List<EEnumLiteral> literals = new ArrayList<>();
-			if (slot.value.isSetVStrings()) {
-				for (String s : slot.value.getVStrings()) {
-					literals.add(enumType.getEEnumLiteral(s));
-				}
-			} else {
-				literals.add(enumType.getEEnumLiteral(slot.value.getVString()));
-			}
-			eObject.eSet(feature, literals);
-		} else {
-			final EEnumLiteral enumLiteral = enumType.getEEnumLiteral(slot.value.getVString());
-			eObject.eSet(feature, enumLiteral);
-		}
-	}
-
-	private static void setStructuralFeatureFromFloat(final EClass eClass,
-			final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature) throws IOException {
-		if (!slot.value.isSetVDoubles() && !slot.value.isSetVDouble()) {
-			throw new IOException(
-					String.format(
-							"Expected to receive doubles for feature '%s' in type '%s', but did not",
-							feature.getName(), eClass.getName()));
-
-		} else if (feature.isMany()) {
-			final EList<Float> floats = new BasicEList<Float>();
-			if (slot.value.isSetVDoubles()) {
-				for (double d : slot.value.getVDoubles()) {
-					floats.add((float) d);
-				}
-			} else {
-				floats.add((float) slot.value.getVDouble());
-			}
-			eObject.eSet(feature, floats);
-		} else {
-			final double d = slot.value.getVDouble();
-			eObject.eSet(feature, (float) d);
-		}
-	}
-
-	private static void setStructuralFeatureFromInstanceClass(
-			final EClass eClass, final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final EClassifier eType)
-			throws IOException {
-		// Fall back on using the Java instance classes
-		final Class<?> instanceClass = eType.getInstanceClass();
-		if (instanceClass == null) {
-			throw new IOException(String.format(
-					"Cannot set value for feature '%s' with type '%s', as "
-					+ "it is not an Ecore data type and it does not have an instance class",
-					feature, eType));
-		}
-
-		if (Byte.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureFromByte(eClass, eObject, slot, feature);
-		} else if (Float.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureFromFloat(eClass, eObject, slot, feature);
-		} else if (Double.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
-		} else if (Integer.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
-		} else if (Long.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
-		} else if (Short.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
-		} else if (String.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
-		} else if (Boolean.class.isAssignableFrom(instanceClass)) {
-			setStructuralFeatureWithExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
-		} else {
-			throw new IOException(String.format(
-					"Unknown data type %s with isMany = false and instance class %s",
-					eType.getName(), feature.isMany(), instanceClass));
-		}
-	}
-
-	private static EStructuralFeature setStructuralFeatureFromSlot(
-			final EClass eClass, final EObject eObject, AttributeSlot slot)
-			throws IOException {
-		final EStructuralFeature feature = eClass.getEStructuralFeature(slot.name);
-		final EClassifier eType = feature.getEType();
-
-		// isSet=true and many=false means that we should have exactly one value
-		if (eType.eContainer() == EcorePackage.eINSTANCE) {
-			setStructuralFeatureFromEcoreType(eClass, eObject, slot, feature, eType);
-		} else if (eType instanceof EEnum) {
-			setStructuralFeatureFromEnum(eClass, eObject, slot, feature, (EEnum)eType);
-		} else {
-			setStructuralFeatureFromInstanceClass(eClass, eObject, slot, feature, eType);
-		}
-
-		return feature;
-	}
-
-	private static void setStructuralFeatureWithExpectedType(
-			final EClass eClass, final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final Variant._Fields expectedMultiType, _Fields expectedSingleType)
-			throws IOException {
-		if (!slot.value.isSet(expectedMultiType) && !slot.value.isSet(expectedSingleType)) {
-			throw new IOException(
-					String.format(
-							"Expected to receive '%s' for feature '%s' in type '%s' with many='%s', but did not",
-							expectedMultiType, feature.getName(), eClass.getName(),
-							feature.isMany()));
-		} else if (feature.isMany() && slot.value.isSet(expectedMultiType)) {
-			eObject.eSet(feature, ECollections.toEList(
-				(Iterable<?>) slot.value.getFieldValue(expectedMultiType)));
-		} else if (feature.isMany()) {
-			eObject.eSet(feature, ECollections.asEList(
-				slot.value.getFieldValue(expectedSingleType)));
-		} else {
-			final Object elem = slot.value.getFieldValue(expectedSingleType);
-			eObject.eSet(feature, elem);
-		}
-	}
 
 	private HawkModelDescriptor descriptor;
 	private Client client;
@@ -658,16 +521,24 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 	}
 
+	private void clearBatchStorage() {
+		// clear the state we don't need after loading a batch of elements
+		allEObjects.clear();
+		meToEObject.clear();
+		lastTypename = lastMetamodelURI = null;
+	}
+
 	private EObject createEObject(ModelElement me) throws IOException {
 		final Registry registry = getResourceSet().getPackageRegistry();
 		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
 
+		final LoadingMode mode = descriptor.getLoadingMode();
 		EObject obj;
-		if (descriptor.getLoadingMode() != LoadingMode.GREEDY) {
-			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
-		} else {
+		if (mode.isGreedyAttributes() && mode.isGreedyElements()) {
 			final EFactory factory = registry.getEFactory(me.metamodelUri);
 			obj = factory.create(eClass);
+		} else {
+			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
 		}
 
 		if (me.isSetId()) {
@@ -676,9 +547,9 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		if (me.isSetAttributes()) {
 			for (AttributeSlot s : me.attributes) {
-				setStructuralFeatureFromSlot(eClass, obj, s);
+				SlotDecodingUtils.setFromSlot(eClass, obj, s);
 			}
-		} else if (descriptor.getLoadingMode() == LoadingMode.LAZY_ATTRIBUTES) {
+		} else if (!mode.isGreedyAttributes()) {
 			getLazyStore().addLazyAttributes(me.id, obj);
 		}
 
@@ -703,17 +574,16 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject obj = createEObject(me);
 			allEObjects.add(obj);
 			meToEObject.put(me, obj);
-			final EObject parent = obj;
-			eObjects.add(parent);
+			eObjects.add(obj);
 
 			if (me.isSetContainers()) {
 				for (ContainerSlot s : me.containers) {
-					final EStructuralFeature sf = parent.eClass().getEStructuralFeature(s.name);
+					final EStructuralFeature sf = obj.eClass().getEStructuralFeature(s.name);
 					final List<EObject> children = createEObjectTree(s.elements);
 					if (sf.isMany()) {
-						parent.eSet(sf, ECollections.toEList(children));
+						obj.eSet(sf, ECollections.toEList(children));
 					} else if (!children.isEmpty()) {
-						parent.eSet(sf, children.get(0));
+						obj.eSet(sf, children.get(0));
 					}
 				}
 			}
@@ -726,16 +596,19 @@ public class HawkResourceImpl extends ResourceImpl {
 			this.descriptor = descriptor;
 			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
 
+			// prepare storage for possible position-based references
+			clearBatchStorage();
+
+			final LoadingMode mode = descriptor.getLoadingMode();
 			List<ModelElement> elems;
-			if (descriptor.getLoadingMode() == LoadingMode.LAZY_CHILDREN) {
-				elems = client.getRootElements(descriptor.getHawkInstance(),
-					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()), true, true);
-			} else {
-				final boolean loadAttributes = descriptor.getLoadingMode() == LoadingMode.GREEDY;
+			if (mode.isGreedyElements()) {
 				elems = client.getModel(descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()), loadAttributes, true, !loadAttributes);
+					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true, !mode.isGreedyAttributes());
+			} else {
+				elems = client.getRootElements(descriptor.getHawkInstance(),
+						descriptor.getHawkRepository(),
+						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
 			}
 
 			final List<EObject> rootEObjects = createEObjectTree(elems);
@@ -772,10 +645,10 @@ public class HawkResourceImpl extends ResourceImpl {
 					continue;
 				}
 
-				if (descriptor.getLoadingMode() == LoadingMode.LAZY_CHILDREN) {
-					markReferencesAsPending(sourceObj, s, feature);
-				} else {
+				if (descriptor.getLoadingMode().isGreedyElements()) {
 					fillInReferences(sourceObj, s, feature);
+				} else {
+					markReferencesAsPending(sourceObj, s, feature);
 				}
 			}
 		}
@@ -798,7 +671,6 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 		}
 
-		// Note: using position-based references after the initial load is not supported
 		if (s.isSetPosition()) {
 			value.add(allEObjects.get(s.position));
 		}
@@ -838,6 +710,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.load(inputStream);
 		doLoad(descriptor);
+		clearBatchStorage();
 	}
 
 	@Override
