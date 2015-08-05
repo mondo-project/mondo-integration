@@ -158,6 +158,7 @@ public class HawkThriftServlet extends TServlet {
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
 				encoder.setIncludeNodeIDs(true);
+				encoder.setUseContainment(false);
 				encoder.setIncludeAttributes(includeAttributes);
 				encoder.setIncludeReferences(includeReferences);
 				for (String id : ids) {
