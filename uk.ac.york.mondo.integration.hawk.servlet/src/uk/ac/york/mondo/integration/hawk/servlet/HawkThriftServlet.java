@@ -158,7 +158,6 @@ public class HawkThriftServlet extends TServlet {
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
 				encoder.setIncludeNodeIDs(true);
-				encoder.setUseContainment(false);
 				encoder.setIncludeAttributes(includeAttributes);
 				encoder.setIncludeReferences(includeReferences);
 				for (String id : ids) {
@@ -341,13 +340,10 @@ public class HawkThriftServlet extends TServlet {
 					LOGGER.info("Retrieving elements from {}", filePath);
 
 					if (collectType == CollectElements.ALL) {
-						// We're going to send the entire model, so we want containment + no node IDs for efficiency
-						encoder.setUseContainment(true);
 						for (ModelElementNode meNode : fileNode.getModelElements()) {
 							encoder.encode(meNode);
 						}
 					} else {
-						// We're only going to send the roots, so we want a flat list and explicit node IDs 
 						encoder.setUseContainment(false);
 						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
 							encoder.encode(meNode);

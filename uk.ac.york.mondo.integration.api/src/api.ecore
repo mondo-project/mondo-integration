@@ -993,7 +993,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReferenceSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;Represents a slot that can store the value(s) of a reference  of a model element.&#xA;References can be expressed as positions within a result tree (using pre-order traversal)&#xA;or IDs. position/positions and id/ids are mutually exclusive. At least one position or one&#xA;ID must be given.&#xA;"/>
+      <details key="d" value="&#xA;Represents a slot that can store the value(s) of a reference  of a model element.&#xA;References can be expressed as positions within a result tree (using pre-order traversal)&#xA;or IDs. id, ids, position, positions and mixed are all mutually exclusive. At least one position&#xA;or one ID must be given.&#xA;"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         containment="true">
@@ -1021,6 +1021,33 @@
       <eAnnotations source="doc">
         <details key="d" value="Unique identifiers of the referenced elements (if more than one)."/>
         <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mixed" upperBound="-1"
+        eType="#//MixedReference" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Mix of identifier- and position-bsaed references (if there is at least one position and one ID"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MixedReference">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eAnnotations source="doc">
+      <details key="d" value="Represents a reference to a model element: it can be an identifier or a position.&#xA;Only used when the same ReferenceSlot has both identifier-based and position-based references.&#xA;This may be the case if we are retrieving a subset of the model which has references&#xA;between its elements and with elements outside the subset at the same time."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier-based reference to a model element"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Position-based reference to a model element"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

@@ -477,8 +477,8 @@ class AttributeSlot extends Slot {
 @doc(d="
 Represents a slot that can store the value(s) of a reference  of a model element.
 References can be expressed as positions within a result tree (using pre-order traversal)
-or IDs. position/positions and id/ids are mutually exclusive. At least one position or one
-ID must be given.
+or IDs. id, ids, position, positions and mixed are all mutually exclusive. At least one position
+or one ID must be given.
 ")
 class ReferenceSlot extends Slot {
     @doc(d="Position of the referenced element (if there is only one position-based reference in this slot)", optional="true")
@@ -492,6 +492,22 @@ class ReferenceSlot extends Slot {
 
 	@doc(d="Unique identifiers of the referenced elements (if more than one).", optional="true")
 	val String[*] ids;
+
+	@doc(d="Mix of identifier- and position-bsaed references (if there is at least one position and one ID", optional="true")
+	val MixedReference[*] mixed;
+}
+
+@thrift(union="true")
+@doc(d="Represents a reference to a model element: it can be an identifier or a position.
+Only used when the same ReferenceSlot has both identifier-based and position-based references.
+This may be the case if we are retrieving a subset of the model which has references
+between its elements and with elements outside the subset at the same time.")
+class MixedReference {
+	@doc(d="Identifier-based reference to a model element")
+	val String ~id;
+
+	@doc(d="Position-based reference to a model element")
+	val int position;
 }
 
 // @thrift.map(key="name", value="elements")

@@ -73,7 +73,7 @@ class LazyEStore implements InternalEObject.EStore {
 	private Map<EObject, String> pendingAttrs = new IdentityHashMap<>();
 
 	/** Pending EReferences to be fetched.*/
-	private Map<EObject, Map<EStructuralFeature, List<String>>> pendingRefs = new IdentityHashMap<>();
+	private Map<EObject, Map<EStructuralFeature, EList<Object>>> pendingRefs = new IdentityHashMap<>();
 
 	@Override
 	public void unset(InternalEObject object, EStructuralFeature feature) {
@@ -81,7 +81,7 @@ class LazyEStore implements InternalEObject.EStore {
 		if (values != null) {
 			values.remove(feature);
 		} else {
-			Map<EStructuralFeature, List<String>> pending = pendingRefs.get(feature);
+			Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(feature);
 			if (pending != null) {
 				pending.remove(feature);
 			}
@@ -121,26 +121,22 @@ class LazyEStore implements InternalEObject.EStore {
 		}
 
 		// Grab the size from the existing value
-		int size = 0;
 		if (value instanceof Collection) {
-			size = ((Collection<?>)value).size();
+			return ((Collection<?>)value).size();
 		}
 
-		// Need to take into account pending refs into the size as well:
-		// the reference may not have been fetched yet, or the encoder
-		// may have produced a combination of ID-based and position-based
-		// references.
+		// Pending references may be one ID, several IDs or a mix of positions and IDs
 		if (feature instanceof EReference) {
-			Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
+			Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
 			if (pending != null) {
-				List<String> ids = pending.get(feature);
-				if (ids != null) {
-					size += ids.size();
+				EList<Object> s = pending.get(feature);
+				if (s != null) {
+					return s.size();
 				}
 			}
 		}
 
-		return size;
+		return 0;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,7 +237,7 @@ class LazyEStore implements InternalEObject.EStore {
 			} else if (feature instanceof EAttribute) {
 				isSet = resolvePendingAttribute(object, (EAttribute) feature, values) != null;
 			} else if (feature instanceof EReference) {
-				final Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
+				final Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
 				isSet = pending != null && pending.containsKey(feature);
 			}
 
@@ -335,15 +331,30 @@ class LazyEStore implements InternalEObject.EStore {
 		set(object, feature, index, value);
 	}
 
-	public void addLazyReferences(EObject sourceObj, EReference feature, List<String> l) {
-		Map<EStructuralFeature, List<String>> allPending = pendingRefs.get(sourceObj);
+	/**
+	 * Adds a reference to the store, to be fetched later on demand.
+	 * 
+	 * @param sourceObj
+	 *            EObject whose reference will be fetched later on.
+	 * @param feature
+	 *            Reference to fetch.
+	 * @param value
+	 *            Mixed list of {@link String}s (from ID-based references) or
+	 *            {@link EObject}s (from position-based references).
+	 */
+	public void addLazyReferences(EObject sourceObj, EReference feature, EList<Object> value) {
+		Map<EStructuralFeature, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		if (allPending == null) {
 			allPending = new IdentityHashMap<>();
 			pendingRefs.put(sourceObj, allPending);
 		}
-		allPending.put(feature, l);
+		allPending.put(feature, value);
 	}
 
+	/**
+	 * Marks a certain {@link EObject} so its attributes will be fetched on
+	 * demand.
+	 */
 	public void addLazyAttributes(String id, EObject eObject) {
 		pendingAttrs.put(eObject, id);
 	}
@@ -365,22 +376,22 @@ class LazyEStore implements InternalEObject.EStore {
 			EReference feature,
 			Map<EStructuralFeature, Object> values)
 			throws Exception {
-		Map<EStructuralFeature, List<String>> pending = pendingRefs.get(object);
+		Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
 		if (pending != null) {
 			final LoadingMode loadingMode = resource.getDescriptor().getLoadingMode();
 			if (loadingMode.isGreedyReferences()) {
 				// The loading mode says we should prefetch all referenced nodes
 				final List<String> childrenIds = new ArrayList<>();
-				for (List<String> ids : pending.values()) {
-					childrenIds.addAll(ids);
+				for (EList<Object> elems : pending.values()) {
+					addAllStrings(elems, childrenIds);
 				}
 				resource.fetchNodes(childrenIds);
 			}
 
 			// This is a pending ref: resolve its proper value
-			List<String> ids = pending.remove(feature);
+			EList<Object> ids = pending.remove(feature);
 			if (ids != null) {
-				final EList<EObject> eObjs = resolveReference(object, feature, ids);
+				final EList<Object> eObjs = resolveReference(object, feature, ids);
 				if (feature.isMany()) {
 					values.put(feature, eObjs);
 				} else if (!eObjs.isEmpty()) {
@@ -390,27 +401,36 @@ class LazyEStore implements InternalEObject.EStore {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private EList<EObject> resolveReference(InternalEObject container, EStructuralFeature feature, List<String> ids) throws Exception {
+	private void addAllStrings(EList<Object> source, final List<String> target) {
+		for (Object elem : source) {
+			if (elem instanceof String) {
+				target.add((String)elem);
+			}
+		}
+	}
+
+	private EList<Object> resolveReference(InternalEObject container, EStructuralFeature feature, EList<Object> elems) throws Exception {
 		assert store.get(container) != null : "The store for this feature should have been already set";
 
-		EList<EObject> resolved = resource.fetchNodes(ids);
+		final List<String> ids = new ArrayList<>();
+		addAllStrings(elems, ids);
+		final EList<EObject> resolved = resource.fetchNodes(ids);
 		if (container != null) {
 			for (EObject eObj : resolved) {
 				containers.put(eObj, new ImmutablePair<>(feature, container));
 			}
 		}
 
-		// We might already have some objects in the EReference from a ReferenceSlot
-		// with both positions and IDs.
-		//
-		// XXX We lose the relative ordering of the elements if we use a combination
-		// of positions and IDs, though.
-		EList<EObject> result = (EList<EObject>) store.get(container).get(feature);
-		if (result == null) {
-			result = resolved;
-		} else {
-			result.addAll(resolved);
+		// Replace all old String elements with their corresponding EObjects
+		final EList<Object> result = new BasicEList<>();
+		int iResolved = 0;
+		for (int iElem = 0; iElem < elems.size(); iElem++) {
+			final Object elem = elems.get(iElem);
+			if (elem instanceof String) {
+				result.add(resolved.get(iResolved++));
+			} else {
+				result.add(elem);
+			}
 		}
 
 		return result;

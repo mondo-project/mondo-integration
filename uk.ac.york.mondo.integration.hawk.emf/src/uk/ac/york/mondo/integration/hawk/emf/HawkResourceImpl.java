@@ -45,6 +45,7 @@ import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
+import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
@@ -294,52 +295,64 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	private void fillInReference(final EObject sourceObj, final ReferenceSlot s, final EReference feature, final TreeLoadingState state) {
-		/*
-		 * We first load all the elements we may already have (ID-based
-		 * references for loading modes that fetch every model element
-		 * in advance, and position-based references for all loading modes).
-		 */
-		final EList<EObject> value = new BasicEList<>();
-		if (descriptor.getLoadingMode().isGreedyElements()) {
-			if (s.isSetId()) {
-				value.add(nodeIdToEObjectMap.get(s.id));
+		final boolean greedyElements = descriptor.getLoadingMode().isGreedyElements();
+		if (s.isSetId()) {
+			if (greedyElements) {
+				sourceObj.eSet(feature, nodeIdToEObjectMap.get(s.id));
+			} else {
+				final EList<Object> value = new BasicEList<Object>();
+				value.add(s.id);
+				getLazyStore().addLazyReferences(sourceObj, feature, value);
 			}
-			if (s.isSetIds()) {
+		}
+		else if (s.isSetIds()) {
+			final EList<Object> value = new BasicEList<>();
+			if (greedyElements) {
 				for (String targetId : s.ids) {
 					value.add(nodeIdToEObjectMap.get(targetId));
 				}
+				sourceObj.eSet(feature, value);
+			} else {
+				value.addAll(s.ids);
+				getLazyStore().addLazyReferences(sourceObj, feature, value);
 			}
 		}
-		if (s.isSetPosition()) {
-			value.add(state.allEObjects.get(s.position));
+		else if (s.isSetPosition()) {
+			sourceObj.eSet(feature, state.allEObjects.get(s.position));
 		}
-		if (s.isSetPositions()) {
-			for (Integer targetPos : s.positions) {
-				value.add(state.allEObjects.get(targetPos));
+		else if (s.isSetPositions()) {
+			final EList<EObject> value = new BasicEList<>();
+			for (Integer position : s.positions) {
+				value.add(state.allEObjects.get(position));
 			}
-		}
-
-		/*
-		 * We set the feature to the values we already have.
-		 */
-		if (feature.isMany()) {
 			sourceObj.eSet(feature, value);
-		} else if (!value.isEmpty()) {
-			sourceObj.eSet(feature, value.get(0));
 		}
+		else if (s.isSetMixed()) {
+			final EList<Object> value = new BasicEList<>();
 
-		/*
-		 * If we're not fetching every element in advance, we will need
-		 * to tell the LazyEStore so it will resolve ID-based references
-		 * on the next get.
-		 */
-		if (!descriptor.getLoadingMode().isGreedyElements()) {
-			if (s.isSetId()) {
-				getLazyStore().addLazyReferences(sourceObj, feature, Arrays.asList(s.id));
+			for (MixedReference mixed : s.mixed) {
+				if (mixed.isSetId()) {
+					if (greedyElements) {
+						// normally, if we fetch all elements we won't have mixed ReferenceSlots,
+						// but we handle it here, just in case.
+						value.add(nodeIdToEObjectMap.get(mixed.getId()));
+					} else {
+						value.add(mixed.getId());
+					}
+				} else if (mixed.isSetPosition()) {
+					value.add(state.allEObjects.get(mixed.getPosition()));
+				} else {
+					LOGGER.warn("Unknown mixed reference in {}", mixed);
+				}
 			}
-			if (s.isSetIds()) {
-				getLazyStore().addLazyReferences(sourceObj, feature, s.ids);
+			if (greedyElements) {
+				sourceObj.eSet(feature, value);
+			} else {
+				getLazyStore().addLazyReferences(sourceObj, feature, value);
 			}
+		}
+		else {
+			LOGGER.warn("No known reference field was set in {}", s);
 		}
 	}
 

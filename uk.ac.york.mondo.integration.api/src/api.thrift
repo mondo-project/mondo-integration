@@ -108,6 +108,11 @@ exception InvalidTransformation {
 exception MergeRequired {
 }
 
+union MixedReference {
+	 /* Identifier-based reference to a model element. */ 1: optional string id,
+	 /* Position-based reference to a model element. */ 2: optional i32 position,
+}
+
 struct ModelSpec {
 	 /* The local name of the model in the transformation. */ 1: required string name,
 	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
@@ -115,14 +120,6 @@ struct ModelSpec {
 }
 
 struct OperationModel {
-}
-
-struct ReferenceSlot {
-	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Position of the referenced element (if there is only one position-based reference in this slot). */ 2: optional i32 position,
-	 /* Positions of the referenced elements (if more than one). */ 3: optional list<i32> positions,
-	 /* Unique identifier of the referenced element (if there is only one ID based reference in this slot). */ 4: optional string id,
-	 /* Unique identifiers of the referenced elements (if more than one). */ 5: optional list<string> ids,
 }
 
 union ScalarOrReference {
@@ -215,6 +212,15 @@ exception CollaborationResourceNotFound {
 exception InvalidModelSpec {
 	 /* A copy of the invalid model specification. */ 1: required ModelSpec spec,
 	 /* Reason for the spec not being valid. */ 2: required string reason,
+}
+
+struct ReferenceSlot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Position of the referenced element (if there is only one position-based reference in this slot). */ 2: optional i32 position,
+	 /* Positions of the referenced elements (if more than one). */ 3: optional list<i32> positions,
+	 /* Unique identifier of the referenced element (if there is only one ID based reference in this slot). */ 4: optional string id,
+	 /* Unique identifiers of the referenced elements (if more than one). */ 5: optional list<string> ids,
+	 /* Mix of identifier- and position-bsaed references (if there is at least one position and one ID. */ 6: optional list<MixedReference> mixed,
 }
 
 struct ModelElement {
