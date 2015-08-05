@@ -241,7 +241,6 @@ class LazyEStore implements InternalEObject.EStore {
 				isSet = pending != null && pending.containsKey(feature);
 			}
 
-			LOGGER.debug("isSet({}, {}) = {}", object, feature.getName(), isSet);
 			return isSet;
 		} catch (TException | IOException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -288,7 +287,6 @@ class LazyEStore implements InternalEObject.EStore {
 			}
 
 			Object value = values.get(feature);
-			LOGGER.debug("get({}, {}) = {}", object, feature.getName(), value);
 			if (index == NO_INDEX || !feature.isMany()) {
 				return value;
 			} else {
