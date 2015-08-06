@@ -114,9 +114,8 @@ union MixedReference {
 }
 
 struct ModelSpec {
-	 /* The local name of the model in the transformation. */ 1: required string name,
-	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
-	 /* The URIs of the metamodels to which elements of the model conform. */ 3: required list<string> metamodelUris,
+	 /* The URI from which the model will be loaded or to which it will be persisted. */ 1: required string uri,
+	 /* The URIs of the metamodels to which elements of the model conform. */ 2: required list<string> metamodelUris,
 }
 
 struct OperationModel {

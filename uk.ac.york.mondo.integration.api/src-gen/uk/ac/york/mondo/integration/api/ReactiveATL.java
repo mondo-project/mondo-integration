@@ -1087,14 +1087,14 @@ public class ReactiveATL {
             case 2: // SOURCE
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list320 = iprot.readListBegin();
-                  struct.source = new ArrayList<ModelSpec>(_list320.size);
-                  ModelSpec _elem321;
-                  for (int _i322 = 0; _i322 < _list320.size; ++_i322)
+                  org.apache.thrift.protocol.TList _list304 = iprot.readListBegin();
+                  struct.source = new ArrayList<ModelSpec>(_list304.size);
+                  ModelSpec _elem305;
+                  for (int _i306 = 0; _i306 < _list304.size; ++_i306)
                   {
-                    _elem321 = new ModelSpec();
-                    _elem321.read(iprot);
-                    struct.source.add(_elem321);
+                    _elem305 = new ModelSpec();
+                    _elem305.read(iprot);
+                    struct.source.add(_elem305);
                   }
                   iprot.readListEnd();
                 }
@@ -1106,14 +1106,14 @@ public class ReactiveATL {
             case 3: // TARGET
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list323 = iprot.readListBegin();
-                  struct.target = new ArrayList<ModelSpec>(_list323.size);
-                  ModelSpec _elem324;
-                  for (int _i325 = 0; _i325 < _list323.size; ++_i325)
+                  org.apache.thrift.protocol.TList _list307 = iprot.readListBegin();
+                  struct.target = new ArrayList<ModelSpec>(_list307.size);
+                  ModelSpec _elem308;
+                  for (int _i309 = 0; _i309 < _list307.size; ++_i309)
                   {
-                    _elem324 = new ModelSpec();
-                    _elem324.read(iprot);
-                    struct.target.add(_elem324);
+                    _elem308 = new ModelSpec();
+                    _elem308.read(iprot);
+                    struct.target.add(_elem308);
                   }
                   iprot.readListEnd();
                 }
@@ -1146,9 +1146,9 @@ public class ReactiveATL {
           oprot.writeFieldBegin(SOURCE_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.source.size()));
-            for (ModelSpec _iter326 : struct.source)
+            for (ModelSpec _iter310 : struct.source)
             {
-              _iter326.write(oprot);
+              _iter310.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1158,9 +1158,9 @@ public class ReactiveATL {
           oprot.writeFieldBegin(TARGET_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.target.size()));
-            for (ModelSpec _iter327 : struct.target)
+            for (ModelSpec _iter311 : struct.target)
             {
-              _iter327.write(oprot);
+              _iter311.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1186,16 +1186,16 @@ public class ReactiveATL {
         oprot.writeString(struct.transformation);
         {
           oprot.writeI32(struct.source.size());
-          for (ModelSpec _iter328 : struct.source)
+          for (ModelSpec _iter312 : struct.source)
           {
-            _iter328.write(oprot);
+            _iter312.write(oprot);
           }
         }
         {
           oprot.writeI32(struct.target.size());
-          for (ModelSpec _iter329 : struct.target)
+          for (ModelSpec _iter313 : struct.target)
           {
-            _iter329.write(oprot);
+            _iter313.write(oprot);
           }
         }
       }
@@ -1206,26 +1206,26 @@ public class ReactiveATL {
         struct.transformation = iprot.readString();
         struct.setTransformationIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list330 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.source = new ArrayList<ModelSpec>(_list330.size);
-          ModelSpec _elem331;
-          for (int _i332 = 0; _i332 < _list330.size; ++_i332)
+          org.apache.thrift.protocol.TList _list314 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.source = new ArrayList<ModelSpec>(_list314.size);
+          ModelSpec _elem315;
+          for (int _i316 = 0; _i316 < _list314.size; ++_i316)
           {
-            _elem331 = new ModelSpec();
-            _elem331.read(iprot);
-            struct.source.add(_elem331);
+            _elem315 = new ModelSpec();
+            _elem315.read(iprot);
+            struct.source.add(_elem315);
           }
         }
         struct.setSourceIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list333 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.target = new ArrayList<ModelSpec>(_list333.size);
-          ModelSpec _elem334;
-          for (int _i335 = 0; _i335 < _list333.size; ++_i335)
+          org.apache.thrift.protocol.TList _list317 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.target = new ArrayList<ModelSpec>(_list317.size);
+          ModelSpec _elem318;
+          for (int _i319 = 0; _i319 < _list317.size; ++_i319)
           {
-            _elem334 = new ModelSpec();
-            _elem334.read(iprot);
-            struct.target.add(_elem334);
+            _elem318 = new ModelSpec();
+            _elem318.read(iprot);
+            struct.target.add(_elem318);
           }
         }
         struct.setTargetIsSet(true);

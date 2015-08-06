@@ -846,12 +846,12 @@
           <details key="d" value="The ATL source-code of the transformation"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="source" upperBound="-1" eType="#//ModelSpec">
+      <eParameters name="source" eType="#//ModelSpec">
         <eAnnotations source="doc">
           <details key="d" value="The input models of the transformation"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="target" upperBound="-1" eType="#//ModelSpec">
+      <eParameters name="target" eType="#//ModelSpec">
         <eAnnotations source="doc">
           <details key="d" value="The target models of the transformation"/>
         </eAnnotations>
@@ -1115,11 +1115,6 @@
     <eAnnotations source="doc">
       <details key="d" value="Captures information about source/target models of ATL transformations"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The local name of the model in the transformation"/>
-      </eAnnotations>
-    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The URI from which the model will be loaded or to which it will be persisted"/>
