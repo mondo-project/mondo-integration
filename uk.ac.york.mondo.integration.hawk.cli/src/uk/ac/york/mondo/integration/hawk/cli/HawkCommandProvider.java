@@ -216,7 +216,11 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkListFiles(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 		final String repo = requiredArgument(intp, "url");
-		return formatList(client.listFiles(currentInstance, repo));
+		final List<String> filePatterns = readRemainingArguments(intp);
+		if (filePatterns.isEmpty()) {
+			filePatterns.add("*");
+		}
+		return formatList(client.listFiles(currentInstance, repo, filePatterns));
 	}
 
 	/* QUERIES */
@@ -489,7 +493,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n\t");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
-		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
+		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");

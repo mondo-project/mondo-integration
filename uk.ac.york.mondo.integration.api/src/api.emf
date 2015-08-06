@@ -148,7 +148,8 @@ class Hawk {
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the indexed repository") String repository
+		@doc(d="The URI of the indexed repository") String repository,
+		@doc(d="File name patterns to search for (* lists all files)") String[*] filePatterns
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Sets the base polling period and max interval of a Hawk instance")
