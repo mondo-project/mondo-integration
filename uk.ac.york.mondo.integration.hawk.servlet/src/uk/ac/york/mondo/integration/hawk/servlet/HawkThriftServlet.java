@@ -18,14 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
 import org.hawk.core.graph.IGraphDatabase;
-import org.hawk.core.graph.IGraphIterable;
-import org.hawk.core.graph.IGraphNode;
-import org.hawk.core.graph.IGraphNodeIndex;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.graph.FileNode;
@@ -151,12 +149,16 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> resolveProxies(String name, List<String> ids) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		public List<ModelElement> resolveProxies(String name, List<String> ids, boolean includeAttributes, boolean includeReferences) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
 			try (IGraphTransaction tx = graph.beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
+				encoder.setIncludeNodeIDs(true);
+				encoder.setUseContainment(false);
+				encoder.setIncludeAttributes(includeAttributes);
+				encoder.setIncludeReferences(includeReferences);
 				for (String id : ids) {
 					try {
 						encoder.encode(id);
@@ -164,7 +166,7 @@ public class HawkThriftServlet extends TServlet {
 						LOGGER.error(ex.getMessage(), ex);
 					}
 				}
-				return new ArrayList<ModelElement>(encoder.getRootElements());
+				return new ArrayList<ModelElement>(encoder.getElements());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -205,17 +207,17 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> listFiles(String name, String repository) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		public List<String> listFiles(String name, String repository, List<String> filePatterns) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
 			try (IGraphTransaction t = graph.beginTransaction()) {
-				final IGraphNodeIndex fileIndex = graph.getFileIndex();
-				final IGraphIterable<IGraphNode> contents = fileIndex.query("id", "*");
+				final GraphWrapper gw = new GraphWrapper(graph);
 
-				final List<String> files = new ArrayList<>();
-				for (IGraphNode node : contents) {
-					files.add("" + node.getProperty("id"));
+				final Set<FileNode> fileNodes = gw.getFileNodes(repository, filePatterns);
+				final List<String> files = new ArrayList<>(fileNodes.size());
+				for (FileNode node : fileNodes) {
+					files.add(node.getFileName());
 				}
 
 				return files;
@@ -311,21 +313,44 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			return collectElements(name, repositoryUri, filePath, CollectElements.ALL, includeAttributes, includeReferences, includeNodeIDs);
+		}
+
+		@Override
+		public List<ModelElement> getRootElements(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws TException {
+			return collectElements(name, repositoryUri, filePath, CollectElements.ONLY_ROOTS, includeAttributes, includeReferences, true);
+		}
+
+		private List<ModelElement> collectElements(String name,
+				String repositoryUri, List<String> filePath, final CollectElements collectType,
+				boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs)
+				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
 			// TODO filtering by repository
 			try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 				final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
-				for (FileNode fileNode : gw.getFileNodes(filePath)) {
+				encoder.setIncludeAttributes(includeAttributes);
+				encoder.setIncludeReferences(includeReferences);
+				encoder.setIncludeNodeIDs(includeNodeIDs);
+				for (FileNode fileNode : gw.getFileNodes(repositoryUri, filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
-					for (ModelElementNode meNode : fileNode.getModelElements()) {
-						encoder.encode(meNode);
+
+					if (collectType == CollectElements.ALL) {
+						for (ModelElementNode meNode : fileNode.getModelElements()) {
+							encoder.encode(meNode);
+						}
+					} else {
+						encoder.setUseContainment(false);
+						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
+							encoder.encode(meNode);
+						}
 					}
 				}
 
-				return new ArrayList<>(encoder.getRootElements());
+				return new ArrayList<>(encoder.getElements());
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage(), ex);
 				throw new TException(ex);
@@ -387,6 +412,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 	}
 
+	private static enum CollectElements { ALL, ONLY_ROOTS; }
 	private static final long serialVersionUID = 1L;
 
 	public HawkThriftServlet() {

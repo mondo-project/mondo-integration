@@ -118,7 +118,9 @@ class Hawk {
 	@doc(d="Returns populated model elements for the provided proxies")
 	op ModelElement[*] resolveProxies (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="Proxy model element IDs to be resolved") String[*] ids
+		@doc(d="Proxy model element IDs to be resolved") String[*] ids,
+		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
+		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Asks a Hawk instance to start monitoring a repository")
@@ -146,7 +148,8 @@ class Hawk {
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the indexed repository") String repository
+		@doc(d="The URI of the indexed repository") String repository,
+		@doc(d="File name patterns to search for (* lists all files)") String[*] filePatterns
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Sets the base polling period and max interval of a Hawk instance")
@@ -196,8 +199,20 @@ class Hawk {
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
-		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
+		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
+		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences,
+		@doc(d="Whether to include node IDs (true) or not (false)", optional="true", default="false") Boolean includeNodeIDs
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
+	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance.")
+	op ModelElement[*] getRootElements (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
+		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
+		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
+	);
 
     /*
 	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
@@ -442,11 +457,11 @@ class ReactiveATL {
 
 @doc(d="Represents a model element")
 class ModelElement {
-	@doc(d="Unique ID of the model element", optional="true")
-	attr int ~id;
-	@doc(d="URI of the metamodel to which the type of the element belongs")
+	@doc(d="Unique ID of the model element (not set if using position-based references)", optional="true")
+	attr String ~id;
+	@doc(d="URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element)", optional="true")
 	attr String metamodelUri;
-	@doc(d="Name of the type that the model element is an instance of")
+	@doc(d="Name of the type that the model element is an instance of (not set if equal to that of the previous model element)", optional="true")
 	attr String typeName;
 	@doc(d="Slots holding the values of the model element's attributes, if any have been set", optional="true")
 	val AttributeSlot[*] attributes;
@@ -468,10 +483,40 @@ class AttributeSlot extends Slot {
 	val Variant value;
 }
 
-@doc(d="Represents a slot that can store the value(s) of a reference  of a model element")
+@doc(d="
+Represents a slot that can store the value(s) of a reference  of a model element.
+References can be expressed as positions within a result tree (using pre-order traversal)
+or IDs. id, ids, position, positions and mixed are all mutually exclusive. At least one position
+or one ID must be given.
+")
 class ReferenceSlot extends Slot {
-	@doc(d="Identifiers of the referenced elements.")
-	val int[*] ids;
+    @doc(d="Position of the referenced element (if there is only one position-based reference in this slot)", optional="true")
+    val int position;
+
+	@doc(d="Positions of the referenced elements (if more than one).", optional="true")
+	val int[*] positions;
+
+    @doc(d="Unique identifier of the referenced element (if there is only one ID based reference in this slot)", optional="true")
+    val String ~id;
+
+	@doc(d="Unique identifiers of the referenced elements (if more than one).", optional="true")
+	val String[*] ids;
+
+	@doc(d="Mix of identifier- and position-bsaed references (if there is at least one position and one ID", optional="true")
+	val MixedReference[*] mixed;
+}
+
+@thrift(union="true")
+@doc(d="Represents a reference to a model element: it can be an identifier or a position.
+Only used when the same ReferenceSlot has both identifier-based and position-based references.
+This may be the case if we are retrieving a subset of the model which has references
+between its elements and with elements outside the subset at the same time.")
+class MixedReference {
+	@doc(d="Identifier-based reference to a model element")
+	val String ~id;
+
+	@doc(d="Position-based reference to a model element")
+	val int position;
 }
 
 // @thrift.map(key="name", value="elements")
@@ -592,7 +637,7 @@ class UserProfile {
 
 datatype EByteArray : "byte[]";
 
-@doc(exclude="true")
+@doc(d="A file to be sent through the network")
 class File {
   attr String name;
   attr EByteArray contents;

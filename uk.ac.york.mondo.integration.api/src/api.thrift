@@ -108,17 +108,18 @@ exception InvalidTransformation {
 exception MergeRequired {
 }
 
+union MixedReference {
+	 /* Identifier-based reference to a model element. */ 1: optional string id,
+	 /* Position-based reference to a model element. */ 2: optional i32 position,
+}
+
 struct ModelSpec {
-	 /* The URI from which the model will be loaded or to which it will be persisted. */ 1: required string uri,
-	 /* The URIs of the metamodels to which elements of the model conform. */ 2: required list<string> metamodelUris,
+	 /* The local name of the model in the transformation. */ 1: required string name,
+	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
+	 /* The URIs of the metamodels to which elements of the model conform. */ 3: required list<string> metamodelUris,
 }
 
 struct OperationModel {
-}
-
-struct ReferenceSlot {
-	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Identifiers of the referenced elements. */ 2: required list<i32> ids,
 }
 
 union ScalarOrReference {
@@ -213,10 +214,19 @@ exception InvalidModelSpec {
 	 /* Reason for the spec not being valid. */ 2: required string reason,
 }
 
+struct ReferenceSlot {
+	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
+	 /* Position of the referenced element (if there is only one position-based reference in this slot). */ 2: optional i32 position,
+	 /* Positions of the referenced elements (if more than one). */ 3: optional list<i32> positions,
+	 /* Unique identifier of the referenced element (if there is only one ID based reference in this slot). */ 4: optional string id,
+	 /* Unique identifiers of the referenced elements (if more than one). */ 5: optional list<string> ids,
+	 /* Mix of identifier- and position-bsaed references (if there is at least one position and one ID. */ 6: optional list<MixedReference> mixed,
+}
+
 struct ModelElement {
-	 /* Unique ID of the model element. */ 1: optional i32 id,
-	 /* URI of the metamodel to which the type of the element belongs. */ 2: required string metamodelUri,
-	 /* Name of the type that the model element is an instance of. */ 3: required string typeName,
+	 /* Unique ID of the model element (not set if using position-based references). */ 1: optional string id,
+	 /* URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). */ 2: optional string metamodelUri,
+	 /* Name of the type that the model element is an instance of (not set if equal to that of the previous model element). */ 3: optional string typeName,
 	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,
 	 /* Slots holding the values of the model element's references, if any have been set. */ 5: optional list<ReferenceSlot> references,
 	 /* Slots holding contained model elements, if any have been set. */ 6: optional list<ContainerSlot> containers,
@@ -275,7 +285,7 @@ service Users {
 }
 
 /* The following service operations expose the capabilities of the Hawk heterogeneous model indexing
-framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3. */
+   framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3. */
 service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
@@ -368,6 +378,8 @@ service Hawk {
   list<ModelElement> resolveProxies(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids, 
+	/* Whether to include attributes (true) or not (false). */ 3:  bool includeAttributes = true,
+	/* Whether to include references (true) or not (false). */ 4:  bool includeReferences = true,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -379,7 +391,7 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository to monitor. */ 2: required string uri, 
 	/* The type of repository to be monitored. */ 3: required string type, 
-	/* A valid set of credentials that has read-access to the repository. */ 4: optional Credentials credentials, 
+	/* A valid set of credentials that has read-access to the repository. */ 4:  Credentials credentials,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -415,6 +427,7 @@ service Hawk {
   list<string> listFiles(
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the indexed repository. */ 2: required string repository, 
+	/* File name patterns to search for (* lists all files). */ 3: required list<string> filePatterns,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -500,16 +513,28 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name, 
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri, 
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath, 
+	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
+	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
+	/* Whether to include node IDs (true) or not (false). */ 6:  bool includeNodeIDs = false,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
+  /* Returns the root objects of one or more models indexed in a Hawk instance. Auth needed: Yes */
+  list<ModelElement> getRootElements(
+	/* The name of the Hawk instance. */ 1: required string name,
+	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
+	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
+	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
+	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
+  )
+	
 }
 
 /* The following service operations expose the capabilities of the offline collaboration framework
-developed in Work Package 4. The framework is discussed in detail in D4.3. */
+   developed in Work Package 4. The framework is discussed in detail in D4.3. */
 service OfflineCollaboration {
   /* Performs the checkout operation. Auth needed: Yes */
   list<CollaborationResource> checkout(

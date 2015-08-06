@@ -222,6 +222,20 @@
           <details key="d" value="Proxy model element IDs to be resolved"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include references (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="addRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownRepositoryType #//VCSAuthenticationFailed">
       <eAnnotations source="doc">
@@ -293,6 +307,11 @@
       <eParameters name="repository" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The URI of the indexed repository"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="filePatterns" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="File name patterns to search for (* lists all files)"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -415,6 +434,61 @@
       <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include references (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include node IDs (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="false"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
+    <eOperations name="getRootElements" upperBound="-1" eType="#//ModelElement">
+      <eAnnotations source="doc">
+        <details key="d" value="Returns the root objects of one or more models indexed in a Hawk instance."/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="repositoryUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The URI of the repository in which the model is contained"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include references (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -772,12 +846,12 @@
           <details key="d" value="The ATL source-code of the transformation"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="source" eType="#//ModelSpec">
+      <eParameters name="source" upperBound="-1" eType="#//ModelSpec">
         <eAnnotations source="doc">
           <details key="d" value="The input models of the transformation"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="target" eType="#//ModelSpec">
+      <eParameters name="target" upperBound="-1" eType="#//ModelSpec">
         <eAnnotations source="doc">
           <details key="d" value="The target models of the transformation"/>
         </eAnnotations>
@@ -861,20 +935,22 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Unique ID of the model element"/>
+        <details key="d" value="Unique ID of the model element (not set if using position-based references)"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="metamodelUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="URI of the metamodel to which the type of the element belongs"/>
+        <details key="d" value="URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="typeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Name of the type that the model element is an instance of"/>
+        <details key="d" value="Name of the type that the model element is an instance of (not set if equal to that of the previous model element)"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
@@ -922,12 +998,61 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReferenceSlot" eSuperTypes="#//Slot">
     <eAnnotations source="doc">
-      <details key="d" value="Represents a slot that can store the value(s) of a reference  of a model element"/>
+      <details key="d" value="&#xA;Represents a slot that can store the value(s) of a reference  of a model element.&#xA;References can be expressed as positions within a result tree (using pre-order traversal)&#xA;or IDs. id, ids, position, positions and mixed are all mutually exclusive. At least one position&#xA;or one ID must be given.&#xA;"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Identifiers of the referenced elements."/>
+        <details key="d" value="Position of the referenced element (if there is only one position-based reference in this slot)"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="positions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Positions of the referenced elements (if more than one)."/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Unique identifier of the referenced element (if there is only one ID based reference in this slot)"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ids" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Unique identifiers of the referenced elements (if more than one)."/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mixed" upperBound="-1"
+        eType="#//MixedReference" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Mix of identifier- and position-bsaed references (if there is at least one position and one ID"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MixedReference">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eAnnotations source="doc">
+      <details key="d" value="Represents a reference to a model element: it can be an identifier or a position.&#xA;Only used when the same ReferenceSlot has both identifier-based and position-based references.&#xA;This may be the case if we are retrieving a subset of the model which has references&#xA;between its elements and with elements outside the subset at the same time."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier-based reference to a model element"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Position-based reference to a model element"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -990,6 +1115,11 @@
     <eAnnotations source="doc">
       <details key="d" value="Captures information about source/target models of ATL transformations"/>
     </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The local name of the model in the transformation"/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The URI from which the model will be loaded or to which it will be persisted"/>
@@ -1131,7 +1261,7 @@
   <eClassifiers xsi:type="ecore:EDataType" name="EByteArray" instanceClassName="byte[]"/>
   <eClassifiers xsi:type="ecore:EClass" name="File">
     <eAnnotations source="doc">
-      <details key="exclude" value="true"/>
+      <details key="d" value="A file to be sent through the network"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" eType="#//EByteArray"/>

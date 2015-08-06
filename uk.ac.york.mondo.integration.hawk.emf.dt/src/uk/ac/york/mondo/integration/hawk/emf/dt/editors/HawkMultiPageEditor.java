@@ -24,6 +24,9 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -49,6 +52,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.FileEditorInput;
 
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 
 /**
@@ -99,6 +103,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			this.contentSection = new ContentSection(toolkit, formBody) {
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
 				@Override protected void repositoryURLChanged() { refreshRawText(); }
+				@Override protected void isLazyChanged() { refreshRawText(); }
 			};
 		}
 
@@ -132,11 +137,11 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	/**
 	 * Paired label and text field.
 	 */
-	private static class FormField {
+	private static class FormTextField {
 		private final Label label;
 		private final Text text;
 
-		public FormField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
+		public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
 		    label = toolkit.createLabel(sectionClient, labelText, SWT.WRAP);
 		    label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
 
@@ -153,19 +158,47 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 	}
 
-	private static abstract class ContentSection extends FormSection implements ModifyListener {
-		private final FormField fldFilePatterns;
-		private final FormField fldRepositoryURL;
+	/**
+	 * Checkbox field that takes up two columns in the grid.
+	 */
+	private static class FormComboBoxField {
+		private final Label label;
+		private final Combo combobox;
+
+		public FormComboBoxField(FormToolkit toolkit, Composite sectionClient, String labelText, String[] options) {
+		    label = toolkit.createLabel(sectionClient, labelText, SWT.WRAP);
+		    label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
+
+		    final TableWrapData layoutData = new TableWrapData();
+			layoutData.valign = TableWrapData.MIDDLE;
+			label.setLayoutData(layoutData);
+
+			combobox = new Combo(sectionClient, SWT.READ_ONLY);
+			combobox.setItems(options);
+			combobox.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+		}
+
+		public Combo getCombo() {
+			return combobox;
+		}
+	}
+
+	private static abstract class ContentSection extends FormSection implements ModifyListener, SelectionListener {
+		private final FormTextField fldFilePatterns;
+		private final FormTextField fldRepositoryURL;
+		private final FormComboBoxField fldLoadingMode;
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
 		    cContents.setLayout(createTableWrapLayout(2));
 
-		    this.fldRepositoryURL = new FormField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
-		    this.fldFilePatterns = new FormField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
+		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
+		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
+		    this.fldLoadingMode = new FormComboBoxField(toolkit, cContents, "Loading mode:", HawkModelDescriptor.LoadingMode.strings());
 
 		    fldRepositoryURL.getText().addModifyListener(this);
 		    fldFilePatterns.getText().addModifyListener(this);
+		    fldLoadingMode.getCombo().addSelectionListener(this);
 		}
 
 		public String[] getFilePatterns() {
@@ -174,6 +207,22 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		public String getRepositoryURL() {
 			return fldRepositoryURL.getText().getText();
+		}
+
+		public LoadingMode isLazy() {
+			return LoadingMode.values()[fldLoadingMode.getCombo().getSelectionIndex()];
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.widget == fldLoadingMode.getCombo()) {
+				isLazyChanged();
+			}
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
 		}
 
 		@Override
@@ -199,21 +248,26 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			text.addModifyListener(this);
 		}
 
+		public void setLoadingMode(LoadingMode lazy) {
+			fldLoadingMode.getCombo().select(lazy.ordinal());
+		}
+
 		protected abstract void filePatternsChanged();
 		protected abstract void repositoryURLChanged();
+		protected abstract void isLazyChanged();
 	}
 
 	private static abstract class InstanceSection extends FormSection implements ModifyListener {
-		private final FormField fldInstanceName;
-		private final FormField fldServerURL;
+		private final FormTextField fldInstanceName;
+		private final FormTextField fldServerURL;
 		private boolean ignoreChanges;
 
 		public InstanceSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Instance", "Access details for the remote Hawk instance.");
 		    cContents.setLayout(createTableWrapLayout(2));
 
-		    this.fldServerURL = new FormField(toolkit, cContents, "Server URL:", "");
-		    this.fldInstanceName = new FormField(toolkit, cContents, "Instance name:", "");
+		    this.fldServerURL = new FormTextField(toolkit, cContents, "Server URL:", "");
+		    this.fldInstanceName = new FormTextField(toolkit, cContents, "Instance name:", "");
 		    fldServerURL.getText().addModifyListener(this);
 		    fldInstanceName.getText().addModifyListener(this);
 		}
@@ -385,6 +439,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getInstanceSection().setInstanceName(descriptor.getHawkInstance());
 			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
 			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
+			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
@@ -396,6 +451,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setHawkInstance(detailsPage.getInstanceSection().getInstanceName());
 		descriptor.setHawkRepository(detailsPage.getContentSection().getRepositoryURL());
 		descriptor.setHawkFilePatterns(detailsPage.getContentSection().getFilePatterns());
+		descriptor.setLoadingMode(detailsPage.getContentSection().isLazy());
 
 		final StringWriter sW = new StringWriter();
 		try {

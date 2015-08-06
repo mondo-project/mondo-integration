@@ -74,7 +74,8 @@ public class Customizer extends JettyCustomizer {
 	@Override
 	public Object customizeContext(Object context, Dictionary<String, ?> settings) {
 		if (context instanceof ContextHandler) {
-			final GzipHandler gzipHandler = new CustomLevelGzipHandler(Deflater.DEFAULT_COMPRESSION);
+			final GzipHandler gzipHandler = new CustomLevelGzipHandler(Deflater.BEST_COMPRESSION);
+			gzipHandler.setBufferSize(16384);
 			final ContextHandler contextHandler = (ContextHandler)context;
 			contextHandler.setHandler(gzipHandler);
 		}

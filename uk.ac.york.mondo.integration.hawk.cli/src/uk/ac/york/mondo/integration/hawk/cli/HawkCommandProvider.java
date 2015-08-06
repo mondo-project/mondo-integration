@@ -216,7 +216,11 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkListFiles(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 		final String repo = requiredArgument(intp, "url");
-		return formatList(client.listFiles(currentInstance, repo));
+		final List<String> filePatterns = readRemainingArguments(intp);
+		if (filePatterns.isEmpty()) {
+			filePatterns.add("*");
+		}
+		return formatList(client.listFiles(currentInstance, repo, filePatterns));
 	}
 
 	/* QUERIES */
@@ -238,23 +242,18 @@ public class HawkCommandProvider implements CommandProvider {
 	}
 
 	public Object _hawkGetModel(CommandInterpreter intp) throws Exception {
-		checkInstanceSelected();
+		return listModelElements(intp, true);
+	}
 
-		final String repo = requiredArgument(intp, "repo");
-		final List<String> patterns = readRemainingArguments(intp);
-		if (patterns.isEmpty()) {
-			patterns.add("*");
-		}
-
-		final List<ModelElement> elems = client.getModel(currentInstance, repo, patterns);
-		return formatModelElements(elems, "");
+	public Object _hawkGetRoots(CommandInterpreter intp) throws Exception {
+		return listModelElements(intp, false);
 	}
 
 	public Object _hawkResolveProxies(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 
 		final List<String> ids = readRemainingArguments(intp);
-		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids);
+		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids, true, true);
 		return formatModelElements(elems, "");
 	}
 
@@ -416,7 +415,11 @@ public class HawkCommandProvider implements CommandProvider {
 			if (me.isSetReferences()) {
 				sbuf.append("\n\t" + indent + "References:");
 				for (ReferenceSlot s : me.references) {
-					sbuf.append(String.format("\n\t\t%s%s = %s", indent, s.name, s.ids));
+					sbuf.append(String.format("\n\t\t%s%s =", indent, s.name));
+					if (s.isSetId()) { sbuf.append(String.format(" id(%s)", s.id)); }
+					if (s.isSetIds()) { sbuf.append(String.format(" ids(%s)", s.ids)); }
+					if (s.isSetPosition()) { sbuf.append(String.format(" position(%s)", s.position)); }
+					if (s.isSetPositions()) { sbuf.append(String.format(" positions(%s)", s.positions)); }
 				}
 			}
 			if (me.isSetContainers()) {
@@ -427,6 +430,25 @@ public class HawkCommandProvider implements CommandProvider {
 			}
 		}
 		return sbuf.toString();
+	}
+
+	private Object listModelElements(CommandInterpreter intp,
+			final boolean entireModel) throws Exception {
+		checkInstanceSelected();
+
+		final String repo = requiredArgument(intp, "repo");
+		final List<String> patterns = readRemainingArguments(intp);
+		if (patterns.isEmpty()) {
+			patterns.add("*");
+		}
+
+		List<ModelElement> elems;
+		if (entireModel) {
+			elems = client.getModel(currentInstance, repo, patterns, true, true, false);
+		} else {
+			elems = client.getRootElements(currentInstance, repo, patterns, true, true);
+		}
+		return formatModelElements(elems, "");
 	}
 
 	/**
@@ -460,34 +482,35 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
-		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
+		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
 		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
+		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");
 		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n\t");
-		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
-		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
+		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
-		sbuf.append("hawkListFiles <url> - lists files within a repository\n");
+		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
 		sbuf.append("--Queries--\n\t");
+		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
+		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
 		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n\t");
-		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the instance of the specified files within the repo\n\t");
 		sbuf.append("hawkResolveProxies <ids...> - retrieves model elements by ID\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
-		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
 		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n");
+		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
 		sbuf.append("--Indexed attributes--\n\t");
 		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
-		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
 		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
+		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
 		return sbuf.toString();
 	}
 

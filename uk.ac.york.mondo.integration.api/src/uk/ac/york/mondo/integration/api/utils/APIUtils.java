@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
- *    Abel Gómez - Generic methods
+ *    Abel Gï¿½mez - Generic methods
  *******************************************************************************/
 package uk.ac.york.mondo.integration.api.utils;
 
@@ -15,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -37,7 +37,7 @@ public class APIUtils {
 	
 	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException {
 		try {
-			final HttpClient httpClient = APIUtils. createGZipAwareHttpClient();
+			final HttpClient httpClient = APIUtils.createGZipAwareHttpClient();
 			final THttpClient transport = new THttpClient(url, httpClient);
 			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
 			return constructor.newInstance(new TTupleProtocol(transport));
@@ -51,11 +51,26 @@ public class APIUtils {
 		}
 	}
 
-	@SuppressWarnings("restriction")
+	@SuppressWarnings({ "restriction", "deprecation" })
 	private static HttpClient createGZipAwareHttpClient() {
-		return HttpClientBuilder.create()
-				.addInterceptorFirst(new GZipRequestInterceptor())
-				.addInterceptorFirst(new GZipResponseInterceptor()).build();
+		/*
+		 * Apache HttpClient 4.3 and later deprecate DefaultHttpClient in favour
+		 * of HttpClientBuilder, but Hadoop 2.7.x (used by CloudATL) uses Apache
+		 * HttpClient 4.2.5. Until Hadoop upgrades to HttpClient 4.3+, we'll
+		 * have to keep using this deprecated API. After that, we'll be able to
+		 * replace this bit of code with something like:
+		 *
+		 * <pre>
+		 *  return HttpClientBuilder.create()
+		 *      .addInterceptorFirst(new GZipRequestInterceptor())
+		 *   .addInterceptorFirst(new GZipResponseInterceptor())
+		 *   .build();
+		 * </pre>
+		 */
+		final DefaultHttpClient client = new DefaultHttpClient();
+		client.addRequestInterceptor(new GZipRequestInterceptor());
+		client.addResponseInterceptor(new GZipResponseInterceptor());
+		return client;
 	}
 
 }
