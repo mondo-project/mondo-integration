@@ -883,54 +883,6 @@
       </eParameters>
     </eOperations>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ReactiveATL">
-    <eAnnotations source="doc">
-      <details key="d" value="&#xA;The following service operations expose the capabilities of the reactive&#xA;version of the ATL transformation language which is discussed in D3.2&#xA;"/>
-    </eAnnotations>
-    <eOperations name="launch" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//InvalidTransformation #//InvalidModelSpec">
-      <eAnnotations source="doc">
-        <details key="d" value="Launches a cloud-based transformation in reactive mode.&#xA;&#x9;    The transformation keeps running until it is explicitly stopped.&#xA;&#x9;    Returns a token that can be used to control the transformation."/>
-      </eAnnotations>
-      <eParameters name="transformation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The ATL source-code of the transformation"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="source" upperBound="-1" eType="#//ModelSpec">
-        <eAnnotations source="doc">
-          <details key="d" value="The input models of the transformation"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="target" upperBound="-1" eType="#//ModelSpec">
-        <eAnnotations source="doc">
-          <details key="d" value="The target models of the transformation"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="stop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//TransformationTokenNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Stops a cloud-based reactive transformation."/>
-      </eAnnotations>
-      <eParameters name="token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="A valid token returned by a previous call to launch()"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="commit" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//TransformationTokenNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Commits in-memory changes on the target model to its persistent storage."/>
-      </eAnnotations>
-      <eParameters name="token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="A valid token returned by a previous call to launch()"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ModelElement">
     <eAnnotations source="doc">
       <details key="d" value="Represents a model element"/>

@@ -659,37 +659,3 @@ service CloudATL {
 	
 }
 
-/* The following service operations expose the capabilities of the reactive
-   version of the ATL transformation language which is discussed in D3.2. */
-service ReactiveATL {
-  /* Launches a cloud-based transformation in reactive mode.
-     	    The transformation keeps running until it is explicitly stopped.
-     	    Returns a token that can be used to control the transformation. Auth needed: Yes */
-  string launch(
-	/* The ATL source-code of the transformation. */ 1: required string transformation,
-	/* The input models of the transformation. */ 2: required list<ModelSpec> source,
-	/* The target models of the transformation. */ 3: required list<ModelSpec> target,
-  )
-  throws (
-	1: InvalidTransformation err1 /* The transformation is not valid: it is unparsable or inconsistent. */ 
-	2: InvalidModelSpec err2 /* The model specification is not valid: the model or the metamodels are inaccessible or invalid. */ 
-	) 
-	
-  /* Stops a cloud-based reactive transformation. Auth needed: Yes */
-  string stop(
-	/* A valid token returned by a previous call to launch(). */ 1: required string token,
-  )
-  throws (
-	1: TransformationTokenNotFound err1 /* The specified transformation token does not exist within the invokved MONDO instance. */ 
-	) 
-	
-  /* Commits in-memory changes on the target model to its persistent storage. Auth needed: Yes */
-  string commit(
-	/* A valid token returned by a previous call to launch(). */ 1: required string token,
-  )
-  throws (
-	1: TransformationTokenNotFound err1 /* The specified transformation token does not exist within the invokved MONDO instance. */ 
-	) 
-	
-}
-
