@@ -15,6 +15,7 @@ import java.net.ConnectException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -215,12 +216,13 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListFiles(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
+		// TODO allow for multiple repositories
 		final String repo = requiredArgument(intp, "url");
 		final List<String> filePatterns = readRemainingArguments(intp);
 		if (filePatterns.isEmpty()) {
 			filePatterns.add("*");
 		}
-		return formatList(client.listFiles(currentInstance, repo, filePatterns));
+		return formatList(client.listFiles(currentInstance, Arrays.asList(repo), filePatterns));
 	}
 
 	/* QUERIES */
@@ -436,6 +438,7 @@ public class HawkCommandProvider implements CommandProvider {
 			final boolean entireModel) throws Exception {
 		checkInstanceSelected();
 
+		// TODO accept multiple repositories
 		final String repo = requiredArgument(intp, "repo");
 		final List<String> patterns = readRemainingArguments(intp);
 		if (patterns.isEmpty()) {
@@ -444,9 +447,9 @@ public class HawkCommandProvider implements CommandProvider {
 
 		List<ModelElement> elems;
 		if (entireModel) {
-			elems = client.getModel(currentInstance, repo, patterns, true, true, false);
+			elems = client.getModel(currentInstance, Arrays.asList(repo), patterns, true, true, false);
 		} else {
-			elems = client.getRootElements(currentInstance, repo, patterns, true, true);
+			elems = client.getRootElements(currentInstance, Arrays.asList(repo), patterns, true, true);
 		}
 		return formatModelElements(elems, "");
 	}

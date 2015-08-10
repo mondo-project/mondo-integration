@@ -304,7 +304,7 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repository" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="repository" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The URI of the indexed repository"/>
         </eAnnotations>
@@ -426,7 +426,7 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repositoryUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="repositoryUri" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The URI of the repository in which the model is contained"/>
         </eAnnotations>
@@ -467,7 +467,7 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repositoryUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="repositoryUri" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The URI of the repository in which the model is contained"/>
         </eAnnotations>

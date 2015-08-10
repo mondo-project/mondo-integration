@@ -207,7 +207,7 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> listFiles(String name, String repository, List<String> filePatterns) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		public List<String> listFiles(String name, List<String> repository, List<String> filePatterns) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
 
 			final IGraphDatabase graph = model.getGraph();
@@ -313,17 +313,17 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ModelElement> getModel(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
-			return collectElements(name, repositoryUri, filePath, CollectElements.ALL, includeAttributes, includeReferences, includeNodeIDs);
+		public List<ModelElement> getModel(String name, List<String> repositories, List<String> filePath, boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			return collectElements(name, repositories, filePath, CollectElements.ALL, includeAttributes, includeReferences, includeNodeIDs);
 		}
 
 		@Override
-		public List<ModelElement> getRootElements(String name, String repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws TException {
-			return collectElements(name, repositoryUri, filePath, CollectElements.ONLY_ROOTS, includeAttributes, includeReferences, true);
+		public List<ModelElement> getRootElements(String name, List<String> repositories, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws TException {
+			return collectElements(name, repositories, filePath, CollectElements.ONLY_ROOTS, includeAttributes, includeReferences, true);
 		}
 
 		private List<ModelElement> collectElements(String name,
-				String repositoryUri, List<String> filePath, final CollectElements collectType,
+				List<String> repositories, List<String> filePath, final CollectElements collectType,
 				boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs)
 				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getRunningHawkByName(name);
@@ -335,7 +335,7 @@ public class HawkThriftServlet extends TServlet {
 				encoder.setIncludeAttributes(includeAttributes);
 				encoder.setIncludeReferences(includeReferences);
 				encoder.setIncludeNodeIDs(includeNodeIDs);
-				for (FileNode fileNode : gw.getFileNodes(repositoryUri, filePath)) {
+				for (FileNode fileNode : gw.getFileNodes(repositories, filePath)) {
 					LOGGER.info("Retrieving elements from {}", filePath);
 
 					if (collectType == CollectElements.ALL) {

@@ -126,16 +126,17 @@ public class HawkResourceImpl extends ResourceImpl {
 		try {
 			this.descriptor = descriptor;
 			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
-	
+
+			// TODO allow for multiple repositories
 			final LoadingMode mode = descriptor.getLoadingMode();
 			List<ModelElement> elems;
 			if (mode.isGreedyElements()) {
 				elems = client.getModel(descriptor.getHawkInstance(),
-					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkRepository()),
 					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true, !mode.isGreedyAttributes());
 			} else {
 				elems = client.getRootElements(descriptor.getHawkInstance(),
-						descriptor.getHawkRepository(),
+						Arrays.asList(descriptor.getHawkRepository()),
 						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
 			}
 	

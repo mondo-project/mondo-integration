@@ -426,7 +426,7 @@ service Hawk {
   /* Lists the paths of the files of the indexed repository. Auth needed: Yes */
   list<string> listFiles(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the indexed repository. */ 2: required string repository,
+	/* The URI of the indexed repository. */ 2: required list<string> repository,
 	/* File name patterns to search for (* lists all files). */ 3: required list<string> filePatterns,
   )
   throws (
@@ -511,7 +511,7 @@ service Hawk {
   /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
+	/* The URI of the repository in which the model is contained. */ 2: required list<string> repositoryUri,
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
 	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
@@ -525,7 +525,7 @@ service Hawk {
   /* Returns the root objects of one or more models indexed in a Hawk instance. Auth needed: Yes */
   list<ModelElement> getRootElements(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
+	/* The URI of the repository in which the model is contained. */ 2: required list<string> repositoryUri,
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
 	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,

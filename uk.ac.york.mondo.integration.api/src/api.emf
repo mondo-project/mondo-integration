@@ -148,7 +148,7 @@ class Hawk {
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the indexed repository") String repository,
+		@doc(d="The URI of the indexed repository") String[*] repository,
 		@doc(d="File name patterns to search for (* lists all files)") String[*] filePatterns
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
@@ -198,7 +198,7 @@ class Hawk {
 	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved")
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
 		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences,
@@ -208,7 +208,7 @@ class Hawk {
 	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance.")
 	op ModelElement[*] getRootElements (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
 		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
