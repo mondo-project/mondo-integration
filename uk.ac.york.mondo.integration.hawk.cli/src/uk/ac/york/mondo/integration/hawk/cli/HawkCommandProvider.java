@@ -16,7 +16,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -74,7 +75,14 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListInstances(CommandInterpreter intp) throws Exception {
 		checkConnected();
-		Collection<HawkInstance> instances = client.listInstances();
+		List<HawkInstance> instances = client.listInstances();
+		Collections.sort(instances, new Comparator<HawkInstance>() {
+			@Override
+			public int compare(HawkInstance o1, HawkInstance o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
 		if (instances.isEmpty()) {
 			return "No instances exist";
 		} else {
