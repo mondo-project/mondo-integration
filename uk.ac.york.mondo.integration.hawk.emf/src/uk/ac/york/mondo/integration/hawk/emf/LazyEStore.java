@@ -64,7 +64,7 @@ class LazyEStore implements InternalEObject.EStore {
 	 * Used to store the container of an object and the feature through
 	 * which the object is contained.
 	 */
-	private Map<EObject, ImmutablePair<EStructuralFeature, InternalEObject>> containers = new IdentityHashMap<>(); 
+	private Map<EObject, ImmutablePair<EReference, InternalEObject>> containers = new IdentityHashMap<>();
 
 	/** Values for the EAttributes and the EReferences that have been resolved through the network. */ 
 	private Map<EObject, Map<EStructuralFeature, Object>> store = new IdentityHashMap<>();
@@ -73,7 +73,7 @@ class LazyEStore implements InternalEObject.EStore {
 	private Map<EObject, String> pendingAttrs = new IdentityHashMap<>();
 
 	/** Pending EReferences to be fetched.*/
-	private Map<EObject, Map<EStructuralFeature, EList<Object>>> pendingRefs = new IdentityHashMap<>();
+	private Map<EObject, Map<EReference, EList<Object>>> pendingRefs = new IdentityHashMap<>();
 
 	@Override
 	public void unset(InternalEObject object, EStructuralFeature feature) {
@@ -81,7 +81,7 @@ class LazyEStore implements InternalEObject.EStore {
 		if (values != null) {
 			values.remove(feature);
 		} else {
-			Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(feature);
+			Map<EReference, EList<Object>> pending = pendingRefs.get(feature);
 			if (pending != null) {
 				pending.remove(feature);
 			}
@@ -127,7 +127,7 @@ class LazyEStore implements InternalEObject.EStore {
 
 		// Pending references may be one ID, several IDs or a mix of positions and IDs
 		if (feature instanceof EReference) {
-			Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
+			Map<EReference, EList<Object>> pending = pendingRefs.get(object);
 			if (pending != null) {
 				EList<Object> s = pending.get(feature);
 				if (s != null) {
@@ -237,7 +237,7 @@ class LazyEStore implements InternalEObject.EStore {
 			} else if (feature instanceof EAttribute) {
 				isSet = resolvePendingAttribute(object, (EAttribute) feature, values) != null;
 			} else if (feature instanceof EReference) {
-				final Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
+				final Map<EReference, EList<Object>> pending = pendingRefs.get(object);
 				isSet = pending != null && pending.containsKey(feature);
 			}
 
@@ -261,13 +261,13 @@ class LazyEStore implements InternalEObject.EStore {
 
 	@Override
 	public EStructuralFeature getContainingFeature(InternalEObject object) {
-		final ImmutablePair<EStructuralFeature, InternalEObject> immutablePair = containers.get(object);
+		final ImmutablePair<EReference, InternalEObject> immutablePair = containers.get(object);
 		return immutablePair == null ? null : immutablePair.left;
 	}
 
 	@Override
 	public InternalEObject getContainer(InternalEObject object) {
-		final ImmutablePair<EStructuralFeature, InternalEObject> immutablePair = containers.get(object);
+		final ImmutablePair<EReference, InternalEObject> immutablePair = containers.get(object);
 		return immutablePair == null ? null : immutablePair.right;
 	}
 
@@ -341,7 +341,7 @@ class LazyEStore implements InternalEObject.EStore {
 	 *            {@link EObject}s (from position-based references).
 	 */
 	public void addLazyReferences(EObject sourceObj, EReference feature, EList<Object> value) {
-		Map<EStructuralFeature, EList<Object>> allPending = pendingRefs.get(sourceObj);
+		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		if (allPending == null) {
 			allPending = new IdentityHashMap<>();
 			pendingRefs.put(sourceObj, allPending);
@@ -374,7 +374,7 @@ class LazyEStore implements InternalEObject.EStore {
 			EReference feature,
 			Map<EStructuralFeature, Object> values)
 			throws Exception {
-		Map<EStructuralFeature, EList<Object>> pending = pendingRefs.get(object);
+		Map<EReference, EList<Object>> pending = pendingRefs.get(object);
 		if (pending != null) {
 			final LoadingMode loadingMode = resource.getDescriptor().getLoadingMode();
 			if (loadingMode.isGreedyReferences()) {
@@ -407,23 +407,23 @@ class LazyEStore implements InternalEObject.EStore {
 		}
 	}
 
-	private EList<Object> resolveReference(InternalEObject container, EStructuralFeature feature, EList<Object> elems) throws Exception {
-		assert store.get(container) != null : "The store for this feature should have been already set";
+	private EList<Object> resolveReference(InternalEObject source, EReference feature, EList<Object> targets) throws Exception {
+		assert store.get(source) != null : "The store for this feature should have been already set";
 
 		final List<String> ids = new ArrayList<>();
-		addAllStrings(elems, ids);
+		addAllStrings(targets, ids);
 		final EList<EObject> resolved = resource.fetchNodes(ids);
-		if (container != null) {
+		if (source != null && feature.isContainment() && !feature.isDerived()) {
 			for (EObject eObj : resolved) {
-				containers.put(eObj, new ImmutablePair<>(feature, container));
+				containers.put(eObj, new ImmutablePair<>(feature, source));
 			}
 		}
 
 		// Replace all old String elements with their corresponding EObjects
 		final EList<Object> result = new BasicEList<>();
 		int iResolved = 0;
-		for (int iElem = 0; iElem < elems.size(); iElem++) {
-			final Object elem = elems.get(iElem);
+		for (int iElem = 0; iElem < targets.size(); iElem++) {
+			final Object elem = targets.get(iElem);
 			if (elem instanceof String) {
 				result.add(resolved.get(iResolved++));
 			} else {
