@@ -192,11 +192,12 @@ public class HawkResourceImpl extends ResourceImpl {
 			LOGGER.warn("While retrieving attributes, resolveProxies returned an empty list");
 		} else {
 			final ModelElement me = elems.get(0);
+			final EFactory eFactory = getResourceSet().getPackageRegistry().getEFactory(me.getMetamodelUri());
 			final EClass eClass = getEClass(
 					me.getMetamodelUri(), me.getTypeName(),
 					getResourceSet().getPackageRegistry());
 			for (AttributeSlot s : me.attributes) {
-				SlotDecodingUtils.setFromSlot(eClass, object, s);
+				SlotDecodingUtils.setFromSlot(eFactory, eClass, object, s);
 			}
 		}
 	}
@@ -205,10 +206,10 @@ public class HawkResourceImpl extends ResourceImpl {
 		final Registry registry = getResourceSet().getPackageRegistry();
 		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
 
+		final EFactory factory = registry.getEFactory(me.metamodelUri);
 		final LoadingMode mode = descriptor.getLoadingMode();
 		EObject obj;
 		if (mode.isGreedyAttributes() && mode.isGreedyElements()) {
-			final EFactory factory = registry.getEFactory(me.metamodelUri);
 			obj = factory.create(eClass);
 		} else {
 			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
@@ -220,7 +221,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		if (me.isSetAttributes()) {
 			for (AttributeSlot s : me.attributes) {
-				SlotDecodingUtils.setFromSlot(eClass, obj, s);
+				SlotDecodingUtils.setFromSlot(factory, eClass, obj, s);
 			}
 		} else if (!mode.isGreedyAttributes()) {
 			getLazyStore().addLazyAttributes(me.id, obj);
@@ -296,6 +297,11 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	private void fillInReference(final EObject sourceObj, final ReferenceSlot s, final EReference feature, final TreeLoadingState state) {
+		if (feature.isDerived()) {
+			// we don't set derived references
+			return;
+		}
+
 		final boolean greedyElements = descriptor.getLoadingMode().isGreedyElements();
 		if (s.isSetId()) {
 			if (greedyElements) {
