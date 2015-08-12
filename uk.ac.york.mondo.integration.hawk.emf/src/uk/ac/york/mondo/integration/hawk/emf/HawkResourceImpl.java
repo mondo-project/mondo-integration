@@ -40,6 +40,7 @@ import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	private Client client;
 
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
-	private Map<Class<?>, Enhancer> enhancers = null;
+	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
 	private LazyResolver lazyResolver;
 
 	public HawkResourceImpl() {
@@ -214,43 +215,9 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		final EFactory factory = registry.getEFactory(me.metamodelUri);
 		final LoadingMode mode = descriptor.getLoadingMode();
-
 		EObject obj = factory.create(eClass);
 		if (!mode.isGreedyAttributes() || !mode.isGreedyElements()) {
-			// We need to create a proxy to implement the lazy loading bits, but
-			// we need to use a subclass of the *real* implementation, or we'll
-			// have all kinds of issues with some advanced metamodels (especially UML).
-			if (enhancers == null) {
-				enhancers = new HashMap<>();
-			}
-
-			Enhancer enh = enhancers.get(obj.getClass());
-			if (enh == null) {
-				enh = new Enhancer();
-				CallbackHelper helper = new CallbackHelper(obj.getClass(), new Class[0]) {
-					@Override
-					protected Object getCallback(Method m) {
-						if ("eGet".equals(m.getName())) {
-							return getLazyResolver().getMethodInterceptor();
-						} else {
-							return NoOp.INSTANCE;
-						}
-					}
-				};
-				enh.setSuperclass(obj.getClass());
-
-				// We need both classloaders: the classloader of the class to be
-				// enhanced, and the classloader of this plugin (which includes CGLIB)
-				enh.setClassLoader(new BridgeClassLoader(
-					obj.getClass().getClassLoader(),
-					this.getClass().getClassLoader()));
-
-				enh.setCallbackFilter(helper);
-				enh.setCallbacks(helper.getCallbacks());
-				enhancers.put(obj.getClass(), enh);
-			}
-
-			obj = (EObject) enh.create();
+			obj = createLazyLoadingInstance(eClass, obj.getClass());
 		}
 
 		if (me.isSetId()) {
@@ -266,6 +233,69 @@ public class HawkResourceImpl extends ResourceImpl {
 		}
 
 		return obj;
+	}
+
+	private EObject createLazyLoadingInstance(EClass eClass, Class<?> klass) {
+		/*
+		 * We need to create a proxy to intercept eGet calls for lazy loading,
+		 * but we need to use a subclass of the *real* implementation, or we'll
+		 * have all kinds of issues with static metamodels (e.g. not using
+		 * DynamicEObjectImpl).
+		 */
+		if (factories == null) {
+			factories = new HashMap<>();
+		}
+
+		net.sf.cglib.proxy.Factory factory = factories.get(klass);
+		EObject o;
+		if (factory == null) {
+			Enhancer enh = new Enhancer();
+			CallbackHelper helper = new CallbackHelper(klass, new Class[0]) {
+				@Override
+				protected Object getCallback(Method m) {
+					if ("eGet".equals(m.getName())
+							&& m.getParameterTypes().length > 0
+							&& EStructuralFeature.class.isAssignableFrom(m.getParameterTypes()[0])) {
+						return getLazyResolver().getMethodInterceptor();
+					} else {
+						return NoOp.INSTANCE;
+					}
+				}
+			};
+			enh.setSuperclass(klass);
+
+			/*
+			 * We need both classloaders: the classloader of the class to be
+			 * enhanced, and the classloader of this plugin (which includes
+			 * CGLIB). We want the CGLIB classes to always resolve to the same
+			 * Class objects, so this plugin's classloader *has* to go first.
+			 */
+			enh.setClassLoader(new BridgeClassLoader(
+				this.getClass().getClassLoader(),
+				klass.getClassLoader()));
+
+			/*
+			 * The objects created by the Enhancer implicitly implement the
+			 * CGLIB Factory interface as well. According to CGLIB, going
+			 * through the Factory is faster than recreating or reusing the
+			 * Enhancer.
+			 */
+			enh.setCallbackFilter(helper);
+			enh.setCallbacks(helper.getCallbacks());
+			o = (EObject)enh.create();
+			factories.put(klass, (net.sf.cglib.proxy.Factory)o);
+		} else {
+			o = (EObject) factory.newInstance(factory.getCallbacks());
+		}
+
+		/*
+		 * A newly created and instrumented DynamicEObjectImpl won't have the
+		 * eClass set. We need to redo that here.
+		 */
+		if (o instanceof DynamicEObjectImpl) {
+			((DynamicEObjectImpl)o).eSetClass(eClass);
+		}
+		return o;
 	}
 
 	private List<EObject> createEObjectTree(final List<ModelElement> elems, final TreeLoadingState state) throws IOException {

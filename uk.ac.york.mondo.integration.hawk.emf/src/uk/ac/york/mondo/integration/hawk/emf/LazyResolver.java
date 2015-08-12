@@ -58,9 +58,7 @@ class LazyResolver {
 	private final MethodInterceptor methodInterceptor = new MethodInterceptor() {
 		@Override
 		public Object intercept(Object o, Method m, Object[] args, MethodProxy proxy) throws Throwable {
-			if (args.length > 0 && args[0] instanceof EStructuralFeature) {
-				resolve((InternalEObject)o, (EStructuralFeature)args[0]);
-			}
+			resolve((InternalEObject)o, (EStructuralFeature)args[0]);
 			return proxy.invokeSuper(o, args);
 		}
 	};
