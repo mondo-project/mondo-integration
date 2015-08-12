@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +21,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import net.sf.cglib.proxy.CallbackHelper;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
 
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.BasicEList;
@@ -96,7 +101,8 @@ public class HawkResourceImpl extends ResourceImpl {
 	private Client client;
 
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
-	private LazyEStore lazyEStore;
+	private Map<Class<?>, Enhancer> enhancers = null;
+	private LazyResolver lazyResolver;
 
 	public HawkResourceImpl() {
 	}
@@ -139,7 +145,7 @@ public class HawkResourceImpl extends ResourceImpl {
 						Arrays.asList(descriptor.getHawkRepository()),
 						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
 			}
-	
+
 			final TreeLoadingState state = new TreeLoadingState();
 			final List<EObject> rootEObjects = createEObjectTree(elems, state);
 			getContents().addAll(rootEObjects);
@@ -208,11 +214,43 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		final EFactory factory = registry.getEFactory(me.metamodelUri);
 		final LoadingMode mode = descriptor.getLoadingMode();
-		EObject obj;
-		if (mode.isGreedyAttributes() && mode.isGreedyElements()) {
-			obj = factory.create(eClass);
-		} else {
-			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
+
+		EObject obj = factory.create(eClass);
+		if (!mode.isGreedyAttributes() || !mode.isGreedyElements()) {
+			// We need to create a proxy to implement the lazy loading bits, but
+			// we need to use a subclass of the *real* implementation, or we'll
+			// have all kinds of issues with some advanced metamodels (especially UML).
+			if (enhancers == null) {
+				enhancers = new HashMap<>();
+			}
+
+			Enhancer enh = enhancers.get(obj.getClass());
+			if (enh == null) {
+				enh = new Enhancer();
+				CallbackHelper helper = new CallbackHelper(obj.getClass(), new Class[0]) {
+					@Override
+					protected Object getCallback(Method m) {
+						if ("eGet".equals(m.getName())) {
+							return getLazyResolver().getMethodInterceptor();
+						} else {
+							return NoOp.INSTANCE;
+						}
+					}
+				};
+				enh.setSuperclass(obj.getClass());
+
+				// We need both classloaders: the classloader of the class to be
+				// enhanced, and the classloader of this plugin (which includes CGLIB)
+				enh.setClassLoader(new BridgeClassLoader(
+					obj.getClass().getClassLoader(),
+					this.getClass().getClassLoader()));
+
+				enh.setCallbackFilter(helper);
+				enh.setCallbacks(helper.getCallbacks());
+				enhancers.put(obj.getClass(), enh);
+			}
+
+			obj = (EObject) enh.create();
 		}
 
 		if (me.isSetId()) {
@@ -224,7 +262,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				SlotDecodingUtils.setFromSlot(factory, eClass, obj, s);
 			}
 		} else if (!mode.isGreedyAttributes()) {
-			getLazyStore().addLazyAttributes(me.id, obj);
+			getLazyResolver().addLazyAttributes(me.id, obj);
 		}
 
 		return obj;
@@ -313,7 +351,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			} else {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().addLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else if (s.isSetIds()) {
@@ -325,7 +363,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			} else {
 				final EList<Object> lazyIds = new BasicEList<>();
 				lazyIds.addAll(s.ids);
-				getLazyStore().addLazyReferences(sourceObj, feature, lazyIds);
+				getLazyResolver().addLazyReferences(sourceObj, feature, lazyIds);
 			}
 		}
 		else if (s.isSetPosition()) {
@@ -358,7 +396,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			if (greedyElements) {
 				eSetValues = value;
 			} else {
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().addLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else {
@@ -380,11 +418,11 @@ public class HawkResourceImpl extends ResourceImpl {
 		return values;
 	}
 
-	private LazyEStore getLazyStore() {
-		if (lazyEStore == null) {
-			lazyEStore = new LazyEStore(this);
+	private LazyResolver getLazyResolver() {
+		if (lazyResolver == null) {
+			lazyResolver = new LazyResolver(this);
 		}
-		return lazyEStore;
+		return lazyResolver;
 	}
 
 	@Override
