@@ -413,7 +413,7 @@ class LazyEStore implements InternalEObject.EStore {
 		final List<String> ids = new ArrayList<>();
 		addAllStrings(targets, ids);
 		final EList<EObject> resolved = resource.fetchNodes(ids);
-		if (source != null && feature.isContainment() && !feature.isDerived()) {
+		if (source != null && feature.isContainment()) {
 			for (EObject eObj : resolved) {
 				containers.put(eObj, new ImmutablePair<>(feature, source));
 			}

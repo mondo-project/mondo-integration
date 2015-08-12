@@ -297,15 +297,19 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	private void fillInReference(final EObject sourceObj, final ReferenceSlot s, final EReference feature, final TreeLoadingState state) {
-		if (feature.isDerived()) {
-			// we don't set derived references
+		if (!feature.isChangeable() || feature.isDerived() && !(sourceObj instanceof DynamicEStoreEObjectImpl)) {
+			// we don't set unchangeable features, and we don't derived references on real objects
 			return;
 		}
 
 		final boolean greedyElements = descriptor.getLoadingMode().isGreedyElements();
+
+		// This variable will be set to a non-null value if we need to call eSet
+		EList<Object> eSetValues = null;
+
 		if (s.isSetId()) {
 			if (greedyElements) {
-				sourceObj.eSet(feature, nodeIdToEObjectMap.get(s.id));
+				eSetValues = createEList(nodeIdToEObjectMap.get(s.id));
 			} else {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
@@ -313,29 +317,28 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 		}
 		else if (s.isSetIds()) {
-			final EList<Object> value = new BasicEList<>();
 			if (greedyElements) {
+				eSetValues = createEList();
 				for (String targetId : s.ids) {
-					value.add(nodeIdToEObjectMap.get(targetId));
+					eSetValues.add(nodeIdToEObjectMap.get(targetId));
 				}
-				sourceObj.eSet(feature, value);
 			} else {
-				value.addAll(s.ids);
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				final EList<Object> lazyIds = new BasicEList<>();
+				lazyIds.addAll(s.ids);
+				getLazyStore().addLazyReferences(sourceObj, feature, lazyIds);
 			}
 		}
 		else if (s.isSetPosition()) {
-			sourceObj.eSet(feature, state.allEObjects.get(s.position));
+			eSetValues = createEList(state.allEObjects.get(s.position));
 		}
 		else if (s.isSetPositions()) {
-			final EList<EObject> value = new BasicEList<>();
+			eSetValues = createEList();
 			for (Integer position : s.positions) {
-				value.add(state.allEObjects.get(position));
+				eSetValues.add(state.allEObjects.get(position));
 			}
-			sourceObj.eSet(feature, value);
 		}
 		else if (s.isSetMixed()) {
-			final EList<Object> value = new BasicEList<>();
+			final EList<Object> value = createEList();
 
 			for (MixedReference mixed : s.mixed) {
 				if (mixed.isSetId()) {
@@ -353,7 +356,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				}
 			}
 			if (greedyElements) {
-				sourceObj.eSet(feature, value);
+				eSetValues = value;
 			} else {
 				getLazyStore().addLazyReferences(sourceObj, feature, value);
 			}
@@ -361,6 +364,20 @@ public class HawkResourceImpl extends ResourceImpl {
 		else {
 			LOGGER.warn("No known reference field was set in {}", s);
 		}
+
+		if (eSetValues != null) {
+			if (feature.isMany()) {
+				sourceObj.eSet(feature, eSetValues);
+			} else if (!eSetValues.isEmpty()) {
+				sourceObj.eSet(feature, eSetValues.get(0));
+			}
+		}
+	}
+
+	private EList<Object> createEList(final EObject... objects) {
+		EList<Object> values = new BasicEList<Object>();
+		values.addAll(Arrays.asList(objects));
+		return values;
 	}
 
 	private LazyEStore getLazyStore() {

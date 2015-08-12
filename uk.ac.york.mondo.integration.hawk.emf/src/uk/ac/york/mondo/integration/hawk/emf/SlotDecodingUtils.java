@@ -25,6 +25,7 @@ import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.Variant;
@@ -39,11 +40,10 @@ public final class SlotDecodingUtils {
 
 	public static EStructuralFeature setFromSlot(final EFactory eFactory, final EClass eClass, final EObject eObject, AttributeSlot slot) throws IOException {
 		final EStructuralFeature feature = eClass.getEStructuralFeature(slot.name);
-		if (feature.isDerived()) {
-			// we do not set derived features
+		if (!feature.isChangeable() || feature.isDerived() && !(eObject instanceof DynamicEStoreEObjectImpl)) {
 			return feature;
 		}
-	
+
 		// isSet=true and many=false means that we should have exactly one value
 		final EClassifier eType = feature.getEType();
 		if (eType.eContainer() == EcorePackage.eINSTANCE) {
@@ -170,26 +170,26 @@ public final class SlotDecodingUtils {
 					feature, eType));
 		}
 
-		if (Byte.class.isAssignableFrom(instanceClass)) {
+		if (Byte.class.isAssignableFrom(instanceClass) || byte.class.isAssignableFrom(instanceClass)) {
 			fromByte(eClass, eObject, slot, feature);
-		} else if (Float.class.isAssignableFrom(instanceClass)) {
+		} else if (Float.class.isAssignableFrom(instanceClass) || float.class.isAssignableFrom(instanceClass)) {
 			fromFloat(eClass, eObject, slot, feature);
-		} else if (Double.class.isAssignableFrom(instanceClass)) {
+		} else if (Double.class.isAssignableFrom(instanceClass) || double.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
-		} else if (Integer.class.isAssignableFrom(instanceClass)) {
+		} else if (Integer.class.isAssignableFrom(instanceClass) || int.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
-		} else if (Long.class.isAssignableFrom(instanceClass)) {
+		} else if (Long.class.isAssignableFrom(instanceClass) || long.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
-		} else if (Short.class.isAssignableFrom(instanceClass)) {
+		} else if (Short.class.isAssignableFrom(instanceClass) || short.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
 		} else if (String.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
-		} else if (Boolean.class.isAssignableFrom(instanceClass)) {
+		} else if (Boolean.class.isAssignableFrom(instanceClass) || boolean.class.isAssignableFrom(instanceClass)) {
 			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
 		} else {
 			throw new IOException(String.format(
-					"Unknown data type %s with isMany = false and instance class %s",
-					eType.getName(), feature.isMany(), instanceClass));
+					"Unknown data type for %s#%s %s with isMany = false and instance class %s",
+					eClass.getName(), feature.getName(), eType.getName(), feature.isMany(), instanceClass));
 		}
 	}
 
