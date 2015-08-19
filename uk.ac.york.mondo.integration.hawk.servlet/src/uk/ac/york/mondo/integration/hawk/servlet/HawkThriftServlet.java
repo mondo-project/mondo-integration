@@ -26,6 +26,7 @@ import org.apache.thrift.server.TServlet;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.InvalidQueryException;
+import org.hawk.core.runtime.LocalHawkFactory;
 import org.hawk.graph.FileNode;
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
@@ -360,7 +361,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void createInstance(String name, String adminPassword) throws TException {
 			try {
-				HModel.create(name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
+				HModel.create(LocalHawkFactory.ID, name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -400,7 +401,7 @@ public class HawkThriftServlet extends TServlet {
 			model.stop();
 		}
 
-		private java.io.File storageFolder(String instanceName) {
+		private String storageFolder(String instanceName) throws IOException {
 			java.io.File dataFile = FrameworkUtil.getBundle(HawkThriftServlet.class).getDataFile("hawk-" + instanceName);
 			if (!dataFile.exists()) {
 				dataFile.mkdir();
@@ -408,7 +409,7 @@ public class HawkThriftServlet extends TServlet {
 			} else {
 				LOGGER.info("Reused storage directory for instance '{}' in '{}'", instanceName, dataFile.getPath());
 			}
-			return dataFile;
+			return dataFile.getCanonicalPath();
 		}
 	}
 

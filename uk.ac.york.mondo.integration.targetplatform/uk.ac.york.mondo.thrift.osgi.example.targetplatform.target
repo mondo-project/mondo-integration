@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="70">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="71">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.feature.group" version="2.10.2.v20150123-0452"/>
@@ -60,6 +60,10 @@
 <unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201508071610"/>
 <unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201508071610"/>
 <repository location="jar:file:/home/antonio/Documents/mondo-hawk/org.hawk.updatesite/hawk-updatesite-20150807.zip!/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.bpmn2.feature.group" version="1.0.0.201412192138"/>
+<repository location="http://download.eclipse.org/releases/luna/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
