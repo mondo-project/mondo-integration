@@ -10,10 +10,7 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.cli;
 
-import java.io.FileInputStream;
 import java.net.ConnectException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -154,21 +151,7 @@ public class HawkCommandProvider implements CommandProvider {
 		List<File> mmFiles = new ArrayList<>();
 		for (String path = intp.nextArgument(); path != null; path = intp.nextArgument()) {
 			java.io.File rawFile = new java.io.File(path);
-			try (FileInputStream fIS = new FileInputStream(rawFile)) {
-				FileChannel chan = fIS.getChannel();
-
-				/* Note: this cast limits us to 2GB files - this shouldn't
-				 be a problem, but if it were we could use FileChannel#map
-				 and call Hawk.Client#registerModels one file at a time. */ 
-				ByteBuffer buf = ByteBuffer.allocate((int) chan.size());
-				chan.read(buf);
-				buf.flip();
-
-				File mmFile = new File();
-				mmFile.name = rawFile.getName();
-				mmFile.contents = buf;
-				mmFiles.add(mmFile);
-			}
+			mmFiles.add(APIUtils.convertJavaFileToThriftFile(rawFile));
 		}
 		client.registerMetamodels(currentInstance, mmFiles);
 

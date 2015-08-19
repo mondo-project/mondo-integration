@@ -11,8 +11,13 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.api.utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -21,6 +26,7 @@ import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 
+import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 
 /**
@@ -71,6 +77,24 @@ public class APIUtils {
 		client.addRequestInterceptor(new GZipRequestInterceptor());
 		client.addResponseInterceptor(new GZipResponseInterceptor());
 		return client;
+	}
+
+	public static File convertJavaFileToThriftFile(java.io.File rawFile) throws FileNotFoundException, IOException {
+		try (FileInputStream fIS = new FileInputStream(rawFile)) {
+			FileChannel chan = fIS.getChannel();
+
+			/* Note: this cast limits us to 2GB files - this shouldn't
+			 be a problem, but if it were we could use FileChannel#map
+			 and call Hawk.Client#registerModels one file at a time. */ 
+			ByteBuffer buf = ByteBuffer.allocate((int) chan.size());
+			chan.read(buf);
+			buf.flip();
+
+			File mmFile = new File();
+			mmFile.name = rawFile.getName();
+			mmFile.contents = buf;
+			return mmFile;
+		}
 	}
 
 }

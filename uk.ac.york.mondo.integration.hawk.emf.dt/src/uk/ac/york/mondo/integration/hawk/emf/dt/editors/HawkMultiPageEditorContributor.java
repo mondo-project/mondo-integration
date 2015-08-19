@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Antonio Garcia-Dominguez - initial API and implementation
+ *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 
 import org.eclipse.jface.action.Action;
@@ -15,7 +25,6 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
