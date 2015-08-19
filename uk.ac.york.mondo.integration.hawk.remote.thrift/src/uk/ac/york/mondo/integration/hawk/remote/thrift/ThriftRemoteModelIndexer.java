@@ -51,6 +51,7 @@ import org.hawk.core.util.HawkProperties;
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
@@ -438,7 +439,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public void init() throws Exception {
-		client.startInstance(name, adminPw.toString());
+		try {
+			client.startInstance(name, adminPw.toString());
+		} catch (HawkInstanceNotFound ex) {
+			client.createInstance(name, adminPw.toString());
+		}
 	}
 
 	@Override

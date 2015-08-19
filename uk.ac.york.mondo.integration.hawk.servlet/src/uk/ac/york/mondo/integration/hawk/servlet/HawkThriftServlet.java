@@ -361,7 +361,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void createInstance(String name, String adminPassword) throws TException {
 			try {
-				HModel.create(LocalHawkFactory.ID, name, storageFolder(name), Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
+				HModel.create(new LocalHawkFactory(), name, storageFolder(name), null, Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
 			} catch (Exception ex) {
 				throw new TException(ex);
 			}
@@ -401,7 +401,7 @@ public class HawkThriftServlet extends TServlet {
 			model.stop();
 		}
 
-		private String storageFolder(String instanceName) throws IOException {
+		private java.io.File storageFolder(String instanceName) throws IOException {
 			java.io.File dataFile = FrameworkUtil.getBundle(HawkThriftServlet.class).getDataFile("hawk-" + instanceName);
 			if (!dataFile.exists()) {
 				dataFile.mkdir();
@@ -409,7 +409,7 @@ public class HawkThriftServlet extends TServlet {
 			} else {
 				LOGGER.info("Reused storage directory for instance '{}' in '{}'", instanceName, dataFile.getPath());
 			}
-			return dataFile.getCanonicalPath();
+			return dataFile;
 		}
 	}
 

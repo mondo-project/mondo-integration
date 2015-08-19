@@ -15,13 +15,11 @@ import java.io.File;
 import org.hawk.core.IAbstractConsole;
 import org.hawk.core.IHawk;
 import org.hawk.core.IHawkFactory;
-import org.osgi.framework.FrameworkUtil;
 
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
-	public IHawk create(String name, String location, IAbstractConsole console) throws Exception {
-		File parentFolder = FrameworkUtil.getBundle(ThriftRemoteHawkFactory.class).getDataFile("hawk-" + name);
+	public IHawk create(String name, File parentFolder, String location, IAbstractConsole console) throws Exception {
 		return new ThriftRemoteHawk(name, location, parentFolder, console);
 	}
 
@@ -31,7 +29,12 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 	}
 
 	@Override
-	public boolean instancesUseLocalGraph() {
+	public boolean instancesCreateGraph() {
 		return false;
+	}
+
+	@Override
+	public boolean instancesUseLocation() {
+		return true;
 	}
 }
