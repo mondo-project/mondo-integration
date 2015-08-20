@@ -532,11 +532,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 	}
 
-	@Override
-	public Object query(File queryFile, String queryLangID) throws Exception {
-		return query(fileToString(queryFile), queryLangID);
-	}
-
 	private static String fileToString(File queryFile) throws IOException, FileNotFoundException {
 		final StringBuffer sbuf = new StringBuffer();
 		try (BufferedReader reader = new BufferedReader(new FileReader(queryFile))) {
@@ -544,11 +539,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 		final String query = sbuf.toString();
 		return query;
-	}
-
-	@Override
-	public Object query(String query, String queryLangID) throws Exception {
-		return getKnownQueryLanguages().get(queryLangID).contextlessQuery(null, query);
 	}
 
 	@Override
