@@ -11,10 +11,15 @@
 package uk.ac.york.mondo.integration.hawk.remote.thrift;
 
 import java.io.File;
+import java.util.List;
 
 import org.hawk.core.IAbstractConsole;
 import org.hawk.core.IHawk;
 import org.hawk.core.IHawkFactory;
+
+import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
@@ -36,5 +41,19 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 	@Override
 	public boolean instancesUseLocation() {
 		return true;
+	}
+
+	@Override
+	public InstanceInfo[] listInstances(String location) throws Exception {
+		Hawk.Client client = APIUtils.connectToHawk(location);
+
+		final List<HawkInstance> instances = client.listInstances();
+		final InstanceInfo[] infos = new InstanceInfo[instances.size()];
+		for (int iInfo = 0; iInfo < instances.size(); ++iInfo) {
+			HawkInstance instance = instances.get(iInfo);
+			infos[iInfo] = new InstanceInfo(instance.name, null, instance.running);
+		}
+
+		return infos;
 	}
 }

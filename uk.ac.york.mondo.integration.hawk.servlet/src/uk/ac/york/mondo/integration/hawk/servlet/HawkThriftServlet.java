@@ -81,10 +81,8 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		private HModel getHawkByName(String name) throws HawkInstanceNotFound {
-			HModel model;
-			try {
-				model = manager.getHawkByName(name);
-			} catch (NoSuchElementException ex) {
+			final HModel model = manager.getHawkByName(name);
+			if (model == null) {
 				throw new HawkInstanceNotFound();
 			}
 			return model;
