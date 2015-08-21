@@ -51,6 +51,7 @@ import org.hawk.core.util.HawkProperties;
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
+import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
@@ -592,6 +593,20 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public String decrypt(String pw) throws GeneralSecurityException, IOException {
 		return SecurityManager.decrypt(pw, adminPw);
+	}
+
+	@Override
+	public boolean isRunning() {
+		try {
+			for (HawkInstance instance : client.listInstances()) {
+				if (instance.name.equals(name)) {
+					return instance.running;
+				}
+			}
+		} catch (TException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 }

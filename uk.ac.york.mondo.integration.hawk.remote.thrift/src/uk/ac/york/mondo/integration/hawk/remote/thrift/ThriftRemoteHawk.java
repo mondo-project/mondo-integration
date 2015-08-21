@@ -26,10 +26,12 @@ public class ThriftRemoteHawk implements IHawk {
 	private final Client client;
 	private final IAbstractConsole console;
 	private ThriftRemoteModelIndexer indexer;
+	private File folder;
 
 	public ThriftRemoteHawk(String name, String location, File parentFolder, IAbstractConsole console) throws TTransportException, IOException {
 		this.console = console;
 		this.client = APIUtils.connectToHawk(location);
+		this.folder = parentFolder;
 		this.indexer = new ThriftRemoteModelIndexer(name, parentFolder, client, console);
 	}
 
@@ -52,9 +54,7 @@ public class ThriftRemoteHawk implements IHawk {
 
 	@Override
 	public boolean exists() {
-		// TODO this is used for deciding whether to delete or to remove something
-		// from the local metadata - what would be appropriate in this case?
-		return true;
+		return folder != null && folder.exists();
 	}
 
 }
