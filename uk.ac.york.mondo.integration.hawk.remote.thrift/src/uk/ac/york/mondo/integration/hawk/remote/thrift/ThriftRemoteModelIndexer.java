@@ -314,17 +314,21 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public boolean synchronise() throws Exception {
-		// the server takes care of the synchronization on its own
+		// the server takes care of the synchronisation on its own
 		return true;
 	}
 
 	@Override
-	public void shutdown(boolean delete) throws Exception {
-		if (delete) {
-			client.removeInstance(name);
-		} else {
+	public void shutdown(ShutdownRequestType type) throws Exception {
+		if (type == ShutdownRequestType.ALWAYS) {
+			// for remote instances, we only honour explicit requests by users.
 			client.stopInstance(name);
 		}
+	}
+
+	@Override
+	public void delete() throws Exception {
+		client.removeInstance(name);
 	}
 
 	@Override

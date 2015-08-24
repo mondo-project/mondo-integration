@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import org.hawk.core.IModelIndexer.ShutdownRequestType;
 import org.hawk.osgiserver.HManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -63,6 +64,6 @@ public class Activator implements BundleActivator {
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
-		HManager.getInstance().stopAllRunningInstances();
+		HManager.getInstance().stopAllRunningInstances(ShutdownRequestType.ONLY_LOCAL);
 	}
 }

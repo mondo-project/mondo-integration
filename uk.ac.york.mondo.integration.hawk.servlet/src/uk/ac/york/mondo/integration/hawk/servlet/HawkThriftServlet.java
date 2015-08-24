@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
+import org.hawk.core.IModelIndexer.ShutdownRequestType;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.InvalidQueryException;
@@ -396,7 +397,7 @@ public class HawkThriftServlet extends TServlet {
 		@Override
 		public void stopInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
-			model.stop();
+			model.stop(ShutdownRequestType.ALWAYS);
 		}
 
 		private java.io.File storageFolder(String instanceName) throws IOException {
