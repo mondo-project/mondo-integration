@@ -207,12 +207,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public String getUn() {
+		public String getUsername() {
 			return null;
 		}
 
 		@Override
-		public String getPw() {
+		public String getPassword() {
 			return null;
 		}
 
@@ -276,6 +276,16 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public boolean isURLLocationAccepted() {
 			return true;
+		}
+
+		@Override
+		public void setUsername(String username) {
+			// TODO Add updateRepository operation to Thrift API
+		}
+
+		@Override
+		public void setPassword(String password) {
+			// TODO Add updateRepository operation to Thrift API
 		}
 	}
 
@@ -408,10 +418,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void addVCSManager(IVcsManager vcs, boolean persist) {
 		Credentials credentials = null;
-		if (vcs.getUn() != null || vcs.getPw() != null) {
+		if (vcs.getUsername() != null || vcs.getPassword() != null) {
 			credentials = new Credentials();
-			credentials.setUsername(vcs.getUn());
-			credentials.setPassword(vcs.getPw());
+			credentials.setUsername(vcs.getUsername());
+			credentials.setPassword(vcs.getPassword());
 		}
 		try {
 			client.addRepository(name, vcs.getLocation(), vcs.getType(), credentials);
