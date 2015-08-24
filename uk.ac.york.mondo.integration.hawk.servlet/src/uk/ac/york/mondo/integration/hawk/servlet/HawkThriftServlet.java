@@ -26,6 +26,7 @@ import org.apache.thrift.server.TServlet;
 import org.hawk.core.IModelIndexer.ShutdownRequestType;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphTransaction;
+import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.runtime.LocalHawkFactory;
 import org.hawk.graph.FileNode;
@@ -129,10 +130,11 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<ScalarOrReference> query(String name, String query, String language, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
+		public List<ScalarOrReference> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
 			final HModel model = getRunningHawkByName(name);
 			Map<String, String> context = new HashMap<>();
-			context.put(org.hawk.core.query.IQueryEngine.PROPERTY_FILECONTEXT, scope);
+			context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
+			context.put(IQueryEngine.PROPERTY_FILECONTEXT, scope);
 			try {
 				Object ret = model.contextFullQuery(query, language, context);
 				// TODO be able to return other things beyond Strings

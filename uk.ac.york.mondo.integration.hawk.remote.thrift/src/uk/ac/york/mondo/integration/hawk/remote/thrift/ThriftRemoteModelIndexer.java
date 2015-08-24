@@ -93,7 +93,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		public Object contextlessQuery(IGraphDatabase g, String query)
 				throws InvalidQueryException, QueryExecutionException {
 			try {
-				return client.query(name, query, language, "*");
+				return client.query(name, query, language, "*", "*");
 			} catch (TException e) {
 				console.printerrln("Could not run contextless query");
 				console.printerrln(e);
@@ -120,8 +120,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			if (fileScope == null) {
 				fileScope = "*";
 			}
+			String repoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
+			if (repoScope == null) {
+				repoScope = "*";
+			}
 			try {
-				return client.query(name, query, language, fileScope);
+				return client.query(name, query, language, repoScope, fileScope);
 			} catch (TException e) {
 				console.printerrln("Could not run contextful query");
 				console.printerrln(e);

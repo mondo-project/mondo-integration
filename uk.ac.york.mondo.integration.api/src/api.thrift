@@ -365,7 +365,8 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The query to be executed. */ 2: required string query,
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language,
-	/* The scope of the query (e.g. *.uml). */ 4: required string scope,
+	/* The repository for the query (or * for all repositories). */ 4: required string repository,
+	/* The scope of the query (e.g. *.uml). */ 5: required string scope,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

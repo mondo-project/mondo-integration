@@ -202,6 +202,11 @@
           <details key="d" value="The name of the query language used (e.g. EOL, OCL)"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="repository" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The repository for the query (or * for all repositories)"/>
+        </eAnnotations>
+      </eParameters>
       <eParameters name="scope" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The scope of the query (e.g. *.uml)"/>

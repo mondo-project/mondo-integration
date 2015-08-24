@@ -227,9 +227,10 @@ public class HawkCommandProvider implements CommandProvider {
 		checkInstanceSelected();
 		final String query = requiredArgument(intp, "query");
 		final String language = requiredArgument(intp, "language");
+		final String repo = requiredArgument(intp, "repo");
 		final String scope = requiredArgument(intp, "scope");
 
-		Object ret = client.query(currentInstance, query, language, scope);
+		Object ret = client.query(currentInstance, query, language, repo, scope);
 		// TODO do something better than toString here
 		return "Result: " + ret;
 	}
@@ -495,7 +496,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
-		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n\t");
+		sbuf.append("hawkQuery <query> <language> <repo> <files> - queries the index\n\t");
 		sbuf.append("hawkResolveProxies <ids...> - retrieves model elements by ID\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");

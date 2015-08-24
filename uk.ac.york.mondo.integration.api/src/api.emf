@@ -112,7 +112,7 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
-		// TODO we need repository-level context as well!
+		@doc(d="The repository for the query (or * for all repositories)") String repository,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
 
