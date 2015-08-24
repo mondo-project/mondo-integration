@@ -158,21 +158,18 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public String getCurrentRevision(VcsRepository repository)
 				throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getFirstRevision(VcsRepository repository)
 				throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public VcsRepositoryDelta getDelta(VcsRepository repository,
 				String startRevision) throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -180,75 +177,63 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		public VcsRepositoryDelta getDelta(VcsRepository repository,
 				String startRevision, String endRevision)
 				throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public void importFiles(String path, File temp) {
-			// TODO Auto-generated method stub
-			
+			// nothing to do
 		}
 
 		@Override
 		public boolean isActive() {
-			// TODO Auto-generated method stub
 			return true;
 		}
 
 		@Override
 		public void run(String vcsloc, String un, String pw,
 				IAbstractConsole c) throws Exception {
-			// TODO Auto-generated method stub
-			
+			// nothing to do
 		}
 
 		@Override
 		public void shutdown() {
-			// TODO Auto-generated method stub
-			
+			// nothing to do
 		}
 
 		@Override
 		public String getLocation() {
-			// TODO Auto-generated method stub
 			return location;
 		}
 
 		@Override
 		public String getUn() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getPw() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getType() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getHumanReadableName() {
-			// TODO Auto-generated method stub
 			return location;
 		}
 
 		@Override
 		public String getCurrentRevision() throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public List<VcsCommitItem> getDelta(String string)
 				throws Exception {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -275,6 +260,21 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 					return false;
 			} else if (!location.equals(other.location))
 				return false;
+			return true;
+		}
+
+		@Override
+		public boolean isAuthSupported() {
+			return false;
+		}
+
+		@Override
+		public boolean isPathLocationAccepted() {
+			return true;
+		}
+
+		@Override
+		public boolean isURLLocationAccepted() {
 			return true;
 		}
 	}
@@ -449,9 +449,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void init() throws Exception {
 		try {
-			client.startInstance(name, adminPw.toString());
+			client.startInstance(name, new String(adminPw));
 		} catch (HawkInstanceNotFound ex) {
-			client.createInstance(name, adminPw.toString());
+			client.createInstance(name, new String(adminPw));
 		}
 	}
 
