@@ -137,6 +137,13 @@ class Hawk {
 		@doc(d="The URI of the repository to stop monitoring") String uri
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
+	@doc(d="Changes the credentials used to monitor a repository")
+	op void updateRepositoryCredentials (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to update") String uri,
+		@doc(d="The new credentials to be used") Credentials cred
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
 	@doc(d="Lists the repositories monitored by a Hawk instance")
 	op Repository[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name

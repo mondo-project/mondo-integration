@@ -146,10 +146,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	/**
 	 * Dummy implementation of {@link IVcsManager} that only provides the
-	 * location. Only useful for the GUI when querying a remote Hawk instance
-	 * using the Thrift API.
+	 * location and type and sends credential changes to the remote instance.
+	 * Only useful for the GUI when querying a remote Hawk instance using the
+	 * Thrift API.
 	 */
-	private static final class DummyVcsManager implements IVcsManager {
+	private final class DummyVcsManager implements IVcsManager {
 		private final String location, type;
 
 		private DummyVcsManager(String location, String type) {
@@ -281,13 +282,13 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void setUsername(String username) {
-			// TODO Add updateRepository operation to Thrift API
-		}
-
-		@Override
-		public void setPassword(String password) {
-			// TODO Add updateRepository operation to Thrift API
+		public void setCredentials(String username, String password) {
+			try {
+				client.updateRepositoryCredentials(
+					name, location, new Credentials(username, password));
+			} catch (TException e) {
+				console.printerrln(e);
+			}
 		}
 	}
 

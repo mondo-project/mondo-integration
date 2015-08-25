@@ -196,6 +196,15 @@ public class HawkCommandProvider implements CommandProvider {
 		return String.format("Removed repository '%s'", repoURL);
 	}
 
+	public Object _hawkUpdateRepositoryCredentials(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String repoURL = requiredArgument(intp, "url");
+		final String user = requiredArgument(intp, "user");
+		final String pass = requiredArgument(intp, "pass");
+		client.updateRepositoryCredentials(currentInstance, repoURL, new Credentials(user, pass));
+		return String.format("Credentials changed for '%s'", repoURL);
+	}
+
 	public Object _hawkListRepositories(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 		return formatList(client.listRepositories(currentInstance));
@@ -493,6 +502,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
+		sbuf.append("hawkUpdateRepositoryCredentials <url> <user> <pwd> - changes the user/password used to monitor a repository");
 		sbuf.append("--Queries--\n\t");
 		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");

@@ -278,6 +278,26 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="updateRepositoryCredentials" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+      <eAnnotations source="doc">
+        <details key="d" value="Changes the credentials used to monitor a repository"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The URI of the repository to update"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="cred" eType="#//Credentials">
+        <eAnnotations source="doc">
+          <details key="d" value="The new credentials to be used"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
     <eOperations name="listRepositories" upperBound="-1" eType="#//Repository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Lists the repositories monitored by a Hawk instance"/>

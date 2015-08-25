@@ -65,6 +65,8 @@ public class Hawk {
 
     public void removeRepository(String name, String uri) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
+    public void updateRepositoryCredentials(String name, String uri, Credentials cred) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
+
     public List<Repository> listRepositories(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
     public List<String> listRepositoryTypes() throws org.apache.thrift.TException;
@@ -118,6 +120,8 @@ public class Hawk {
     public void addRepository(String name, Repository repo, Credentials credentials, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void removeRepository(String name, String uri, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void updateRepositoryCredentials(String name, String uri, Credentials cred, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void listRepositories(String name, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -513,6 +517,34 @@ public class Hawk {
     {
       removeRepository_result result = new removeRepository_result();
       receiveBase(result, "removeRepository");
+      if (result.err1 != null) {
+        throw result.err1;
+      }
+      if (result.err2 != null) {
+        throw result.err2;
+      }
+      return;
+    }
+
+    public void updateRepositoryCredentials(String name, String uri, Credentials cred) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    {
+      send_updateRepositoryCredentials(name, uri, cred);
+      recv_updateRepositoryCredentials();
+    }
+
+    public void send_updateRepositoryCredentials(String name, String uri, Credentials cred) throws org.apache.thrift.TException
+    {
+      updateRepositoryCredentials_args args = new updateRepositoryCredentials_args();
+      args.setName(name);
+      args.setUri(uri);
+      args.setCred(cred);
+      sendBase("updateRepositoryCredentials", args);
+    }
+
+    public void recv_updateRepositoryCredentials() throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    {
+      updateRepositoryCredentials_result result = new updateRepositoryCredentials_result();
+      receiveBase(result, "updateRepositoryCredentials");
       if (result.err1 != null) {
         throw result.err1;
       }
@@ -1341,6 +1373,44 @@ public class Hawk {
       }
     }
 
+    public void updateRepositoryCredentials(String name, String uri, Credentials cred, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      updateRepositoryCredentials_call method_call = new updateRepositoryCredentials_call(name, uri, cred, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class updateRepositoryCredentials_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String name;
+      private String uri;
+      private Credentials cred;
+      public updateRepositoryCredentials_call(String name, String uri, Credentials cred, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.name = name;
+        this.uri = uri;
+        this.cred = cred;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("updateRepositoryCredentials", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        updateRepositoryCredentials_args args = new updateRepositoryCredentials_args();
+        args.setName(name);
+        args.setUri(uri);
+        args.setCred(cred);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_updateRepositoryCredentials();
+      }
+    }
+
     public void listRepositories(String name, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       listRepositories_call method_call = new listRepositories_call(name, resultHandler, this, ___protocolFactory, ___transport);
@@ -1799,6 +1869,7 @@ public class Hawk {
       processMap.put("resolveProxies", new resolveProxies());
       processMap.put("addRepository", new addRepository());
       processMap.put("removeRepository", new removeRepository());
+      processMap.put("updateRepositoryCredentials", new updateRepositoryCredentials());
       processMap.put("listRepositories", new listRepositories());
       processMap.put("listRepositoryTypes", new listRepositoryTypes());
       processMap.put("listFiles", new listFiles());
@@ -2140,6 +2211,32 @@ public class Hawk {
       }
     }
 
+    public static class updateRepositoryCredentials<I extends Iface> extends org.apache.thrift.ProcessFunction<I, updateRepositoryCredentials_args> {
+      public updateRepositoryCredentials() {
+        super("updateRepositoryCredentials");
+      }
+
+      public updateRepositoryCredentials_args getEmptyArgsInstance() {
+        return new updateRepositoryCredentials_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public updateRepositoryCredentials_result getResult(I iface, updateRepositoryCredentials_args args) throws org.apache.thrift.TException {
+        updateRepositoryCredentials_result result = new updateRepositoryCredentials_result();
+        try {
+          iface.updateRepositoryCredentials(args.name, args.uri, args.cred);
+        } catch (HawkInstanceNotFound err1) {
+          result.err1 = err1;
+        } catch (HawkInstanceNotRunning err2) {
+          result.err2 = err2;
+        }
+        return result;
+      }
+    }
+
     public static class listRepositories<I extends Iface> extends org.apache.thrift.ProcessFunction<I, listRepositories_args> {
       public listRepositories() {
         super("listRepositories");
@@ -2472,6 +2569,7 @@ public class Hawk {
       processMap.put("resolveProxies", new resolveProxies());
       processMap.put("addRepository", new addRepository());
       processMap.put("removeRepository", new removeRepository());
+      processMap.put("updateRepositoryCredentials", new updateRepositoryCredentials());
       processMap.put("listRepositories", new listRepositories());
       processMap.put("listRepositoryTypes", new listRepositoryTypes());
       processMap.put("listFiles", new listFiles());
@@ -3264,6 +3362,67 @@ public class Hawk {
 
       public void start(I iface, removeRepository_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
         iface.removeRepository(args.name, args.uri,resultHandler);
+      }
+    }
+
+    public static class updateRepositoryCredentials<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, updateRepositoryCredentials_args, Void> {
+      public updateRepositoryCredentials() {
+        super("updateRepositoryCredentials");
+      }
+
+      public updateRepositoryCredentials_args getEmptyArgsInstance() {
+        return new updateRepositoryCredentials_args();
+      }
+
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
+            updateRepositoryCredentials_result result = new updateRepositoryCredentials_result();
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            updateRepositoryCredentials_result result = new updateRepositoryCredentials_result();
+            if (e instanceof HawkInstanceNotFound) {
+                        result.err1 = (HawkInstanceNotFound) e;
+                        result.setErr1IsSet(true);
+                        msg = result;
+            }
+            else             if (e instanceof HawkInstanceNotRunning) {
+                        result.err2 = (HawkInstanceNotRunning) e;
+                        result.setErr2IsSet(true);
+                        msg = result;
+            }
+             else 
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, updateRepositoryCredentials_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.updateRepositoryCredentials(args.name, args.uri, args.cred,resultHandler);
       }
     }
 
@@ -16587,6 +16746,1037 @@ public class Hawk {
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, removeRepository_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(2);
+        if (incoming.get(0)) {
+          struct.err1 = new HawkInstanceNotFound();
+          struct.err1.read(iprot);
+          struct.setErr1IsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.err2 = new HawkInstanceNotRunning();
+          struct.err2.read(iprot);
+          struct.setErr2IsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class updateRepositoryCredentials_args implements org.apache.thrift.TBase<updateRepositoryCredentials_args, updateRepositoryCredentials_args._Fields>, java.io.Serializable, Cloneable, Comparable<updateRepositoryCredentials_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateRepositoryCredentials_args");
+
+    private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField URI_FIELD_DESC = new org.apache.thrift.protocol.TField("uri", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField CRED_FIELD_DESC = new org.apache.thrift.protocol.TField("cred", org.apache.thrift.protocol.TType.STRUCT, (short)3);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new updateRepositoryCredentials_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new updateRepositoryCredentials_argsTupleSchemeFactory());
+    }
+
+    public String name; // required
+    public String uri; // required
+    public Credentials cred; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      NAME((short)1, "name"),
+      URI((short)2, "uri"),
+      CRED((short)3, "cred");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // NAME
+            return NAME;
+          case 2: // URI
+            return URI;
+          case 3: // CRED
+            return CRED;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.URI, new org.apache.thrift.meta_data.FieldMetaData("uri", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.CRED, new org.apache.thrift.meta_data.FieldMetaData("cred", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Credentials.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(updateRepositoryCredentials_args.class, metaDataMap);
+    }
+
+    public updateRepositoryCredentials_args() {
+    }
+
+    public updateRepositoryCredentials_args(
+      String name,
+      String uri,
+      Credentials cred)
+    {
+      this();
+      this.name = name;
+      this.uri = uri;
+      this.cred = cred;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public updateRepositoryCredentials_args(updateRepositoryCredentials_args other) {
+      if (other.isSetName()) {
+        this.name = other.name;
+      }
+      if (other.isSetUri()) {
+        this.uri = other.uri;
+      }
+      if (other.isSetCred()) {
+        this.cred = new Credentials(other.cred);
+      }
+    }
+
+    public updateRepositoryCredentials_args deepCopy() {
+      return new updateRepositoryCredentials_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.name = null;
+      this.uri = null;
+      this.cred = null;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+
+    public updateRepositoryCredentials_args setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public void unsetName() {
+      this.name = null;
+    }
+
+    /** Returns true if field name is set (has been assigned a value) and false otherwise */
+    public boolean isSetName() {
+      return this.name != null;
+    }
+
+    public void setNameIsSet(boolean value) {
+      if (!value) {
+        this.name = null;
+      }
+    }
+
+    public String getUri() {
+      return this.uri;
+    }
+
+    public updateRepositoryCredentials_args setUri(String uri) {
+      this.uri = uri;
+      return this;
+    }
+
+    public void unsetUri() {
+      this.uri = null;
+    }
+
+    /** Returns true if field uri is set (has been assigned a value) and false otherwise */
+    public boolean isSetUri() {
+      return this.uri != null;
+    }
+
+    public void setUriIsSet(boolean value) {
+      if (!value) {
+        this.uri = null;
+      }
+    }
+
+    public Credentials getCred() {
+      return this.cred;
+    }
+
+    public updateRepositoryCredentials_args setCred(Credentials cred) {
+      this.cred = cred;
+      return this;
+    }
+
+    public void unsetCred() {
+      this.cred = null;
+    }
+
+    /** Returns true if field cred is set (has been assigned a value) and false otherwise */
+    public boolean isSetCred() {
+      return this.cred != null;
+    }
+
+    public void setCredIsSet(boolean value) {
+      if (!value) {
+        this.cred = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case NAME:
+        if (value == null) {
+          unsetName();
+        } else {
+          setName((String)value);
+        }
+        break;
+
+      case URI:
+        if (value == null) {
+          unsetUri();
+        } else {
+          setUri((String)value);
+        }
+        break;
+
+      case CRED:
+        if (value == null) {
+          unsetCred();
+        } else {
+          setCred((Credentials)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case NAME:
+        return getName();
+
+      case URI:
+        return getUri();
+
+      case CRED:
+        return getCred();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case NAME:
+        return isSetName();
+      case URI:
+        return isSetUri();
+      case CRED:
+        return isSetCred();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof updateRepositoryCredentials_args)
+        return this.equals((updateRepositoryCredentials_args)that);
+      return false;
+    }
+
+    public boolean equals(updateRepositoryCredentials_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_name = true && this.isSetName();
+      boolean that_present_name = true && that.isSetName();
+      if (this_present_name || that_present_name) {
+        if (!(this_present_name && that_present_name))
+          return false;
+        if (!this.name.equals(that.name))
+          return false;
+      }
+
+      boolean this_present_uri = true && this.isSetUri();
+      boolean that_present_uri = true && that.isSetUri();
+      if (this_present_uri || that_present_uri) {
+        if (!(this_present_uri && that_present_uri))
+          return false;
+        if (!this.uri.equals(that.uri))
+          return false;
+      }
+
+      boolean this_present_cred = true && this.isSetCred();
+      boolean that_present_cred = true && that.isSetCred();
+      if (this_present_cred || that_present_cred) {
+        if (!(this_present_cred && that_present_cred))
+          return false;
+        if (!this.cred.equals(that.cred))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_name = true && (isSetName());
+      list.add(present_name);
+      if (present_name)
+        list.add(name);
+
+      boolean present_uri = true && (isSetUri());
+      list.add(present_uri);
+      if (present_uri)
+        list.add(uri);
+
+      boolean present_cred = true && (isSetCred());
+      list.add(present_cred);
+      if (present_cred)
+        list.add(cred);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(updateRepositoryCredentials_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetName()).compareTo(other.isSetName());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetName()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.name, other.name);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetUri()).compareTo(other.isSetUri());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetUri()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.uri, other.uri);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetCred()).compareTo(other.isSetCred());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetCred()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.cred, other.cred);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("updateRepositoryCredentials_args(");
+      boolean first = true;
+
+      sb.append("name:");
+      if (this.name == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.name);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("uri:");
+      if (this.uri == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.uri);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("cred:");
+      if (this.cred == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.cred);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      if (name == null) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'name' was not present! Struct: " + toString());
+      }
+      if (uri == null) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'uri' was not present! Struct: " + toString());
+      }
+      if (cred == null) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'cred' was not present! Struct: " + toString());
+      }
+      // check for sub-struct validity
+      if (cred != null) {
+        cred.validate();
+      }
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class updateRepositoryCredentials_argsStandardSchemeFactory implements SchemeFactory {
+      public updateRepositoryCredentials_argsStandardScheme getScheme() {
+        return new updateRepositoryCredentials_argsStandardScheme();
+      }
+    }
+
+    private static class updateRepositoryCredentials_argsStandardScheme extends StandardScheme<updateRepositoryCredentials_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, updateRepositoryCredentials_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // NAME
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.name = iprot.readString();
+                struct.setNameIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // URI
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.uri = iprot.readString();
+                struct.setUriIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // CRED
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.cred = new Credentials();
+                struct.cred.read(iprot);
+                struct.setCredIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, updateRepositoryCredentials_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.name != null) {
+          oprot.writeFieldBegin(NAME_FIELD_DESC);
+          oprot.writeString(struct.name);
+          oprot.writeFieldEnd();
+        }
+        if (struct.uri != null) {
+          oprot.writeFieldBegin(URI_FIELD_DESC);
+          oprot.writeString(struct.uri);
+          oprot.writeFieldEnd();
+        }
+        if (struct.cred != null) {
+          oprot.writeFieldBegin(CRED_FIELD_DESC);
+          struct.cred.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class updateRepositoryCredentials_argsTupleSchemeFactory implements SchemeFactory {
+      public updateRepositoryCredentials_argsTupleScheme getScheme() {
+        return new updateRepositoryCredentials_argsTupleScheme();
+      }
+    }
+
+    private static class updateRepositoryCredentials_argsTupleScheme extends TupleScheme<updateRepositoryCredentials_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, updateRepositoryCredentials_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        oprot.writeString(struct.name);
+        oprot.writeString(struct.uri);
+        struct.cred.write(oprot);
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, updateRepositoryCredentials_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        struct.name = iprot.readString();
+        struct.setNameIsSet(true);
+        struct.uri = iprot.readString();
+        struct.setUriIsSet(true);
+        struct.cred = new Credentials();
+        struct.cred.read(iprot);
+        struct.setCredIsSet(true);
+      }
+    }
+
+  }
+
+  public static class updateRepositoryCredentials_result implements org.apache.thrift.TBase<updateRepositoryCredentials_result, updateRepositoryCredentials_result._Fields>, java.io.Serializable, Cloneable, Comparable<updateRepositoryCredentials_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("updateRepositoryCredentials_result");
+
+    private static final org.apache.thrift.protocol.TField ERR1_FIELD_DESC = new org.apache.thrift.protocol.TField("err1", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField ERR2_FIELD_DESC = new org.apache.thrift.protocol.TField("err2", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new updateRepositoryCredentials_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new updateRepositoryCredentials_resultTupleSchemeFactory());
+    }
+
+    public HawkInstanceNotFound err1; // required
+    public HawkInstanceNotRunning err2; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      ERR1((short)1, "err1"),
+      ERR2((short)2, "err2");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // ERR1
+            return ERR1;
+          case 2: // ERR2
+            return ERR2;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.ERR1, new org.apache.thrift.meta_data.FieldMetaData("err1", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.ERR2, new org.apache.thrift.meta_data.FieldMetaData("err2", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(updateRepositoryCredentials_result.class, metaDataMap);
+    }
+
+    public updateRepositoryCredentials_result() {
+    }
+
+    public updateRepositoryCredentials_result(
+      HawkInstanceNotFound err1,
+      HawkInstanceNotRunning err2)
+    {
+      this();
+      this.err1 = err1;
+      this.err2 = err2;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public updateRepositoryCredentials_result(updateRepositoryCredentials_result other) {
+      if (other.isSetErr1()) {
+        this.err1 = new HawkInstanceNotFound(other.err1);
+      }
+      if (other.isSetErr2()) {
+        this.err2 = new HawkInstanceNotRunning(other.err2);
+      }
+    }
+
+    public updateRepositoryCredentials_result deepCopy() {
+      return new updateRepositoryCredentials_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.err1 = null;
+      this.err2 = null;
+    }
+
+    public HawkInstanceNotFound getErr1() {
+      return this.err1;
+    }
+
+    public updateRepositoryCredentials_result setErr1(HawkInstanceNotFound err1) {
+      this.err1 = err1;
+      return this;
+    }
+
+    public void unsetErr1() {
+      this.err1 = null;
+    }
+
+    /** Returns true if field err1 is set (has been assigned a value) and false otherwise */
+    public boolean isSetErr1() {
+      return this.err1 != null;
+    }
+
+    public void setErr1IsSet(boolean value) {
+      if (!value) {
+        this.err1 = null;
+      }
+    }
+
+    public HawkInstanceNotRunning getErr2() {
+      return this.err2;
+    }
+
+    public updateRepositoryCredentials_result setErr2(HawkInstanceNotRunning err2) {
+      this.err2 = err2;
+      return this;
+    }
+
+    public void unsetErr2() {
+      this.err2 = null;
+    }
+
+    /** Returns true if field err2 is set (has been assigned a value) and false otherwise */
+    public boolean isSetErr2() {
+      return this.err2 != null;
+    }
+
+    public void setErr2IsSet(boolean value) {
+      if (!value) {
+        this.err2 = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case ERR1:
+        if (value == null) {
+          unsetErr1();
+        } else {
+          setErr1((HawkInstanceNotFound)value);
+        }
+        break;
+
+      case ERR2:
+        if (value == null) {
+          unsetErr2();
+        } else {
+          setErr2((HawkInstanceNotRunning)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case ERR1:
+        return getErr1();
+
+      case ERR2:
+        return getErr2();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case ERR1:
+        return isSetErr1();
+      case ERR2:
+        return isSetErr2();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof updateRepositoryCredentials_result)
+        return this.equals((updateRepositoryCredentials_result)that);
+      return false;
+    }
+
+    public boolean equals(updateRepositoryCredentials_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_err1 = true && this.isSetErr1();
+      boolean that_present_err1 = true && that.isSetErr1();
+      if (this_present_err1 || that_present_err1) {
+        if (!(this_present_err1 && that_present_err1))
+          return false;
+        if (!this.err1.equals(that.err1))
+          return false;
+      }
+
+      boolean this_present_err2 = true && this.isSetErr2();
+      boolean that_present_err2 = true && that.isSetErr2();
+      if (this_present_err2 || that_present_err2) {
+        if (!(this_present_err2 && that_present_err2))
+          return false;
+        if (!this.err2.equals(that.err2))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_err1 = true && (isSetErr1());
+      list.add(present_err1);
+      if (present_err1)
+        list.add(err1);
+
+      boolean present_err2 = true && (isSetErr2());
+      list.add(present_err2);
+      if (present_err2)
+        list.add(err2);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(updateRepositoryCredentials_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetErr1()).compareTo(other.isSetErr1());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetErr1()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.err1, other.err1);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetErr2()).compareTo(other.isSetErr2());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetErr2()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.err2, other.err2);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("updateRepositoryCredentials_result(");
+      boolean first = true;
+
+      sb.append("err1:");
+      if (this.err1 == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.err1);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("err2:");
+      if (this.err2 == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.err2);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class updateRepositoryCredentials_resultStandardSchemeFactory implements SchemeFactory {
+      public updateRepositoryCredentials_resultStandardScheme getScheme() {
+        return new updateRepositoryCredentials_resultStandardScheme();
+      }
+    }
+
+    private static class updateRepositoryCredentials_resultStandardScheme extends StandardScheme<updateRepositoryCredentials_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, updateRepositoryCredentials_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // ERR1
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.err1 = new HawkInstanceNotFound();
+                struct.err1.read(iprot);
+                struct.setErr1IsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // ERR2
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.err2 = new HawkInstanceNotRunning();
+                struct.err2.read(iprot);
+                struct.setErr2IsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, updateRepositoryCredentials_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.err1 != null) {
+          oprot.writeFieldBegin(ERR1_FIELD_DESC);
+          struct.err1.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        if (struct.err2 != null) {
+          oprot.writeFieldBegin(ERR2_FIELD_DESC);
+          struct.err2.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class updateRepositoryCredentials_resultTupleSchemeFactory implements SchemeFactory {
+      public updateRepositoryCredentials_resultTupleScheme getScheme() {
+        return new updateRepositoryCredentials_resultTupleScheme();
+      }
+    }
+
+    private static class updateRepositoryCredentials_resultTupleScheme extends TupleScheme<updateRepositoryCredentials_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, updateRepositoryCredentials_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetErr1()) {
+          optionals.set(0);
+        }
+        if (struct.isSetErr2()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetErr1()) {
+          struct.err1.write(oprot);
+        }
+        if (struct.isSetErr2()) {
+          struct.err2.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, updateRepositoryCredentials_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {

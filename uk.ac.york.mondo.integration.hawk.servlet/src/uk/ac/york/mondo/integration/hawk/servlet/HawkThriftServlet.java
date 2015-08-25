@@ -199,6 +199,17 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
+		public void updateRepositoryCredentials(String name, String uri, Credentials cred) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getRunningHawkByName(name);
+			for (IVcsManager mgr : model.getRunningVCSManagers()) {
+				if (mgr.getLocation().equals(uri)) {
+					mgr.setCredentials(cred.username, cred.password);
+					return;
+				}
+			}
+		}
+
+		@Override
 		public List<Repository> listRepositories(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
 			final HModel model = getRunningHawkByName(name);
 			final List<Repository> repos = new ArrayList<Repository>();

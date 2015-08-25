@@ -415,6 +415,17 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
+  /* Changes the credentials used to monitor a repository. Auth needed: Yes */
+  void updateRepositoryCredentials(
+	/* The name of the Hawk instance. */ 1: required string name,
+	/* The URI of the repository to update. */ 2: required string uri,
+	/* The new credentials to be used. */ 3: required Credentials cred,
+  )
+  throws (
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	) 
+	
   /* Lists the repositories monitored by a Hawk instance. Auth needed: Yes */
   list<Repository> listRepositories(
 	/* The name of the Hawk instance. */ 1: required string name,
