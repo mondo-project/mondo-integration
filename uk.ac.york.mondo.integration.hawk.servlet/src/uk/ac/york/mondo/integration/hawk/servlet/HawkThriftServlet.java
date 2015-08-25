@@ -24,6 +24,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
 import org.hawk.core.IModelIndexer.ShutdownRequestType;
+import org.hawk.core.IVcsManager;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.IQueryEngine;
@@ -54,6 +55,7 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.ScalarOrReference;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
@@ -175,13 +177,12 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public void addRepository(String name, String uri, String type,
-				Credentials credentials) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed {
+		public void addRepository(String name, Repository repo, Credentials credentials) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed {
 
 			// TODO Integrate with centralized repositories API
 			final HModel model = getRunningHawkByName(name);
 			try {
-				model.addVCS(uri, type, credentials.username, credentials.password);
+				model.addVCS(repo.uri, repo.type, credentials.username, credentials.password);
 			} catch (NoSuchElementException ex) {
 				throw new UnknownRepositoryType();
 			}
@@ -198,9 +199,13 @@ public class HawkThriftServlet extends TServlet {
 		}
 
 		@Override
-		public List<String> listRepositories(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
+		public List<Repository> listRepositories(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
 			final HModel model = getRunningHawkByName(name);
-			return new ArrayList<String>(model.getLocations());
+			final List<Repository> repos = new ArrayList<Repository>();
+			for (IVcsManager mgr : model.getRunningVCSManagers()) {
+				repos.add(new Repository(mgr.getLocation(), mgr.getType()));
+			}
+			return repos;
 		}
 
 		@Override

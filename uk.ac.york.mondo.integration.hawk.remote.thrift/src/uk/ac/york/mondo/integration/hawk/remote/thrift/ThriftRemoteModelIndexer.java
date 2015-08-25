@@ -54,6 +54,7 @@ import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
+import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 import com.thoughtworks.xstream.XStream;
@@ -149,10 +150,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	 * using the Thrift API.
 	 */
 	private static final class DummyVcsManager implements IVcsManager {
-		private final String location;
+		private final String location, type;
 
-		private DummyVcsManager(String location) {
+		private DummyVcsManager(String location, String type) {
 			this.location = location;
+			this.type = type;
 		}
 
 		@Override
@@ -218,7 +220,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 		@Override
 		public String getType() {
-			return null;
+			return type;
 		}
 
 		@Override
@@ -354,10 +356,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public Set<IVcsManager> getRunningVCSManagers() {
 		try {
-			List<String> repositories = client.listRepositories(name);
+			List<Repository> repositories = client.listRepositories(name);
 			Set<IVcsManager> dummies = new HashSet<>();
-			for (final String location : repositories) {
-				dummies.add(new DummyVcsManager(location));
+			for (final Repository repo : repositories) {
+				dummies.add(new DummyVcsManager(repo.uri, repo.type));
 			}
 			return dummies;
 		} catch (TException e) {
@@ -424,7 +426,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			credentials.setPassword(vcs.getPassword());
 		}
 		try {
-			client.addRepository(name, vcs.getLocation(), vcs.getType(), credentials);
+			client.addRepository(name, new Repository(vcs.getLocation(), vcs.getType()), credentials);
 		} catch (TException e) {
 			console.printerrln("Could not add the specified repository");
 			console.printerrln(e);

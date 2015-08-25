@@ -122,6 +122,11 @@ struct ModelSpec {
 struct OperationModel {
 }
 
+struct Repository {
+	 /* The URI to the repository. */ 1: required string uri,
+	 /* The type of repository. */ 2: required string type,
+}
+
 union ScalarOrReference {
 	 /*  */ 1: optional bool vBoolean,
 	 /*  */ 2: optional byte vByte,
@@ -390,9 +395,8 @@ service Hawk {
   /* Asks a Hawk instance to start monitoring a repository. Auth needed: Yes */
   void addRepository(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the repository to monitor. */ 2: required string uri,
-	/* The type of repository to be monitored. */ 3: required string type,
-	/* A valid set of credentials that has read-access to the repository. */ 4:  Credentials credentials,
+	/* The repository to monitor. */ 2: required Repository repo,
+	/* A valid set of credentials that has read-access to the repository. */ 3:  Credentials credentials,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -411,8 +415,8 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
 	) 
 	
-  /* Lists the URIs of the repositories monitored by a Hawk instance. Auth needed: Yes */
-  list<string> listRepositories(
+  /* Lists the repositories monitored by a Hawk instance. Auth needed: Yes */
+  list<Repository> listRepositories(
 	/* The name of the Hawk instance. */ 1: required string name,
   )
   throws (

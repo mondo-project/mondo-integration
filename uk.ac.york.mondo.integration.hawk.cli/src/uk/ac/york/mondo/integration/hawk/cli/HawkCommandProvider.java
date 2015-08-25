@@ -32,6 +32,7 @@ import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
+import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 /**
@@ -184,7 +185,7 @@ public class HawkCommandProvider implements CommandProvider {
 		if (creds.password == null) { creds.password = "anonymous"; }
 
 		// TODO tell Kostas that LocalFolder does not work if the path has a trailing separator
-		client.addRepository(currentInstance, repoURL, repoType, creds);
+		client.addRepository(currentInstance, new Repository(repoURL, repoType), creds);
 		return String.format("Added repository of type '%s' at '%s'", repoType, repoURL);
 	}
 
@@ -368,13 +369,13 @@ public class HawkCommandProvider implements CommandProvider {
 		throw new NoSuchElementException(String.format("No instance exists with the name '%s'", name));
 	}
 
-	private Object formatList(final List<String> elements) {
+	private Object formatList(final List<?> elements) {
 		if (elements.isEmpty()) {
 			return "(no results)";
 		} else {
 			StringBuffer sbuf = new StringBuffer();
 			boolean bFirst = true;
-			for (String element : elements) {
+			for (Object element : elements) {
 				if (bFirst) {
 					bFirst = false;
 				} else {

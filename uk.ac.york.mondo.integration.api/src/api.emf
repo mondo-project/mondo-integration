@@ -127,8 +127,7 @@ class Hawk {
 	@doc(d="Asks a Hawk instance to start monitoring a repository")
 	op void addRepository (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository to monitor") String uri,
-		@doc(d="The type of repository to be monitored") String type,
+		@doc(d="The repository to monitor") Repository repo,
 		@doc(d="A valid set of credentials that has read-access to the repository", optional="true") Credentials credentials
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed;
 
@@ -138,8 +137,8 @@ class Hawk {
 		@doc(d="The URI of the repository to stop monitoring") String uri
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
-	@doc(d="Lists the URIs of the repositories monitored by a Hawk instance")
-	op String[*] listRepositories (
+	@doc(d="Lists the repositories monitored by a Hawk instance")
+	op Repository[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
@@ -225,6 +224,12 @@ class Hawk {
 		@doc(d="The model element type to watch for", optional="true") String modelElementType
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	*/
+}
+
+@doc(d="Entity that represents a model repository")
+class Repository {
+	@doc(d="The URI to the repository") attr String uri;
+	@doc(d="The type of repository") attr String type;
 }
 
 @doc(d="Enumeration with the different types of changes that can happen to a model element.")

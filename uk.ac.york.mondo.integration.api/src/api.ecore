@@ -251,14 +251,9 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="repo" eType="#//Repository">
         <eAnnotations source="doc">
-          <details key="d" value="The URI of the repository to monitor"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The type of repository to be monitored"/>
+          <details key="d" value="The repository to monitor"/>
         </eAnnotations>
       </eParameters>
       <eParameters name="credentials" eType="#//Credentials">
@@ -283,10 +278,9 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="listRepositories" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+    <eOperations name="listRepositories" upperBound="-1" eType="#//Repository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
-        <details key="d" value="Lists the URIs of the repositories monitored by a Hawk instance"/>
+        <details key="d" value="Lists the repositories monitored by a Hawk instance"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -497,6 +491,21 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Repository">
+    <eAnnotations source="doc">
+      <details key="d" value="Entity that represents a model repository"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The URI to the repository"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The type of repository"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="ModelElementChangeType">
     <eAnnotations source="doc">
