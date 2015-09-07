@@ -39,6 +39,7 @@ import org.hawk.core.IVcsManager;
 import org.hawk.core.VcsCommitItem;
 import org.hawk.core.VcsRepository;
 import org.hawk.core.VcsRepositoryDelta;
+import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.query.IAccessListener;
@@ -628,6 +629,24 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean addGraphChangeListener(IGraphChangeListener changeListener) {
+		// TODO Integrate remote notifications here!
+		return false;
+	}
+
+	@Override
+	public boolean removeGraphChangeListener(IGraphChangeListener changeListener) {
+		// TODO Integrate remote notifications here!
+		return false;
+	}
+
+	@Override
+	public IGraphChangeListener getCompositeGraphChangeListener() {
+		// TODO Integrate remote notifications here!
+		return null;
 	}
 
 }
