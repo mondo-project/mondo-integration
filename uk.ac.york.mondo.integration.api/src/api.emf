@@ -231,6 +231,15 @@ class Hawk {
 		@doc(d="The model element type to watch for", optional="true") String modelElementType
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	*/
+
+	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
+	op Subscription watchModelChanges(
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The path of the model file in the repository") String filePath,
+		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
+		@doc(d="The model element type to watch for", optional="true") String modelElementType
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 }
 
 @doc(d="Entity that represents a model repository")
@@ -674,4 +683,10 @@ class InvalidModelSpec {
 @doc(d="The specified transformation token does not exist within the invokved MONDO instance.")
 class TransformationTokenNotFound {
 	@doc(d="Transformation token which was not found within the invoked MONDO instance.") attr String token;
+}
+
+@doc(d="Details about a subscription to a topic queue")
+class Subscription {
+	@doc(d="URL to the server that maintains the topic queue") attr String url;
+	@doc(d="Name of the topic queue") attr String queue;
 }

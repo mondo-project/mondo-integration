@@ -142,6 +142,11 @@ struct Slot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 }
 
+struct Subscription {
+	 /* URL to the server that maintains the topic queue. */ 1: required string url,
+	 /* Name of the topic queue. */ 2: required string queue,
+}
+
 struct TransformationStatus {
 	 /* True if the transformation has finished, false otherwise. */ 1: required bool finished,
 	 /* Time passed since the start of execution. */ 2: required i64 elapsed,
@@ -547,6 +552,19 @@ service Hawk {
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
   )
 	
+  /* Returns a stream of notifications about changes to a certain model, until the client disconnects. Auth needed: Yes */
+  Subscription watchModelChanges(
+	/* The name of the Hawk instance. */ 1: required string name,
+	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
+	/* The path of the model file in the repository. */ 3: required string filePath,
+	/* The type of change to watch for. */ 4:  ModelElementChangeType changeType,
+	/* The model element type to watch for. */ 5:  string modelElementType,
+  )
+  throws (
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */
+	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */
+	)
+
 }
 
 /* The following service operations expose the capabilities of the offline collaboration framework

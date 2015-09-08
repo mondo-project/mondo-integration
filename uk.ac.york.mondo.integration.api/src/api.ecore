@@ -511,6 +511,39 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="watchModelChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+      <eAnnotations source="doc">
+        <details key="d" value="Returns a stream of notifications about changes to a certain model, until the client disconnects."/>
+        <details key="stream" value="true"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="repositoryUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The URI of the repository in which the model is contained"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="filePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The path of the model file in the repository"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="changeType" eType="#//ModelElementChangeType">
+        <eAnnotations source="doc">
+          <details key="d" value="The type of change to watch for"/>
+          <details key="optional" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="modelElementType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The model element type to watch for"/>
+          <details key="optional" value="true"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Repository">
     <eAnnotations source="doc">
@@ -1353,6 +1386,21 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="token" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="Transformation token which was not found within the invoked MONDO instance."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Subscription">
+    <eAnnotations source="doc">
+      <details key="d" value="Details about a subscription to a topic queue"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="url" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="URL to the server that maintains the topic queue"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="queue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the topic queue"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
