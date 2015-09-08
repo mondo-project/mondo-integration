@@ -33,6 +33,7 @@ import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Repository;
+import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 /**
@@ -342,6 +343,14 @@ public class HawkCommandProvider implements CommandProvider {
 		return String.format("Removed derived attribute '%s' from '%s' in '%s'", attributeName, typeName, mmURI);
 	}
 
+	/* NOTIFICATIONS */
+
+	public Object _hawkWatchModelChanges(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", null, null);
+		return String.format("Created message queue '%s' at '%s'", subscription.queue, subscription.url);
+	}
+
 	/**
 	 * Ensures that a connection has been established.
 	 * @throws ConnectException No connection has been established yet.
@@ -516,7 +525,9 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("--Indexed attributes--\n\t");
 		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
 		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
-		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
+		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n");
+		sbuf.append("--Notifications--\n\t");
+		sbuf.append("hawkWatchModelChanges - creates an Artemis message queue with detected model changes\n");
 		return sbuf.toString();
 	}
 

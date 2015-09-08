@@ -91,7 +91,7 @@ public class Hawk {
 
     public List<ModelElement> getRootElements(String name, List<String> repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws org.apache.thrift.TException;
 
-    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
+    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
   }
 
@@ -149,7 +149,7 @@ public class Hawk {
 
     public void getRootElements(String name, List<String> repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void watchModelChanges(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void watchModelChanges(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -904,20 +904,20 @@ public class Hawk {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getRootElements failed: unknown result");
     }
 
-    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
     {
-      send_watchModelChanges(name, repositoryUri, filePath, changeType, modelElementType);
+      send_watchModelChanges(name, repositoryUri, filePath, changeTypes, modelElementTypes);
       return recv_watchModelChanges();
     }
 
-    public void send_watchModelChanges(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType) throws org.apache.thrift.TException
+    public void send_watchModelChanges(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes) throws org.apache.thrift.TException
     {
       watchModelChanges_args args = new watchModelChanges_args();
       args.setName(name);
       args.setRepositoryUri(repositoryUri);
       args.setFilePath(filePath);
-      args.setChangeType(changeType);
-      args.setModelElementType(modelElementType);
+      args.setChangeTypes(changeTypes);
+      args.setModelElementTypes(modelElementTypes);
       sendBase("watchModelChanges", args);
     }
 
@@ -1880,9 +1880,9 @@ public class Hawk {
       }
     }
 
-    public void watchModelChanges(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void watchModelChanges(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      watchModelChanges_call method_call = new watchModelChanges_call(name, repositoryUri, filePath, changeType, modelElementType, resultHandler, this, ___protocolFactory, ___transport);
+      watchModelChanges_call method_call = new watchModelChanges_call(name, repositoryUri, filePath, changeTypes, modelElementTypes, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -1891,15 +1891,15 @@ public class Hawk {
       private String name;
       private String repositoryUri;
       private String filePath;
-      private ModelElementChangeType changeType;
-      private String modelElementType;
-      public watchModelChanges_call(String name, String repositoryUri, String filePath, ModelElementChangeType changeType, String modelElementType, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private List<ModelElementChangeType> changeTypes;
+      private List<String> modelElementTypes;
+      public watchModelChanges_call(String name, String repositoryUri, String filePath, List<ModelElementChangeType> changeTypes, List<String> modelElementTypes, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.name = name;
         this.repositoryUri = repositoryUri;
         this.filePath = filePath;
-        this.changeType = changeType;
-        this.modelElementType = modelElementType;
+        this.changeTypes = changeTypes;
+        this.modelElementTypes = modelElementTypes;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -1908,8 +1908,8 @@ public class Hawk {
         args.setName(name);
         args.setRepositoryUri(repositoryUri);
         args.setFilePath(filePath);
-        args.setChangeType(changeType);
-        args.setModelElementType(modelElementType);
+        args.setChangeTypes(changeTypes);
+        args.setModelElementTypes(modelElementTypes);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -2641,7 +2641,7 @@ public class Hawk {
       public watchModelChanges_result getResult(I iface, watchModelChanges_args args) throws org.apache.thrift.TException {
         watchModelChanges_result result = new watchModelChanges_result();
         try {
-          result.success = iface.watchModelChanges(args.name, args.repositoryUri, args.filePath, args.changeType, args.modelElementType);
+          result.success = iface.watchModelChanges(args.name, args.repositoryUri, args.filePath, args.changeTypes, args.modelElementTypes);
         } catch (HawkInstanceNotFound err1) {
           result.err1 = err1;
         } catch (HawkInstanceNotRunning err2) {
@@ -4325,7 +4325,7 @@ public class Hawk {
       }
 
       public void start(I iface, watchModelChanges_args args, org.apache.thrift.async.AsyncMethodCallback<Subscription> resultHandler) throws TException {
-        iface.watchModelChanges(args.name, args.repositoryUri, args.filePath, args.changeType, args.modelElementType,resultHandler);
+        iface.watchModelChanges(args.name, args.repositoryUri, args.filePath, args.changeTypes, args.modelElementTypes,resultHandler);
       }
     }
 
@@ -30788,8 +30788,8 @@ public class Hawk {
     private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField REPOSITORY_URI_FIELD_DESC = new org.apache.thrift.protocol.TField("repositoryUri", org.apache.thrift.protocol.TType.STRING, (short)2);
     private static final org.apache.thrift.protocol.TField FILE_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("filePath", org.apache.thrift.protocol.TType.STRING, (short)3);
-    private static final org.apache.thrift.protocol.TField CHANGE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("changeType", org.apache.thrift.protocol.TType.I32, (short)4);
-    private static final org.apache.thrift.protocol.TField MODEL_ELEMENT_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("modelElementType", org.apache.thrift.protocol.TType.STRING, (short)5);
+    private static final org.apache.thrift.protocol.TField CHANGE_TYPES_FIELD_DESC = new org.apache.thrift.protocol.TField("changeTypes", org.apache.thrift.protocol.TType.LIST, (short)4);
+    private static final org.apache.thrift.protocol.TField MODEL_ELEMENT_TYPES_FIELD_DESC = new org.apache.thrift.protocol.TField("modelElementTypes", org.apache.thrift.protocol.TType.LIST, (short)5);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -30800,24 +30800,16 @@ public class Hawk {
     public String name; // required
     public String repositoryUri; // required
     public String filePath; // required
-    /**
-     * 
-     * @see ModelElementChangeType
-     */
-    public ModelElementChangeType changeType; // required
-    public String modelElementType; // required
+    public List<ModelElementChangeType> changeTypes; // required
+    public List<String> modelElementTypes; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       NAME((short)1, "name"),
       REPOSITORY_URI((short)2, "repositoryUri"),
       FILE_PATH((short)3, "filePath"),
-      /**
-       * 
-       * @see ModelElementChangeType
-       */
-      CHANGE_TYPE((short)4, "changeType"),
-      MODEL_ELEMENT_TYPE((short)5, "modelElementType");
+      CHANGE_TYPES((short)4, "changeTypes"),
+      MODEL_ELEMENT_TYPES((short)5, "modelElementTypes");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -30838,10 +30830,10 @@ public class Hawk {
             return REPOSITORY_URI;
           case 3: // FILE_PATH
             return FILE_PATH;
-          case 4: // CHANGE_TYPE
-            return CHANGE_TYPE;
-          case 5: // MODEL_ELEMENT_TYPE
-            return MODEL_ELEMENT_TYPE;
+          case 4: // CHANGE_TYPES
+            return CHANGE_TYPES;
+          case 5: // MODEL_ELEMENT_TYPES
+            return MODEL_ELEMENT_TYPES;
           default:
             return null;
         }
@@ -30891,10 +30883,12 @@ public class Hawk {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.FILE_PATH, new org.apache.thrift.meta_data.FieldMetaData("filePath", org.apache.thrift.TFieldRequirementType.REQUIRED, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.CHANGE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("changeType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, ModelElementChangeType.class)));
-      tmpMap.put(_Fields.MODEL_ELEMENT_TYPE, new org.apache.thrift.meta_data.FieldMetaData("modelElementType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.CHANGE_TYPES, new org.apache.thrift.meta_data.FieldMetaData("changeTypes", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, ModelElementChangeType.class))));
+      tmpMap.put(_Fields.MODEL_ELEMENT_TYPES, new org.apache.thrift.meta_data.FieldMetaData("modelElementTypes", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(watchModelChanges_args.class, metaDataMap);
     }
@@ -30906,15 +30900,15 @@ public class Hawk {
       String name,
       String repositoryUri,
       String filePath,
-      ModelElementChangeType changeType,
-      String modelElementType)
+      List<ModelElementChangeType> changeTypes,
+      List<String> modelElementTypes)
     {
       this();
       this.name = name;
       this.repositoryUri = repositoryUri;
       this.filePath = filePath;
-      this.changeType = changeType;
-      this.modelElementType = modelElementType;
+      this.changeTypes = changeTypes;
+      this.modelElementTypes = modelElementTypes;
     }
 
     /**
@@ -30930,11 +30924,16 @@ public class Hawk {
       if (other.isSetFilePath()) {
         this.filePath = other.filePath;
       }
-      if (other.isSetChangeType()) {
-        this.changeType = other.changeType;
+      if (other.isSetChangeTypes()) {
+        List<ModelElementChangeType> __this__changeTypes = new ArrayList<ModelElementChangeType>(other.changeTypes.size());
+        for (ModelElementChangeType other_element : other.changeTypes) {
+          __this__changeTypes.add(other_element);
+        }
+        this.changeTypes = __this__changeTypes;
       }
-      if (other.isSetModelElementType()) {
-        this.modelElementType = other.modelElementType;
+      if (other.isSetModelElementTypes()) {
+        List<String> __this__modelElementTypes = new ArrayList<String>(other.modelElementTypes);
+        this.modelElementTypes = __this__modelElementTypes;
       }
     }
 
@@ -30947,8 +30946,8 @@ public class Hawk {
       this.name = null;
       this.repositoryUri = null;
       this.filePath = null;
-      this.changeType = null;
-      this.modelElementType = null;
+      this.changeTypes = null;
+      this.modelElementTypes = null;
     }
 
     public String getName() {
@@ -31023,59 +31022,81 @@ public class Hawk {
       }
     }
 
-    /**
-     * 
-     * @see ModelElementChangeType
-     */
-    public ModelElementChangeType getChangeType() {
-      return this.changeType;
+    public int getChangeTypesSize() {
+      return (this.changeTypes == null) ? 0 : this.changeTypes.size();
     }
 
-    /**
-     * 
-     * @see ModelElementChangeType
-     */
-    public watchModelChanges_args setChangeType(ModelElementChangeType changeType) {
-      this.changeType = changeType;
+    public java.util.Iterator<ModelElementChangeType> getChangeTypesIterator() {
+      return (this.changeTypes == null) ? null : this.changeTypes.iterator();
+    }
+
+    public void addToChangeTypes(ModelElementChangeType elem) {
+      if (this.changeTypes == null) {
+        this.changeTypes = new ArrayList<ModelElementChangeType>();
+      }
+      this.changeTypes.add(elem);
+    }
+
+    public List<ModelElementChangeType> getChangeTypes() {
+      return this.changeTypes;
+    }
+
+    public watchModelChanges_args setChangeTypes(List<ModelElementChangeType> changeTypes) {
+      this.changeTypes = changeTypes;
       return this;
     }
 
-    public void unsetChangeType() {
-      this.changeType = null;
+    public void unsetChangeTypes() {
+      this.changeTypes = null;
     }
 
-    /** Returns true if field changeType is set (has been assigned a value) and false otherwise */
-    public boolean isSetChangeType() {
-      return this.changeType != null;
+    /** Returns true if field changeTypes is set (has been assigned a value) and false otherwise */
+    public boolean isSetChangeTypes() {
+      return this.changeTypes != null;
     }
 
-    public void setChangeTypeIsSet(boolean value) {
+    public void setChangeTypesIsSet(boolean value) {
       if (!value) {
-        this.changeType = null;
+        this.changeTypes = null;
       }
     }
 
-    public String getModelElementType() {
-      return this.modelElementType;
+    public int getModelElementTypesSize() {
+      return (this.modelElementTypes == null) ? 0 : this.modelElementTypes.size();
+      }
+
+    public java.util.Iterator<String> getModelElementTypesIterator() {
+      return (this.modelElementTypes == null) ? null : this.modelElementTypes.iterator();
     }
 
-    public watchModelChanges_args setModelElementType(String modelElementType) {
-      this.modelElementType = modelElementType;
+    public void addToModelElementTypes(String elem) {
+      if (this.modelElementTypes == null) {
+        this.modelElementTypes = new ArrayList<String>();
+      }
+      this.modelElementTypes.add(elem);
+    }
+
+    public List<String> getModelElementTypes() {
+      return this.modelElementTypes;
+    }
+
+    public watchModelChanges_args setModelElementTypes(List<String> modelElementTypes) {
+      this.modelElementTypes = modelElementTypes;
       return this;
     }
 
-    public void unsetModelElementType() {
-      this.modelElementType = null;
+    public void unsetModelElementTypes() {
+      this.modelElementTypes = null;
     }
 
-    /** Returns true if field modelElementType is set (has been assigned a value) and false otherwise */
-    public boolean isSetModelElementType() {
-      return this.modelElementType != null;
+    /** Returns true if field modelElementTypes is set (has been assigned a value) and false otherwise */
+    public boolean isSetModelElementTypes() {
+      return this.modelElementTypes != null;
     }
 
-    public void setModelElementTypeIsSet(boolean value) {
+    public void setModelElementTypesIsSet(boolean value) {
       if (!value) {
-        this.modelElementType = null;
+        this.modelElementTypes = null;
       }
     }
 
@@ -31105,19 +31126,19 @@ public class Hawk {
         }
         break;
 
-      case CHANGE_TYPE:
+      case CHANGE_TYPES:
         if (value == null) {
-          unsetChangeType();
+          unsetChangeTypes();
         } else {
-          setChangeType((ModelElementChangeType)value);
+          setChangeTypes((List<ModelElementChangeType>)value);
         }
         break;
 
-      case MODEL_ELEMENT_TYPE:
+      case MODEL_ELEMENT_TYPES:
         if (value == null) {
-          unsetModelElementType();
+          unsetModelElementTypes();
         } else {
-          setModelElementType((String)value);
+          setModelElementTypes((List<String>)value);
         }
         break;
 
@@ -31135,11 +31156,11 @@ public class Hawk {
       case FILE_PATH:
         return getFilePath();
 
-      case CHANGE_TYPE:
-        return getChangeType();
+      case CHANGE_TYPES:
+        return getChangeTypes();
 
-      case MODEL_ELEMENT_TYPE:
-        return getModelElementType();
+      case MODEL_ELEMENT_TYPES:
+        return getModelElementTypes();
 
       }
       throw new IllegalStateException();
@@ -31158,10 +31179,10 @@ public class Hawk {
         return isSetRepositoryUri();
       case FILE_PATH:
         return isSetFilePath();
-      case CHANGE_TYPE:
-        return isSetChangeType();
-      case MODEL_ELEMENT_TYPE:
-        return isSetModelElementType();
+      case CHANGE_TYPES:
+        return isSetChangeTypes();
+      case MODEL_ELEMENT_TYPES:
+        return isSetModelElementTypes();
       }
       throw new IllegalStateException();
     }
@@ -31206,21 +31227,21 @@ public class Hawk {
           return false;
       }
 
-      boolean this_present_changeType = true && this.isSetChangeType();
-      boolean that_present_changeType = true && that.isSetChangeType();
-      if (this_present_changeType || that_present_changeType) {
-        if (!(this_present_changeType && that_present_changeType))
+      boolean this_present_changeTypes = true && this.isSetChangeTypes();
+      boolean that_present_changeTypes = true && that.isSetChangeTypes();
+      if (this_present_changeTypes || that_present_changeTypes) {
+        if (!(this_present_changeTypes && that_present_changeTypes))
           return false;
-        if (!this.changeType.equals(that.changeType))
+        if (!this.changeTypes.equals(that.changeTypes))
           return false;
       }
 
-      boolean this_present_modelElementType = true && this.isSetModelElementType();
-      boolean that_present_modelElementType = true && that.isSetModelElementType();
-      if (this_present_modelElementType || that_present_modelElementType) {
-        if (!(this_present_modelElementType && that_present_modelElementType))
+      boolean this_present_modelElementTypes = true && this.isSetModelElementTypes();
+      boolean that_present_modelElementTypes = true && that.isSetModelElementTypes();
+      if (this_present_modelElementTypes || that_present_modelElementTypes) {
+        if (!(this_present_modelElementTypes && that_present_modelElementTypes))
           return false;
-        if (!this.modelElementType.equals(that.modelElementType))
+        if (!this.modelElementTypes.equals(that.modelElementTypes))
           return false;
       }
 
@@ -31246,15 +31267,15 @@ public class Hawk {
       if (present_filePath)
         list.add(filePath);
 
-      boolean present_changeType = true && (isSetChangeType());
-      list.add(present_changeType);
-      if (present_changeType)
-        list.add(changeType.getValue());
+      boolean present_changeTypes = true && (isSetChangeTypes());
+      list.add(present_changeTypes);
+      if (present_changeTypes)
+        list.add(changeTypes);
 
-      boolean present_modelElementType = true && (isSetModelElementType());
-      list.add(present_modelElementType);
-      if (present_modelElementType)
-        list.add(modelElementType);
+      boolean present_modelElementTypes = true && (isSetModelElementTypes());
+      list.add(present_modelElementTypes);
+      if (present_modelElementTypes)
+        list.add(modelElementTypes);
 
       return list.hashCode();
     }
@@ -31297,22 +31318,22 @@ public class Hawk {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetChangeType()).compareTo(other.isSetChangeType());
+      lastComparison = Boolean.valueOf(isSetChangeTypes()).compareTo(other.isSetChangeTypes());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetChangeType()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.changeType, other.changeType);
+      if (isSetChangeTypes()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.changeTypes, other.changeTypes);
         if (lastComparison != 0) {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetModelElementType()).compareTo(other.isSetModelElementType());
+      lastComparison = Boolean.valueOf(isSetModelElementTypes()).compareTo(other.isSetModelElementTypes());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetModelElementType()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.modelElementType, other.modelElementType);
+      if (isSetModelElementTypes()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.modelElementTypes, other.modelElementTypes);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -31361,19 +31382,19 @@ public class Hawk {
       }
       first = false;
       if (!first) sb.append(", ");
-      sb.append("changeType:");
-      if (this.changeType == null) {
+      sb.append("changeTypes:");
+      if (this.changeTypes == null) {
         sb.append("null");
       } else {
-        sb.append(this.changeType);
+        sb.append(this.changeTypes);
       }
       first = false;
       if (!first) sb.append(", ");
-      sb.append("modelElementType:");
-      if (this.modelElementType == null) {
+      sb.append("modelElementTypes:");
+      if (this.modelElementTypes == null) {
         sb.append("null");
       } else {
-        sb.append(this.modelElementType);
+        sb.append(this.modelElementTypes);
       }
       first = false;
       sb.append(")");
@@ -31452,18 +31473,38 @@ public class Hawk {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 4: // CHANGE_TYPE
-              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                struct.changeType = uk.ac.york.mondo.integration.api.ModelElementChangeType.findByValue(iprot.readI32());
-                struct.setChangeTypeIsSet(true);
+            case 4: // CHANGE_TYPES
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list280 = iprot.readListBegin();
+                  struct.changeTypes = new ArrayList<ModelElementChangeType>(_list280.size);
+                  ModelElementChangeType _elem281;
+                  for (int _i282 = 0; _i282 < _list280.size; ++_i282)
+                  {
+                    _elem281 = uk.ac.york.mondo.integration.api.ModelElementChangeType.findByValue(iprot.readI32());
+                    struct.changeTypes.add(_elem281);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setChangeTypesIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 5: // MODEL_ELEMENT_TYPE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.modelElementType = iprot.readString();
-                struct.setModelElementTypeIsSet(true);
+            case 5: // MODEL_ELEMENT_TYPES
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list283 = iprot.readListBegin();
+                  struct.modelElementTypes = new ArrayList<String>(_list283.size);
+                  String _elem284;
+                  for (int _i285 = 0; _i285 < _list283.size; ++_i285)
+                  {
+                    _elem284 = iprot.readString();
+                    struct.modelElementTypes.add(_elem284);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setModelElementTypesIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -31498,14 +31539,28 @@ public class Hawk {
           oprot.writeString(struct.filePath);
           oprot.writeFieldEnd();
         }
-        if (struct.changeType != null) {
-          oprot.writeFieldBegin(CHANGE_TYPE_FIELD_DESC);
-          oprot.writeI32(struct.changeType.getValue());
+        if (struct.changeTypes != null) {
+          oprot.writeFieldBegin(CHANGE_TYPES_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.changeTypes.size()));
+            for (ModelElementChangeType _iter286 : struct.changeTypes)
+            {
+              oprot.writeI32(_iter286.getValue());
+            }
+            oprot.writeListEnd();
+          }
           oprot.writeFieldEnd();
         }
-        if (struct.modelElementType != null) {
-          oprot.writeFieldBegin(MODEL_ELEMENT_TYPE_FIELD_DESC);
-          oprot.writeString(struct.modelElementType);
+        if (struct.modelElementTypes != null) {
+          oprot.writeFieldBegin(MODEL_ELEMENT_TYPES_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.modelElementTypes.size()));
+            for (String _iter287 : struct.modelElementTypes)
+            {
+              oprot.writeString(_iter287);
+            }
+            oprot.writeListEnd();
+          }
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -31529,18 +31584,30 @@ public class Hawk {
         oprot.writeString(struct.repositoryUri);
         oprot.writeString(struct.filePath);
         BitSet optionals = new BitSet();
-        if (struct.isSetChangeType()) {
+        if (struct.isSetChangeTypes()) {
           optionals.set(0);
         }
-        if (struct.isSetModelElementType()) {
+        if (struct.isSetModelElementTypes()) {
           optionals.set(1);
         }
         oprot.writeBitSet(optionals, 2);
-        if (struct.isSetChangeType()) {
-          oprot.writeI32(struct.changeType.getValue());
+        if (struct.isSetChangeTypes()) {
+          {
+            oprot.writeI32(struct.changeTypes.size());
+            for (ModelElementChangeType _iter288 : struct.changeTypes)
+            {
+              oprot.writeI32(_iter288.getValue());
+            }
+          }
         }
-        if (struct.isSetModelElementType()) {
-          oprot.writeString(struct.modelElementType);
+        if (struct.isSetModelElementTypes()) {
+          {
+            oprot.writeI32(struct.modelElementTypes.size());
+            for (String _iter289 : struct.modelElementTypes)
+            {
+              oprot.writeString(_iter289);
+            }
+        }
         }
       }
 
@@ -31555,12 +31622,30 @@ public class Hawk {
         struct.setFilePathIsSet(true);
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.changeType = uk.ac.york.mondo.integration.api.ModelElementChangeType.findByValue(iprot.readI32());
-          struct.setChangeTypeIsSet(true);
+          {
+            org.apache.thrift.protocol.TList _list290 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+            struct.changeTypes = new ArrayList<ModelElementChangeType>(_list290.size);
+            ModelElementChangeType _elem291;
+            for (int _i292 = 0; _i292 < _list290.size; ++_i292)
+            {
+              _elem291 = uk.ac.york.mondo.integration.api.ModelElementChangeType.findByValue(iprot.readI32());
+              struct.changeTypes.add(_elem291);
+            }
+          }
+          struct.setChangeTypesIsSet(true);
         }
         if (incoming.get(1)) {
-          struct.modelElementType = iprot.readString();
-          struct.setModelElementTypeIsSet(true);
+          {
+            org.apache.thrift.protocol.TList _list293 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.modelElementTypes = new ArrayList<String>(_list293.size);
+            String _elem294;
+            for (int _i295 = 0; _i295 < _list293.size; ++_i295)
+            {
+              _elem294 = iprot.readString();
+              struct.modelElementTypes.add(_elem294);
+            }
+          }
+          struct.setModelElementTypesIsSet(true);
         }
       }
     }

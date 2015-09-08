@@ -531,13 +531,13 @@
           <details key="d" value="The path of the model file in the repository"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="changeType" eType="#//ModelElementChangeType">
+      <eParameters name="changeTypes" upperBound="-1" eType="#//ModelElementChangeType">
         <eAnnotations source="doc">
-          <details key="d" value="The type of change to watch for"/>
+          <details key="d" value="The change type(s) to watch for"/>
           <details key="optional" value="true"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="modelElementType" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="modelElementTypes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The model element type to watch for"/>
           <details key="optional" value="true"/>

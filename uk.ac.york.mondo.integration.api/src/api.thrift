@@ -557,8 +557,8 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
 	/* The path of the model file in the repository. */ 3: required string filePath,
-	/* The type of change to watch for. */ 4:  ModelElementChangeType changeType,
-	/* The model element type to watch for. */ 5:  string modelElementType,
+	/* The change type(s) to watch for. */ 4:  list<ModelElementChangeType> changeTypes,
+	/* The model element type to watch for. */ 5:  list<string> modelElementTypes,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */

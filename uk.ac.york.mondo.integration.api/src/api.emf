@@ -237,8 +237,8 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
 		@doc(d="The path of the model file in the repository") String filePath,
-		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
-		@doc(d="The model element type to watch for", optional="true") String modelElementType
+		@doc(d="The change type(s) to watch for", optional="true") ModelElementChangeType[*] changeTypes,
+		@doc(d="The model element type to watch for", optional="true") String[*] modelElementTypes
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 }
 

@@ -55,11 +55,14 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.ModelElementChangeType;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.ScalarOrReference;
+import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
+import uk.ac.york.mondo.integration.artemis.client.ArtemisClientGraphChangeListener;
 
 /**
  * Entry point to the Hawk model indexers. This servlet exposes a Thrift-based
@@ -416,6 +419,27 @@ public class HawkThriftServlet extends TServlet {
 		public void stopInstance(String name) throws HawkInstanceNotFound, TException {
 			final HModel model = getHawkByName(name);
 			model.stop(ShutdownRequestType.ALWAYS);
+		}
+
+		@Override
+		public Subscription watchModelChanges(String name,
+				String repositoryUri, String filePath,
+				List<ModelElementChangeType> changeType, List<String> modelElementType)
+				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+			final HModel model = getHawkByName(name);
+
+			// TODO keep track of existing subscriptions and save/restore them
+			// TODO allow for filtering by repository/path/change type/model element type
+			// TODO how should clients specify desired durability, if at all?
+			try {
+				final ArtemisClientGraphChangeListener listener = new ArtemisClientGraphChangeListener(name, false);
+				model.addGraphChangeListener(listener);
+			} catch (Exception e) {
+				LOGGER.error("Could not register the new listener", e);
+				throw new TException(e);
+			}
+
+			return new Subscription("http://localhost:61616", name);
 		}
 
 		private java.io.File storageFolder(String instanceName) throws IOException {
