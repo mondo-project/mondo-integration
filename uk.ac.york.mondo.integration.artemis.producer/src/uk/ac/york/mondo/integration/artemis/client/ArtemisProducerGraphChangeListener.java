@@ -20,33 +20,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Hawk change listener that posts all changes to an Artemis in-VM server
- * through its core protocol. Transaction management is based on the
- * {@link TransactionalSendTest} test suite in Artemis.
+ * Hawk change listener that sends all changes to the specified address within
+ * an Artemis in-VM server through its core protocol. Transaction management is
+ * based on the {@link TransactionalSendTest} test suite in Artemis.
  */
-public class ArtemisClientGraphChangeListener implements IGraphChangeListener {
+public class ArtemisProducerGraphChangeListener implements IGraphChangeListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ArtemisClientGraphChangeListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ArtemisProducerGraphChangeListener.class);
 
 	private final ServerLocator locator;
 	private final ClientSessionFactory sessionFactory;
-	private final String queueName;
-	private final boolean durable;
+	private final boolean messagesAreDurable;
+	private final String targetAddress;
 
 	private ClientSession  session;
 	private ClientProducer producer;
 
-	public ArtemisClientGraphChangeListener(String queueName, boolean durable) throws Exception {
+	public ArtemisProducerGraphChangeListener(String address, boolean messagesAreDurable) throws Exception {
 		this.locator = ActiveMQClient.createServerLocatorWithoutHA(
 			new TransportConfiguration(InVMConnectorFactory.class.getName()));
 		this.sessionFactory = locator.createSessionFactory();
-		this.queueName = queueName;
-		this.durable = durable;
-
-		// Connect to Artemis, create the queue and disconnect
-		ClientSession queueSession = sessionFactory.createSession(false, false, false);
-		queueSession.createQueue(queueName, queueName, durable);
-		queueSession.close();
+		this.messagesAreDurable = messagesAreDurable;
+		this.targetAddress = address;
 	}
 
 	@Override
@@ -156,7 +151,7 @@ public class ArtemisClientGraphChangeListener implements IGraphChangeListener {
 
 	private void sendTextMessage(final String text) {
 		try {
-			final ClientMessage msg = session.createMessage(Message.TEXT_TYPE, durable);
+			final ClientMessage msg = session.createMessage(Message.TEXT_TYPE, messagesAreDurable);
 			msg.writeBodyBufferString(text);
 			producer.send(msg);
 		} catch (ActiveMQException e) {
