@@ -54,7 +54,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		if (session == null) {
 			try {
 				this.session = sessionFactory.createSession(false, false, false);
-				this.producer = session.createProducer(queueName);
+				this.producer = session.createProducer(targetAddress);
 			} catch (ActiveMQException e) {
 				LOGGER.error("Could not start a new Artemis session", e);
 			}
