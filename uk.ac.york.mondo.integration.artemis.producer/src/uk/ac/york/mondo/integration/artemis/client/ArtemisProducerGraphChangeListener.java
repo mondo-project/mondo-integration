@@ -50,6 +50,16 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	@Override
+	public void synchroniseStart() {
+		// nothing to do
+	}
+
+	@Override
+	public void synchroniseEnd() {
+		// nothing to do
+	}
+
+	@Override
 	public void changeStart() {
 		if (session == null) {
 			try {
