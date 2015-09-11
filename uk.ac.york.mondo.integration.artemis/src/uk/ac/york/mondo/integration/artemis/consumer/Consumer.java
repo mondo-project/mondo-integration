@@ -95,6 +95,12 @@ public class Consumer {
 			createQueue();
 		}
 		consumer = session.createConsumer(queueName);
+		session.start();
+	}
+
+	public void commitSession() throws ActiveMQException {
+		if (session == null) return;
+		session.commit();
 	}
 
 	public void closeSession() throws ActiveMQException {

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.artemis.server;
 
-import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,15 +31,21 @@ import org.slf4j.LoggerFactory;
 public class Server {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-	private String serverHost;
+
+	private final String host;
+	private final int port;
+
 	private EmbeddedActiveMQ server;
+
+	public Server(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
 
 	public void start() throws Exception {
 		if (server != null) return;
 
 		LOGGER.info("Artemis server starting...");
-
-		serverHost = InetAddress.getLocalHost().getHostAddress();
 
 		Configuration config = new ConfigurationImpl();
 
@@ -73,10 +78,10 @@ public class Server {
 	}
 
 	public String getHost() {
-		return serverHost;
+		return host;
 	}
 
 	public int getPort() {
-		return TransportConstants.DEFAULT_LOCAL_PORT;
+		return port;
 	}
 }

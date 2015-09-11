@@ -12,7 +12,6 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.thrift.TException;
@@ -72,18 +74,26 @@ import uk.ac.york.mondo.integration.artemis.server.Server;
  * API using the Thrift TCompactProtocol, which saves on I/O at the expense of
  * some CPU.
  *
+ * The servlet also starts an embedded Apache Artemis messaging server (for
+ * notifications). It listens on {@link TransportConstants#DEFAULT_HOST} and
+ * port {@link TransportConstants#DEFAULT_PORT} by default, but these can be
+ * changed by setting the {@link #ARTEMIS_HOST_PROPERTY} and/or
+ * {@link #ARTEMIS_PORT_PROPERTY} system properties.
+ *
  * @author Antonio García-Domínguez
  */
 public class HawkThriftServlet extends TServlet {
 
+	private static final String ARTEMIS_PORT_PROPERTY = "hawk.artemis.port";
+	private static final String ARTEMIS_HOST_PROPERTY = "hawk.artemis.host";
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
 
 	private static final class Iface implements Hawk.Iface {
 		private final HManager manager = HManager.getInstance();
-		private final String serverAddress;
+		private Server artemisServer;
 
-		public Iface() throws Exception {
-			serverAddress = InetAddress.getLocalHost().getHostAddress();
+		public void setArtemisServer(Server artemisServer) {
+			this.artemisServer = artemisServer;
 		}
 
 		private HModel getRunningHawkByName(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
@@ -436,19 +446,18 @@ public class HawkThriftServlet extends TServlet {
 				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getHawkByName(name);
 
-			// TODO keep track of existing subscriptions and save/restore them
+			// TODO keep track of existing subscriptions and save/restore/list/delete them
 			// TODO allow for filtering by repository/path/change type/model element type
 			// TODO how should clients specify desired durability, if at all?
 			try {
 				final ArtemisProducerGraphChangeListener listener =
 						new ArtemisProducerGraphChangeListener(model.getName(), true);
 				model.addGraphChangeListener(listener);
+				return new Subscription(artemisServer.getHost(), artemisServer.getPort(), listener.getQueueAddress());
 			} catch (Exception e) {
 				LOGGER.error("Could not register the new listener", e);
 				throw new TException(e);
 			}
-
-			return new Subscription(serverAddress, TransportConstants.DEFAULT_LOCAL_PORT, name);
 		}
 
 		private java.io.File storageFolder(String instanceName) throws IOException {
@@ -465,14 +474,47 @@ public class HawkThriftServlet extends TServlet {
 
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
 	private static final long serialVersionUID = 1L;
+	private final Iface implementation;
+
 	private Server artemis;
 
 	public HawkThriftServlet() throws Exception {
-		super(new Hawk.Processor<Hawk.Iface>(new Iface()),
-				new TTupleProtocol.Factory());
+		/*
+		 * We use this double-constructor pattern so we can capture the inner Iface and
+		 * tell it the server and port Artemis is listening at later on.
+		 */
+		this(new Iface());
+	}
 
-		artemis = new Server();
-		artemis.start();
+	private HawkThriftServlet(Iface iface) {
+		super(new Hawk.Processor<Hawk.Iface>(iface), new TTupleProtocol.Factory());
+		this.implementation = iface;
+	}
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+
+		String artemisHost = System.getProperty(ARTEMIS_HOST_PROPERTY);
+		if (artemisHost == null) {
+			artemisHost = TransportConstants.DEFAULT_HOST;
+		}
+
+		String sArtemisPort = System.getProperty(ARTEMIS_PORT_PROPERTY);
+		int artemisPort;
+		if (sArtemisPort == null) {
+			artemisPort = TransportConstants.DEFAULT_PORT;
+		} else {
+			artemisPort = Integer.valueOf(sArtemisPort);
+		}
+
+		artemis = new Server(artemisHost, artemisPort);
+		try {
+			artemis.start();
+			implementation.setArtemisServer(artemis);
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
 	}
 
 	@Override

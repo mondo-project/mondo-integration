@@ -61,12 +61,6 @@ public class Customizer extends JettyCustomizer {
 		                }
 		            };
 		        }
-		        
-		        @Override
-		        protected PrintWriter newWriter(OutputStream out,String encoding) throws UnsupportedEncodingException
-		        {
-		            return newWriter(out,encoding);
-		        }
 		    };
 		}
 	}

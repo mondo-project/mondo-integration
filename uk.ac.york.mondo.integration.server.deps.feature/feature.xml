@@ -1257,4 +1257,11 @@ In the future, it would be good to split off the dependencies introduced by Mode
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="org.jolokia.osgi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

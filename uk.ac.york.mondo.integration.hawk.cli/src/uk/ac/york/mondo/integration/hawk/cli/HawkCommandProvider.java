@@ -18,11 +18,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
@@ -45,8 +48,11 @@ import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
  */
 public class HawkCommandProvider implements CommandProvider {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HawkCommandProvider.class);
+
 	private Hawk.Client client;
 	private String currentInstance;
+	private Consumer consumer;
 
 	public Object _hawkHelp(CommandInterpreter intp) {
 		return getHelp();
@@ -351,15 +357,30 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkWatchModelChanges(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
+		if (consumer != null) {
+			consumer.closeSession();
+		}
+		
 		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", null, null);
-		Consumer consumer = Consumer.connectRemote(
+		consumer = Consumer.connectRemote(
 				subscription.host, subscription.port, subscription.queue, QueueType.DEFAULT);
-		consumer.processChangesAsync(new MessageHandler() {
+		consumer.openSession();
+		final MessageHandler handler = new MessageHandler() {
 			@Override
 			public void onMessage(ClientMessage message) {
 				System.out.println("Received message from Artemis: " + message.getBodyBuffer().readString());
+				try {
+					message.acknowledge();
+
+					// Normally, Artemis waits until a minimum number of bytes is reached (even on autocommit mode).
+					// We might want to tweak this for very large cases in more realistic cases.
+					consumer.commitSession();
+				} catch (ActiveMQException e) {
+					LOGGER.error("Failed to ack message", e);
+				}
 			}
-		});
+		};
+		consumer.processChangesAsync(handler);
 		return String.format("Watching changes on queue '%s' at '%s:%s'", subscription.queue, subscription.host, subscription.port);
 	}
 
@@ -514,12 +535,12 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
-		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
+		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");
-		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n\t");
+		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
-		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n");
+		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n\t");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
@@ -532,11 +553,11 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkResolveProxies <ids...> - retrieves model elements by ID\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
-		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n");
-		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
+		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n\t");
+		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n");
 		sbuf.append("--Indexed attributes--\n\t");
 		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
-		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
+		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n\t");
 		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n");
 		sbuf.append("--Notifications--\n\t");
 		sbuf.append("hawkWatchModelChanges - creates an Artemis message queue with detected model changes\n");
