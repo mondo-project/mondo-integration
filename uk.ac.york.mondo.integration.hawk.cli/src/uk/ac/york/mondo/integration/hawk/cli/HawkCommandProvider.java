@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -35,6 +37,8 @@ import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
@@ -348,7 +352,15 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkWatchModelChanges(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", null, null);
-		return String.format("Created message queue '%s' at '%s'", subscription.queue, subscription.url);
+		Consumer consumer = Consumer.connectRemote(
+				subscription.host, subscription.port, subscription.queue, QueueType.DEFAULT);
+		consumer.processChangesAsync(new MessageHandler() {
+			@Override
+			public void onMessage(ClientMessage message) {
+				System.out.println("Received message from Artemis: " + message.getBodyBuffer().readString());
+			}
+		});
+		return String.format("Watching changes on queue '%s' at '%s:%s'", subscription.queue, subscription.host, subscription.port);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package uk.ac.york.mondo.integration.artemis.client;
+package uk.ac.york.mondo.integration.artemis.producer;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

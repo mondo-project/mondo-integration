@@ -687,6 +687,7 @@ class TransformationTokenNotFound {
 
 @doc(d="Details about a subscription to a topic queue")
 class Subscription {
-	@doc(d="URL to the server that maintains the topic queue") attr String url;
+	@doc(d="Host name of the message queue server") attr String host;
+	@doc(d="Port in which the message queue server is listening") attr int port;
 	@doc(d="Name of the topic queue") attr String queue;
 }

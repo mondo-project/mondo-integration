@@ -143,8 +143,9 @@ struct Slot {
 }
 
 struct Subscription {
-	 /* URL to the server that maintains the topic queue. */ 1: required string url,
-	 /* Name of the topic queue. */ 2: required string queue,
+	 /* Host name of the message queue server. */ 1: required string host,
+	 /* Port in which the message queue server is listening. */ 2: required i32 port,
+	 /* Name of the topic queue. */ 3: required string queue,
 }
 
 struct TransformationStatus {

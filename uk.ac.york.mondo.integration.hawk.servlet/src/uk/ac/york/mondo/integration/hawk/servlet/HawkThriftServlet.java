@@ -12,6 +12,7 @@ package uk.ac.york.mondo.integration.hawk.servlet;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
@@ -62,7 +64,8 @@ import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
-import uk.ac.york.mondo.integration.artemis.client.ArtemisProducerGraphChangeListener;
+import uk.ac.york.mondo.integration.artemis.producer.ArtemisProducerGraphChangeListener;
+import uk.ac.york.mondo.integration.artemis.server.Server;
 
 /**
  * Entry point to the Hawk model indexers. This servlet exposes a Thrift-based
@@ -73,11 +76,16 @@ import uk.ac.york.mondo.integration.artemis.client.ArtemisProducerGraphChangeLis
  */
 public class HawkThriftServlet extends TServlet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
+
 	private static final class Iface implements Hawk.Iface {
-		
-		private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftServlet.class);
 		private final HManager manager = HManager.getInstance();
-		
+		private final String serverAddress;
+
+		public Iface() throws Exception {
+			serverAddress = InetAddress.getLocalHost().getHostAddress();
+		}
+
 		private HModel getRunningHawkByName(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
 			HModel model = getHawkByName(name);
 			if (model.isRunning()) {
@@ -432,14 +440,15 @@ public class HawkThriftServlet extends TServlet {
 			// TODO allow for filtering by repository/path/change type/model element type
 			// TODO how should clients specify desired durability, if at all?
 			try {
-				final ArtemisProducerGraphChangeListener listener = new ArtemisProducerGraphChangeListener(name, false);
+				final ArtemisProducerGraphChangeListener listener =
+						new ArtemisProducerGraphChangeListener(model.getName(), true);
 				model.addGraphChangeListener(listener);
 			} catch (Exception e) {
 				LOGGER.error("Could not register the new listener", e);
 				throw new TException(e);
 			}
 
-			return new Subscription("http://localhost:61616", name);
+			return new Subscription(serverAddress, TransportConstants.DEFAULT_LOCAL_PORT, name);
 		}
 
 		private java.io.File storageFolder(String instanceName) throws IOException {
@@ -456,10 +465,25 @@ public class HawkThriftServlet extends TServlet {
 
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
 	private static final long serialVersionUID = 1L;
+	private Server artemis;
 
-	public HawkThriftServlet() {
+	public HawkThriftServlet() throws Exception {
 		super(new Hawk.Processor<Hawk.Iface>(new Iface()),
 				new TTupleProtocol.Factory());
+
+		artemis = new Server();
+		artemis.start();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		try {
+			artemis.stop();
+			artemis = null;
+		} catch (Exception e) {
+			LOGGER.error("Failed to stop Artemis", e);
+		}
 	}
 
 }

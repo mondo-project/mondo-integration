@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Apache Artemis integration for remote notifications -- listener
 Bundle-SymbolicName: uk.ac.york.mondo.integration.artemis.producer
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.york.mondo.integration.artemis.client.Activator
+Bundle-Activator: uk.ac.york.mondo.integration.artemis.producer.Activator
 Bundle-Vendor: University of York
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0",
@@ -11,4 +11,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.slf4j.api;bundle-version="1.7.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: uk.ac.york.mondo.integration.artemis.client
+Export-Package: uk.ac.york.mondo.integration.artemis.producer
