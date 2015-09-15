@@ -440,7 +440,7 @@ public class HawkThriftServlet extends TServlet {
 
 		@Override
 		public Subscription watchModelChanges(String name,
-				String repositoryUri, String filePath,
+				String repositoryUri, List<String> filePaths,
 				boolean durableEvents)
 				throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 			final HModel model = getHawkByName(name);
@@ -449,7 +449,7 @@ public class HawkThriftServlet extends TServlet {
 			// TODO allow for filtering by repository/path/change type/model element type
 			try {
 				final ArtemisProducerGraphChangeListener listener =
-						new ArtemisProducerGraphChangeListener(model.getName(), durableEvents);
+						new ArtemisProducerGraphChangeListener(model.getName(), repositoryUri, filePaths, durableEvents);
 				model.addGraphChangeListener(listener);
 				return new Subscription(artemisServer.getHost(), artemisServer.getPort(), listener.getQueueAddress());
 			} catch (Exception e) {

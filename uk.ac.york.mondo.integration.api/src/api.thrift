@@ -608,7 +608,7 @@ service Hawk {
   Subscription watchModelChanges(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
-	/* The path of the model file in the repository. */ 3: required string filePath,
+	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
 	/* Whether events should be durable (survive server restarts) or not. */ 4: required bool durableEvents,
   )
   throws (

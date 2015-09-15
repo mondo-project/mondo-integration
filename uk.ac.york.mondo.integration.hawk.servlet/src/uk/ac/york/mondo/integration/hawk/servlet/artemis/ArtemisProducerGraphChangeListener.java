@@ -10,6 +10,9 @@
  ******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.servlet.artemis;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -57,8 +60,6 @@ import uk.ac.york.mondo.integration.hawk.servlet.HawkModelElementEncoder;
  * address, so "duplicate" listeners that would result in duplicate events being
  * sent to the queue are implicitly avoided by the
  * {@link CompositeGraphChangeListener} in most indexers.
- *
- * TODO: allow for filtering by repository + file path?
  */
 public class ArtemisProducerGraphChangeListener implements IGraphChangeListener {
 
@@ -73,8 +74,24 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private ClientSession session;
 	private ClientProducer producer;
 
-	public ArtemisProducerGraphChangeListener(String hawkInstance, boolean messagesAreDurable)
-			throws Exception {
+	private final Pattern repositoryURIPattern, filePathPattern;
+
+	public ArtemisProducerGraphChangeListener(String hawkInstance, String repositoryUri, List<String> filePaths, boolean messagesAreDurable) throws Exception {
+		// Convert the repository URI and file paths into regexps, for faster matching
+		this.repositoryURIPattern = Pattern.compile(repositoryUri.replace("*", ".*"));
+		StringBuffer sbuf = new StringBuffer();
+		boolean first = true;
+		for (String filePath : filePaths) {
+			if (first) {
+				first = false;
+			} else {
+				sbuf.append("|");
+			}
+			sbuf.append(filePath.replace("*", ".*"));
+		}
+		this.filePathPattern = Pattern.compile(sbuf.toString());
+
+		// Connect to Artemis
 		this.locator = ActiveMQClient
 				.createServerLocatorWithoutHA(new TransportConfiguration(
 						InVMConnectorFactory.class.getName()));
@@ -169,7 +186,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void modelElementAddition(VcsCommitItem s, IHawkObject element, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		try {
 			final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
@@ -188,7 +205,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		final HawkModelElementRemovalEvent ev = new HawkModelElementRemovalEvent();
 		ev.setVcsItem(mapToThrift(s));
@@ -203,7 +220,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	public void modelElementAttributeUpdate(VcsCommitItem s,
 			IHawkObject eObject, String attrName, Object oldValue,
 			Object newValue, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		final HawkAttributeUpdateEvent ev = new HawkAttributeUpdateEvent();
 		ev.setAttribute(attrName);
@@ -220,7 +237,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	public void modelElementAttributeRemoval(VcsCommitItem s,
 			IHawkObject eObject, String attrName, IGraphNode elementNode,
 			boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		final HawkAttributeRemovalEvent ev = new HawkAttributeRemovalEvent();
 		ev.setAttribute(attrName);
@@ -235,7 +252,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	@Override
 	public void referenceAddition(VcsCommitItem s, IGraphNode source,
 			IGraphNode target, String refName, boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		final HawkReferenceAdditionEvent ev = new HawkReferenceAdditionEvent();
 		ev.setSourceId(source.getId().toString());
@@ -251,7 +268,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	@Override
 	public void referenceRemoval(VcsCommitItem s, IGraphNode source,
 			IGraphNode target, String refName, boolean isTransient) {
-		if (isTransient) return;
+		if (isTransient || !isAcceptedByFilter(s)) return;
 
 		final HawkReferenceRemovalEvent ev = new HawkReferenceRemovalEvent();
 		ev.setSourceId(source.getId().toString());
@@ -262,6 +279,12 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		final HawkChangeEvent change = new HawkChangeEvent();
 		change.setReferenceRemoval(ev);
 		sendEvent(change);
+	}
+
+	private boolean isAcceptedByFilter(VcsCommitItem s) {
+		final String repository = s.getCommit().getDelta().getRepository().getUrl();
+		return repositoryURIPattern.matcher(repository).matches()
+				&& filePathPattern.matcher(s.getPath()).matches();
 	}
 
 	private CommitItem mapToThrift(VcsCommitItem s) {

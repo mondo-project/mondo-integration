@@ -40,6 +40,9 @@ public final class SlotDecodingUtils {
 
 	public static EStructuralFeature setFromSlot(final EFactory eFactory, final EClass eClass, final EObject eObject, AttributeSlot slot) throws IOException {
 		final EStructuralFeature feature = eClass.getEStructuralFeature(slot.name);
+		if (feature == null) {
+			return feature;
+		}
 		if (!feature.isChangeable() || feature.isDerived() && !(eObject instanceof DynamicEStoreEObjectImpl)) {
 			return feature;
 		}

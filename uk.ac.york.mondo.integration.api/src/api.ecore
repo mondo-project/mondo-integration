@@ -514,7 +514,7 @@
     <eOperations name="watchModelChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models."/>
-        <details key="stream" value="true"/>
+        <details key="streamOf" value="HawkChangeEvent"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -526,9 +526,9 @@
           <details key="d" value="The URI of the repository in which the model is contained"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="filePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The path of the model file in the repository"/>
+          <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
         </eAnnotations>
       </eParameters>
       <eParameters name="durableEvents" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">

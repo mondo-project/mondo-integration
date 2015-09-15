@@ -135,6 +135,7 @@ public class HawkModelDescriptor {
 	public static final String DEFAULT_FILES = "*";
 	public static final String DEFAULT_REPOSITORY = "*";
 	public static final LoadingMode DEFAULT_LOADING_MODE = LoadingMode.GREEDY;
+	public static final boolean DEFAULT_IS_SUBSCRIBED = false;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkModelDescriptor.class);
 	private static final String FILE_PATTERN_SEP = ",";
@@ -143,6 +144,7 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
 	private static final String PROPERTY_HAWK_URL = "hawk.url";
 	private static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
+	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
 
 	private String hawkURL;
 	private String hawkInstance;
@@ -150,6 +152,7 @@ public class HawkModelDescriptor {
 	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
 
 	private LoadingMode loadingMode = DEFAULT_LOADING_MODE;
+	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
 
 	public HawkModelDescriptor() {}
 
@@ -205,6 +208,14 @@ public class HawkModelDescriptor {
 		this.loadingMode = mode;
 	}
 
+	public boolean isSubscribed() {
+		return isSubscribed;
+	}
+
+	public void setSubscribed(boolean isSubscribed) {
+		this.isSubscribed = isSubscribed;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -220,6 +231,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_REPOSITORY, hawkRepository);
 		props.setProperty(PROPERTY_HAWK_FILES, concat(hawkFilePatterns, FILE_PATTERN_SEP));
 		props.setProperty(PROPERTY_HAWK_LOADING_MODE, loadingMode.toString());
+		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
 		return props;
 	}
 
@@ -229,6 +241,7 @@ public class HawkModelDescriptor {
 		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
 		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(FILE_PATTERN_SEP);
 		this.loadingMode = LoadingMode.valueOf(optionalProperty(props, PROPERTY_HAWK_LOADING_MODE, DEFAULT_LOADING_MODE + ""));
+		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
 	}
 
 	private static String requiredProperty(Properties props, String name) throws IOException {

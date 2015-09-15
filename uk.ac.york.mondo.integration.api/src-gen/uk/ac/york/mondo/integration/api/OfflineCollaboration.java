@@ -1750,14 +1750,14 @@ public class OfflineCollaboration {
             case 2: // RESOURCES
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list280 = iprot.readListBegin();
-                  struct.resources = new ArrayList<CollaborationResourceReference>(_list280.size);
-                  CollaborationResourceReference _elem281;
-                  for (int _i282 = 0; _i282 < _list280.size; ++_i282)
+                  org.apache.thrift.protocol.TList _list288 = iprot.readListBegin();
+                  struct.resources = new ArrayList<CollaborationResourceReference>(_list288.size);
+                  CollaborationResourceReference _elem289;
+                  for (int _i290 = 0; _i290 < _list288.size; ++_i290)
                   {
-                    _elem281 = new CollaborationResourceReference();
-                    _elem281.read(iprot);
-                    struct.resources.add(_elem281);
+                    _elem289 = new CollaborationResourceReference();
+                    _elem289.read(iprot);
+                    struct.resources.add(_elem289);
                   }
                   iprot.readListEnd();
                 }
@@ -1790,9 +1790,9 @@ public class OfflineCollaboration {
           oprot.writeFieldBegin(RESOURCES_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.resources.size()));
-            for (CollaborationResourceReference _iter283 : struct.resources)
+            for (CollaborationResourceReference _iter291 : struct.resources)
             {
-              _iter283.write(oprot);
+              _iter291.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1818,9 +1818,9 @@ public class OfflineCollaboration {
         struct.credentials.write(oprot);
         {
           oprot.writeI32(struct.resources.size());
-          for (CollaborationResourceReference _iter284 : struct.resources)
+          for (CollaborationResourceReference _iter292 : struct.resources)
           {
-            _iter284.write(oprot);
+            _iter292.write(oprot);
           }
         }
       }
@@ -1832,14 +1832,14 @@ public class OfflineCollaboration {
         struct.credentials.read(iprot);
         struct.setCredentialsIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list285 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.resources = new ArrayList<CollaborationResourceReference>(_list285.size);
-          CollaborationResourceReference _elem286;
-          for (int _i287 = 0; _i287 < _list285.size; ++_i287)
+          org.apache.thrift.protocol.TList _list293 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.resources = new ArrayList<CollaborationResourceReference>(_list293.size);
+          CollaborationResourceReference _elem294;
+          for (int _i295 = 0; _i295 < _list293.size; ++_i295)
           {
-            _elem286 = new CollaborationResourceReference();
-            _elem286.read(iprot);
-            struct.resources.add(_elem286);
+            _elem294 = new CollaborationResourceReference();
+            _elem294.read(iprot);
+            struct.resources.add(_elem294);
           }
         }
         struct.setResourcesIsSet(true);
@@ -2410,14 +2410,14 @@ public class OfflineCollaboration {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list288 = iprot.readListBegin();
-                  struct.success = new ArrayList<CollaborationResource>(_list288.size);
-                  CollaborationResource _elem289;
-                  for (int _i290 = 0; _i290 < _list288.size; ++_i290)
+                  org.apache.thrift.protocol.TList _list296 = iprot.readListBegin();
+                  struct.success = new ArrayList<CollaborationResource>(_list296.size);
+                  CollaborationResource _elem297;
+                  for (int _i298 = 0; _i298 < _list296.size; ++_i298)
                   {
-                    _elem289 = new CollaborationResource();
-                    _elem289.read(iprot);
-                    struct.success.add(_elem289);
+                    _elem297 = new CollaborationResource();
+                    _elem297.read(iprot);
+                    struct.success.add(_elem297);
                   }
                   iprot.readListEnd();
                 }
@@ -2472,9 +2472,9 @@ public class OfflineCollaboration {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (CollaborationResource _iter291 : struct.success)
+            for (CollaborationResource _iter299 : struct.success)
             {
-              _iter291.write(oprot);
+              _iter299.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -2529,9 +2529,9 @@ public class OfflineCollaboration {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (CollaborationResource _iter292 : struct.success)
+            for (CollaborationResource _iter300 : struct.success)
             {
-              _iter292.write(oprot);
+              _iter300.write(oprot);
             }
           }
         }
@@ -2552,14 +2552,14 @@ public class OfflineCollaboration {
         BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list293 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<CollaborationResource>(_list293.size);
-            CollaborationResource _elem294;
-            for (int _i295 = 0; _i295 < _list293.size; ++_i295)
+            org.apache.thrift.protocol.TList _list301 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<CollaborationResource>(_list301.size);
+            CollaborationResource _elem302;
+            for (int _i303 = 0; _i303 < _list301.size; ++_i303)
             {
-              _elem294 = new CollaborationResource();
-              _elem294.read(iprot);
-              struct.success.add(_elem294);
+              _elem302 = new CollaborationResource();
+              _elem302.read(iprot);
+              struct.success.add(_elem302);
             }
           }
           struct.setSuccessIsSet(true);
@@ -3000,14 +3000,14 @@ public class OfflineCollaboration {
             case 2: // RESOURCES
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list296 = iprot.readListBegin();
-                  struct.resources = new ArrayList<CollaborationResourceReference>(_list296.size);
-                  CollaborationResourceReference _elem297;
-                  for (int _i298 = 0; _i298 < _list296.size; ++_i298)
+                  org.apache.thrift.protocol.TList _list304 = iprot.readListBegin();
+                  struct.resources = new ArrayList<CollaborationResourceReference>(_list304.size);
+                  CollaborationResourceReference _elem305;
+                  for (int _i306 = 0; _i306 < _list304.size; ++_i306)
                   {
-                    _elem297 = new CollaborationResourceReference();
-                    _elem297.read(iprot);
-                    struct.resources.add(_elem297);
+                    _elem305 = new CollaborationResourceReference();
+                    _elem305.read(iprot);
+                    struct.resources.add(_elem305);
                   }
                   iprot.readListEnd();
                 }
@@ -3040,9 +3040,9 @@ public class OfflineCollaboration {
           oprot.writeFieldBegin(RESOURCES_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.resources.size()));
-            for (CollaborationResourceReference _iter299 : struct.resources)
+            for (CollaborationResourceReference _iter307 : struct.resources)
             {
-              _iter299.write(oprot);
+              _iter307.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -3068,9 +3068,9 @@ public class OfflineCollaboration {
         struct.credentials.write(oprot);
         {
           oprot.writeI32(struct.resources.size());
-          for (CollaborationResourceReference _iter300 : struct.resources)
+          for (CollaborationResourceReference _iter308 : struct.resources)
           {
-            _iter300.write(oprot);
+            _iter308.write(oprot);
           }
         }
       }
@@ -3082,14 +3082,14 @@ public class OfflineCollaboration {
         struct.credentials.read(iprot);
         struct.setCredentialsIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list301 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.resources = new ArrayList<CollaborationResourceReference>(_list301.size);
-          CollaborationResourceReference _elem302;
-          for (int _i303 = 0; _i303 < _list301.size; ++_i303)
+          org.apache.thrift.protocol.TList _list309 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.resources = new ArrayList<CollaborationResourceReference>(_list309.size);
+          CollaborationResourceReference _elem310;
+          for (int _i311 = 0; _i311 < _list309.size; ++_i311)
           {
-            _elem302 = new CollaborationResourceReference();
-            _elem302.read(iprot);
-            struct.resources.add(_elem302);
+            _elem310 = new CollaborationResourceReference();
+            _elem310.read(iprot);
+            struct.resources.add(_elem310);
           }
         }
         struct.setResourcesIsSet(true);
@@ -4286,14 +4286,14 @@ public class OfflineCollaboration {
             case 2: // RESOURCES
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list304 = iprot.readListBegin();
-                  struct.resources = new ArrayList<CollaborationResourceReference>(_list304.size);
-                  CollaborationResourceReference _elem305;
-                  for (int _i306 = 0; _i306 < _list304.size; ++_i306)
+                  org.apache.thrift.protocol.TList _list312 = iprot.readListBegin();
+                  struct.resources = new ArrayList<CollaborationResourceReference>(_list312.size);
+                  CollaborationResourceReference _elem313;
+                  for (int _i314 = 0; _i314 < _list312.size; ++_i314)
                   {
-                    _elem305 = new CollaborationResourceReference();
-                    _elem305.read(iprot);
-                    struct.resources.add(_elem305);
+                    _elem313 = new CollaborationResourceReference();
+                    _elem313.read(iprot);
+                    struct.resources.add(_elem313);
                   }
                   iprot.readListEnd();
                 }
@@ -4335,9 +4335,9 @@ public class OfflineCollaboration {
           oprot.writeFieldBegin(RESOURCES_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.resources.size()));
-            for (CollaborationResourceReference _iter307 : struct.resources)
+            for (CollaborationResourceReference _iter315 : struct.resources)
             {
-              _iter307.write(oprot);
+              _iter315.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -4368,9 +4368,9 @@ public class OfflineCollaboration {
         struct.credentials.write(oprot);
         {
           oprot.writeI32(struct.resources.size());
-          for (CollaborationResourceReference _iter308 : struct.resources)
+          for (CollaborationResourceReference _iter316 : struct.resources)
           {
-            _iter308.write(oprot);
+            _iter316.write(oprot);
           }
         }
         struct.operationModel.write(oprot);
@@ -4383,14 +4383,14 @@ public class OfflineCollaboration {
         struct.credentials.read(iprot);
         struct.setCredentialsIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list309 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.resources = new ArrayList<CollaborationResourceReference>(_list309.size);
-          CollaborationResourceReference _elem310;
-          for (int _i311 = 0; _i311 < _list309.size; ++_i311)
+          org.apache.thrift.protocol.TList _list317 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.resources = new ArrayList<CollaborationResourceReference>(_list317.size);
+          CollaborationResourceReference _elem318;
+          for (int _i319 = 0; _i319 < _list317.size; ++_i319)
           {
-            _elem310 = new CollaborationResourceReference();
-            _elem310.read(iprot);
-            struct.resources.add(_elem310);
+            _elem318 = new CollaborationResourceReference();
+            _elem318.read(iprot);
+            struct.resources.add(_elem318);
           }
         }
         struct.setResourcesIsSet(true);
@@ -5046,14 +5046,14 @@ public class OfflineCollaboration {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list312 = iprot.readListBegin();
-                  struct.success = new ArrayList<CollaborationResource>(_list312.size);
-                  CollaborationResource _elem313;
-                  for (int _i314 = 0; _i314 < _list312.size; ++_i314)
+                  org.apache.thrift.protocol.TList _list320 = iprot.readListBegin();
+                  struct.success = new ArrayList<CollaborationResource>(_list320.size);
+                  CollaborationResource _elem321;
+                  for (int _i322 = 0; _i322 < _list320.size; ++_i322)
                   {
-                    _elem313 = new CollaborationResource();
-                    _elem313.read(iprot);
-                    struct.success.add(_elem313);
+                    _elem321 = new CollaborationResource();
+                    _elem321.read(iprot);
+                    struct.success.add(_elem321);
                   }
                   iprot.readListEnd();
                 }
@@ -5117,9 +5117,9 @@ public class OfflineCollaboration {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (CollaborationResource _iter315 : struct.success)
+            for (CollaborationResource _iter323 : struct.success)
             {
-              _iter315.write(oprot);
+              _iter323.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -5182,9 +5182,9 @@ public class OfflineCollaboration {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (CollaborationResource _iter316 : struct.success)
+            for (CollaborationResource _iter324 : struct.success)
             {
-              _iter316.write(oprot);
+              _iter324.write(oprot);
             }
           }
         }
@@ -5208,14 +5208,14 @@ public class OfflineCollaboration {
         BitSet incoming = iprot.readBitSet(5);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list317 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<CollaborationResource>(_list317.size);
-            CollaborationResource _elem318;
-            for (int _i319 = 0; _i319 < _list317.size; ++_i319)
+            org.apache.thrift.protocol.TList _list325 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<CollaborationResource>(_list325.size);
+            CollaborationResource _elem326;
+            for (int _i327 = 0; _i327 < _list325.size; ++_i327)
             {
-              _elem318 = new CollaborationResource();
-              _elem318.read(iprot);
-              struct.success.add(_elem318);
+              _elem326 = new CollaborationResource();
+              _elem326.read(iprot);
+              struct.success.add(_elem326);
             }
           }
           struct.setSuccessIsSet(true);

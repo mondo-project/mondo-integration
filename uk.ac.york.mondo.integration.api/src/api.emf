@@ -221,22 +221,11 @@ class Hawk {
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
 	);
 
-    /*
-	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
-	op ModelElementChange[*] watchModelChanges(
-		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
-		@doc(d="The path of the model file in the repository") String filePath,
-		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
-		@doc(d="The model element type to watch for", optional="true") String modelElementType
-	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	*/
-
-	@doc(d="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models.", stream="true")
+	@doc(d="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models.", streamOf="HawkChangeEvent")
 	op Subscription watchModelChanges(
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
-		@doc(d="The path of the model file in the repository") String filePath,
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
 		@doc(d="Whether events should be durable (survive server restarts) or not.") boolean durableEvents
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 }

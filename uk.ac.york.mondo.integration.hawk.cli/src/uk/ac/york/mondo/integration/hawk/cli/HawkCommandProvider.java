@@ -373,7 +373,7 @@ public class HawkCommandProvider implements CommandProvider {
 			}
 		}
 
-		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", durable);
+		Subscription subscription = client.watchModelChanges(currentInstance, "*", Arrays.asList("*"), durable);
 		consumer = Consumer.connectRemote(
 				subscription.host, subscription.port, subscription.queue,
 				durable ? QueueType.DURABLE : QueueType.DEFAULT);

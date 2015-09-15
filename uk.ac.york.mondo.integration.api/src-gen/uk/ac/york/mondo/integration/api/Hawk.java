@@ -91,7 +91,7 @@ public class Hawk {
 
     public List<ModelElement> getRootElements(String name, List<String> repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws org.apache.thrift.TException;
 
-    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, boolean durableEvents) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
+    public Subscription watchModelChanges(String name, String repositoryUri, List<String> filePath, boolean durableEvents) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
   }
 
@@ -149,7 +149,7 @@ public class Hawk {
 
     public void getRootElements(String name, List<String> repositoryUri, List<String> filePath, boolean includeAttributes, boolean includeReferences, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void watchModelChanges(String name, String repositoryUri, String filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void watchModelChanges(String name, String repositoryUri, List<String> filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -904,13 +904,13 @@ public class Hawk {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getRootElements failed: unknown result");
     }
 
-    public Subscription watchModelChanges(String name, String repositoryUri, String filePath, boolean durableEvents) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    public Subscription watchModelChanges(String name, String repositoryUri, List<String> filePath, boolean durableEvents) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
     {
       send_watchModelChanges(name, repositoryUri, filePath, durableEvents);
       return recv_watchModelChanges();
     }
 
-    public void send_watchModelChanges(String name, String repositoryUri, String filePath, boolean durableEvents) throws org.apache.thrift.TException
+    public void send_watchModelChanges(String name, String repositoryUri, List<String> filePath, boolean durableEvents) throws org.apache.thrift.TException
     {
       watchModelChanges_args args = new watchModelChanges_args();
       args.setName(name);
@@ -1879,7 +1879,7 @@ public class Hawk {
       }
     }
 
-    public void watchModelChanges(String name, String repositoryUri, String filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void watchModelChanges(String name, String repositoryUri, List<String> filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       watchModelChanges_call method_call = new watchModelChanges_call(name, repositoryUri, filePath, durableEvents, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1889,9 +1889,9 @@ public class Hawk {
     public static class watchModelChanges_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String name;
       private String repositoryUri;
-      private String filePath;
+      private List<String> filePath;
       private boolean durableEvents;
-      public watchModelChanges_call(String name, String repositoryUri, String filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public watchModelChanges_call(String name, String repositoryUri, List<String> filePath, boolean durableEvents, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.name = name;
         this.repositoryUri = repositoryUri;
@@ -30783,7 +30783,7 @@ public class Hawk {
 
     private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField REPOSITORY_URI_FIELD_DESC = new org.apache.thrift.protocol.TField("repositoryUri", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField FILE_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("filePath", org.apache.thrift.protocol.TType.STRING, (short)3);
+    private static final org.apache.thrift.protocol.TField FILE_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("filePath", org.apache.thrift.protocol.TType.LIST, (short)3);
     private static final org.apache.thrift.protocol.TField DURABLE_EVENTS_FIELD_DESC = new org.apache.thrift.protocol.TField("durableEvents", org.apache.thrift.protocol.TType.BOOL, (short)4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -30794,7 +30794,7 @@ public class Hawk {
 
     public String name; // required
     public String repositoryUri; // required
-    public String filePath; // required
+    public List<String> filePath; // required
     public boolean durableEvents; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -30875,7 +30875,8 @@ public class Hawk {
       tmpMap.put(_Fields.REPOSITORY_URI, new org.apache.thrift.meta_data.FieldMetaData("repositoryUri", org.apache.thrift.TFieldRequirementType.REQUIRED, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.FILE_PATH, new org.apache.thrift.meta_data.FieldMetaData("filePath", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
       tmpMap.put(_Fields.DURABLE_EVENTS, new org.apache.thrift.meta_data.FieldMetaData("durableEvents", org.apache.thrift.TFieldRequirementType.REQUIRED, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -30888,7 +30889,7 @@ public class Hawk {
     public watchModelChanges_args(
       String name,
       String repositoryUri,
-      String filePath,
+      List<String> filePath,
       boolean durableEvents)
     {
       this();
@@ -30911,7 +30912,8 @@ public class Hawk {
         this.repositoryUri = other.repositoryUri;
       }
       if (other.isSetFilePath()) {
-        this.filePath = other.filePath;
+        List<String> __this__filePath = new ArrayList<String>(other.filePath);
+        this.filePath = __this__filePath;
       }
       this.durableEvents = other.durableEvents;
     }
@@ -30977,11 +30979,26 @@ public class Hawk {
       }
     }
 
-    public String getFilePath() {
+    public int getFilePathSize() {
+      return (this.filePath == null) ? 0 : this.filePath.size();
+    }
+
+    public java.util.Iterator<String> getFilePathIterator() {
+      return (this.filePath == null) ? null : this.filePath.iterator();
+    }
+
+    public void addToFilePath(String elem) {
+      if (this.filePath == null) {
+        this.filePath = new ArrayList<String>();
+      }
+      this.filePath.add(elem);
+    }
+
+    public List<String> getFilePath() {
       return this.filePath;
     }
 
-    public watchModelChanges_args setFilePath(String filePath) {
+    public watchModelChanges_args setFilePath(List<String> filePath) {
       this.filePath = filePath;
       return this;
     }
@@ -31046,7 +31063,7 @@ public class Hawk {
         if (value == null) {
           unsetFilePath();
         } else {
-          setFilePath((String)value);
+          setFilePath((List<String>)value);
         }
         break;
 
@@ -31344,8 +31361,18 @@ public class Hawk {
               }
               break;
             case 3: // FILE_PATH
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.filePath = iprot.readString();
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list280 = iprot.readListBegin();
+                  struct.filePath = new ArrayList<String>(_list280.size);
+                  String _elem281;
+                  for (int _i282 = 0; _i282 < _list280.size; ++_i282)
+                  {
+                    _elem281 = iprot.readString();
+                    struct.filePath.add(_elem281);
+                  }
+                  iprot.readListEnd();
+                }
                 struct.setFilePathIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -31389,7 +31416,14 @@ public class Hawk {
         }
         if (struct.filePath != null) {
           oprot.writeFieldBegin(FILE_PATH_FIELD_DESC);
-          oprot.writeString(struct.filePath);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePath.size()));
+            for (String _iter283 : struct.filePath)
+            {
+              oprot.writeString(_iter283);
+            }
+            oprot.writeListEnd();
+          }
           oprot.writeFieldEnd();
         }
         oprot.writeFieldBegin(DURABLE_EVENTS_FIELD_DESC);
@@ -31414,7 +31448,13 @@ public class Hawk {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         oprot.writeString(struct.name);
         oprot.writeString(struct.repositoryUri);
-        oprot.writeString(struct.filePath);
+        {
+          oprot.writeI32(struct.filePath.size());
+          for (String _iter284 : struct.filePath)
+          {
+            oprot.writeString(_iter284);
+          }
+        }
         oprot.writeBool(struct.durableEvents);
       }
 
@@ -31425,7 +31465,16 @@ public class Hawk {
         struct.setNameIsSet(true);
         struct.repositoryUri = iprot.readString();
         struct.setRepositoryUriIsSet(true);
-        struct.filePath = iprot.readString();
+        {
+          org.apache.thrift.protocol.TList _list285 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePath = new ArrayList<String>(_list285.size);
+          String _elem286;
+          for (int _i287 = 0; _i287 < _list285.size; ++_i287)
+          {
+            _elem286 = iprot.readString();
+            struct.filePath.add(_elem286);
+          }
+        }
         struct.setFilePathIsSet(true);
         struct.durableEvents = iprot.readBool();
         struct.setDurableEventsIsSet(true);
