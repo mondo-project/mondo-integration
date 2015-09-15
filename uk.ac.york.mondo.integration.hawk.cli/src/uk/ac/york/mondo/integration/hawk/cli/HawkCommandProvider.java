@@ -22,6 +22,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocol;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
@@ -40,6 +43,7 @@ import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 
@@ -360,20 +364,38 @@ public class HawkCommandProvider implements CommandProvider {
 		if (consumer != null) {
 			consumer.closeSession();
 		}
-		
-		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", null, null);
+
+		boolean durable = false;
+		String arg;
+		while ((arg = intp.nextArgument()) != null) {
+			switch (arg) {
+			case "durable": durable = true;
+			}
+		}
+
+		Subscription subscription = client.watchModelChanges(currentInstance, "dummy", "dummy", durable);
 		consumer = Consumer.connectRemote(
-				subscription.host, subscription.port, subscription.queue, QueueType.DEFAULT);
+				subscription.host, subscription.port, subscription.queue,
+				durable ? QueueType.DURABLE : QueueType.DEFAULT);
 		consumer.openSession();
 		final MessageHandler handler = new MessageHandler() {
 			@Override
 			public void onMessage(ClientMessage message) {
-				System.out.println("Received message from Artemis: " + message.getBodyBuffer().readString());
 				try {
+					final TProtocol proto = new TCompactProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+					final HawkChangeEvent change = new HawkChangeEvent();
+					try {
+						change.read(proto);
+						System.out.println("Received message from Artemis: " + change);
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						System.err.println("Error while decoding incoming message");
+						e.printStackTrace();
+					}
 					message.acknowledge();
 
-					// Normally, Artemis waits until a minimum number of bytes is reached (even on autocommit mode).
-					// We might want to tweak this for very large cases in more realistic cases.
+					// Normally, Artemis waits until a minimum number of bytes is reached (even on auto-commit mode).
+					// Clients should specify some additional strategy for committing acknowledgements.
 					consumer.commitSession();
 				} catch (ActiveMQException e) {
 					LOGGER.error("Failed to ack message", e);
@@ -560,7 +582,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n\t");
 		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n");
 		sbuf.append("--Notifications--\n\t");
-		sbuf.append("hawkWatchModelChanges - creates an Artemis message queue with detected model changes\n");
+		sbuf.append("hawkWatchModelChanges [durable] - creates an optionally durable Artemis message queue with detected model changes\n");
 		return sbuf.toString();
 	}
 

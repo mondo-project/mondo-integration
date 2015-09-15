@@ -15,8 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.hawk.neo4j-v2;bundle-version="1.0.0",
  org.hawk.osgiserver;bundle-version="1.0.0",
  org.hawk.graph;bundle-version="1.0.0",
- uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0",
- uk.ac.york.mondo.integration.artemis.producer;bundle-version="1.0.0"
+ uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.servlet;version="2.6.0",

@@ -8,7 +8,7 @@
  * Contributors:
  *     Antonio Garcia-Dominguez - initial API and implementation
  ******************************************************************************/
-package uk.ac.york.mondo.integration.artemis.producer;
+package uk.ac.york.mondo.integration.hawk.servlet.artemis;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -20,6 +20,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
+import org.hawk.core.VcsChangeType;
+import org.hawk.core.VcsCommit;
 import org.hawk.core.VcsCommitItem;
 import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphNode;
@@ -27,8 +33,22 @@ import org.hawk.core.model.IHawkClass;
 import org.hawk.core.model.IHawkObject;
 import org.hawk.core.model.IHawkPackage;
 import org.hawk.core.runtime.CompositeGraphChangeListener;
+import org.hawk.graph.GraphWrapper;
+import org.hawk.graph.ModelElementNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.york.mondo.integration.api.CommitItem;
+import uk.ac.york.mondo.integration.api.CommitItemChangeType;
+import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
+import uk.ac.york.mondo.integration.api.HawkChangeEvent;
+import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
+import uk.ac.york.mondo.integration.hawk.servlet.HawkModelElementEncoder;
 
 /**
  * Hawk change listener that sends all changes to the specified address within
@@ -40,8 +60,7 @@ import org.slf4j.LoggerFactory;
  * sent to the queue are implicitly avoided by the
  * {@link CompositeGraphChangeListener} in most indexers.
  *
- * TODO: encode changes as messages instead of regular strings.
- * TODO: allow for filtering by repository?
+ * TODO: allow for filtering by repository + file path?
  */
 public class ArtemisProducerGraphChangeListener implements IGraphChangeListener {
 
@@ -137,7 +156,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void classAddition(IHawkClass cls, IGraphNode clsNode) {
-		sendTextMessage("added class " + cls.getName());
+		// nothing to do!
 	}
 
 	@Override
@@ -151,56 +170,138 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	@Override
-	public void modelElementAddition(VcsCommitItem s, IHawkObject element,
-			IGraphNode elementNode, boolean isTransient) {
-		sendTextMessage("added model element " + element + " as node "
-				+ elementNode.getId());
+	public void modelElementAddition(VcsCommitItem s, IHawkObject element, IGraphNode elementNode, boolean isTransient) {
+		if (isTransient) return;
+
+		try {
+			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(elementNode.getGraph()));
+			encoder.setIncludeNodeIDs(true);
+			encoder.setUseContainment(false);
+			encoder.encode(new ModelElementNode(elementNode));
+
+			final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
+			ev.setVcsItem(mapToThrift(s));
+			ev.setElement(encoder.getElements().get(0));
+
+			final HawkChangeEvent change = new HawkChangeEvent();
+			change.setModelElementAddition(ev);
+			sendEvent(change);
+		} catch (Exception e) {
+			LOGGER.error("Could not encode a model element", e);
+		}
 	}
 
 	@Override
-	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode,
-			boolean isTransient) {
-		sendTextMessage("removed model element node " + elementNode.getId());
+	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode, boolean isTransient) {
+		if (isTransient) return;
+
+		final HawkModelElementRemovalEvent ev = new HawkModelElementRemovalEvent();
+		ev.setVcsItem(mapToThrift(s));
+		ev.setId(elementNode.getId().toString());
+
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setModelElementRemoval(ev);
+		sendEvent(change);
 	}
 
 	@Override
 	public void modelElementAttributeUpdate(VcsCommitItem s,
 			IHawkObject eObject, String attrName, Object oldValue,
 			Object newValue, IGraphNode elementNode, boolean isTransient) {
-		sendTextMessage("updated field " + attrName + " in node "
-				+ elementNode.getId());
+		if (isTransient) return;
+
+		final HawkAttributeUpdateEvent ev = new HawkAttributeUpdateEvent();
+		ev.setAttribute(attrName);
+		ev.setId(elementNode.getId().toString());
+		ev.setValue(HawkModelElementEncoder.encodeAttributeSlot(attrName, newValue).value);
+		ev.setVcsItem(mapToThrift(s));
+
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setModelElementAttributeUpdate(ev);
+		sendEvent(change);
 	}
 
 	@Override
 	public void modelElementAttributeRemoval(VcsCommitItem s,
 			IHawkObject eObject, String attrName, IGraphNode elementNode,
 			boolean isTransient) {
-		sendTextMessage("removed field " + attrName + " in node "
-				+ elementNode.getId());
+		if (isTransient) return;
+
+		final HawkAttributeRemovalEvent ev = new HawkAttributeRemovalEvent();
+		ev.setAttribute(attrName);
+		ev.setId(elementNode.getId().toString());
+		ev.setVcsItem(mapToThrift(s));
+
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setModelElementAttributeRemoval(ev);
+		sendEvent(change);
 	}
 
 	@Override
 	public void referenceAddition(VcsCommitItem s, IGraphNode source,
-			IGraphNode destination, String edgelabel, boolean isTransient) {
-		sendTextMessage("added reference " + edgelabel + " in node "
-				+ source.getId());
+			IGraphNode target, String refName, boolean isTransient) {
+		if (isTransient) return;
+
+		final HawkReferenceAdditionEvent ev = new HawkReferenceAdditionEvent();
+		ev.setSourceId(source.getId().toString());
+		ev.setTargetId(target.getId().toString());
+		ev.setVcsItem(mapToThrift(s));
+		ev.setRefName(refName);
+
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setReferenceAddition(ev);
+		sendEvent(change);
 	}
 
 	@Override
 	public void referenceRemoval(VcsCommitItem s, IGraphNode source,
-			IGraphNode destination, String edgelabel, boolean isTransient) {
-		sendTextMessage("removed reference " + edgelabel + " in node "
-				+ source.getId());
+			IGraphNode target, String refName, boolean isTransient) {
+		if (isTransient) return;
+
+		final HawkReferenceRemovalEvent ev = new HawkReferenceRemovalEvent();
+		ev.setSourceId(source.getId().toString());
+		ev.setTargetId(target.getId().toString());
+		ev.setVcsItem(mapToThrift(s));
+		ev.setRefName(refName);
+
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setReferenceRemoval(ev);
+		sendEvent(change);
 	}
 
-	private void sendTextMessage(final String text) {
+	private CommitItem mapToThrift(VcsCommitItem s) {
+		final VcsCommit commit = s.getCommit();
+	
+		final String repoURL = commit.getDelta().getRepository().getUrl();
+		final String revision = commit.getRevision();
+		final String path = s.getPath();
+		final CommitItemChangeType changeType = mapToThrift(s.getChangeType());
+	
+		return new CommitItem(repoURL, revision, path, changeType);
+	}
+
+	private CommitItemChangeType mapToThrift(VcsChangeType changeType) {
+		switch (changeType) {
+		case ADDED: return CommitItemChangeType.ADDED;
+		case DELETED: return CommitItemChangeType.DELETED;
+		case REPLACED: return CommitItemChangeType.REPLACED;
+		case UPDATED: return CommitItemChangeType.UPDATED;
+		default: return CommitItemChangeType.UNKNOWN;
+		}
+	}
+
+	private void sendEvent(HawkChangeEvent change) {
 		try {
-			final ClientMessage msg = session.createMessage(Message.TEXT_TYPE,
-					messagesAreDurable);
-			msg.writeBodyBufferString(text);
+			final ClientMessage msg = session.createMessage(Message.TEXT_TYPE, messagesAreDurable);
+			final TTransport trans = new ActiveMQBufferTransport(msg.getBodyBuffer());
+			final TProtocol proto = new TCompactProtocol(trans);
+			change.write(proto);
+			
 			producer.send(msg);
-		} catch (ActiveMQException e) {
-			LOGGER.error(String.format("Could not send message '%s'", text), e);
+		} catch (TException ex) {
+			LOGGER.error("Serialization error", ex);
+		} catch (ActiveMQException ex) {
+			LOGGER.error("Error while sending event", ex);
 		}
 	}
 

@@ -513,7 +513,7 @@
     </eOperations>
     <eOperations name="watchModelChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
-        <details key="d" value="Returns a stream of notifications about changes to a certain model, until the client disconnects."/>
+        <details key="d" value="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models."/>
         <details key="stream" value="true"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
@@ -531,16 +531,9 @@
           <details key="d" value="The path of the model file in the repository"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="changeTypes" upperBound="-1" eType="#//ModelElementChangeType">
+      <eParameters name="durableEvents" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
         <eAnnotations source="doc">
-          <details key="d" value="The change type(s) to watch for"/>
-          <details key="optional" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="modelElementTypes" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The model element type to watch for"/>
-          <details key="optional" value="true"/>
+          <details key="d" value="Whether events should be durable (survive server restarts) or not."/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -560,47 +553,212 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EEnum" name="ModelElementChangeType">
+  <eClassifiers xsi:type="ecore:EClass" name="HawkChangeEvent">
     <eAnnotations source="doc">
-      <details key="d" value="Enumeration with the different types of changes that can happen to a model element."/>
+      <details key="d" value="Serialized form of a change in the indexed models of a Hawk instance"/>
     </eAnnotations>
-    <eLiterals name="ADDED">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="modelElementAddition" eType="#//HawkModelElementAdditionEvent"
+        containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="The model element was added to the model"/>
+        <details key="d" value="A model element was added."/>
       </eAnnotations>
-    </eLiterals>
-    <eLiterals name="REMOVED" value="1">
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="modelElementRemoval" eType="#//HawkModelElementRemovalEvent"
+        containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="The model element was removed from the model"/>
+        <details key="d" value="A model element was removed."/>
       </eAnnotations>
-    </eLiterals>
-    <eLiterals name="UPDATED" value="2">
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="modelElementAttributeUpdate"
+        eType="#//HawkAttributeUpdateEvent" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="The contents of the model element were changed"/>
+        <details key="d" value="An attribute was updated."/>
       </eAnnotations>
-    </eLiterals>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="modelElementAttributeRemoval"
+        eType="#//HawkAttributeRemovalEvent" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="An attribute was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="referenceAddition" eType="#//HawkReferenceAdditionEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A reference was added."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="referenceRemoval" eType="#//HawkReferenceRemovalEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A reference was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ModelElementChange">
+  <eClassifiers xsi:type="ecore:EClass" name="HawkModelElementAdditionEvent">
     <eAnnotations source="doc">
-      <details key="d" value="Entity that reflects a single change on a single model element."/>
+      <details key="d" value="Serialized form of a model element addition event."/>
     </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Entry within the commit that produced the changes."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="element" eType="#//ModelElement"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="The model element that was changed."/>
+        <details key="d" value="Model element that was added."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//ModelElementChangeType">
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkModelElementRemovalEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a model element removal event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="The type of change performed on the model."/>
+        <details key="d" value="Entry within the commit that produced the changes."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="changePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="For changes of type UPDATED, the path within the element that was updated."/>
-        <details key="optional" value="true"/>
+        <details key="d" value="Identifier of the model element that was removed."/>
       </eAnnotations>
     </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkAttributeUpdateEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of an attribute update event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Entry within the commit that produced the changes."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the model element that was changed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attribute" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the attribute that was changed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Variant"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="New value for the attribute."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkAttributeRemovalEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of an attribute removal event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Entry within the commit that produced the changes."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the model element that was changed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attribute" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the attribute that was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkReferenceAdditionEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a reference addition event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Entry within the commit that produced the changes."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the source model element."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the target model element."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="refName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the reference that was added."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkReferenceRemovalEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a reference removal event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Entry within the commit that produced the changes."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the source model element."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the target model element."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="refName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the reference that was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CommitItem">
+    <eAnnotations source="doc">
+      <details key="d" value="Simplified entry within a commit of a repository."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="path" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//CommitItemChangeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="CommitItemChangeType">
+    <eAnnotations source="doc">
+      <details key="d" value="Type of change within a commit."/>
+    </eAnnotations>
+    <eLiterals name="ADDED"/>
+    <eLiterals name="DELETED" value="1"/>
+    <eLiterals name="UPDATED" value="2"/>
+    <eLiterals name="UNKNOWN" value="3"/>
+    <eLiterals name="REPLACED" value="4"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkInstanceNotFound">
     <eAnnotations source="doc">
@@ -609,7 +767,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkInstanceNotRunning">
     <eAnnotations source="doc">
-      <details key="d" value="The selecte Hawk instance is not running."/>
+      <details key="d" value="The selected Hawk instance is not running."/>
     </eAnnotations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InvalidMetamodel">

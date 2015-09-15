@@ -1,11 +1,12 @@
 namespace java uk.ac.york.mondo.integration.api
 
-enum ModelElementChangeType {
-		/* The model element was added to the model. */ ADDED 
-		/* The model element was removed from the model. */ REMOVED 
-		/* The contents of the model element were changed. */ UPDATED 
+enum CommitItemChangeType {
+		/*  */ ADDED 
+		/*  */ DELETED 
+		/*  */ REPLACED 
+		/*  */ UNKNOWN 
+		/*  */ UPDATED 
 }
-
 
 exception AuthenticationFailed {
 }
@@ -36,6 +37,13 @@ struct CollaborationSvnResourceReference {
 	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
 	 /* The revision number containing the resource. */ 2: required string revision,
 	 /* The path to the resource within the SVN repository. */ 3: required string filePath,
+}
+
+struct CommitItem {
+	 /*  */ 1: required string repoURL,
+	 /*  */ 2: required string revision,
+	 /*  */ 3: required string path,
+	 /*  */ 4: required CommitItemChangeType type,
 }
 
 struct Credentials {
@@ -220,6 +228,38 @@ exception CollaborationResourceNotFound {
 	 /* Reference to the missing resource. */ 1: required CollaborationResourceReference resourceReference,
 }
 
+struct HawkAttributeRemovalEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Identifier of the model element that was changed. */ 2: required string id,
+	 /* Name of the attribute that was removed. */ 3: required string attribute,
+}
+
+struct HawkAttributeUpdateEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Identifier of the model element that was changed. */ 2: required string id,
+	 /* Name of the attribute that was changed. */ 3: required string attribute,
+	 /* New value for the attribute. */ 4: required Variant value,
+}
+
+struct HawkModelElementRemovalEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Identifier of the model element that was removed. */ 2: required string id,
+}
+
+struct HawkReferenceAdditionEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Identifier of the source model element. */ 2: required string sourceId,
+	 /* Identifier of the target model element. */ 3: required string targetId,
+	 /* Name of the reference that was added. */ 4: required string refName,
+}
+
+struct HawkReferenceRemovalEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Identifier of the source model element. */ 2: required string sourceId,
+	 /* Identifier of the target model element. */ 3: required string targetId,
+	 /* Name of the reference that was removed. */ 4: required string refName,
+}
+
 exception InvalidModelSpec {
 	 /* A copy of the invalid model specification. */ 1: required ModelSpec spec,
 	 /* Reason for the spec not being valid. */ 2: required string reason,
@@ -248,10 +288,18 @@ struct ContainerSlot {
 	 /* Contained elements for this slot. */ 2: required list<ModelElement> elements,
 }
 
-struct ModelElementChange {
-	 /* The model element that was changed. */ 1: required ModelElement element,
-	 /* The type of change performed on the model. */ 2: required ModelElementChangeType type,
-	 /* For changes of type UPDATED, the path within the element that was updated. */ 3: optional string changePath,
+struct HawkModelElementAdditionEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Model element that was added. */ 2: required ModelElement element,
+}
+
+union HawkChangeEvent {
+	 /* A model element was added. */ 1: optional HawkModelElementAdditionEvent modelElementAddition,
+	 /* A model element was removed. */ 2: optional HawkModelElementRemovalEvent modelElementRemoval,
+	 /* An attribute was updated. */ 3: optional HawkAttributeUpdateEvent modelElementAttributeUpdate,
+	 /* An attribute was removed. */ 4: optional HawkAttributeRemovalEvent modelElementAttributeRemoval,
+	 /* A reference was added. */ 5: optional HawkReferenceAdditionEvent referenceAddition,
+	 /* A reference was removed. */ 6: optional HawkReferenceRemovalEvent referenceRemoval,
 }
 
 /* The majority of service operations provided by the MONDO
@@ -331,7 +379,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Registers a set of file-based metamodels with a Hawk instance. Auth needed: Yes */
@@ -344,7 +392,7 @@ service Hawk {
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	2: InvalidMetamodel err2 /* The provided metamodel is not valid (e.g. unparsable or inconsistent). */ 
-	3: HawkInstanceNotRunning err3 /* The selecte Hawk instance is not running. */ 
+	3: HawkInstanceNotRunning err3 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Unregisters a metamodel from a Hawk instance. Auth needed: Yes */
@@ -354,7 +402,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the URIs of the registered metamodels of a Hawk instance. Auth needed: Yes */
@@ -363,7 +411,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the supported query languages and their status. Auth needed: Yes */
@@ -381,7 +429,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: UnknownQueryLanguage err3 /* The specified query language is not supported by the operation. */ 
 	4: InvalidQuery err4 /* The specified query is not valid. */ 
 	) 
@@ -395,7 +443,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Asks a Hawk instance to start monitoring a repository. Auth needed: Yes */
@@ -406,7 +454,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: UnknownRepositoryType err3 /* The specified repository type is not supported by the operation. */ 
 	4: VCSAuthenticationFailed err4 /* The client failed to prove its identity in the VCS. */ 
 	) 
@@ -418,7 +466,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Changes the credentials used to monitor a repository. Auth needed: Yes */
@@ -429,7 +477,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the repositories monitored by a Hawk instance. Auth needed: Yes */
@@ -438,7 +486,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the available repository types in this installation. Auth needed: Yes */
@@ -453,7 +501,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Sets the base polling period and max interval of a Hawk instance. Auth needed: Yes */
@@ -464,7 +512,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: InvalidPollingConfiguration err3 /* The polling configuration is not valid. */ 
 	) 
 	
@@ -475,7 +523,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: InvalidDerivedAttributeSpec err3 /* The derived attribute specification is not valid. */ 
 	) 
 	
@@ -488,7 +536,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated. Auth needed: Yes */
@@ -497,7 +545,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Add a new indexed attribute to a Hawk instance. Auth needed: Yes */
@@ -507,7 +555,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: InvalidIndexedAttributeSpec err3 /* The indexed attribute specification is not valid. */ 
 	) 
 	
@@ -518,7 +566,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Lists the indexed attributes of a Hawk instance. Auth needed: Yes */
@@ -527,7 +575,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
@@ -541,7 +589,7 @@ service Hawk {
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
   /* Returns the root objects of one or more models indexed in a Hawk instance. Auth needed: Yes */
@@ -553,19 +601,18 @@ service Hawk {
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
   )
 	
-  /* Returns a stream of notifications about changes to a certain model, until the client disconnects. Auth needed: Yes */
+  /* Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models. Auth needed: Yes */
   Subscription watchModelChanges(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
 	/* The path of the model file in the repository. */ 3: required string filePath,
-	/* The change type(s) to watch for. */ 4:  list<ModelElementChangeType> changeTypes,
-	/* The model element type to watch for. */ 5:  list<string> modelElementTypes,
+	/* Whether events should be durable (survive server restarts) or not. */ 4: required bool durableEvents,
   )
   throws (
-	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */
-	2: HawkInstanceNotRunning err2 /* The selecte Hawk instance is not running. */
-	)
-
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
+	) 
+	
 }
 
 /* The following service operations expose the capabilities of the offline collaboration framework

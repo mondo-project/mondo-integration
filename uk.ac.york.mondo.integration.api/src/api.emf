@@ -232,13 +232,12 @@ class Hawk {
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 	*/
 
-	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
+	@doc(d="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models.", stream="true")
 	op Subscription watchModelChanges(
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
 		@doc(d="The path of the model file in the repository") String filePath,
-		@doc(d="The change type(s) to watch for", optional="true") ModelElementChangeType[*] changeTypes,
-		@doc(d="The model element type to watch for", optional="true") String[*] modelElementTypes
+		@doc(d="Whether events should be durable (survive server restarts) or not.") boolean durableEvents
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 }
 
@@ -248,24 +247,81 @@ class Repository {
 	@doc(d="The type of repository") attr String type;
 }
 
-@doc(d="Enumeration with the different types of changes that can happen to a model element.")
-enum ModelElementChangeType {
-	@doc(d="The model element was added to the model") ADDED;
-	@doc(d="The model element was removed from the model") REMOVED;
-	@doc(d="The contents of the model element were changed") UPDATED;
+@doc(d="Serialized form of a change in the indexed models of a Hawk instance")
+@thrift(union="true")
+class HawkChangeEvent {
+	@doc(d="A model element was added.") val HawkModelElementAdditionEvent modelElementAddition;
+	@doc(d="A model element was removed.") val HawkModelElementRemovalEvent modelElementRemoval;
+	@doc(d="An attribute was updated.") val HawkAttributeUpdateEvent modelElementAttributeUpdate;
+	@doc(d="An attribute was removed.") val HawkAttributeRemovalEvent modelElementAttributeRemoval;
+	@doc(d="A reference was added.") val HawkReferenceAdditionEvent referenceAddition;
+	@doc(d="A reference was removed.") val HawkReferenceRemovalEvent referenceRemoval;
 }
 
-@doc(d="Entity that reflects a single change on a single model element.")
-class ModelElementChange {
-	@doc(d="The model element that was changed.") val ModelElement element;
-	@doc(d="The type of change performed on the model.") attr ModelElementChangeType type;
-	@doc(d="For changes of type UPDATED, the path within the element that was updated.", optional="true") attr String changePath;
+@doc(d="Serialized form of a model element addition event.")
+class HawkModelElementAdditionEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Model element that was added.") val ModelElement element;
+}
+
+@doc(d="Serialized form of a model element removal event.")
+class HawkModelElementRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was removed.") val String ~id;
+}
+
+@doc(d="Serialized form of an attribute update event.")
+class HawkAttributeUpdateEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was changed.") val String ~id;
+	@doc(d="Name of the attribute that was changed.") val String attribute;
+	@doc(d="New value for the attribute.") val Variant value;
+}
+
+@doc(d="Serialized form of an attribute removal event.")
+class HawkAttributeRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was changed.") val String ~id;
+	@doc(d="Name of the attribute that was removed.") val String attribute;
+}
+
+@doc(d="Serialized form of a reference addition event.")
+class HawkReferenceAdditionEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the source model element.") val String ~sourceId;
+	@doc(d="Identifier of the target model element.") val String ~targetId;
+	@doc(d="Name of the reference that was added.") val String refName;
+}
+
+@doc(d="Serialized form of a reference removal event.")
+class HawkReferenceRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the source model element.") val String ~sourceId;
+	@doc(d="Identifier of the target model element.") val String ~targetId;
+	@doc(d="Name of the reference that was removed.") val String refName;
+}
+
+@doc(d="Simplified entry within a commit of a repository.")
+class CommitItem {
+	attr String repoURL;
+	attr String revision;
+	attr String path;
+	attr CommitItemChangeType type;
+}
+
+@doc(d="Type of change within a commit.")
+enum CommitItemChangeType {
+	ADDED;
+	DELETED;
+	UPDATED;
+	UNKNOWN;
+	REPLACED;
 }
 
 @doc(d="No Hawk instance exists with that name.")
 class HawkInstanceNotFound {}
 
-@doc(d="The selecte Hawk instance is not running.")
+@doc(d="The selected Hawk instance is not running.")
 class HawkInstanceNotRunning {}
 
 @doc(d="The provided metamodel is not valid (e.g. unparsable or inconsistent).")
