@@ -8,6 +8,7 @@ enum CommitItemChangeType {
 		/*  */ UPDATED 
 }
 
+
 exception AuthenticationFailed {
 }
 
@@ -241,6 +242,13 @@ struct HawkAttributeUpdateEvent {
 	 /* New value for the attribute. */ 4: required Variant value,
 }
 
+struct HawkModelElementAdditionEvent {
+	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
+	 /* Metamodel URI of the type of the model element. */ 2: required string metamodelURI,
+	 /* Name of the type of the model element. */ 3: required string typeName,
+	 /* Identifier of the model element that was added. */ 4: required string id,
+}
+
 struct HawkModelElementRemovalEvent {
 	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
 	 /* Identifier of the model element that was removed. */ 2: required string id,
@@ -274,6 +282,15 @@ struct ReferenceSlot {
 	 /* Mix of identifier- and position-bsaed references (if there is at least one position and one ID. */ 6: optional list<MixedReference> mixed,
 }
 
+union HawkChangeEvent {
+	 /* A model element was added. */ 1: optional HawkModelElementAdditionEvent modelElementAddition,
+	 /* A model element was removed. */ 2: optional HawkModelElementRemovalEvent modelElementRemoval,
+	 /* An attribute was updated. */ 3: optional HawkAttributeUpdateEvent modelElementAttributeUpdate,
+	 /* An attribute was removed. */ 4: optional HawkAttributeRemovalEvent modelElementAttributeRemoval,
+	 /* A reference was added. */ 5: optional HawkReferenceAdditionEvent referenceAddition,
+	 /* A reference was removed. */ 6: optional HawkReferenceRemovalEvent referenceRemoval,
+}
+
 struct ModelElement {
 	 /* Unique ID of the model element (not set if using position-based references). */ 1: optional string id,
 	 /* URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). */ 2: optional string metamodelUri,
@@ -286,20 +303,6 @@ struct ModelElement {
 struct ContainerSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 	 /* Contained elements for this slot. */ 2: required list<ModelElement> elements,
-}
-
-struct HawkModelElementAdditionEvent {
-	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
-	 /* Model element that was added. */ 2: required ModelElement element,
-}
-
-union HawkChangeEvent {
-	 /* A model element was added. */ 1: optional HawkModelElementAdditionEvent modelElementAddition,
-	 /* A model element was removed. */ 2: optional HawkModelElementRemovalEvent modelElementRemoval,
-	 /* An attribute was updated. */ 3: optional HawkAttributeUpdateEvent modelElementAttributeUpdate,
-	 /* An attribute was removed. */ 4: optional HawkAttributeRemovalEvent modelElementAttributeRemoval,
-	 /* A reference was added. */ 5: optional HawkReferenceAdditionEvent referenceAddition,
-	 /* A reference was removed. */ 6: optional HawkReferenceRemovalEvent referenceRemoval,
 }
 
 /* The majority of service operations provided by the MONDO

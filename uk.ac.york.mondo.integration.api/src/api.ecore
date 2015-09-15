@@ -607,10 +607,22 @@
         <details key="d" value="Entry within the commit that produced the changes."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="element" eType="#//ModelElement"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="metamodelURI" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Model element that was added."/>
+        <details key="d" value="Metamodel URI of the type of the model element"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the type of the model element"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Identifier of the model element that was added."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

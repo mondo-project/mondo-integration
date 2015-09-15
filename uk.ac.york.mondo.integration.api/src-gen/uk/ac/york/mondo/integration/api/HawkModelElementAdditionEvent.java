@@ -39,7 +39,9 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("HawkModelElementAdditionEvent");
 
   private static final org.apache.thrift.protocol.TField VCS_ITEM_FIELD_DESC = new org.apache.thrift.protocol.TField("vcsItem", org.apache.thrift.protocol.TType.STRUCT, (short)1);
-  private static final org.apache.thrift.protocol.TField ELEMENT_FIELD_DESC = new org.apache.thrift.protocol.TField("element", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+  private static final org.apache.thrift.protocol.TField METAMODEL_URI_FIELD_DESC = new org.apache.thrift.protocol.TField("metamodelURI", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField TYPE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("typeName", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.STRING, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,12 +50,16 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
   }
 
   public CommitItem vcsItem; // required
-  public ModelElement element; // required
+  public String metamodelURI; // required
+  public String typeName; // required
+  public String id; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     VCS_ITEM((short)1, "vcsItem"),
-    ELEMENT((short)2, "element");
+    METAMODEL_URI((short)2, "metamodelURI"),
+    TYPE_NAME((short)3, "typeName"),
+    ID((short)4, "id");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -70,8 +76,12 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
       switch(fieldId) {
         case 1: // VCS_ITEM
           return VCS_ITEM;
-        case 2: // ELEMENT
-          return ELEMENT;
+        case 2: // METAMODEL_URI
+          return METAMODEL_URI;
+        case 3: // TYPE_NAME
+          return TYPE_NAME;
+        case 4: // ID
+          return ID;
         default:
           return null;
       }
@@ -117,8 +127,12 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.VCS_ITEM, new org.apache.thrift.meta_data.FieldMetaData("vcsItem", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, CommitItem.class)));
-    tmpMap.put(_Fields.ELEMENT, new org.apache.thrift.meta_data.FieldMetaData("element", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelElement.class)));
+    tmpMap.put(_Fields.METAMODEL_URI, new org.apache.thrift.meta_data.FieldMetaData("metamodelURI", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.TYPE_NAME, new org.apache.thrift.meta_data.FieldMetaData("typeName", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HawkModelElementAdditionEvent.class, metaDataMap);
   }
@@ -128,11 +142,15 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
 
   public HawkModelElementAdditionEvent(
     CommitItem vcsItem,
-    ModelElement element)
+    String metamodelURI,
+    String typeName,
+    String id)
   {
     this();
     this.vcsItem = vcsItem;
-    this.element = element;
+    this.metamodelURI = metamodelURI;
+    this.typeName = typeName;
+    this.id = id;
   }
 
   /**
@@ -142,8 +160,14 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     if (other.isSetVcsItem()) {
       this.vcsItem = new CommitItem(other.vcsItem);
     }
-    if (other.isSetElement()) {
-      this.element = new ModelElement(other.element);
+    if (other.isSetMetamodelURI()) {
+      this.metamodelURI = other.metamodelURI;
+    }
+    if (other.isSetTypeName()) {
+      this.typeName = other.typeName;
+    }
+    if (other.isSetId()) {
+      this.id = other.id;
     }
   }
 
@@ -154,7 +178,9 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
   @Override
   public void clear() {
     this.vcsItem = null;
-    this.element = null;
+    this.metamodelURI = null;
+    this.typeName = null;
+    this.id = null;
   }
 
   public CommitItem getVcsItem() {
@@ -181,27 +207,75 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     }
   }
 
-  public ModelElement getElement() {
-    return this.element;
+  public String getMetamodelURI() {
+    return this.metamodelURI;
   }
 
-  public HawkModelElementAdditionEvent setElement(ModelElement element) {
-    this.element = element;
+  public HawkModelElementAdditionEvent setMetamodelURI(String metamodelURI) {
+    this.metamodelURI = metamodelURI;
     return this;
   }
 
-  public void unsetElement() {
-    this.element = null;
+  public void unsetMetamodelURI() {
+    this.metamodelURI = null;
   }
 
-  /** Returns true if field element is set (has been assigned a value) and false otherwise */
-  public boolean isSetElement() {
-    return this.element != null;
+  /** Returns true if field metamodelURI is set (has been assigned a value) and false otherwise */
+  public boolean isSetMetamodelURI() {
+    return this.metamodelURI != null;
   }
 
-  public void setElementIsSet(boolean value) {
+  public void setMetamodelURIIsSet(boolean value) {
     if (!value) {
-      this.element = null;
+      this.metamodelURI = null;
+    }
+  }
+
+  public String getTypeName() {
+    return this.typeName;
+  }
+
+  public HawkModelElementAdditionEvent setTypeName(String typeName) {
+    this.typeName = typeName;
+    return this;
+  }
+
+  public void unsetTypeName() {
+    this.typeName = null;
+  }
+
+  /** Returns true if field typeName is set (has been assigned a value) and false otherwise */
+  public boolean isSetTypeName() {
+    return this.typeName != null;
+  }
+
+  public void setTypeNameIsSet(boolean value) {
+    if (!value) {
+      this.typeName = null;
+    }
+  }
+
+  public String getId() {
+    return this.id;
+  }
+
+  public HawkModelElementAdditionEvent setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  public void unsetId() {
+    this.id = null;
+  }
+
+  /** Returns true if field id is set (has been assigned a value) and false otherwise */
+  public boolean isSetId() {
+    return this.id != null;
+  }
+
+  public void setIdIsSet(boolean value) {
+    if (!value) {
+      this.id = null;
     }
   }
 
@@ -215,11 +289,27 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
       }
       break;
 
-    case ELEMENT:
+    case METAMODEL_URI:
       if (value == null) {
-        unsetElement();
+        unsetMetamodelURI();
       } else {
-        setElement((ModelElement)value);
+        setMetamodelURI((String)value);
+      }
+      break;
+
+    case TYPE_NAME:
+      if (value == null) {
+        unsetTypeName();
+      } else {
+        setTypeName((String)value);
+      }
+      break;
+
+    case ID:
+      if (value == null) {
+        unsetId();
+      } else {
+        setId((String)value);
       }
       break;
 
@@ -231,8 +321,14 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     case VCS_ITEM:
       return getVcsItem();
 
-    case ELEMENT:
-      return getElement();
+    case METAMODEL_URI:
+      return getMetamodelURI();
+
+    case TYPE_NAME:
+      return getTypeName();
+
+    case ID:
+      return getId();
 
     }
     throw new IllegalStateException();
@@ -247,8 +343,12 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     switch (field) {
     case VCS_ITEM:
       return isSetVcsItem();
-    case ELEMENT:
-      return isSetElement();
+    case METAMODEL_URI:
+      return isSetMetamodelURI();
+    case TYPE_NAME:
+      return isSetTypeName();
+    case ID:
+      return isSetId();
     }
     throw new IllegalStateException();
   }
@@ -275,12 +375,30 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
         return false;
     }
 
-    boolean this_present_element = true && this.isSetElement();
-    boolean that_present_element = true && that.isSetElement();
-    if (this_present_element || that_present_element) {
-      if (!(this_present_element && that_present_element))
+    boolean this_present_metamodelURI = true && this.isSetMetamodelURI();
+    boolean that_present_metamodelURI = true && that.isSetMetamodelURI();
+    if (this_present_metamodelURI || that_present_metamodelURI) {
+      if (!(this_present_metamodelURI && that_present_metamodelURI))
         return false;
-      if (!this.element.equals(that.element))
+      if (!this.metamodelURI.equals(that.metamodelURI))
+        return false;
+    }
+
+    boolean this_present_typeName = true && this.isSetTypeName();
+    boolean that_present_typeName = true && that.isSetTypeName();
+    if (this_present_typeName || that_present_typeName) {
+      if (!(this_present_typeName && that_present_typeName))
+        return false;
+      if (!this.typeName.equals(that.typeName))
+        return false;
+    }
+
+    boolean this_present_id = true && this.isSetId();
+    boolean that_present_id = true && that.isSetId();
+    if (this_present_id || that_present_id) {
+      if (!(this_present_id && that_present_id))
+        return false;
+      if (!this.id.equals(that.id))
         return false;
     }
 
@@ -296,10 +414,20 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     if (present_vcsItem)
       list.add(vcsItem);
 
-    boolean present_element = true && (isSetElement());
-    list.add(present_element);
-    if (present_element)
-      list.add(element);
+    boolean present_metamodelURI = true && (isSetMetamodelURI());
+    list.add(present_metamodelURI);
+    if (present_metamodelURI)
+      list.add(metamodelURI);
+
+    boolean present_typeName = true && (isSetTypeName());
+    list.add(present_typeName);
+    if (present_typeName)
+      list.add(typeName);
+
+    boolean present_id = true && (isSetId());
+    list.add(present_id);
+    if (present_id)
+      list.add(id);
 
     return list.hashCode();
   }
@@ -322,12 +450,32 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetElement()).compareTo(other.isSetElement());
+    lastComparison = Boolean.valueOf(isSetMetamodelURI()).compareTo(other.isSetMetamodelURI());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetElement()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.element, other.element);
+    if (isSetMetamodelURI()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.metamodelURI, other.metamodelURI);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetTypeName()).compareTo(other.isSetTypeName());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetTypeName()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.typeName, other.typeName);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetId()).compareTo(other.isSetId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -360,11 +508,27 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("element:");
-    if (this.element == null) {
+    sb.append("metamodelURI:");
+    if (this.metamodelURI == null) {
       sb.append("null");
     } else {
-      sb.append(this.element);
+      sb.append(this.metamodelURI);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("typeName:");
+    if (this.typeName == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.typeName);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("id:");
+    if (this.id == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.id);
     }
     first = false;
     sb.append(")");
@@ -376,15 +540,18 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     if (vcsItem == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'vcsItem' was not present! Struct: " + toString());
     }
-    if (element == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'element' was not present! Struct: " + toString());
+    if (metamodelURI == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'metamodelURI' was not present! Struct: " + toString());
+    }
+    if (typeName == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'typeName' was not present! Struct: " + toString());
+    }
+    if (id == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'id' was not present! Struct: " + toString());
     }
     // check for sub-struct validity
     if (vcsItem != null) {
       vcsItem.validate();
-    }
-    if (element != null) {
-      element.validate();
     }
   }
 
@@ -431,11 +598,26 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // ELEMENT
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.element = new ModelElement();
-              struct.element.read(iprot);
-              struct.setElementIsSet(true);
+          case 2: // METAMODEL_URI
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.metamodelURI = iprot.readString();
+              struct.setMetamodelURIIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // TYPE_NAME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.typeName = iprot.readString();
+              struct.setTypeNameIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.id = iprot.readString();
+              struct.setIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -460,9 +642,19 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
         struct.vcsItem.write(oprot);
         oprot.writeFieldEnd();
       }
-      if (struct.element != null) {
-        oprot.writeFieldBegin(ELEMENT_FIELD_DESC);
-        struct.element.write(oprot);
+      if (struct.metamodelURI != null) {
+        oprot.writeFieldBegin(METAMODEL_URI_FIELD_DESC);
+        oprot.writeString(struct.metamodelURI);
+        oprot.writeFieldEnd();
+      }
+      if (struct.typeName != null) {
+        oprot.writeFieldBegin(TYPE_NAME_FIELD_DESC);
+        oprot.writeString(struct.typeName);
+        oprot.writeFieldEnd();
+      }
+      if (struct.id != null) {
+        oprot.writeFieldBegin(ID_FIELD_DESC);
+        oprot.writeString(struct.id);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -483,7 +675,9 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
     public void write(org.apache.thrift.protocol.TProtocol prot, HawkModelElementAdditionEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       struct.vcsItem.write(oprot);
-      struct.element.write(oprot);
+      oprot.writeString(struct.metamodelURI);
+      oprot.writeString(struct.typeName);
+      oprot.writeString(struct.id);
     }
 
     @Override
@@ -492,9 +686,12 @@ public class HawkModelElementAdditionEvent implements org.apache.thrift.TBase<Ha
       struct.vcsItem = new CommitItem();
       struct.vcsItem.read(iprot);
       struct.setVcsItemIsSet(true);
-      struct.element = new ModelElement();
-      struct.element.read(iprot);
-      struct.setElementIsSet(true);
+      struct.metamodelURI = iprot.readString();
+      struct.setMetamodelURIIsSet(true);
+      struct.typeName = iprot.readString();
+      struct.setTypeNameIsSet(true);
+      struct.id = iprot.readString();
+      struct.setIdIsSet(true);
     }
   }
 

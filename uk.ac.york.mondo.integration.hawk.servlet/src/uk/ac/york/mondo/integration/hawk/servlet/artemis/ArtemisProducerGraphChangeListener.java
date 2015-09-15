@@ -33,8 +33,6 @@ import org.hawk.core.model.IHawkClass;
 import org.hawk.core.model.IHawkObject;
 import org.hawk.core.model.IHawkPackage;
 import org.hawk.core.runtime.CompositeGraphChangeListener;
-import org.hawk.graph.GraphWrapper;
-import org.hawk.graph.ModelElementNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,14 +172,11 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		if (isTransient) return;
 
 		try {
-			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(elementNode.getGraph()));
-			encoder.setIncludeNodeIDs(true);
-			encoder.setUseContainment(false);
-			encoder.encode(new ModelElementNode(elementNode));
-
 			final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
 			ev.setVcsItem(mapToThrift(s));
-			ev.setElement(encoder.getElements().get(0));
+			ev.setMetamodelURI(element.getType().getPackageNSURI());
+			ev.setTypeName(element.getType().getName());
+			ev.setId(elementNode.getId().toString());
 
 			final HawkChangeEvent change = new HawkChangeEvent();
 			change.setModelElementAddition(ev);

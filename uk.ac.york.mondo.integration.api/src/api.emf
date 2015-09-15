@@ -261,7 +261,9 @@ class HawkChangeEvent {
 @doc(d="Serialized form of a model element addition event.")
 class HawkModelElementAdditionEvent {
 	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
-	@doc(d="Model element that was added.") val ModelElement element;
+	@doc(d="Metamodel URI of the type of the model element") val String metamodelURI;
+	@doc(d="Name of the type of the model element") val String typeName;
+	@doc(d="Identifier of the model element that was added.") val String ~id;
 }
 
 @doc(d="Serialized form of a model element removal event.")
