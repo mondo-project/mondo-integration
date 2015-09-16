@@ -97,7 +97,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 						InVMConnectorFactory.class.getName()));
 		this.sessionFactory = locator.createSessionFactory();
 		this.messagesAreDurable = messagesAreDurable;
-		this.queueAddress = String.format("hawk/graphchanges/%s/%s",
+		this.queueAddress = String.format("hawk.graphchanges.%s.%s",
 				hawkInstance, messagesAreDurable ? "durable" : "nondurable");
 	}
 
@@ -310,7 +310,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	private void sendEvent(HawkChangeEvent change) {
 		try {
-			final ClientMessage msg = session.createMessage(Message.TEXT_TYPE, messagesAreDurable);
+			final ClientMessage msg = session.createMessage(Message.BYTES_TYPE, messagesAreDurable);
 			final TTransport trans = new ActiveMQBufferTransport(msg.getBodyBuffer());
 			final TProtocol proto = new TCompactProtocol(trans);
 			change.write(proto);

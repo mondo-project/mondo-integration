@@ -45,11 +45,13 @@ public class Consumer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
 
-	private final ClientSessionFactory sessionFactory;
+	private final TransportConfiguration transportConfig;
 	private final QueueType queueType;
 	private final String queueAddress;
 	private final String queueName;
 
+	private ServerLocator locator;
+	private ClientSessionFactory sessionFactory;
 	private ClientSession session;
 	private ClientConsumer consumer;
 
@@ -65,8 +67,8 @@ public class Consumer {
 		params.put(TransportConstants.PORT_PROP_NAME, port);
 		final TransportConfiguration config = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
 
-		final String queueName = String.format("%s/%s/%s", queueAddress,
-				InetAddress.getLocalHost().getHostAddress(),
+		final String queueName = String.format("%s.%s.%s", queueAddress,
+				InetAddress.getLocalHost().getHostAddress().replace(".", "_"),
 				System.getProperty("user.name"));
 		return new Consumer(config, queueAddress, queueName, queueType);
 	}
@@ -78,17 +80,18 @@ public class Consumer {
 	 * @param type Type of queue to be created.
 	 * @throws Exception Could not connect to the Artemis server.
 	 */
-	private Consumer(TransportConfiguration config, String address, String queueName, QueueType queueType) throws Exception {
-		ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(config);
-		this.sessionFactory = locator.createSessionFactory();
+	private Consumer(TransportConfiguration config, String address, String queueName, QueueType queueType) {
+		this.transportConfig = config;
 		this.queueAddress = address;
 		this.queueType = queueType;
 		this.queueName = queueName;
 	}
 
-	public void openSession() throws ActiveMQException {
+	public void openSession() throws Exception {
 		if (session != null) return;
 
+		locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfig);
+		sessionFactory = locator.createSessionFactory();
 		session = sessionFactory.createSession();
 		final boolean queueExists = session.queueQuery(new SimpleString(queueName)).isExists();
 		if (!queueExists) {
@@ -108,8 +111,13 @@ public class Consumer {
 
 		consumer.close();
 		session.close();
+		sessionFactory.close();
+		locator.close();
+
 		session = null;
 		consumer = null;
+		sessionFactory = null;
+		locator = null;
 	}
 
 	/**

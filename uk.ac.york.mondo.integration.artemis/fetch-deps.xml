@@ -4,7 +4,7 @@
 	<property name="native-package-type" value="jar"/>
 
 	<target name="retrieve">
-        <ivy:retrieve /> 
+        <ivy:retrieve />
     </target>
 
 </project>
