@@ -89,7 +89,6 @@ public class Server {
 		defaultAddressSettings.setRedeliveryDelay(2_000);
 		defaultAddressSettings.setRedeliveryMultiplier(1.5);
 		defaultAddressSettings.setMaxRedeliveryDelay(30_000);
-		defaultAddressSettings.setExpiryDelay(60_000L);
 		config.addAddressesSetting("#", defaultAddressSettings);
 
 		server = new EmbeddedActiveMQ();
