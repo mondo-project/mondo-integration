@@ -30,6 +30,8 @@ import org.apache.thrift.transport.TTransport;
 import org.hawk.core.VcsChangeType;
 import org.hawk.core.VcsCommit;
 import org.hawk.core.VcsCommitItem;
+import org.hawk.core.VcsRepository;
+import org.hawk.core.VcsRepositoryDelta;
 import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.model.IHawkClass;
@@ -97,8 +99,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 						InVMConnectorFactory.class.getName()));
 		this.sessionFactory = locator.createSessionFactory();
 		this.messagesAreDurable = messagesAreDurable;
-		this.queueAddress = String.format("hawk.graphchanges.%s.%s",
-				hawkInstance, messagesAreDurable ? "durable" : "nondurable");
+		this.queueAddress = String.format("hawk.graphchanges.%s.%s.%s.%s",
+				hawkInstance, repositoryUri.hashCode(), filePaths.hashCode(),
+				messagesAreDurable ? "durable" : "nondurable");
 	}
 
 	public String getQueueAddress() {
@@ -282,8 +285,11 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	private boolean isAcceptedByFilter(VcsCommitItem s) {
-		final String repository = s.getCommit().getDelta().getRepository().getUrl();
-		return repositoryURIPattern.matcher(repository).matches()
+		final VcsCommit commit = s.getCommit();
+		final VcsRepositoryDelta delta = commit.getDelta();
+		final VcsRepository repository = delta.getRepository();
+		final String repositoryURL = repository.getUrl();
+		return repositoryURIPattern.matcher(repositoryURL).matches()
 				&& filePathPattern.matcher(s.getPath()).matches();
 	}
 
