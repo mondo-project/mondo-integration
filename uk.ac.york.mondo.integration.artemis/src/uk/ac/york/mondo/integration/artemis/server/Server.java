@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 public class Server {
 
 	private class FluidMap<K, V> extends HashMap<K, V> {
+		private static final long serialVersionUID = 1L;
+
 		public FluidMap<K, V> with(K key, V value) {
 			put(key, value);
 			return this;

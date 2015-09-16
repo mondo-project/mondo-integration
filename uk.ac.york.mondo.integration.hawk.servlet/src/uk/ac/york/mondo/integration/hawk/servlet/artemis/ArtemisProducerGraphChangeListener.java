@@ -51,7 +51,7 @@ import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
-import uk.ac.york.mondo.integration.hawk.servlet.HawkModelElementEncoder;
+import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
 
 /**
  * Hawk change listener that sends all changes to the specified address within
@@ -92,7 +92,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			sbuf.append(filePath.replace("*", ".*"));
 		}
 		this.filePathPattern = Pattern.compile(sbuf.toString());
-
+		
 		// Connect to Artemis
 		this.locator = ActiveMQClient
 				.createServerLocatorWithoutHA(new TransportConfiguration(

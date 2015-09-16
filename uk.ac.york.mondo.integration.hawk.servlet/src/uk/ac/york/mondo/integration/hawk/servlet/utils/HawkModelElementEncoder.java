@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.servlet;
+package uk.ac.york.mondo.integration.hawk.servlet.utils;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
