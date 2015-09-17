@@ -221,12 +221,13 @@ class Hawk {
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
 	);
 
-	@doc(d="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models.", streamOf="HawkChangeEvent")
+	@doc(d="Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models.", queueOf="HawkChangeEvent")
 	op Subscription watchModelChanges(
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
-		@doc(d="Whether events should be durable (survive server restarts) or not.") boolean durableEvents
+		@doc(d="Unique client ID (used as suffix for the queue name)") String clientID,
+		@doc(d="Durability of the subscription.") SubscriptionDurability durableEvents
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 }
 
@@ -736,5 +737,13 @@ class TransformationTokenNotFound {
 class Subscription {
 	@doc(d="Host name of the message queue server") attr String host;
 	@doc(d="Port in which the message queue server is listening") attr int port;
-	@doc(d="Name of the topic queue") attr String queue;
+	@doc(d="Address of the topic queue") attr String queueAddress;
+	@doc(d="Name of the topic queue") attr String queueName;
+}
+
+@doc(d="Durability of a subscription")
+enum SubscriptionDurability {
+	@doc(d="Subscription removed after disconnecting.") TEMPORARY;
+	@doc(d="Subscription survives client disconnections but not server restarts.") DEFAULT;
+	@doc(d="Subscription survives client disconnections and server restarts.") DURABLE;
 }

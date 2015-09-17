@@ -52,6 +52,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.FileEditorInput;
 
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
@@ -100,6 +101,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			this.instanceSection = new InstanceSection(toolkit, formBody) {
 				@Override protected void instanceNameChanged() { refreshRawText(); }
 				@Override protected void serverURLChanged()    { refreshRawText(); }
+				@Override protected void thriftProtocolChanged() { refreshRawText(); }
 			};
 			this.contentSection = new ContentSection(toolkit, formBody) {
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
@@ -297,9 +299,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		protected abstract void subscribeChanged();
 	}
 
-	private static abstract class InstanceSection extends FormSection implements ModifyListener {
+	private static abstract class InstanceSection extends FormSection implements ModifyListener, SelectionListener {
 		private final FormTextField fldInstanceName;
 		private final FormTextField fldServerURL;
+		private final FormComboBoxField fldTProtocol;
 		private boolean ignoreChanges;
 
 		public InstanceSection(FormToolkit toolkit, Composite parent) {
@@ -308,8 +311,11 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		    this.fldServerURL = new FormTextField(toolkit, cContents, "Server URL:", "");
 		    this.fldInstanceName = new FormTextField(toolkit, cContents, "Instance name:", "");
+		    this.fldTProtocol = new FormComboBoxField(toolkit, cContents, "Thrift protocol:", ThriftProtocol.strings());
+
 		    fldServerURL.getText().addModifyListener(this);
 		    fldInstanceName.getText().addModifyListener(this);
+		    fldTProtocol.getCombo().addSelectionListener(this);
 		}
 
 		public String getInstanceName() {
@@ -320,15 +326,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			return fldServerURL.getText().getText();
 		}
 
-		@Override
-		public void modifyText(ModifyEvent e) {
-			if (ignoreChanges) return;
-
-			if (e.widget == fldServerURL.getText()) {
-				serverURLChanged();
-			} else if (e.widget == fldInstanceName.getText()) {
-				instanceNameChanged();
-			}
+		public ThriftProtocol getThriftProtocol() {
+			return ThriftProtocol.values()[fldTProtocol.getCombo().getSelectionIndex()];
 		}
 
 		public void setInstanceName(String name) {
@@ -345,8 +344,37 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			text.addModifyListener(this);
 		}
 
+		public void setThriftProtocol(ThriftProtocol t) {
+			fldTProtocol.getCombo().select(t.ordinal());
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (ignoreChanges) return;
+
+			if (e.widget == fldServerURL.getText()) {
+				serverURLChanged();
+			} else if (e.widget == fldInstanceName.getText()) {
+				instanceNameChanged();
+			}
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (ignoreChanges) return;
+			if (e.widget == fldTProtocol.getCombo()) {
+				thriftProtocolChanged();
+			}
+		}
+
 		protected abstract void instanceNameChanged();
 		protected abstract void serverURLChanged();
+		protected abstract void thriftProtocolChanged();
 	}
 
 	private static final int RAW_EDITOR_PAGE_INDEX = 1;
@@ -380,7 +408,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	public HawkMultiPageEditor() {
 		super();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-		// TODO still need an action for opening as an EMF model
 	}
 
 	/**
@@ -477,6 +504,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 			detailsPage.getInstanceSection().setServerURL(descriptor.getHawkURL());
 			detailsPage.getInstanceSection().setInstanceName(descriptor.getHawkInstance());
+			detailsPage.getInstanceSection().setThriftProtocol(descriptor.getThriftProtocol());
 			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
 			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
 			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
@@ -490,6 +518,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.setHawkURL(detailsPage.getInstanceSection().getServerURL());
 		descriptor.setHawkInstance(detailsPage.getInstanceSection().getInstanceName());
+		descriptor.setThriftProtocol(detailsPage.getInstanceSection().getThriftProtocol());
 		descriptor.setHawkRepository(detailsPage.getContentSection().getRepositoryURL());
 		descriptor.setHawkFilePatterns(detailsPage.getContentSection().getFilePatterns());
 		descriptor.setLoadingMode(detailsPage.getContentSection().getLoadingMode());

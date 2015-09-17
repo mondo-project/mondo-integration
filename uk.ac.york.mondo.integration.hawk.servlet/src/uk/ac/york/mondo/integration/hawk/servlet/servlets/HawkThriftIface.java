@@ -20,6 +20,15 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.thrift.TException;
 import org.hawk.core.IModelIndexer.ShutdownRequestType;
 import org.hawk.core.IVcsManager;
@@ -56,9 +65,11 @@ import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.ScalarOrReference;
 import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 import uk.ac.york.mondo.integration.hawk.servlet.artemis.ArtemisProducerGraphChangeListener;
@@ -72,9 +83,18 @@ final class HawkThriftIface implements Hawk.Iface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftIface.class); 
 
 	private final HManager manager = HManager.getInstance();
+	private final ThriftProtocol thriftProtocol;
 	private Server artemisServer;
 
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
+
+	public HawkThriftIface(ThriftProtocol eventProtocol) {
+		this.thriftProtocol = eventProtocol;
+	}
+
+	public ThriftProtocol getThriftProtocol() {
+		return thriftProtocol;
+	}
 
 	public void setArtemisServer(Server artemisServer) {
 		this.artemisServer = artemisServer;
@@ -426,20 +446,52 @@ final class HawkThriftIface implements Hawk.Iface {
 	@Override
 	public Subscription watchModelChanges(String name,
 			String repositoryUri, List<String> filePaths,
-			boolean durableEvents)
+			String uniqueClientID, SubscriptionDurability durability)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getHawkByName(name);
 
-		// TODO keep track of existing subscriptions and save/restore/list/delete them
-		// TODO allow for filtering by repository/path/change type/model element type
+		// TODO keep track of durable subscriptions and save/restore/list/delete them?
 		try {
-			final ArtemisProducerGraphChangeListener listener =
-					new ArtemisProducerGraphChangeListener(model.getName(), repositoryUri, filePaths, durableEvents);
+			final ArtemisProducerGraphChangeListener listener = new ArtemisProducerGraphChangeListener(
+					model.getName(), repositoryUri, filePaths, durability, thriftProtocol);
+
+			// TODO sanitize unique client ID?
+			final String queueAddress = listener.getQueueAddress();
+			final String queueName = queueAddress + "." + uniqueClientID;
+			createQueue(queueAddress, queueName, durability);
+
 			model.addGraphChangeListener(listener);
-			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), listener.getQueueAddress());
+			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName);
 		} catch (Exception e) {
 			LOGGER.error("Could not register the new listener", e);
 			throw new TException(e);
+		}
+	}
+
+	private void createQueue(final String queueAddress, final String queueName, SubscriptionDurability durability) throws ActiveMQException, Exception {
+		final TransportConfiguration inVMTransportConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
+		try (ServerLocator loc = ActiveMQClient.createServerLocatorWithoutHA(inVMTransportConfig)) {
+			try (ClientSessionFactory sf = loc.createSessionFactory()) {
+				try (ClientSession session = sf.createSession()) {
+					final QueueQuery queryResults = session.queueQuery(new SimpleString(queueName));
+					if (!queryResults.isExists()) {
+						switch (durability) {
+						case TEMPORARY:
+							// If we created a temporary queue here, it'd be removed right after closing the ClientSession:
+							// there's no point. Only clients may create temporary queues (e.g. through their Consumer).
+							LOGGER.warn("Only a client may create a temporary queue: ignoring request");
+							break;
+						case DURABLE:
+						case DEFAULT:
+							session.createQueue(queueAddress, queueName, durability == SubscriptionDurability.DURABLE);
+							break;
+						default:
+							throw new IllegalArgumentException("Unknown subscription durability " + durability);
+						}
+						session.commit();
+					}
+				}
+			}
 		}
 	}
 

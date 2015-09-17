@@ -68,10 +68,10 @@ import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
-import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 /**
@@ -80,7 +80,6 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 public class HawkResourceImpl extends ResourceImpl {
 
 	private final class ModelSubscriberHandler implements MessageHandler {
-		@SuppressWarnings("unchecked")
 		@Override
 		public void onMessage(ClientMessage message) {
 			try {
@@ -91,86 +90,22 @@ public class HawkResourceImpl extends ResourceImpl {
 					LOGGER.debug("Received message from Artemis: {}", change);
 
 					if (change.isSetModelElementAttributeUpdate()) {
-						final HawkAttributeUpdateEvent ev = change.getModelElementAttributeUpdate();
-						final EObject eob = nodeIdToEObjectMap.get(ev.getId());
-						if (eob != null) {
-							final EClass eClass = eob.eClass();
-							final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
-							SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
-						}
+						handle(change.getModelElementAttributeUpdate());
 					}
 					else if (change.isSetModelElementAttributeRemoval()) {
-						final HawkAttributeRemovalEvent ev = change.getModelElementAttributeRemoval();
-						final EObject eob = nodeIdToEObjectMap.get(ev.getId());
-						if (eob != null) {
-							final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
-							if (eAttr != null) {
-								eob.eUnset(eAttr);
-							}
-						}
+						handle(change.getModelElementAttributeRemoval());
 					}
 					else if (change.isSetModelElementAddition()) {
-						final HawkModelElementAdditionEvent ev = change.getModelElementAddition();
-						final Registry registry = getResourceSet().getPackageRegistry();
-						final EClass eClass = getEClass(ev.metamodelURI, ev.typeName, registry);
-						final EFactory factory = registry.getEFactory(ev.metamodelURI);
-
-						final EObject eob = factory.create(eClass);
-						nodeIdToEObjectMap.put(ev.id, eob);
-						getContents().add(eob);
+						handle(change.getModelElementAddition());
 					}
 					else if (change.isSetModelElementRemoval()) {
-						final HawkModelElementRemovalEvent ev = change.getModelElementRemoval();
-						final EObject eob = nodeIdToEObjectMap.remove(ev.id);
-						if (eob != null) {
-							getContents().remove(eob);
-
-							final EObject container = eob.eContainer();
-							if (container != null) {
-								if (eob.eContainmentFeature() != null) {
-									eob.eUnset(eob.eContainmentFeature());
-								}
-
-								final EStructuralFeature containingFeature = eob.eContainingFeature();
-								if (containingFeature.isMany()) {
-									((Collection<EObject>)container.eGet(containingFeature)).remove(eob);
-								} else {
-									container.eUnset(containingFeature);
-								}
-							}
-						}
+						handle(change.getModelElementRemoval());
 					}
 					else if (change.isSetReferenceAddition()) {
-						final HawkReferenceAdditionEvent ev = change.getReferenceAddition();
-						final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
-						final EObject target = nodeIdToEObjectMap.get(ev.targetId);
-						if (source != null && target != null) {
-							final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-							if (ref.isMany()) {
-								Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
-								objs.add(target);
-							} else {
-								source.eSet(ref, target);
-							}
-
-							if (ref.isContainer()) {
-								getContents().remove(source);
-							}
-						}
+						handle(change.getReferenceAddition());
 					}
 					else if (change.isSetReferenceRemoval()) {
-						final HawkReferenceRemovalEvent ev = change.getReferenceRemoval();
-						final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
-						final EObject target = nodeIdToEObjectMap.get(ev.targetId);
-						if (source != null && target != null) {
-							final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-							if (ref.isMany()) {
-								Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
-								objs.remove(target);
-							} else {
-								source.eUnset(ref);
-							}
-						}
+						handle(change.getReferenceRemoval());
 					}
 				} catch (TException | IOException e) {
 					LOGGER.error("Error while decoding incoming message", e);
@@ -179,6 +114,92 @@ public class HawkResourceImpl extends ResourceImpl {
 				message.acknowledge();
 			} catch (ActiveMQException e) {
 				LOGGER.error("Failed to ack message", e);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkReferenceRemovalEvent ev) {
+			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
+			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
+			if (source != null && target != null) {
+				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (ref.isMany()) {
+					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
+					objs.remove(target);
+				} else {
+					source.eUnset(ref);
+				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkReferenceAdditionEvent ev) {
+			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
+			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
+			if (source != null && target != null) {
+				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (ref.isMany()) {
+					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
+					objs.add(target);
+				} else {
+					source.eSet(ref, target);
+				}
+
+				if (ref.isContainer()) {
+					getContents().remove(source);
+				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkModelElementRemovalEvent ev) {
+			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
+			if (eob != null) {
+				getContents().remove(eob);
+
+				final EObject container = eob.eContainer();
+				if (container != null) {
+					if (eob.eContainmentFeature() != null) {
+						eob.eUnset(eob.eContainmentFeature());
+					}
+
+					final EStructuralFeature containingFeature = eob.eContainingFeature();
+					if (containingFeature.isMany()) {
+						((Collection<EObject>)container.eGet(containingFeature)).remove(eob);
+					} else {
+						container.eUnset(containingFeature);
+					}
+				}
+			}
+		}
+
+		protected void handle(final HawkModelElementAdditionEvent ev) {
+			final Registry registry = getResourceSet().getPackageRegistry();
+			final EClass eClass = getEClass(ev.metamodelURI, ev.typeName, registry);
+			final EFactory factory = registry.getEFactory(ev.metamodelURI);
+
+			final EObject eob = factory.create(eClass);
+			nodeIdToEObjectMap.put(ev.id, eob);
+			getContents().add(eob);
+		}
+
+		protected void handle(final HawkAttributeRemovalEvent ev) {
+			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
+			if (eob != null) {
+				final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
+				if (eAttr != null) {
+					eob.eUnset(eAttr);
+				}
+			}
+		}
+
+		protected void handle(final HawkAttributeUpdateEvent ev)
+				throws IOException {
+			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
+			if (eob != null) {
+				final EClass eClass = eob.eClass();
+				final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
+				SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
 			}
 		}
 	}
@@ -254,7 +275,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	public void doLoad(HawkModelDescriptor descriptor) throws IOException {
 		try {
 			this.descriptor = descriptor;
-			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
+			this.client = APIUtils.connectToHawk(descriptor.getHawkURL(), descriptor.getThriftProtocol());
 
 			// TODO allow for multiple repositories
 			final LoadingMode mode = descriptor.getLoadingMode();
@@ -277,15 +298,15 @@ public class HawkResourceImpl extends ResourceImpl {
 			fillInReferences(elems, state);
 
 			if (descriptor.isSubscribed()) {
-				// with "false" we should already survive disconnects anyway
+				final SubscriptionDurability sd = descriptor.getSubscriptionDurability();
+
 				Subscription subscription = client.watchModelChanges(
 					descriptor.getHawkInstance(),
 					descriptor.getHawkRepository(),
 					Arrays.asList(descriptor.getHawkFilePatterns()),
-					false);
+					descriptor.getSubscriptionClientID(), sd);
 
-				subscriber = Consumer.connectRemote(
-					subscription.host, subscription.port, subscription.queue, QueueType.DEFAULT);
+				subscriber = APIUtils.connectToArtemis(subscription, sd);
 				subscriber.openSession();
 				subscriber.processChangesAsync(new ModelSubscriberHandler());
 			}

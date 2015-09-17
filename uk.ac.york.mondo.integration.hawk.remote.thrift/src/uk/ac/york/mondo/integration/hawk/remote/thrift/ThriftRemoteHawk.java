@@ -20,6 +20,7 @@ import org.hawk.core.IModelIndexer;
 
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 public class ThriftRemoteHawk implements IHawk {
 
@@ -28,9 +29,9 @@ public class ThriftRemoteHawk implements IHawk {
 	private ThriftRemoteModelIndexer indexer;
 	private File folder;
 
-	public ThriftRemoteHawk(String name, String location, File parentFolder, IAbstractConsole console) throws TTransportException, IOException {
+	public ThriftRemoteHawk(String name, String location, File parentFolder, IAbstractConsole console, ThriftProtocol thriftProtocol) throws TTransportException, IOException {
 		this.console = console;
-		this.client = APIUtils.connectToHawk(location);
+		this.client = APIUtils.connectToHawk(location, thriftProtocol);
 		this.folder = parentFolder;
 		this.indexer = new ThriftRemoteModelIndexer(name, parentFolder, client, console);
 	}

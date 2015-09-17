@@ -513,8 +513,8 @@
     </eOperations>
     <eOperations name="watchModelChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
-        <details key="d" value="Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models."/>
-        <details key="streamOf" value="HawkChangeEvent"/>
+        <details key="d" value="Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models."/>
+        <details key="queueOf" value="HawkChangeEvent"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -531,9 +531,14 @@
           <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="durableEvents" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+      <eParameters name="clientID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="Whether events should be durable (survive server restarts) or not."/>
+          <details key="d" value="Unique client ID (used as suffix for the queue name)"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="durableEvents" eType="#//SubscriptionDurability">
+        <eAnnotations source="doc">
+          <details key="d" value="Durability of the subscription."/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -1573,10 +1578,35 @@
         <details key="d" value="Port in which the message queue server is listening"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="queue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="queueAddress" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Address of the topic queue"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="queueName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="Name of the topic queue"/>
       </eAnnotations>
     </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SubscriptionDurability">
+    <eAnnotations source="doc">
+      <details key="d" value="Durability of a subscription"/>
+    </eAnnotations>
+    <eLiterals name="TEMPORARY">
+      <eAnnotations source="doc">
+        <details key="d" value="Subscription removed after disconnecting."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="DEFAULT" value="1">
+      <eAnnotations source="doc">
+        <details key="d" value="Subscription survives client disconnections but not server restarts."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="DURABLE" value="2">
+      <eAnnotations source="doc">
+        <details key="d" value="Subscription survives client disconnections and server restarts."/>
+      </eAnnotations>
+    </eLiterals>
   </eClassifiers>
 </ecore:EPackage>

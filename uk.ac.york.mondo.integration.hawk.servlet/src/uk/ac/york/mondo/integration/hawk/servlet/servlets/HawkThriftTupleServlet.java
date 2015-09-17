@@ -14,6 +14,7 @@ import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.server.TServlet;
 
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 
 /**
@@ -23,11 +24,11 @@ public class HawkThriftTupleServlet extends TServlet {
 	private static final long serialVersionUID = 1L;
 
 	public HawkThriftTupleServlet() throws Exception {
-		this(new HawkThriftIface());
+		this(new HawkThriftIface(ThriftProtocol.TUPLE));
 	}
 
 	private HawkThriftTupleServlet(HawkThriftIface iface) {
-		super(new Hawk.Processor<Hawk.Iface>(iface), new TTupleProtocol.Factory());
+		super(new Hawk.Processor<Hawk.Iface>(iface), iface.getThriftProtocol().getProtocolFactory());
 		iface.setArtemisServer(Activator.getInstance().getArtemisServer());
 	}
  

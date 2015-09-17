@@ -12,6 +12,11 @@ CommitItemChangeType = {
   'UNKNOWN' : 3,
   'UPDATED' : 4
 };
+SubscriptionDurability = {
+  'DEFAULT' : 0,
+  'DURABLE' : 1,
+  'TEMPORARY' : 2
+};
 AuthenticationFailed = function(args) {
 };
 Thrift.inherits(AuthenticationFailed, Thrift.TException);
@@ -1975,7 +1980,8 @@ Slot.prototype.write = function(output) {
 Subscription = function(args) {
   this.host = null;
   this.port = null;
-  this.queue = null;
+  this.queueAddress = null;
+  this.queueName = null;
   if (args) {
     if (args.host !== undefined) {
       this.host = args.host;
@@ -1987,10 +1993,15 @@ Subscription = function(args) {
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field port is unset!');
     }
-    if (args.queue !== undefined) {
-      this.queue = args.queue;
+    if (args.queueAddress !== undefined) {
+      this.queueAddress = args.queueAddress;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field queue is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field queueAddress is unset!');
+    }
+    if (args.queueName !== undefined) {
+      this.queueName = args.queueName;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field queueName is unset!');
     }
   }
 };
@@ -2024,7 +2035,14 @@ Subscription.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
-        this.queue = input.readString().value;
+        this.queueAddress = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.queueName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -2050,9 +2068,14 @@ Subscription.prototype.write = function(output) {
     output.writeI32(this.port);
     output.writeFieldEnd();
   }
-  if (this.queue !== null && this.queue !== undefined) {
-    output.writeFieldBegin('queue', Thrift.Type.STRING, 3);
-    output.writeString(this.queue);
+  if (this.queueAddress !== null && this.queueAddress !== undefined) {
+    output.writeFieldBegin('queueAddress', Thrift.Type.STRING, 3);
+    output.writeString(this.queueAddress);
+    output.writeFieldEnd();
+  }
+  if (this.queueName !== null && this.queueName !== undefined) {
+    output.writeFieldBegin('queueName', Thrift.Type.STRING, 4);
+    output.writeString(this.queueName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

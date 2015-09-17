@@ -14,6 +14,7 @@ import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.server.TServlet;
 
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 
 /**
@@ -23,11 +24,11 @@ public class HawkThriftJSONServlet extends TServlet {
 	private static final long serialVersionUID = 1L;
 
 	public HawkThriftJSONServlet() throws Exception {
-		this(new HawkThriftIface());
+		this(new HawkThriftIface(ThriftProtocol.JSON));
 	}
 
 	private HawkThriftJSONServlet(HawkThriftIface iface) {
-		super(new Hawk.Processor<Hawk.Iface>(iface), new TJSONProtocol.Factory());
+		super(new Hawk.Processor<Hawk.Iface>(iface), iface.getThriftProtocol().getProtocolFactory());
 		iface.setArtemisServer(Activator.getInstance().getArtemisServer());
 	}
  

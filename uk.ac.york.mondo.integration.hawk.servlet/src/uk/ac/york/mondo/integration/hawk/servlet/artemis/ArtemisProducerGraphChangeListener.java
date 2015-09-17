@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TTransport;
 import org.hawk.core.VcsChangeType;
 import org.hawk.core.VcsCommit;
@@ -50,6 +50,8 @@ import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
 
@@ -60,7 +62,7 @@ import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
  *
  * This implementation redefines hashCode and equals based on the computed
  * address, so "duplicate" listeners that would result in duplicate events being
- * sent to the queue are implicitly avoided by the
+ * sent to the destination address are implicitly avoided by the
  * {@link CompositeGraphChangeListener} in most indexers.
  */
 public class ArtemisProducerGraphChangeListener implements IGraphChangeListener {
@@ -72,13 +74,14 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private final ClientSessionFactory sessionFactory;
 	private final boolean messagesAreDurable;
 	private final String queueAddress;
+	private final TProtocolFactory protocolFactory;
 
 	private ClientSession session;
 	private ClientProducer producer;
 
 	private final Pattern repositoryURIPattern, filePathPattern;
 
-	public ArtemisProducerGraphChangeListener(String hawkInstance, String repositoryUri, List<String> filePaths, boolean messagesAreDurable) throws Exception {
+	public ArtemisProducerGraphChangeListener(String hawkInstance, String repositoryUri, List<String> filePaths, SubscriptionDurability durability, ThriftProtocol protocol) throws Exception {
 		// Convert the repository URI and file paths into regexps, for faster matching
 		this.repositoryURIPattern = Pattern.compile(repositoryUri.replace("*", ".*"));
 		StringBuffer sbuf = new StringBuffer();
@@ -92,16 +95,20 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			sbuf.append(filePath.replace("*", ".*"));
 		}
 		this.filePathPattern = Pattern.compile(sbuf.toString());
-		
+
+		// Thrift protocol factory (for encoding the events)
+		this.protocolFactory = protocol.getProtocolFactory();
+
 		// Connect to Artemis
 		this.locator = ActiveMQClient
 				.createServerLocatorWithoutHA(new TransportConfiguration(
 						InVMConnectorFactory.class.getName()));
 		this.sessionFactory = locator.createSessionFactory();
-		this.messagesAreDurable = messagesAreDurable;
-		this.queueAddress = String.format("hawk.graphchanges.%s.%s.%s.%s",
-				hawkInstance, repositoryUri.hashCode(), filePaths.hashCode(),
-				messagesAreDurable ? "durable" : "nondurable");
+		this.messagesAreDurable = durability == SubscriptionDurability.DURABLE;
+		this.queueAddress = String.format("hawk.graphchanges.%s.%s.%s.%s.%s",
+				hawkInstance, protocol.toString().toLowerCase(),
+				repositoryUri.hashCode(), filePaths.hashCode(),
+				durability.toString().toLowerCase());
 	}
 
 	public String getQueueAddress() {
@@ -318,9 +325,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		try {
 			final ClientMessage msg = session.createMessage(Message.BYTES_TYPE, messagesAreDurable);
 			final TTransport trans = new ActiveMQBufferTransport(msg.getBodyBuffer());
-			final TProtocol proto = new TCompactProtocol(trans);
+			final TProtocol proto = protocolFactory.getProtocol(trans);
 			change.write(proto);
-			
+
 			producer.send(msg);
 		} catch (TException ex) {
 			LOGGER.error("Serialization error", ex);

@@ -4466,6 +4466,7 @@ Hawk_watchModelChanges_args = function(args) {
   this.name = null;
   this.repositoryUri = null;
   this.filePath = null;
+  this.clientID = null;
   this.durableEvents = null;
   if (args) {
     if (args.name !== undefined) {
@@ -4482,6 +4483,11 @@ Hawk_watchModelChanges_args = function(args) {
       this.filePath = args.filePath;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field filePath is unset!');
+    }
+    if (args.clientID !== undefined) {
+      this.clientID = args.clientID;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field clientID is unset!');
     }
     if (args.durableEvents !== undefined) {
       this.durableEvents = args.durableEvents;
@@ -4539,8 +4545,15 @@ Hawk_watchModelChanges_args.prototype.read = function(input) {
       }
       break;
       case 4:
-      if (ftype == Thrift.Type.BOOL) {
-        this.durableEvents = input.readBool().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.clientID = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I32) {
+        this.durableEvents = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -4580,9 +4593,14 @@ Hawk_watchModelChanges_args.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
+  if (this.clientID !== null && this.clientID !== undefined) {
+    output.writeFieldBegin('clientID', Thrift.Type.STRING, 4);
+    output.writeString(this.clientID);
+    output.writeFieldEnd();
+  }
   if (this.durableEvents !== null && this.durableEvents !== undefined) {
-    output.writeFieldBegin('durableEvents', Thrift.Type.BOOL, 4);
-    output.writeBool(this.durableEvents);
+    output.writeFieldBegin('durableEvents', Thrift.Type.I32, 5);
+    output.writeI32(this.durableEvents);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -6096,19 +6114,20 @@ HawkClient.prototype.recv_getRootElements = function() {
   }
   throw 'getRootElements failed: unknown result';
 };
-HawkClient.prototype.watchModelChanges = function(name, repositoryUri, filePath, durableEvents, callback) {
-  this.send_watchModelChanges(name, repositoryUri, filePath, durableEvents, callback); 
+HawkClient.prototype.watchModelChanges = function(name, repositoryUri, filePath, clientID, durableEvents, callback) {
+  this.send_watchModelChanges(name, repositoryUri, filePath, clientID, durableEvents, callback);
   if (!callback) {
     return this.recv_watchModelChanges();
   }
 };
 
-HawkClient.prototype.send_watchModelChanges = function(name, repositoryUri, filePath, durableEvents, callback) {
+HawkClient.prototype.send_watchModelChanges = function(name, repositoryUri, filePath, clientID, durableEvents, callback) {
   this.output.writeMessageBegin('watchModelChanges', Thrift.MessageType.CALL, this.seqid);
   var args = new Hawk_watchModelChanges_args();
   args.name = name;
   args.repositoryUri = repositoryUri;
   args.filePath = filePath;
+  args.clientID = clientID;
   args.durableEvents = durableEvents;
   args.write(this.output);
   this.output.writeMessageEnd();

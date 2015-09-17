@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.slf4j.Logger;
@@ -42,7 +43,9 @@ import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
@@ -55,6 +58,7 @@ public class HawkCommandProvider implements CommandProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkCommandProvider.class);
 
 	private Hawk.Client client;
+	private ThriftProtocol clientProtocol;
 	private String currentInstance;
 	private Consumer consumer;
 
@@ -67,20 +71,32 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
-		client = APIUtils.connectToHawk(url);
+		clientProtocol = ThriftProtocol.guessFromURL(url);
+		if (client != null) {
+			final TTransport transport = client.getInputProtocol().getTransport();
+			Activator.getInstance().removeCloseable(transport);
+			transport.close();
+		}
+
+		client = APIUtils.connectToHawk(url, clientProtocol);
+		Activator.getInstance().addCloseable(client.getInputProtocol().getTransport());
 		currentInstance = null;
-		return null;
+
+		return "Connected to " + url;
 	}
 
 	public Object _hawkDisconnect(CommandInterpreter intp) throws Exception {
 		if (client != null) {
-			client.getInputProtocol().getTransport().close();
+			final TTransport transport = client.getInputProtocol().getTransport();
+			Activator.getInstance().removeCloseable(transport);
+			transport.close();
+
 			client = null;
 			currentInstance = null;
-			return String.format("Connection closed");
+			return "Connection closed";
 		}
 		else {
-			return "Connection already closed";
+			return "Connection not open";
 		}
 	}
 
@@ -363,26 +379,36 @@ public class HawkCommandProvider implements CommandProvider {
 		checkInstanceSelected();
 		if (consumer != null) {
 			consumer.closeSession();
+			Activator.getInstance().removeCloseable(consumer);
 		}
 
-		boolean durable = false;
-		String arg;
-		while ((arg = intp.nextArgument()) != null) {
-			switch (arg) {
-			case "durable": durable = true;
-			}
+		SubscriptionDurability durability = SubscriptionDurability.DEFAULT;
+		String sDurability = intp.nextArgument();
+		if (sDurability != null) {
+			durability = SubscriptionDurability.valueOf(sDurability.toUpperCase());
+		}
+		String clientId = intp.nextArgument();
+		if (clientId == null) {
+			clientId = System.getenv("user.name");
+		}
+		String repository = intp.nextArgument();
+		if (repository == null) {
+			repository = "*";
+		}
+		List<String> files = readRemainingArguments(intp);
+		if (files.isEmpty()) {
+			files.add("*");
 		}
 
-		Subscription subscription = client.watchModelChanges(currentInstance, "*", Arrays.asList("*"), durable);
-		consumer = Consumer.connectRemote(
-				subscription.host, subscription.port, subscription.queue,
-				durable ? QueueType.DURABLE : QueueType.DEFAULT);
+		Subscription subscription = client.watchModelChanges(currentInstance, repository, files, clientId, durability);
+		consumer = APIUtils.connectToArtemis(subscription, durability);
 		consumer.openSession();
+		Activator.getInstance().addCloseable(consumer);
 		final MessageHandler handler = new MessageHandler() {
 			@Override
 			public void onMessage(ClientMessage message) {
 				try {
-					final TProtocol proto = new TCompactProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+					final TProtocol proto = clientProtocol.getProtocolFactory().getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
 					final HawkChangeEvent change = new HawkChangeEvent();
 					try {
 						change.read(proto);
@@ -403,7 +429,10 @@ public class HawkCommandProvider implements CommandProvider {
 			}
 		};
 		consumer.processChangesAsync(handler);
-		return String.format("Watching changes on queue '%s' at '%s:%s'", subscription.queue, subscription.host, subscription.port);
+		return String.format(
+				"Watching changes on queue '%s' at address '%s' of '%s:%s'",
+				subscription.queueName, subscription.queueAddress,
+				subscription.host, subscription.port);
 	}
 
 	/**
@@ -544,10 +573,10 @@ public class HawkCommandProvider implements CommandProvider {
 	@Override
 	public String getHelp() {
 		StringBuffer sbuf = new StringBuffer();
-		sbuf.append("---HAWK (commands are case insensitive)---\n\t");
+		sbuf.append("---HAWK (commands are case insensitive, <> means required, [] means optional)---\n\t");
 		sbuf.append("hawkHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint\n\t");
+		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
@@ -582,7 +611,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n\t");
 		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n");
 		sbuf.append("--Notifications--\n\t");
-		sbuf.append("hawkWatchModelChanges [durable] - creates an optionally durable Artemis message queue with detected model changes\n");
+		sbuf.append("hawkWatchModelChanges [default|temporary|durable] [client ID] [repo] [files...] - watches an Artemis message queue with detected model changes\n");
 		return sbuf.toString();
 	}
 

@@ -20,12 +20,13 @@ import org.hawk.core.IHawkFactory;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
 	public IHawk create(String name, File parentFolder, String location, IAbstractConsole console) throws Exception {
-		return new ThriftRemoteHawk(name, location, parentFolder, console);
+		return new ThriftRemoteHawk(name, location, parentFolder, console, ThriftProtocol.guessFromURL(location));
 	}
 
 	@Override
@@ -45,7 +46,8 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
 	public InstanceInfo[] listInstances(String location) throws Exception {
-		Hawk.Client client = APIUtils.connectToHawk(location);
+		ThriftProtocol proto = ThriftProtocol.guessFromURL(location);
+		Hawk.Client client = APIUtils.connectToHawk(location, proto);
 
 		final List<HawkInstance> instances = client.listInstances();
 		final InstanceInfo[] infos = new InstanceInfo[instances.size()];
@@ -56,4 +58,5 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 		return infos;
 	}
+
 }

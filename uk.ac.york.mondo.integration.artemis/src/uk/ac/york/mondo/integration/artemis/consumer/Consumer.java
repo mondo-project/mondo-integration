@@ -10,7 +10,8 @@
  ******************************************************************************/
 package uk.ac.york.mondo.integration.artemis.consumer;
 
-import java.net.InetAddress;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * synchronously with {@link #processChangesSync(MessageHandler)} or
  * asynchronously with {@link #processChangesAsync(MessageHandler)}.
  */
-public class Consumer {
+public class Consumer implements Closeable {
 
 	public static enum QueueType {
 		/** Deleted after client or server disconnection. */ TEMPORARY,
@@ -46,8 +47,6 @@ public class Consumer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
 
 	private final TransportConfiguration transportConfig;
-	private final QueueType queueType;
-	private final String queueAddress;
 	private final String queueName;
 
 	private ServerLocator locator;
@@ -55,21 +54,22 @@ public class Consumer {
 	private ClientSession session;
 	private ClientConsumer consumer;
 
+	private String queueAddress;
+
+	private QueueType queueType;
+
 	/**
 	 * Factory method for connecting to a remote Artemis instance.
 	 * @param String host Host name of the Artemis instance.
 	 * @param int port Port in which Artemis is listening.
 	 * @param String queueAddress
 	 */
-	public static Consumer connectRemote(String host, int port, String queueAddress, QueueType queueType) throws Exception {
+	public static Consumer connectRemote(String host, int port, String queueAddress, String queueName, QueueType queueType) throws Exception {
 		final Map<String, Object> params = new HashMap<>();
 		params.put(TransportConstants.HOST_PROP_NAME, host);
 		params.put(TransportConstants.PORT_PROP_NAME, port);
 		final TransportConfiguration config = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
 
-		final String queueName = String.format("%s.%s.%s", queueAddress,
-				InetAddress.getLocalHost().getHostAddress().replace(".", "_"),
-				System.getProperty("user.name"));
 		return new Consumer(config, queueAddress, queueName, queueType);
 	}
 
@@ -107,17 +107,25 @@ public class Consumer {
 	}
 
 	public void closeSession() throws ActiveMQException {
-		if (session == null) return;
+		if (consumer != null) {
+			consumer.close();
+			consumer = null;
+		}
 
-		consumer.close();
-		session.close();
-		sessionFactory.close();
-		locator.close();
+		if (session != null) {
+			session.close();
+			session = null;
+		}
 
-		session = null;
-		consumer = null;
-		sessionFactory = null;
-		locator = null;
+		if (sessionFactory != null) {
+			sessionFactory.close();
+			sessionFactory = null;
+		}
+
+		if (locator != null) {
+			locator.close();
+			locator = null;
+		}
 	}
 
 	/**
@@ -160,6 +168,15 @@ public class Consumer {
 				session.createQueue(queueAddress, queueName, queueType == QueueType.DURABLE);
 				break;
 			default: throw new IllegalArgumentException("Unknown queue type");
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		try {
+			closeSession();
+		} catch (ActiveMQException e) {
+			throw new IOException(e);
 		}
 	}
 }

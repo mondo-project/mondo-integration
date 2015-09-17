@@ -15,12 +15,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 /**
  * Abstraction over the <code>.hawkmodel</code> file format. The file format is a
@@ -39,7 +40,14 @@ import org.slf4j.LoggerFactory;
  * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
  * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
  * <li>{@link #PROPERTY_HAWK_LOADING_MODE} (optional) is a string with one of the
- * values in {@link LoadingMode}, indicating how should the model be lodaded.</li>
+ * values in {@link LoadingMode}, indicating how should the model be lodaded.
+ * The default value is {@link #DEFAULT_LOADING_MODE}.</li>
+ * <li>{@link #PROPERTY_HAWK_SUBSCRIBE} (optional), indicating if the client
+ * should subscribe to changes in the Hawk index for the indicated files and
+ * repository. The default value is {@link #DEFAULT_IS_SUBSCRIBED}.</li>
+ * <li>{@link #PROPERTY_HAWK_TPROTOCOL} (optional) is one of the values of
+ * {@link ThriftProtocol}. By default, it is {@link #DEFAULT_TPROTOCOL}.</li>
+ * </ul>
  */
 public class HawkModelDescriptor {
 
@@ -84,11 +92,7 @@ public class HawkModelDescriptor {
 		;
 
 		public static String[] strings() {
-			final List<String> l = new ArrayList<>();
-			for (LoadingMode m : values()) {
-				l.add(m.toString());
-			}
-			return l.toArray(new String[l.size()]);
+			return toStringArray(values());
 		}
 
 		private final boolean greedyElements, greedyAttributes, greedyReferences;
@@ -134,8 +138,13 @@ public class HawkModelDescriptor {
 
 	public static final String DEFAULT_FILES = "*";
 	public static final String DEFAULT_REPOSITORY = "*";
+	public static final String DEFAULT_URL = "http://127.0.0.1:8080/thrift/hawk/tuple";
+	public static final String DEFAULT_INSTANCE = "myhawk";
 	public static final LoadingMode DEFAULT_LOADING_MODE = LoadingMode.GREEDY;
 	public static final boolean DEFAULT_IS_SUBSCRIBED = false;
+	public static final ThriftProtocol DEFAULT_TPROTOCOL = ThriftProtocol.TUPLE;
+	public static final String DEFAULT_CLIENTID = System.getProperty("user.name");
+	public static final SubscriptionDurability DEFAULT_DURABILITY = SubscriptionDurability.DEFAULT;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkModelDescriptor.class);
 	private static final String FILE_PATTERN_SEP = ",";
@@ -143,16 +152,22 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
 	private static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
 	private static final String PROPERTY_HAWK_URL = "hawk.url";
+	private static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thrift.protocol";
 	private static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
 	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
+	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
+	private static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
 
-	private String hawkURL;
-	private String hawkInstance;
+	private String hawkURL = DEFAULT_URL;
+	private String hawkInstance = DEFAULT_INSTANCE;
 	private String hawkRepository = DEFAULT_REPOSITORY;
 	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
 
 	private LoadingMode loadingMode = DEFAULT_LOADING_MODE;
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
+	private ThriftProtocol thriftProtocol = DEFAULT_TPROTOCOL;
+	private String subscriptionClientID = DEFAULT_CLIENTID;
+	private SubscriptionDurability subscriptionDurability = DEFAULT_DURABILITY;
 
 	public HawkModelDescriptor() {}
 
@@ -216,6 +231,30 @@ public class HawkModelDescriptor {
 		this.isSubscribed = isSubscribed;
 	}
 
+	public ThriftProtocol getThriftProtocol() {
+		return thriftProtocol;
+	}
+
+	public void setThriftProtocol(ThriftProtocol thriftProtocol) {
+		this.thriftProtocol = thriftProtocol;
+	}
+
+	public String getSubscriptionClientID() {
+		return subscriptionClientID;
+	}
+
+	public void setSubscriptionClientID(String clientID) {
+		this.subscriptionClientID = clientID;
+	}
+
+	public SubscriptionDurability getSubscriptionDurability() {
+		return subscriptionDurability;
+	}
+
+	public void setSubscriptionDurability(SubscriptionDurability subscriptionDurability) {
+		this.subscriptionDurability = subscriptionDurability;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -228,20 +267,30 @@ public class HawkModelDescriptor {
 		final Properties props = new Properties();
 		props.setProperty(PROPERTY_HAWK_URL, hawkURL);
 		props.setProperty(PROPERTY_HAWK_INSTANCE, hawkInstance);
+		props.setProperty(PROPERTY_HAWK_TPROTOCOL, thriftProtocol.toString());
+
 		props.setProperty(PROPERTY_HAWK_REPOSITORY, hawkRepository);
 		props.setProperty(PROPERTY_HAWK_FILES, concat(hawkFilePatterns, FILE_PATTERN_SEP));
 		props.setProperty(PROPERTY_HAWK_LOADING_MODE, loadingMode.toString());
+
 		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
+		props.setProperty(PROPERTY_HAWK_CLIENTID, subscriptionClientID);
+		props.setProperty(PROPERTY_HAWK_DURABILITY, subscriptionDurability.toString());
 		return props;
 	}
 
 	private void loadFromProperties(Properties props) throws IOException {
 		this.hawkURL = requiredProperty(props, PROPERTY_HAWK_URL);
 		this.hawkInstance = requiredProperty(props, PROPERTY_HAWK_INSTANCE);
+		this.thriftProtocol = ThriftProtocol.valueOf(optionalProperty(props, PROPERTY_HAWK_TPROTOCOL, DEFAULT_TPROTOCOL + ""));
+
 		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
 		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(FILE_PATTERN_SEP);
 		this.loadingMode = LoadingMode.valueOf(optionalProperty(props, PROPERTY_HAWK_LOADING_MODE, DEFAULT_LOADING_MODE + ""));
+
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
+		this.subscriptionClientID = optionalProperty(props, PROPERTY_HAWK_CLIENTID, DEFAULT_CLIENTID);
+		this.subscriptionDurability = SubscriptionDurability.valueOf(optionalProperty(props, PROPERTY_HAWK_DURABILITY, DEFAULT_DURABILITY + ""));
 	}
 
 	private static String requiredProperty(Properties props, String name) throws IOException {
@@ -273,5 +322,14 @@ public class HawkModelDescriptor {
 			sbuf.append(filePattern);
 		}
 		return sbuf.toString();
+	}
+
+	private static <T> String[] toStringArray(Object[] c) {
+		final String[] strings = new String[c.length];
+		int i = 0;
+		for (Object o : c) {
+			strings[i++] = o + "";
+		}
+		return strings;
 	}
 }

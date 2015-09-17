@@ -19,6 +19,8 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 public class HawkResourceFactoryImpl implements Factory {
@@ -51,10 +53,18 @@ public class HawkResourceFactoryImpl implements Factory {
 				descriptor.setHawkInstance(v); break;
 			case "filePatterns":
 				descriptor.setHawkFilePatterns(v.split(",")); break;
+			case "tprotocol":
+				descriptor.setThriftProtocol(ThriftProtocol.valueOf(v.toUpperCase())); break;
 			case "repository":
 				descriptor.setHawkRepository(v); break;
 			case "loadingMode":
 				descriptor.setLoadingMode(LoadingMode.valueOf(v.toUpperCase())); break;
+			case "subscribe":
+				descriptor.setSubscribed(Boolean.valueOf(v)); break;
+			case "durability":
+				descriptor.setSubscriptionDurability(SubscriptionDurability.valueOf(v.toUpperCase())); break;
+			case "clientID":
+				descriptor.setSubscriptionClientID(v); break;
 			}
 		}
 		return descriptor;

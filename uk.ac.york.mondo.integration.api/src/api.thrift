@@ -8,6 +8,12 @@ enum CommitItemChangeType {
 		/*  */ UPDATED 
 }
 
+enum SubscriptionDurability {
+		/* Subscription survives client disconnections but not server restarts. */ DEFAULT 
+		/* Subscription survives client disconnections and server restarts. */ DURABLE 
+		/* Subscription removed after disconnecting. */ TEMPORARY 
+}
+
 
 exception AuthenticationFailed {
 }
@@ -154,7 +160,8 @@ struct Slot {
 struct Subscription {
 	 /* Host name of the message queue server. */ 1: required string host,
 	 /* Port in which the message queue server is listening. */ 2: required i32 port,
-	 /* Name of the topic queue. */ 3: required string queue,
+	 /* Address of the topic queue. */ 3: required string queueAddress,
+	 /* Name of the topic queue. */ 4: required string queueName,
 }
 
 struct TransformationStatus {
@@ -604,12 +611,13 @@ service Hawk {
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
   )
 	
-  /* Returns a reference to a stream of HawkChangeEvents with notifications about changes to a set of indexed models. Auth needed: Yes */
+  /* Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models. Auth needed: Yes */
   Subscription watchModelChanges(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository in which the model is contained. */ 2: required string repositoryUri,
 	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
-	/* Whether events should be durable (survive server restarts) or not. */ 4: required bool durableEvents,
+	/* Unique client ID (used as suffix for the queue name). */ 4: required string clientID,
+	/* Durability of the subscription. */ 5: required SubscriptionDurability durableEvents,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
