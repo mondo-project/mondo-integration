@@ -52,6 +52,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.FileEditorInput;
 
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
@@ -66,6 +67,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	private class DetailsFormPage extends FormPage {
 		private InstanceSection instanceSection;
 		private ContentSection contentSection;
+		private SubscriptionSection subscriptionSection;
 
 		private DetailsFormPage(String id, String title) {
 			super(HawkMultiPageEditor.this, id, title);
@@ -106,8 +108,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			this.contentSection = new ContentSection(toolkit, formBody) {
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
 				@Override protected void repositoryURLChanged() { refreshRawText(); }
-				@Override protected void isLazyChanged() { refreshRawText(); }
+				@Override protected void loadingModeChanged() { refreshRawText(); }
+			};
+			this.subscriptionSection = new SubscriptionSection(toolkit, formBody) {
 				@Override protected void subscribeChanged() { refreshRawText(); }
+				@Override protected void clientIDChanged() { refreshRawText(); }
+				@Override protected void durabilityChanged() { refreshRawText(); }
 			};
 		}
 
@@ -117,6 +123,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		public ContentSection getContentSection() {
 			return contentSection;
+		}
+
+		public SubscriptionSection getSubscriptionSection() {
+			return subscriptionSection;
 		}
 	}
 
@@ -215,7 +225,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		private final FormTextField fldFilePatterns;
 		private final FormTextField fldRepositoryURL;
 		private final FormComboBoxField fldLoadingMode;
-		private final FormCheckBoxField fldSubscribe;
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
@@ -224,12 +233,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
 		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
 		    this.fldLoadingMode = new FormComboBoxField(toolkit, cContents, "Loading mode:", HawkModelDescriptor.LoadingMode.strings());
-		    this.fldSubscribe = new FormCheckBoxField(toolkit, cContents, "Subscribe to notifications", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED);
 
 		    fldRepositoryURL.getText().addModifyListener(this);
 		    fldFilePatterns.getText().addModifyListener(this);
 		    fldLoadingMode.getCombo().addSelectionListener(this);
-		    fldSubscribe.getCheck().addSelectionListener(this);
 		}
 
 		public String[] getFilePatterns() {
@@ -244,22 +251,16 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			return LoadingMode.values()[fldLoadingMode.getCombo().getSelectionIndex()];
 		}
 
-		public boolean isSubscribed() {
-			return fldSubscribe.getCheck().getSelection();
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget == fldLoadingMode.getCombo()) {
-				isLazyChanged();
-			} else if (e.widget == fldSubscribe.getCheck()) {
-				subscribeChanged();
+				loadingModeChanged();
 			}
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-			widgetSelected(e);
 		}
 
 		@Override
@@ -289,21 +290,15 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			fldLoadingMode.getCombo().select(lazy.ordinal());
 		}
 
-		public void setSubscribed(boolean subscribed) {
-			fldSubscribe.getCheck().setSelection(subscribed);
-		}
-
 		protected abstract void filePatternsChanged();
 		protected abstract void repositoryURLChanged();
-		protected abstract void isLazyChanged();
-		protected abstract void subscribeChanged();
+		protected abstract void loadingModeChanged();
 	}
 
 	private static abstract class InstanceSection extends FormSection implements ModifyListener, SelectionListener {
 		private final FormTextField fldInstanceName;
 		private final FormTextField fldServerURL;
 		private final FormComboBoxField fldTProtocol;
-		private boolean ignoreChanges;
 
 		public InstanceSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Instance", "Access details for the remote Hawk instance.");
@@ -350,8 +345,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		@Override
 		public void modifyText(ModifyEvent e) {
-			if (ignoreChanges) return;
-
 			if (e.widget == fldServerURL.getText()) {
 				serverURLChanged();
 			} else if (e.widget == fldInstanceName.getText()) {
@@ -366,7 +359,6 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			if (ignoreChanges) return;
 			if (e.widget == fldTProtocol.getCombo()) {
 				thriftProtocolChanged();
 			}
@@ -375,6 +367,87 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		protected abstract void instanceNameChanged();
 		protected abstract void serverURLChanged();
 		protected abstract void thriftProtocolChanged();
+	}
+
+	private static abstract class SubscriptionSection extends FormSection implements SelectionListener, ModifyListener {
+		private final FormCheckBoxField fldSubscribe;
+		private final FormTextField fldClientID;
+		private final FormComboBoxField fldDurability;
+
+		public SubscriptionSection(FormToolkit toolkit, Composite parent) {
+			super(toolkit, parent, "Subscription", "Configuration parameters for subscriptions to changes in the models indexed by Hawk.");
+		    cContents.setLayout(createTableWrapLayout(2));
+
+		    this.fldSubscribe = new FormCheckBoxField(toolkit, cContents, "Subscribe:", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED);
+		    this.fldClientID = new FormTextField(toolkit, cContents, "Client ID:", HawkModelDescriptor.DEFAULT_CLIENTID);
+		    this.fldDurability = new FormComboBoxField(toolkit, cContents, "Durability:", toStringArray(SubscriptionDurability.values()));
+
+		    fldSubscribe.getCheck().addSelectionListener(this);
+		    fldClientID.getText().addModifyListener(this);
+		    fldDurability.getCombo().addSelectionListener(this);
+		}
+
+		private String[] toStringArray(Object[] values) {
+			final String[] sArray = new String[values.length];
+
+			int i = 0;
+			for (Object v : values) {
+				sArray[i++] = v + "";
+			}
+			return sArray;
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.widget == fldSubscribe.getCheck()) {
+				subscribeChanged();
+			} else if (e.widget == fldDurability.getCombo()) {
+				durabilityChanged();
+			}
+		}
+
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (e.widget == fldClientID.getText()) {
+				clientIDChanged();
+			}
+		}
+
+		public boolean isSubscribed() {
+			return fldSubscribe.getCheck().getSelection();
+		}
+
+		public void setSubscribed(boolean subscribed) {
+			fldSubscribe.getCheck().setSelection(subscribed);
+		}
+
+		public String getClientID() {
+			return fldClientID.getText().getText();
+		}
+
+		public void setClientID(String s) {
+			final Text text = fldClientID.getText();
+			text.removeModifyListener(this);
+			text.setText(s);
+			text.addModifyListener(this);
+		}
+
+		public SubscriptionDurability getDurability() {
+			return SubscriptionDurability.values()[fldDurability.getCombo().getSelectionIndex()];
+		}
+
+		public void setDurability(SubscriptionDurability s) {
+			fldDurability.getCombo().select(s.ordinal());
+		}
+
+		protected abstract void subscribeChanged();
+		protected abstract void clientIDChanged();
+		protected abstract void durabilityChanged();
 	}
 
 	private static final int RAW_EDITOR_PAGE_INDEX = 1;
@@ -508,7 +581,9 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
 			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
 			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
-			detailsPage.getContentSection().setSubscribed(descriptor.isSubscribed());
+			detailsPage.getSubscriptionSection().setSubscribed(descriptor.isSubscribed());
+			detailsPage.getSubscriptionSection().setClientID(descriptor.getSubscriptionClientID());
+			detailsPage.getSubscriptionSection().setDurability(descriptor.getSubscriptionDurability());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
@@ -522,7 +597,9 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setHawkRepository(detailsPage.getContentSection().getRepositoryURL());
 		descriptor.setHawkFilePatterns(detailsPage.getContentSection().getFilePatterns());
 		descriptor.setLoadingMode(detailsPage.getContentSection().getLoadingMode());
-		descriptor.setSubscribed(detailsPage.getContentSection().isSubscribed());
+		descriptor.setSubscribed(detailsPage.getSubscriptionSection().isSubscribed());
+		descriptor.setSubscriptionClientID(detailsPage.getSubscriptionSection().getClientID());
+		descriptor.setSubscriptionDurability(detailsPage.getSubscriptionSection().getDurability());
 
 		final StringWriter sW = new StringWriter();
 		try {
