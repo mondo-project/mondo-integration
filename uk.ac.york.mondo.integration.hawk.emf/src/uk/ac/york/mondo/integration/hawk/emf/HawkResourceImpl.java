@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -83,7 +84,8 @@ public class HawkResourceImpl extends ResourceImpl {
 		@Override
 		public void onMessage(ClientMessage message) {
 			try {
-				final TProtocol proto = new TCompactProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+				final TProtocolFactory protocolFactory = descriptor.getThriftProtocol().getProtocolFactory();
+				final TProtocol proto = protocolFactory.getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
 				final HawkChangeEvent change = new HawkChangeEvent();
 				try {
 					change.read(proto);
@@ -178,9 +180,11 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EClass eClass = getEClass(ev.metamodelURI, ev.typeName, registry);
 			final EFactory factory = registry.getEFactory(ev.metamodelURI);
 
-			final EObject eob = factory.create(eClass);
-			nodeIdToEObjectMap.put(ev.id, eob);
-			getContents().add(eob);
+			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
+				final EObject eob = factory.create(eClass);
+				nodeIdToEObjectMap.put(ev.id, eob);
+				getContents().add(eob);
+			}
 		}
 
 		protected void handle(final HawkAttributeRemovalEvent ev) {
