@@ -338,7 +338,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	private void closeSession() {
 		try {
-			session.close();
+			if (session != null) {
+				session.close();
+			}
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not close the session", e);
 		} finally {

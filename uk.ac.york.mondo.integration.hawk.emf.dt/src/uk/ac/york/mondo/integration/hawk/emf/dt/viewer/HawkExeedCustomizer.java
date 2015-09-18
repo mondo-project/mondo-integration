@@ -20,7 +20,7 @@ import org.eclipse.emf.edit.ui.provider.DecoratingColumLabelProvider;
 import org.eclipse.emf.edit.ui.provider.DiagnosticDecorator;
 import org.eclipse.epsilon.dt.exeed.ExeedActionBarContributor;
 import org.eclipse.epsilon.dt.exeed.ExeedEditor;
-import org.eclipse.epsilon.dt.exeed.extensions.IViewerCustomizer;
+import org.eclipse.epsilon.dt.exeed.extensions.IExeedCustomizer;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelection;
@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Tree;
 
 import uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl;
 
-public class HawkExeedCustomizer implements IViewerCustomizer {
+public class HawkExeedCustomizer implements IExeedCustomizer {
 
 	private static final class SingleNodeDiagnosticDecorator extends DiagnosticDecorator {
 		private SingleNodeDiagnosticDecorator(EditingDomain editingDomain,
