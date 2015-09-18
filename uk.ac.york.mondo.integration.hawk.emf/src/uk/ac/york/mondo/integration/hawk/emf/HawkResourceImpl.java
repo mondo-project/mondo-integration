@@ -286,6 +286,27 @@ public class HawkResourceImpl extends ResourceImpl {
 		return descriptor;
 	}
 
+	/**
+	 * Reports whether an object has children or not. In lazy modes, uses the LazyResolver to
+	 * answer this question without hitting the network.
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean hasChildren(EObject o) {
+		for (EReference r : o.eClass().getEAllReferences()) {
+			if (r.isContainment()) {
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)o, r)) {
+					// we assume that pending references always have at least one ID
+					return true;
+				}
+				Object v = o.eGet(r);
+				if (r.isMany() && !((Collection<EObject>)v).isEmpty() || !r.isMany() && v != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public void doLoad(HawkModelDescriptor descriptor) throws IOException {
 		try {
 			this.descriptor = descriptor;
@@ -345,7 +366,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				toBeFetched.add(id);
 			}
 		}
-	
+
 		// Fetch the eObjects, decode them and resolve references
 		if (!toBeFetched.isEmpty()) {
 			List<ModelElement> elems = client.resolveProxies(

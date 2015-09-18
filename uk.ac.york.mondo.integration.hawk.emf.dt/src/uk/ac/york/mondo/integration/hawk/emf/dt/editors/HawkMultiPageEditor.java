@@ -95,7 +95,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override
 				public void linkActivated(HyperlinkEvent e) {
 					if ("reopenEcore".equals(e.getHref())) {
-						HawkMultiPageEditorContributor.reopenWithEcoreEditor(HawkMultiPageEditor.this);
+						HawkMultiPageEditorContributor.reopenWithExeed(HawkMultiPageEditor.this);
 					}
 				}
 			});

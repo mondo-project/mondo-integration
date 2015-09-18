@@ -39,7 +39,7 @@ import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
  * Multi-page contributor replaces the contributors for the individual editors in the multi-page editor.
  */
 public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarContributor {
-	private static final String EMF_EDITOR_ID = "org.eclipse.emf.ecore.presentation.EcoreEditorID";
+	private static final String EXEED_EDITOR_ID = "org.eclipse.epsilon.dt.exeed.ExeedEditor";
 	private IEditorPart activeEditorPart;
 	private Action emfOpenAction;
 
@@ -107,11 +107,11 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 				if (activeEditorPart == null) {
 					return;
 				}
-				reopenWithEcoreEditor(activeEditorPart);
+				reopenWithExeed(activeEditorPart);
 			}
 		};
-		emfOpenAction.setText("Open with EMF");
-		emfOpenAction.setToolTipText("Opens the model with the generic editor provided by Ecore");
+		emfOpenAction.setText("Open with Exeed");
+		emfOpenAction.setToolTipText("Opens the model with the Epsilon Exeed editor");
 		emfOpenAction.setImageDescriptor(Activator.getImageDescriptor("/icons/EcoreModelFile.gif"));
 	}
 
@@ -128,7 +128,7 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 		manager.add(emfOpenAction);
 	}
 
-	public static void reopenWithEcoreEditor(IEditorPart activeEditorPart) {
+	public static void reopenWithExeed(IEditorPart activeEditorPart) {
 		final IEditorInput existingInput = activeEditorPart.getEditorInput();
 		if (existingInput instanceof IFileEditorInput) {
 			IFileEditorInput existingFileInput = (IFileEditorInput) existingInput;
@@ -136,7 +136,7 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 			try {
 				final IWorkbench workbench = PlatformUI.getWorkbench();
 				final IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-				page.openEditor(newFileInput, HawkMultiPageEditorContributor.EMF_EDITOR_ID, true, IWorkbenchPage.MATCH_ID | IWorkbenchPage.MATCH_INPUT);
+				page.openEditor(newFileInput, HawkMultiPageEditorContributor.EXEED_EDITOR_ID, true, IWorkbenchPage.MATCH_ID | IWorkbenchPage.MATCH_INPUT);
 			} catch (Throwable e) {
 				Activator.getDefault().logError(e);
 			}

@@ -129,6 +129,9 @@ class LazyResolver {
 	 *            {@link EObject}s (from position-based references).
 	 */
 	public void addLazyReferences(EObject sourceObj, EReference feature, EList<Object> value) {
+		// ignore empty lists
+		if (value.isEmpty()) return;
+
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		if (allPending == null) {
 			allPending = new IdentityHashMap<>();
