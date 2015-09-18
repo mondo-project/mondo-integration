@@ -17,6 +17,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -98,6 +99,22 @@ class LazyResolver {
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Returns <code>true</code> if the fetch for feature is pending,
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isPending(InternalEObject object, EStructuralFeature feature) {
+		if (feature instanceof EReference) {
+			Map<EReference, EList<Object>> pending = pendingRefs.get(object);
+			if (pending != null) {
+				return pending.containsKey(feature);
+			}
+		} else if (feature instanceof EAttribute) {
+			return pendingAttrs.containsKey(object);
+		}
+		return false;
 	}
 
 	/**

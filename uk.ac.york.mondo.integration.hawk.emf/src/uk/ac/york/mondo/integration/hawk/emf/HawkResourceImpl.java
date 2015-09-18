@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.eclipse.emf.common.util.BasicEList;
@@ -125,6 +124,11 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on pending references/attributes
+					return;
+				}
+
 				if (ref.isMany()) {
 					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
 					objs.remove(target);
@@ -140,6 +144,11 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on pending references/attributes
+					return;
+				}
+
 				if (ref.isMany()) {
 					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
 					objs.add(target);
@@ -191,6 +200,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
+
 				if (eAttr != null) {
 					eob.eUnset(eAttr);
 				}
