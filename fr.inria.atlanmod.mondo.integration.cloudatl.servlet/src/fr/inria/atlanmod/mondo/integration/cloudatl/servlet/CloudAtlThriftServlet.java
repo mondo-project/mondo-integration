@@ -53,18 +53,18 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.osgi.framework.Bundle;
 
-import uk.ac.york.mondo.integration.api.CloudATL;
-import uk.ac.york.mondo.integration.api.InvalidModelSpec;
-import uk.ac.york.mondo.integration.api.InvalidTransformation;
-import uk.ac.york.mondo.integration.api.ModelSpec;
-import uk.ac.york.mondo.integration.api.TransformationStatus;
-import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
 import fr.inria.atlanmod.atl_mr.ATLMRMapper;
 import fr.inria.atlanmod.atl_mr.ATLMRMaster;
 import fr.inria.atlanmod.atl_mr.ATLMRReducer;
 import fr.inria.atlanmod.atl_mr.builder.RecordBuilder;
 import fr.inria.atlanmod.atl_mr.builder.RecordBuilder.Builder;
 import fr.inria.atlanmod.atl_mr.utils.ATLMRUtils;
+import uk.ac.york.mondo.integration.api.CloudATL;
+import uk.ac.york.mondo.integration.api.InvalidModelSpec;
+import uk.ac.york.mondo.integration.api.InvalidTransformation;
+import uk.ac.york.mondo.integration.api.ModelSpec;
+import uk.ac.york.mondo.integration.api.TransformationStatus;
+import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
 
 /**
  * Entry point to the Cloud-based ATL engine. This servlet exposes a
@@ -187,20 +187,19 @@ public class CloudAtlThriftServlet extends TServlet {
 				job.setMapOutputKeyClass(Text.class);
 				job.setMapOutputValueClass(BytesWritable.class);
 				job.setNumReduceTasks(1);
-				
+
 				// Configure MapReduce input/outputs
 				ResourceSet resourceSet = new ResourceSetImpl();
 				ATLMRUtils.configureRegistry(conf);
-				
+
 				Builder builder = new RecordBuilder.Builder(
 						URI.createURI(source.getUri()),
 						Arrays.asList(new URI[]{ URI.createURI(source.getMetamodelUris().get(0)) } ));
-				
+
 				Path recordsPath = new Path("/tmp/" + UUID.randomUUID().toString() + ".rec");
 				FileSystem recordsFileSystem = FileSystem.get(recordsPath.toUri(), conf);
-				
 				builder.save(recordsFileSystem.create(recordsPath));
-				
+
 				FileInputFormat.setInputPaths(job, recordsPath);
 				String timestamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
 				String outDirName = "atlmr-out-" + timestamp + "-" + UUID.randomUUID();
@@ -219,11 +218,11 @@ public class CloudAtlThriftServlet extends TServlet {
 				job.getConfiguration().set(ATLMRMaster.TARGET_METAMODEL, target.getMetamodelUris().get(0));
 				job.getConfiguration().set(ATLMRMaster.INPUT_MODEL, source.getUri());
 				job.getConfiguration().set(ATLMRMaster.OUTPUT_MODEL, target.getUri());
-				
+
+				// Copy libraries to populate the job's classpath
 				Bundle bundle = Platform.getBundle(CloudAtlServletPlugin.PLUGIN_ID);
 				IPath path = new org.eclipse.core.runtime.Path("libs");
 				URL fileURL = FileLocator.find(bundle, path, null);
-				
 				String localJarsDir = new File(FileLocator.resolve(fileURL).toURI()).getAbsolutePath();
 				String hdfsJarsDir = "/temp/hadoop/atlrm/libs";
 				

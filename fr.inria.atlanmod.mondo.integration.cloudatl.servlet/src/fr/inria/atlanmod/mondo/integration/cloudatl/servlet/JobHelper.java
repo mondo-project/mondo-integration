@@ -15,8 +15,6 @@ import org.apache.hadoop.fs.Path;
 public class JobHelper {
     private static final Logger logger = Logger.getLogger(JobHelper.class.getCanonicalName());
 
-    private static Class<?> trackerDistributedCacheManagerClass;
-
     public static void copyLocalJarsToHdfs(String localJarsDir, String hdfsJarsDir, Configuration configuration) throws IOException {
         checkRequiredArgument(localJarsDir, "Local JARs dir is null");
         checkRequiredArgument(hdfsJarsDir, "HDFS JARs dir is null");
@@ -46,7 +44,7 @@ public class JobHelper {
 
     private static Set<File> collectJarFilesFromLocalDir(String localJarsDirPath) {
         File directoryFile = new File(localJarsDirPath);
-        if (null == directoryFile) {
+        if (!directoryFile.exists()) {
             throw new IllegalArgumentException("No directory found at local path: " + localJarsDirPath);
         }
         if (!directoryFile.isDirectory()) {
@@ -91,7 +89,7 @@ public class JobHelper {
 
         FileStatus[] fileStatuses = fileSystem.listStatus(jarsDirPath);
         for (FileStatus fileStatus : fileStatuses) {
-            if (!fileStatus.isDir()) {
+            if (!fileStatus.isDirectory()) {
                 jarPaths.add(fileStatus.getPath());
             }
         }
