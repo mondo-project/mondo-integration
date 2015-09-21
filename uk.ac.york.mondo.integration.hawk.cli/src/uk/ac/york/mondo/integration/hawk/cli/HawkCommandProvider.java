@@ -10,18 +10,25 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.cli;
 
-import java.io.FileInputStream;
 import java.net.ConnectException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
@@ -29,19 +36,31 @@ import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
+import uk.ac.york.mondo.integration.api.Repository;
+import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
  */
 public class HawkCommandProvider implements CommandProvider {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HawkCommandProvider.class);
+
 	private Hawk.Client client;
+	private ThriftProtocol clientProtocol;
 	private String currentInstance;
+	private Consumer consumer;
 
 	public Object _hawkHelp(CommandInterpreter intp) {
 		return getHelp();
@@ -52,20 +71,32 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
-		client = APIUtils.connectToHawk(url);
+		clientProtocol = ThriftProtocol.guessFromURL(url);
+		if (client != null) {
+			final TTransport transport = client.getInputProtocol().getTransport();
+			Activator.getInstance().removeCloseable(transport);
+			transport.close();
+		}
+
+		client = APIUtils.connectToHawk(url, clientProtocol);
+		Activator.getInstance().addCloseable(client.getInputProtocol().getTransport());
 		currentInstance = null;
-		return null;
+
+		return "Connected to " + url;
 	}
 
 	public Object _hawkDisconnect(CommandInterpreter intp) throws Exception {
 		if (client != null) {
-			client.getInputProtocol().getTransport().close();
+			final TTransport transport = client.getInputProtocol().getTransport();
+			Activator.getInstance().removeCloseable(transport);
+			transport.close();
+
 			client = null;
 			currentInstance = null;
-			return String.format("Connection closed");
+			return "Connection closed";
 		}
 		else {
-			return "Connection already closed";
+			return "Connection not open";
 		}
 	}
 
@@ -73,7 +104,14 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListInstances(CommandInterpreter intp) throws Exception {
 		checkConnected();
-		Collection<HawkInstance> instances = client.listInstances();
+		List<HawkInstance> instances = client.listInstances();
+		Collections.sort(instances, new Comparator<HawkInstance>() {
+			@Override
+			public int compare(HawkInstance o1, HawkInstance o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
 		if (instances.isEmpty()) {
 			return "No instances exist";
 		} else {
@@ -145,21 +183,7 @@ public class HawkCommandProvider implements CommandProvider {
 		List<File> mmFiles = new ArrayList<>();
 		for (String path = intp.nextArgument(); path != null; path = intp.nextArgument()) {
 			java.io.File rawFile = new java.io.File(path);
-			try (FileInputStream fIS = new FileInputStream(rawFile)) {
-				FileChannel chan = fIS.getChannel();
-
-				/* Note: this cast limits us to 2GB files - this shouldn't
-				 be a problem, but if it were we could use FileChannel#map
-				 and call Hawk.Client#registerModels one file at a time. */ 
-				ByteBuffer buf = ByteBuffer.allocate((int) chan.size());
-				chan.read(buf);
-				buf.flip();
-
-				File mmFile = new File();
-				mmFile.name = rawFile.getName();
-				mmFile.contents = buf;
-				mmFiles.add(mmFile);
-			}
+			mmFiles.add(APIUtils.convertJavaFileToThriftFile(rawFile));
 		}
 		client.registerMetamodels(currentInstance, mmFiles);
 
@@ -192,7 +216,7 @@ public class HawkCommandProvider implements CommandProvider {
 		if (creds.password == null) { creds.password = "anonymous"; }
 
 		// TODO tell Kostas that LocalFolder does not work if the path has a trailing separator
-		client.addRepository(currentInstance, repoURL, repoType, creds);
+		client.addRepository(currentInstance, new Repository(repoURL, repoType), creds);
 		return String.format("Added repository of type '%s' at '%s'", repoType, repoURL);
 	}
 
@@ -201,6 +225,15 @@ public class HawkCommandProvider implements CommandProvider {
 		final String repoURL = requiredArgument(intp, "url");
 		client.removeRepository(currentInstance, repoURL);
 		return String.format("Removed repository '%s'", repoURL);
+	}
+
+	public Object _hawkUpdateRepositoryCredentials(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String repoURL = requiredArgument(intp, "url");
+		final String user = requiredArgument(intp, "user");
+		final String pass = requiredArgument(intp, "pass");
+		client.updateRepositoryCredentials(currentInstance, repoURL, new Credentials(user, pass));
+		return String.format("Credentials changed for '%s'", repoURL);
 	}
 
 	public Object _hawkListRepositories(CommandInterpreter intp) throws Exception {
@@ -215,12 +248,13 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkListFiles(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
+		// TODO allow for multiple repositories
 		final String repo = requiredArgument(intp, "url");
 		final List<String> filePatterns = readRemainingArguments(intp);
 		if (filePatterns.isEmpty()) {
 			filePatterns.add("*");
 		}
-		return formatList(client.listFiles(currentInstance, repo, filePatterns));
+		return formatList(client.listFiles(currentInstance, Arrays.asList(repo), filePatterns));
 	}
 
 	/* QUERIES */
@@ -234,9 +268,10 @@ public class HawkCommandProvider implements CommandProvider {
 		checkInstanceSelected();
 		final String query = requiredArgument(intp, "query");
 		final String language = requiredArgument(intp, "language");
+		final String repo = requiredArgument(intp, "repo");
 		final String scope = requiredArgument(intp, "scope");
 
-		Object ret = client.query(currentInstance, query, language, scope);
+		Object ret = client.query(currentInstance, query, language, repo, scope);
 		// TODO do something better than toString here
 		return "Result: " + ret;
 	}
@@ -338,6 +373,68 @@ public class HawkCommandProvider implements CommandProvider {
 		return String.format("Removed derived attribute '%s' from '%s' in '%s'", attributeName, typeName, mmURI);
 	}
 
+	/* NOTIFICATIONS */
+
+	public Object _hawkWatchModelChanges(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		if (consumer != null) {
+			consumer.closeSession();
+			Activator.getInstance().removeCloseable(consumer);
+		}
+
+		SubscriptionDurability durability = SubscriptionDurability.DEFAULT;
+		String sDurability = intp.nextArgument();
+		if (sDurability != null) {
+			durability = SubscriptionDurability.valueOf(sDurability.toUpperCase());
+		}
+		String clientId = intp.nextArgument();
+		if (clientId == null) {
+			clientId = System.getenv("user.name");
+		}
+		String repository = intp.nextArgument();
+		if (repository == null) {
+			repository = "*";
+		}
+		List<String> files = readRemainingArguments(intp);
+		if (files.isEmpty()) {
+			files.add("*");
+		}
+
+		Subscription subscription = client.watchModelChanges(currentInstance, repository, files, clientId, durability);
+		consumer = APIUtils.connectToArtemis(subscription, durability);
+		consumer.openSession();
+		Activator.getInstance().addCloseable(consumer);
+		final MessageHandler handler = new MessageHandler() {
+			@Override
+			public void onMessage(ClientMessage message) {
+				try {
+					final TProtocol proto = clientProtocol.getProtocolFactory().getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+					final HawkChangeEvent change = new HawkChangeEvent();
+					try {
+						change.read(proto);
+						System.out.println("Received message from Artemis: " + change);
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						System.err.println("Error while decoding incoming message");
+						e.printStackTrace();
+					}
+					message.acknowledge();
+
+					// Normally, Artemis waits until a minimum number of bytes is reached (even on auto-commit mode).
+					// Clients should specify some additional strategy for committing acknowledgements.
+					consumer.commitSession();
+				} catch (ActiveMQException e) {
+					LOGGER.error("Failed to ack message", e);
+				}
+			}
+		};
+		consumer.processChangesAsync(handler);
+		return String.format(
+				"Watching changes on queue '%s' at address '%s' of '%s:%s'",
+				subscription.queueName, subscription.queueAddress,
+				subscription.host, subscription.port);
+	}
+
 	/**
 	 * Ensures that a connection has been established.
 	 * @throws ConnectException No connection has been established yet.
@@ -374,13 +471,13 @@ public class HawkCommandProvider implements CommandProvider {
 		throw new NoSuchElementException(String.format("No instance exists with the name '%s'", name));
 	}
 
-	private Object formatList(final List<String> elements) {
+	private Object formatList(final List<?> elements) {
 		if (elements.isEmpty()) {
 			return "(no results)";
 		} else {
 			StringBuffer sbuf = new StringBuffer();
 			boolean bFirst = true;
-			for (String element : elements) {
+			for (Object element : elements) {
 				if (bFirst) {
 					bFirst = false;
 				} else {
@@ -436,6 +533,7 @@ public class HawkCommandProvider implements CommandProvider {
 			final boolean entireModel) throws Exception {
 		checkInstanceSelected();
 
+		// TODO accept multiple repositories
 		final String repo = requiredArgument(intp, "repo");
 		final List<String> patterns = readRemainingArguments(intp);
 		if (patterns.isEmpty()) {
@@ -444,9 +542,9 @@ public class HawkCommandProvider implements CommandProvider {
 
 		List<ModelElement> elems;
 		if (entireModel) {
-			elems = client.getModel(currentInstance, repo, patterns, true, true, false);
+			elems = client.getModel(currentInstance, Arrays.asList(repo), patterns, true, true, false);
 		} else {
-			elems = client.getRootElements(currentInstance, repo, patterns, true, true);
+			elems = client.getRootElements(currentInstance, Arrays.asList(repo), patterns, true, true);
 		}
 		return formatModelElements(elems, "");
 	}
@@ -475,10 +573,10 @@ public class HawkCommandProvider implements CommandProvider {
 	@Override
 	public String getHelp() {
 		StringBuffer sbuf = new StringBuffer();
-		sbuf.append("---HAWK (commands are case insensitive)---\n\t");
+		sbuf.append("---HAWK (commands are case insensitive, <> means required, [] means optional)---\n\t");
 		sbuf.append("hawkHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint\n\t");
+		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
@@ -488,29 +586,32 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
-		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n");
+		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");
-		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n\t");
+		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
-		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n");
+		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n\t");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
+		sbuf.append("hawkUpdateRepositoryCredentials <url> <user> <pwd> - changes the user/password used to monitor a repository");
 		sbuf.append("--Queries--\n\t");
 		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");
-		sbuf.append("hawkQuery <query> <language> <scope> - queries the index\n\t");
+		sbuf.append("hawkQuery <query> <language> <repo> <files> - queries the index\n\t");
 		sbuf.append("hawkResolveProxies <ids...> - retrieves model elements by ID\n");
 		sbuf.append("--Derived attributes--\n\t");
 		sbuf.append("hawkAddDerivedAttribute <mmURI> <mmType> <name> <type> <lang> <expr> [many|ordered|unique]* - adds a derived attribute\n\t");
-		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n");
-		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n\t");
+		sbuf.append("hawkListDerivedAttributes - lists all available derived attributes\n\t");
+		sbuf.append("hawkRemoveDerivedAttribute <mmURI> <mmType> <name> - removes a derived attribute, if it exists\n");
 		sbuf.append("--Indexed attributes--\n\t");
 		sbuf.append("hawkAddIndexedAttribute <mmURI> <mmType> <name> - adds an indexed attribute\n\t");
-		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n");
-		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n\t");
+		sbuf.append("hawkListIndexedAttributes - lists all available indexed attributes\n\t");
+		sbuf.append("hawkRemoveIndexedAttribute <mmURI> <mmType> <name> - removes an indexed attribute, if it exists\n");
+		sbuf.append("--Notifications--\n\t");
+		sbuf.append("hawkWatchModelChanges [default|temporary|durable] [client ID] [repo] [files...] - watches an Artemis message queue with detected model changes\n");
 		return sbuf.toString();
 	}
 

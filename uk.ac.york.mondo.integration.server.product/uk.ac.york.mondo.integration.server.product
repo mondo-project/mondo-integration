@@ -9,7 +9,10 @@
    <launcherArgs>
       <programArgs>-console -consoleLog
       </programArgs>
-      <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443 -Dosgi.noShutdown=true -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer
+      <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
+-Dosgi.noShutdown=true
+-Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer
+-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -23,7 +26,7 @@
    </launcher>
 
    <vm>
-      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</linux>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
    </vm>
 
    <plugins>
@@ -43,6 +46,7 @@
       <feature id="org.hawk.epsilon.feature"/>
       <feature id="org.hawk.core.feature"/>
       <feature id="org.hawk.osgiserver.feature"/>
+      <feature id="org.hawk.bpmn.feature"/>
    </features>
 
    <configurations>
@@ -54,6 +58,7 @@
       <plugin id="org.eclipse.equinox.http.registry" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="uk.ac.york.mondo.integration.artemis.server" autoStart="true" startLevel="4" />
    </configurations>
 
 </product>

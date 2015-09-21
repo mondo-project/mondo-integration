@@ -27,5 +27,12 @@
             id="uk.ac.york.mondo.integration.hawk.emf.dt.wizards.NewRemoteHawkModelDescriptorWizard">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.epsilon.dt.exeed.customizer">
+      <customizer
+            customizerClass="uk.ac.york.mondo.integration.hawk.emf.dt.viewer.HawkExeedCustomizer"
+            resourceClass="uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl">
+      </customizer>
+   </extension>
 
 </plugin>

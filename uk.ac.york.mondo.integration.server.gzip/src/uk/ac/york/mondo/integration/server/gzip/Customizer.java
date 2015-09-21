@@ -11,9 +11,6 @@
 package uk.ac.york.mondo.integration.server.gzip;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Dictionary;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -25,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.equinox.http.jetty.JettyCustomizer;
 import org.eclipse.jetty.http.gzip.AbstractCompressedStream;
 import org.eclipse.jetty.http.gzip.CompressedResponseWrapper;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.GzipHandler;
 
@@ -60,12 +58,6 @@ public class Customizer extends JettyCustomizer {
 		                	return new GZIPOutputStream(_response.getOutputStream(), _bufferSize){{def.setLevel(level);}};			                    	
 		                }
 		            };
-		        }
-		        
-		        @Override
-		        protected PrintWriter newWriter(OutputStream out,String encoding) throws UnsupportedEncodingException
-		        {
-		            return newWriter(out,encoding);
 		        }
 		    };
 		}

@@ -67,4 +67,17 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="uk.ac.york.mondo.integration.artemis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.york.mondo.integration.artemis.producer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>

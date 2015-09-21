@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.servlet;
+package uk.ac.york.mondo.integration.hawk.servlet.utils;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ import java.util.LinkedHashSet;
  * {@link LinkedHashSet} which uses {@link System#identityHashCode(Object)}
  * instead of {@link Object#hashCode()} for keys.
  */
-class IdentityLinkedHashSet<E> extends AbstractSet<E> {
+public class IdentityLinkedHashSet<E> extends AbstractSet<E> {
 	private static class IdentityWrapper {
 		private final Object object;
 

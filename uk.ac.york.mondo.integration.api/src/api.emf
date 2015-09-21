@@ -112,6 +112,7 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
+		@doc(d="The repository for the query (or * for all repositories)") String repository,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
 
@@ -126,8 +127,7 @@ class Hawk {
 	@doc(d="Asks a Hawk instance to start monitoring a repository")
 	op void addRepository (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository to monitor") String uri,
-		@doc(d="The type of repository to be monitored") String type,
+		@doc(d="The repository to monitor") Repository repo,
 		@doc(d="A valid set of credentials that has read-access to the repository", optional="true") Credentials credentials
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed;
 
@@ -137,8 +137,15 @@ class Hawk {
 		@doc(d="The URI of the repository to stop monitoring") String uri
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
-	@doc(d="Lists the URIs of the repositories monitored by a Hawk instance")
-	op String[*] listRepositories (
+	@doc(d="Changes the credentials used to monitor a repository")
+	op void updateRepositoryCredentials (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to update") String uri,
+		@doc(d="The new credentials to be used") Credentials cred
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
+	@doc(d="Lists the repositories monitored by a Hawk instance")
+	op Repository[*] listRepositories (
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
@@ -148,7 +155,7 @@ class Hawk {
 	@doc(d="Lists the paths of the files of the indexed repository")
 	op String[*] listFiles (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the indexed repository") String repository,
+		@doc(d="The URI of the indexed repository") String[*] repository,
 		@doc(d="File name patterns to search for (* lists all files)") String[*] filePatterns
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
@@ -198,7 +205,7 @@ class Hawk {
 	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved")
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
 		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences,
@@ -208,42 +215,105 @@ class Hawk {
 	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance.")
 	op ModelElement[*] getRootElements (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
+		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
 		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
 		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
 	);
 
-    /*
-	@doc(d="Returns a stream of notifications about changes to a certain model, until the client disconnects.", stream="true")
-	op ModelElementChange[*] watchModelChanges(
+	@doc(d="Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models.", queueOf="HawkChangeEvent")
+	op Subscription watchModelChanges(
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The URI of the repository in which the model is contained") String repositoryUri,
-		@doc(d="The path of the model file in the repository") String filePath,
-		@doc(d="The type of change to watch for", optional="true") ModelElementChangeType changeType,
-		@doc(d="The model element type to watch for", optional="true") String modelElementType
+		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
+		@doc(d="Unique client ID (used as suffix for the queue name)") String clientID,
+		@doc(d="Durability of the subscription.") SubscriptionDurability durableEvents
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
-	*/
 }
 
-@doc(d="Enumeration with the different types of changes that can happen to a model element.")
-enum ModelElementChangeType {
-	@doc(d="The model element was added to the model") ADDED;
-	@doc(d="The model element was removed from the model") REMOVED;
-	@doc(d="The contents of the model element were changed") UPDATED;
+@doc(d="Entity that represents a model repository")
+class Repository {
+	@doc(d="The URI to the repository") attr String uri;
+	@doc(d="The type of repository") attr String type;
 }
 
-@doc(d="Entity that reflects a single change on a single model element.")
-class ModelElementChange {
-	@doc(d="The model element that was changed.") val ModelElement element;
-	@doc(d="The type of change performed on the model.") attr ModelElementChangeType type;
-	@doc(d="For changes of type UPDATED, the path within the element that was updated.", optional="true") attr String changePath;
+@doc(d="Serialized form of a change in the indexed models of a Hawk instance")
+@thrift(union="true")
+class HawkChangeEvent {
+	@doc(d="A model element was added.") val HawkModelElementAdditionEvent modelElementAddition;
+	@doc(d="A model element was removed.") val HawkModelElementRemovalEvent modelElementRemoval;
+	@doc(d="An attribute was updated.") val HawkAttributeUpdateEvent modelElementAttributeUpdate;
+	@doc(d="An attribute was removed.") val HawkAttributeRemovalEvent modelElementAttributeRemoval;
+	@doc(d="A reference was added.") val HawkReferenceAdditionEvent referenceAddition;
+	@doc(d="A reference was removed.") val HawkReferenceRemovalEvent referenceRemoval;
+}
+
+@doc(d="Serialized form of a model element addition event.")
+class HawkModelElementAdditionEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Metamodel URI of the type of the model element") val String metamodelURI;
+	@doc(d="Name of the type of the model element") val String typeName;
+	@doc(d="Identifier of the model element that was added.") val String ~id;
+}
+
+@doc(d="Serialized form of a model element removal event.")
+class HawkModelElementRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was removed.") val String ~id;
+}
+
+@doc(d="Serialized form of an attribute update event.")
+class HawkAttributeUpdateEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was changed.") val String ~id;
+	@doc(d="Name of the attribute that was changed.") val String attribute;
+	@doc(d="New value for the attribute.") val Variant value;
+}
+
+@doc(d="Serialized form of an attribute removal event.")
+class HawkAttributeRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the model element that was changed.") val String ~id;
+	@doc(d="Name of the attribute that was removed.") val String attribute;
+}
+
+@doc(d="Serialized form of a reference addition event.")
+class HawkReferenceAdditionEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the source model element.") val String ~sourceId;
+	@doc(d="Identifier of the target model element.") val String ~targetId;
+	@doc(d="Name of the reference that was added.") val String refName;
+}
+
+@doc(d="Serialized form of a reference removal event.")
+class HawkReferenceRemovalEvent {
+	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
+	@doc(d="Identifier of the source model element.") val String ~sourceId;
+	@doc(d="Identifier of the target model element.") val String ~targetId;
+	@doc(d="Name of the reference that was removed.") val String refName;
+}
+
+@doc(d="Simplified entry within a commit of a repository.")
+class CommitItem {
+	attr String repoURL;
+	attr String revision;
+	attr String path;
+	attr CommitItemChangeType type;
+}
+
+@doc(d="Type of change within a commit.")
+enum CommitItemChangeType {
+	ADDED;
+	DELETED;
+	UPDATED;
+	UNKNOWN;
+	REPLACED;
 }
 
 @doc(d="No Hawk instance exists with that name.")
 class HawkInstanceNotFound {}
 
-@doc(d="The selecte Hawk instance is not running.")
+@doc(d="The selected Hawk instance is not running.")
 class HawkInstanceNotRunning {}
 
 @doc(d="The provided metamodel is not valid (e.g. unparsable or inconsistent).")
@@ -426,31 +496,6 @@ class CloudATL {
 	
 	@doc(d="Kills a previously invoked transformation")
 	op void kill (
-		@doc(d="A valid token returned by a previous call to launch()") String token
-	) throws TransformationTokenNotFound;
-}
-
-@doc(d="
-The following service operations expose the capabilities of the reactive
-version of the ATL transformation language which is discussed in D3.2
-")
-class ReactiveATL {
-	@doc(d="Launches a cloud-based transformation in reactive mode.
-	    The transformation keeps running until it is explicitly stopped.
-	    Returns a token that can be used to control the transformation.")
-	op String launch (
-		@doc(d="The ATL source-code of the transformation") String transformation,
-		@doc(d="The input models of the transformation") ModelSpec[*] source,
-		@doc(d="The target models of the transformation") ModelSpec[*] target
-	) throws InvalidTransformation, InvalidModelSpec;
-
-	@doc(d="Stops a cloud-based reactive transformation.")
-	op String stop (
-		@doc(d="A valid token returned by a previous call to launch()") String token
-	) throws TransformationTokenNotFound;
-
-	@doc(d="Commits in-memory changes on the target model to its persistent storage.")
-	op String commit (
 		@doc(d="A valid token returned by a previous call to launch()") String token
 	) throws TransformationTokenNotFound;
 }
@@ -699,4 +744,19 @@ class InvalidModelSpec {
 @doc(d="The specified transformation token does not exist within the invokved MONDO instance.")
 class TransformationTokenNotFound {
 	@doc(d="Transformation token which was not found within the invoked MONDO instance.") attr String token;
+}
+
+@doc(d="Details about a subscription to a topic queue")
+class Subscription {
+	@doc(d="Host name of the message queue server") attr String host;
+	@doc(d="Port in which the message queue server is listening") attr int port;
+	@doc(d="Address of the topic queue") attr String queueAddress;
+	@doc(d="Name of the topic queue") attr String queueName;
+}
+
+@doc(d="Durability of a subscription")
+enum SubscriptionDurability {
+	@doc(d="Subscription removed after disconnecting.") TEMPORARY;
+	@doc(d="Subscription survives client disconnections but not server restarts.") DEFAULT;
+	@doc(d="Subscription survives client disconnections and server restarts.") DURABLE;
 }

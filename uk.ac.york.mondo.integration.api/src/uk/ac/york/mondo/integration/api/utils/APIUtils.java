@@ -11,36 +11,113 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.api.utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.thrift.TServiceClient;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TJSONProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 
+import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 
 /**
  * Utility methods for connecting to the MONDO APIs. These use the optional
  * dependency on Apache HTTP Components.
  */
 public class APIUtils {
+
+	/*
+	 * Note: all values of this enum must have names in uppercase, so the
+	 * 'tprotocol' values of the <code>hawk+http(s)://</code> URLs will be case
+	 * insensitive.
+	 */
+	public static enum ThriftProtocol {
+		/**
+		 * Efficient, compatible with almost all languages in Thrift 0.9.2.
+		 * (including JavaScript, with an unofficial extension).
+		 */
+		BINARY(new TBinaryProtocol.Factory()),
+		/**
+		 * More space efficient than {@link #BINARY} at the expense of some
+		 * time, but not available for JavaScript.
+		 */
+		COMPACT(new TCompactProtocol.Factory()),
+		/**
+		 * More space efficient than {@link #COMPACT}, but only available
+		 * for Java in Thrift 0.9.2.
+		 */
+		TUPLE(new TTupleProtocol.Factory()),
+		/**
+		 * Compatible with all languages of interest (including JavaScript) out
+		 * of the box, but not very efficient.
+		 */
+		JSON(new TJSONProtocol.Factory());
+
+		private final TProtocolFactory protocolFactory;
+
+		private ThriftProtocol(TProtocolFactory factory) {
+			this.protocolFactory = factory;
+		}
+
+		public static String[] strings() {
+			return toStringArray(values());
+		}
+
+		public static ThriftProtocol guessFromURL(String location) {
+			ThriftProtocol proto = TUPLE;
+			if (location.endsWith("compact")) {
+				proto = COMPACT;
+			} else if (location.endsWith("binary")) {
+				proto = BINARY;
+			} else if (location.endsWith("json")) {
+				proto = JSON;
+			}
+			return proto;
+		}
+
+		public TProtocolFactory getProtocolFactory() {
+			return protocolFactory;
+		}
+	}
+
 	private APIUtils() {
 	}
 
-	public static Hawk.Client connectToHawk(String url) throws TTransportException {
-		return connectTo(Hawk.Client.class, url);
+	public static Hawk.Client connectToHawk(String url, ThriftProtocol tProtocol) throws TTransportException {
+		return connectTo(Hawk.Client.class, url, tProtocol);
 	}
-	
+
+	public static Consumer connectToArtemis(Subscription s, SubscriptionDurability sd) throws Exception {
+		return Consumer.connectRemote(s.host, s.port, s.queueAddress, s.queueName, toQueueType(sd));
+	}
+
 	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException {
+		return connectTo(clazz, url, ThriftProtocol.TUPLE);
+	}
+
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol) throws TTransportException {
 		try {
 			final HttpClient httpClient = APIUtils.createGZipAwareHttpClient();
 			final THttpClient transport = new THttpClient(url, httpClient);
 			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
-			return constructor.newInstance(new TTupleProtocol(transport));
+			return constructor.newInstance(thriftProtocol.getProtocolFactory().getProtocol(transport));
 		} catch (InstantiationException 
 				| IllegalAccessException 
 				| IllegalArgumentException 
@@ -48,6 +125,24 @@ public class APIUtils {
 				| NoSuchMethodException
 				| SecurityException e) {
 			throw new TTransportException(e);
+		}
+	}
+
+	public static File convertJavaFileToThriftFile(java.io.File rawFile) throws FileNotFoundException, IOException {
+		try (FileInputStream fIS = new FileInputStream(rawFile)) {
+			FileChannel chan = fIS.getChannel();
+
+			/* Note: this cast limits us to 2GB files - this shouldn't
+			 be a problem, but if it were we could use FileChannel#map
+			 and call Hawk.Client#registerModels one file at a time. */
+			ByteBuffer buf = ByteBuffer.allocate((int) chan.size());
+			chan.read(buf);
+			buf.flip();
+
+			File mmFile = new File();
+			mmFile.name = rawFile.getName();
+			mmFile.contents = buf;
+			return mmFile;
 		}
 	}
 
@@ -71,6 +166,24 @@ public class APIUtils {
 		client.addRequestInterceptor(new GZipRequestInterceptor());
 		client.addResponseInterceptor(new GZipResponseInterceptor());
 		return client;
+	}
+
+	private static QueueType toQueueType(SubscriptionDurability sd) {
+		switch (sd) {
+		case DEFAULT: return QueueType.DEFAULT;
+		case DURABLE: return QueueType.DURABLE;
+		case TEMPORARY: return QueueType.TEMPORARY;
+		default: throw new IllegalArgumentException("Unknown subscription durability " + sd);
+		}
+	}
+
+	private static <T> String[] toStringArray(Object[] c) {
+		final String[] strings = new String[c.length];
+		int i = 0;
+		for (Object o : c) {
+			strings[i++] = o + "";
+		}
+		return strings;
 	}
 
 }

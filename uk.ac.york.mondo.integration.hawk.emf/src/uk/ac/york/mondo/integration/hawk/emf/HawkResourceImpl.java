@@ -13,15 +13,26 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import net.sf.cglib.proxy.CallbackHelper;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -35,6 +46,7 @@ import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.slf4j.Logger;
@@ -43,18 +55,168 @@ import org.slf4j.LoggerFactory;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
+import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
+import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
+import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
+import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 /**
  * EMF driver that reads a remote model from a Hawk index.
  */
 public class HawkResourceImpl extends ResourceImpl {
+
+	private final class ModelSubscriberHandler implements MessageHandler {
+		@Override
+		public void onMessage(ClientMessage message) {
+			try {
+				final TProtocolFactory protocolFactory = descriptor.getThriftProtocol().getProtocolFactory();
+				final TProtocol proto = protocolFactory.getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+				final HawkChangeEvent change = new HawkChangeEvent();
+				try {
+					change.read(proto);
+					LOGGER.debug("Received message from Artemis: {}", change);
+
+					if (change.isSetModelElementAttributeUpdate()) {
+						handle(change.getModelElementAttributeUpdate());
+					}
+					else if (change.isSetModelElementAttributeRemoval()) {
+						handle(change.getModelElementAttributeRemoval());
+					}
+					else if (change.isSetModelElementAddition()) {
+						handle(change.getModelElementAddition());
+					}
+					else if (change.isSetModelElementRemoval()) {
+						handle(change.getModelElementRemoval());
+					}
+					else if (change.isSetReferenceAddition()) {
+						handle(change.getReferenceAddition());
+					}
+					else if (change.isSetReferenceRemoval()) {
+						handle(change.getReferenceRemoval());
+					}
+				} catch (TException | IOException e) {
+					LOGGER.error("Error while decoding incoming message", e);
+				}
+
+				message.acknowledge();
+			} catch (ActiveMQException e) {
+				LOGGER.error("Failed to ack message", e);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkReferenceRemovalEvent ev) {
+			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
+			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
+			if (source != null && target != null) {
+				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on pending references/attributes
+					return;
+				}
+
+				if (ref.isMany()) {
+					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
+					objs.remove(target);
+				} else {
+					source.eUnset(ref);
+				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkReferenceAdditionEvent ev) {
+			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
+			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
+			if (source != null && target != null) {
+				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on pending references/attributes
+					return;
+				}
+
+				if (ref.isMany()) {
+					Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
+					objs.add(target);
+				} else {
+					source.eSet(ref, target);
+				}
+
+				if (ref.isContainer()) {
+					getContents().remove(source);
+				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void handle(final HawkModelElementRemovalEvent ev) {
+			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
+			if (eob != null) {
+				getContents().remove(eob);
+
+				final EObject container = eob.eContainer();
+				if (container != null) {
+					if (eob.eContainmentFeature() != null) {
+						eob.eUnset(eob.eContainmentFeature());
+					}
+
+					final EStructuralFeature containingFeature = eob.eContainingFeature();
+					if (containingFeature.isMany()) {
+						((Collection<EObject>)container.eGet(containingFeature)).remove(eob);
+					} else {
+						container.eUnset(containingFeature);
+					}
+				}
+			}
+		}
+
+		protected void handle(final HawkModelElementAdditionEvent ev) {
+			final Registry registry = getResourceSet().getPackageRegistry();
+			final EClass eClass = getEClass(ev.metamodelURI, ev.typeName, registry);
+			final EFactory factory = registry.getEFactory(ev.metamodelURI);
+
+			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
+				final EObject eob = factory.create(eClass);
+				nodeIdToEObjectMap.put(ev.id, eob);
+				getContents().add(eob);
+			}
+		}
+
+		protected void handle(final HawkAttributeRemovalEvent ev) {
+			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
+			if (eob != null) {
+				final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
+
+				if (eAttr != null) {
+					eob.eUnset(eAttr);
+				}
+			}
+		}
+
+		protected void handle(final HawkAttributeUpdateEvent ev)
+				throws IOException {
+			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
+			if (eob != null) {
+				final EClass eClass = eob.eClass();
+				final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
+				SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
+			}
+		}
+	}
 
 	/**
 	 * Internal state used only while loading a tree of {@link ModelElement}s. It's
@@ -96,7 +258,9 @@ public class HawkResourceImpl extends ResourceImpl {
 	private Client client;
 
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
-	private LazyEStore lazyEStore;
+	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
+	private LazyResolver lazyResolver;
+	private Consumer subscriber;
 
 	public HawkResourceImpl() {
 	}
@@ -122,33 +286,73 @@ public class HawkResourceImpl extends ResourceImpl {
 		return descriptor;
 	}
 
+	/**
+	 * Reports whether an object has children or not. In lazy modes, uses the LazyResolver to
+	 * answer this question without hitting the network.
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean hasChildren(EObject o) {
+		for (EReference r : o.eClass().getEAllReferences()) {
+			if (r.isContainment()) {
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)o, r)) {
+					// we assume that pending references always have at least one ID
+					return true;
+				}
+				Object v = o.eGet(r);
+				if (r.isMany() && !((Collection<EObject>)v).isEmpty() || !r.isMany() && v != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public void doLoad(HawkModelDescriptor descriptor) throws IOException {
 		try {
 			this.descriptor = descriptor;
-			this.client = APIUtils.connectToHawk(descriptor.getHawkURL());
-	
+			this.client = APIUtils.connectToHawk(descriptor.getHawkURL(), descriptor.getThriftProtocol());
+
+			// TODO allow for multiple repositories
 			final LoadingMode mode = descriptor.getLoadingMode();
 			List<ModelElement> elems;
 			if (mode.isGreedyElements()) {
+				// We need node IDs if attributes are lazy or if we're subscribing to remote changes
 				elems = client.getModel(descriptor.getHawkInstance(),
-					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true, !mode.isGreedyAttributes());
+					Arrays.asList(descriptor.getHawkRepository()),
+					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(),
+					true, !mode.isGreedyAttributes() || descriptor.isSubscribed());
 			} else {
 				elems = client.getRootElements(descriptor.getHawkInstance(),
-						descriptor.getHawkRepository(),
+						Arrays.asList(descriptor.getHawkRepository()),
 						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
 			}
-	
+
 			final TreeLoadingState state = new TreeLoadingState();
 			final List<EObject> rootEObjects = createEObjectTree(elems, state);
 			getContents().addAll(rootEObjects);
 			fillInReferences(elems, state);
+
+			if (descriptor.isSubscribed()) {
+				final SubscriptionDurability sd = descriptor.getSubscriptionDurability();
+
+				Subscription subscription = client.watchModelChanges(
+					descriptor.getHawkInstance(),
+					descriptor.getHawkRepository(),
+					Arrays.asList(descriptor.getHawkFilePatterns()),
+					descriptor.getSubscriptionClientID(), sd);
+
+				subscriber = APIUtils.connectToArtemis(subscription, sd);
+				subscriber.openSession();
+				subscriber.processChangesAsync(new ModelSubscriberHandler());
+			}
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw new IOException(e);
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw e;
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -162,7 +366,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				toBeFetched.add(id);
 			}
 		}
-	
+
 		// Fetch the eObjects, decode them and resolve references
 		if (!toBeFetched.isEmpty()) {
 			List<ModelElement> elems = client.resolveProxies(
@@ -191,11 +395,12 @@ public class HawkResourceImpl extends ResourceImpl {
 			LOGGER.warn("While retrieving attributes, resolveProxies returned an empty list");
 		} else {
 			final ModelElement me = elems.get(0);
+			final EFactory eFactory = getResourceSet().getPackageRegistry().getEFactory(me.getMetamodelUri());
 			final EClass eClass = getEClass(
 					me.getMetamodelUri(), me.getTypeName(),
 					getResourceSet().getPackageRegistry());
 			for (AttributeSlot s : me.attributes) {
-				SlotDecodingUtils.setFromSlot(eClass, object, s);
+				SlotDecodingUtils.setFromSlot(eFactory, eClass, object, s);
 			}
 		}
 	}
@@ -204,13 +409,11 @@ public class HawkResourceImpl extends ResourceImpl {
 		final Registry registry = getResourceSet().getPackageRegistry();
 		final EClass eClass = getEClass(me.metamodelUri, me.typeName, registry);
 
+		final EFactory factory = registry.getEFactory(me.metamodelUri);
 		final LoadingMode mode = descriptor.getLoadingMode();
-		EObject obj;
-		if (mode.isGreedyAttributes() && mode.isGreedyElements()) {
-			final EFactory factory = registry.getEFactory(me.metamodelUri);
-			obj = factory.create(eClass);
-		} else {
-			obj = new DynamicEStoreEObjectImpl(eClass, getLazyStore());
+		EObject obj = factory.create(eClass);
+		if (!mode.isGreedyAttributes() || !mode.isGreedyElements()) {
+			obj = createLazyLoadingInstance(eClass, obj.getClass());
 		}
 
 		if (me.isSetId()) {
@@ -219,13 +422,76 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		if (me.isSetAttributes()) {
 			for (AttributeSlot s : me.attributes) {
-				SlotDecodingUtils.setFromSlot(eClass, obj, s);
+				SlotDecodingUtils.setFromSlot(factory, eClass, obj, s);
 			}
 		} else if (!mode.isGreedyAttributes()) {
-			getLazyStore().addLazyAttributes(me.id, obj);
+			getLazyResolver().addLazyAttributes(me.id, obj);
 		}
 
 		return obj;
+	}
+
+	private EObject createLazyLoadingInstance(EClass eClass, Class<?> klass) {
+		/*
+		 * We need to create a proxy to intercept eGet calls for lazy loading,
+		 * but we need to use a subclass of the *real* implementation, or we'll
+		 * have all kinds of issues with static metamodels (e.g. not using
+		 * DynamicEObjectImpl).
+		 */
+		if (factories == null) {
+			factories = new HashMap<>();
+		}
+
+		net.sf.cglib.proxy.Factory factory = factories.get(klass);
+		EObject o;
+		if (factory == null) {
+			Enhancer enh = new Enhancer();
+			CallbackHelper helper = new CallbackHelper(klass, new Class[0]) {
+				@Override
+				protected Object getCallback(Method m) {
+					if ("eGet".equals(m.getName())
+							&& m.getParameterTypes().length > 0
+							&& EStructuralFeature.class.isAssignableFrom(m.getParameterTypes()[0])) {
+						return getLazyResolver().getMethodInterceptor();
+					} else {
+						return NoOp.INSTANCE;
+					}
+				}
+			};
+			enh.setSuperclass(klass);
+
+			/*
+			 * We need both classloaders: the classloader of the class to be
+			 * enhanced, and the classloader of this plugin (which includes
+			 * CGLIB). We want the CGLIB classes to always resolve to the same
+			 * Class objects, so this plugin's classloader *has* to go first.
+			 */
+			enh.setClassLoader(new BridgeClassLoader(
+				this.getClass().getClassLoader(),
+				klass.getClassLoader()));
+
+			/*
+			 * The objects created by the Enhancer implicitly implement the
+			 * CGLIB Factory interface as well. According to CGLIB, going
+			 * through the Factory is faster than recreating or reusing the
+			 * Enhancer.
+			 */
+			enh.setCallbackFilter(helper);
+			enh.setCallbacks(helper.getCallbacks());
+			o = (EObject)enh.create();
+			factories.put(klass, (net.sf.cglib.proxy.Factory)o);
+		} else {
+			o = (EObject) factory.newInstance(factory.getCallbacks());
+		}
+
+		/*
+		 * A newly created and instrumented DynamicEObjectImpl won't have the
+		 * eClass set. We need to redo that here.
+		 */
+		if (o instanceof DynamicEObjectImpl) {
+			((DynamicEObjectImpl)o).eSetClass(eClass);
+		}
+		return o;
 	}
 
 	private List<EObject> createEObjectTree(final List<ModelElement> elems, final TreeLoadingState state) throws IOException {
@@ -295,40 +561,48 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	private void fillInReference(final EObject sourceObj, final ReferenceSlot s, final EReference feature, final TreeLoadingState state) {
+		if (!feature.isChangeable() || feature.isDerived() && !(sourceObj instanceof DynamicEStoreEObjectImpl)) {
+			// we don't set unchangeable features, and we don't derived references on real objects
+			return;
+		}
+
 		final boolean greedyElements = descriptor.getLoadingMode().isGreedyElements();
+
+		// This variable will be set to a non-null value if we need to call eSet
+		EList<Object> eSetValues = null;
+
 		if (s.isSetId()) {
 			if (greedyElements) {
-				sourceObj.eSet(feature, nodeIdToEObjectMap.get(s.id));
+				eSetValues = createEList(nodeIdToEObjectMap.get(s.id));
 			} else {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().addLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else if (s.isSetIds()) {
-			final EList<Object> value = new BasicEList<>();
 			if (greedyElements) {
+				eSetValues = createEList();
 				for (String targetId : s.ids) {
-					value.add(nodeIdToEObjectMap.get(targetId));
+					eSetValues.add(nodeIdToEObjectMap.get(targetId));
 				}
-				sourceObj.eSet(feature, value);
 			} else {
-				value.addAll(s.ids);
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				final EList<Object> lazyIds = new BasicEList<>();
+				lazyIds.addAll(s.ids);
+				getLazyResolver().addLazyReferences(sourceObj, feature, lazyIds);
 			}
 		}
 		else if (s.isSetPosition()) {
-			sourceObj.eSet(feature, state.allEObjects.get(s.position));
+			eSetValues = createEList(state.allEObjects.get(s.position));
 		}
 		else if (s.isSetPositions()) {
-			final EList<EObject> value = new BasicEList<>();
+			eSetValues = createEList();
 			for (Integer position : s.positions) {
-				value.add(state.allEObjects.get(position));
+				eSetValues.add(state.allEObjects.get(position));
 			}
-			sourceObj.eSet(feature, value);
 		}
 		else if (s.isSetMixed()) {
-			final EList<Object> value = new BasicEList<>();
+			final EList<Object> value = createEList();
 
 			for (MixedReference mixed : s.mixed) {
 				if (mixed.isSetId()) {
@@ -346,21 +620,35 @@ public class HawkResourceImpl extends ResourceImpl {
 				}
 			}
 			if (greedyElements) {
-				sourceObj.eSet(feature, value);
+				eSetValues = value;
 			} else {
-				getLazyStore().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().addLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else {
 			LOGGER.warn("No known reference field was set in {}", s);
 		}
+
+		if (eSetValues != null) {
+			if (feature.isMany()) {
+				sourceObj.eSet(feature, eSetValues);
+			} else if (!eSetValues.isEmpty()) {
+				sourceObj.eSet(feature, eSetValues.get(0));
+			}
+		}
 	}
 
-	private LazyEStore getLazyStore() {
-		if (lazyEStore == null) {
-			lazyEStore = new LazyEStore(this);
+	private EList<Object> createEList(final EObject... objects) {
+		EList<Object> values = new BasicEList<Object>();
+		values.addAll(Arrays.asList(objects));
+		return values;
+	}
+
+	private LazyResolver getLazyResolver() {
+		if (lazyResolver == null) {
+			lazyResolver = new LazyResolver(this);
 		}
-		return lazyEStore;
+		return lazyResolver;
 	}
 
 	@Override
@@ -368,6 +656,20 @@ public class HawkResourceImpl extends ResourceImpl {
 		HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.load(inputStream);
 		doLoad(descriptor);
+	}
+
+	@Override
+	protected void doUnload() {
+		// TODO: why isn't this called when we close the Ecore editor?
+		super.doUnload();
+		if (subscriber != null) {
+			try {
+				subscriber.closeSession();
+			} catch (ActiveMQException e) {
+				LOGGER.error("Could not close the subscriber session", e);
+			}
+			subscriber = null;
+		}
 	}
 
 	@Override

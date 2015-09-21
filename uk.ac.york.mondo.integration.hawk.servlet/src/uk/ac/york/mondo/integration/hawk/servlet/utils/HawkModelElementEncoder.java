@@ -8,10 +8,11 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.servlet;
+package uk.ac.york.mondo.integration.hawk.servlet.utils;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -319,7 +320,7 @@ public class HawkModelElementEncoder {
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
 				// to save bandwidth, we do not send unset attributes
 				if (attr.getValue() == null) continue;
-				me.addToAttributes(encodeAttributeSlot(attr));
+				me.addToAttributes(encodeAttributeSlot(attr.getKey(), attr.getValue()));
 			}
 		}
 		if (isIncludeReferences()) {
@@ -393,65 +394,62 @@ public class HawkModelElementEncoder {
 		s.addToIds(meNode.getId());
 	}
 
-	private AttributeSlot encodeAttributeSlot(Entry<String, Object> slotEntry) {
-		assert slotEntry.getValue() != null;
-	
-		AttributeSlot s = new AttributeSlot();
-		s.name = slotEntry.getKey();
-	
-		final Object value = slotEntry.getValue();
-		s.value = new Variant();
+	public static AttributeSlot encodeAttributeSlot(final String name, Object rawValue) {
+		assert rawValue != null;
 
-		if (value instanceof Collection) {
-			final Collection<?> cValue = (Collection<?>) value;
+		// TODO encode arrays as well
+		Variant value = new Variant();
+		if (rawValue instanceof Object[]) {
+			rawValue = Arrays.asList((Object[])rawValue);
+		}
+		if (rawValue instanceof Collection) {
+			final Collection<?> cValue = (Collection<?>) rawValue;
 			final int cSize = cValue.size();
 			if (cSize == 1) {
 				// use the single value attrs if we only have one value (saves
 				// 1-5 bytes on TTupleTransport)
-				encodeSingleValueAttributeSlot(s, cValue.iterator().next());
+				encodeSingleValueAttributeSlot(value, cValue.iterator().next());
 			} else if (cSize > 0) {
-				s.value = new Variant();
-				encodeNonEmptyListAttributeSlot(s, value, cValue);
+				value = new Variant();
+				encodeNonEmptyListAttributeSlot(value, rawValue, cValue);
 			} else {
 				// empty list <-> isSet=true and s.values=null
-				s.value = null;
+				value = null;
 			}
 		} else {
-			encodeSingleValueAttributeSlot(s, value);
+			encodeSingleValueAttributeSlot(value, rawValue);
 		}
 
-		if (!s.value.isSet()) {
+		if (value != null && !value.isSet()) {
 			throw new IllegalArgumentException(String.format(
-					"Unsupported value type '%s'", value.getClass()
+					"Unsupported value type '%s'", rawValue.getClass()
 							.getName()));
 		}
-
-		assert s.value.getFieldValue() != null : "The union field should have a value";
-		return s;
+		return new AttributeSlot(name, value);
 	}
 
-	private void encodeSingleValueAttributeSlot(AttributeSlot s, final Object value) {
-		if (value instanceof Byte) {
-			s.value.setVByte((byte) value);
-		} else if (value instanceof Float) {
-			s.value.setVDouble((double) value);
-		} else if (value instanceof Double) {
-			s.value.setVDouble((double) value);
-		} else if (value instanceof Integer) {
-			s.value.setVInteger((int) value);
-		} else if (value instanceof Long) {
-			s.value.setVLong((long) value);
-		} else if (value instanceof Short) {
-			s.value.setVShort((short) value);
-		} else if (value instanceof String) {
-			s.value.setVString((String) value);
-		} else if (value instanceof Boolean) {
-			s.value.setVBoolean((Boolean) value);
+	private static void encodeSingleValueAttributeSlot(Variant value, final Object rawValue) {
+		if (rawValue instanceof Byte) {
+			value.setVByte((byte) rawValue);
+		} else if (rawValue instanceof Float) {
+			value.setVDouble((double) rawValue);
+		} else if (rawValue instanceof Double) {
+			value.setVDouble((double) rawValue);
+		} else if (rawValue instanceof Integer) {
+			value.setVInteger((int) rawValue);
+		} else if (rawValue instanceof Long) {
+			value.setVLong((long) rawValue);
+		} else if (rawValue instanceof Short) {
+			value.setVShort((short) rawValue);
+		} else if (rawValue instanceof String) {
+			value.setVString((String) rawValue);
+		} else if (rawValue instanceof Boolean) {
+			value.setVBoolean((Boolean) rawValue);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void encodeNonEmptyListAttributeSlot(AttributeSlot s, final Object value, final Collection<?> cValue) {
+	private static void encodeNonEmptyListAttributeSlot(Variant value, final Object rawValue, final Collection<?> cValue) {
 		final Iterator<?> it = cValue.iterator();
 		final Object o = it.next();
 		if (o instanceof Byte) {
@@ -461,28 +459,28 @@ public class HawkModelElementEncoder {
 				bbuf.put((byte)it.next());
 			}
 			bbuf.flip();
-			s.value.setVBytes(bbuf);
+			value.setVBytes(bbuf);
 		} else if (o instanceof Float) {
 			final ArrayList<Double> l = new ArrayList<Double>(cValue.size());
 			l.add((double)o);
 			while (it.hasNext()) {
 				l.add((double)it.next());
 			}
-			s.value.setVDoubles(l);
+			value.setVDoubles(l);
 		} else if (o instanceof Double) {
-			s.value.setVDoubles(new ArrayList<Double>((Collection<Double>)cValue));
+			value.setVDoubles(new ArrayList<Double>((Collection<Double>)cValue));
 		} else if (o instanceof Integer) {
-			s.value.setVIntegers(new ArrayList<Integer>((Collection<Integer>)cValue));
+			value.setVIntegers(new ArrayList<Integer>((Collection<Integer>)cValue));
 		} else if (o instanceof Long) {
-			s.value.setVLongs(new ArrayList<Long>((Collection<Long>)cValue));
+			value.setVLongs(new ArrayList<Long>((Collection<Long>)cValue));
 		} else if (o instanceof Short) {
-			s.value.setVShorts(new ArrayList<Short>((Collection<Short>)cValue));
+			value.setVShorts(new ArrayList<Short>((Collection<Short>)cValue));
 		} else if (o instanceof String) {
-			s.value.setVStrings(new ArrayList<String>((Collection<String>)cValue));
+			value.setVStrings(new ArrayList<String>((Collection<String>)cValue));
 		} else if (o instanceof Boolean) {
-			s.value.setVBooleans(new ArrayList<Boolean>((Collection<Boolean>)cValue));
+			value.setVBooleans(new ArrayList<Boolean>((Collection<Boolean>)cValue));
 		} else if (o != null) {
-			throw new IllegalArgumentException(String.format("Unsupported element type '%s'", value.getClass().getName()));
+			throw new IllegalArgumentException(String.format("Unsupported element type '%s'", rawValue.getClass().getName()));
 		} else {
 			throw new IllegalArgumentException("Null values inside collections are not allowed");
 		}
