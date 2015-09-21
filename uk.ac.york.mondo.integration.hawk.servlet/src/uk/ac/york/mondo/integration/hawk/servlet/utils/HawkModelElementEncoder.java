@@ -12,6 +12,7 @@ package uk.ac.york.mondo.integration.hawk.servlet.utils;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -393,10 +394,14 @@ public class HawkModelElementEncoder {
 		s.addToIds(meNode.getId());
 	}
 
-	public static AttributeSlot encodeAttributeSlot(final String name, final Object rawValue) {
+	public static AttributeSlot encodeAttributeSlot(final String name, Object rawValue) {
 		assert rawValue != null;
 
+		// TODO encode arrays as well
 		Variant value = new Variant();
+		if (rawValue instanceof Object[]) {
+			rawValue = Arrays.asList((Object[])rawValue);
+		}
 		if (rawValue instanceof Collection) {
 			final Collection<?> cValue = (Collection<?>) rawValue;
 			final int cSize = cValue.size();
