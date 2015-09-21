@@ -12,5 +12,12 @@
    <feature url="features/uk.ac.york.mondo.integration.hawk.remote.thrift.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature" version="1.0.0.qualifier">
       <category name="hawk"/>
    </feature>
+   <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier">
+      <category name="cloudatl"/>
+   </feature>
+   <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature" version="0.0.0.qualifier">
+      <category name="cloudatl"/>
+   </feature>
    <category-def name="hawk" label="Hawk"/>
+   <category-def name="cloudatl" label="CloudATL"/>
 </site>
