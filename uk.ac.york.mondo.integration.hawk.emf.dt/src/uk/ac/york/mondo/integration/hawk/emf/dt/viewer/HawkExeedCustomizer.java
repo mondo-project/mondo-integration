@@ -32,6 +32,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl;
 
 public class HawkExeedCustomizer implements IExeedCustomizer {
@@ -109,6 +110,16 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 	public Collection<IAction> generateCreateChildActions(
 			Collection<?> descriptors, ISelection selection) {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean isEnabledFor(Resource r) {
+		if (r instanceof HawkResourceImpl) {
+			final HawkResourceImpl hawkResource = (HawkResourceImpl)r;
+			final LoadingMode loadingMode = hawkResource.getDescriptor().getLoadingMode();
+			return !loadingMode.isGreedyElements();
+		}
+		return false;
 	}
 
 }
