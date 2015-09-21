@@ -51,43 +51,17 @@ CloudATL_launch_args.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.LIST) {
-        var _size328 = 0;
-        var _rtmp3332;
-        this.source = [];
-        var _etype331 = 0;
-        _rtmp3332 = input.readListBegin();
-        _etype331 = _rtmp3332.etype;
-        _size328 = _rtmp3332.size;
-        for (var _i333 = 0; _i333 < _size328; ++_i333)
-        {
-          var elem334 = null;
-          elem334 = new ModelSpec();
-          elem334.read(input);
-          this.source.push(elem334);
-        }
-        input.readListEnd();
+      if (ftype == Thrift.Type.STRUCT) {
+        this.source = new ModelSpec();
+        this.source.read(input);
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.LIST) {
-        var _size335 = 0;
-        var _rtmp3339;
-        this.target = [];
-        var _etype338 = 0;
-        _rtmp3339 = input.readListBegin();
-        _etype338 = _rtmp3339.etype;
-        _size335 = _rtmp3339.size;
-        for (var _i340 = 0; _i340 < _size335; ++_i340)
-        {
-          var elem341 = null;
-          elem341 = new ModelSpec();
-          elem341.read(input);
-          this.target.push(elem341);
-        }
-        input.readListEnd();
+      if (ftype == Thrift.Type.STRUCT) {
+        this.target = new ModelSpec();
+        this.target.read(input);
       } else {
         input.skip(ftype);
       }
@@ -109,31 +83,13 @@ CloudATL_launch_args.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.source !== null && this.source !== undefined) {
-    output.writeFieldBegin('source', Thrift.Type.LIST, 2);
-    output.writeListBegin(Thrift.Type.STRUCT, this.source.length);
-    for (var iter342 in this.source)
-    {
-      if (this.source.hasOwnProperty(iter342))
-      {
-        iter342 = this.source[iter342];
-        iter342.write(output);
-      }
-    }
-    output.writeListEnd();
+    output.writeFieldBegin('source', Thrift.Type.STRUCT, 2);
+    this.source.write(output);
     output.writeFieldEnd();
   }
   if (this.target !== null && this.target !== undefined) {
-    output.writeFieldBegin('target', Thrift.Type.LIST, 3);
-    output.writeListBegin(Thrift.Type.STRUCT, this.target.length);
-    for (var iter343 in this.target)
-    {
-      if (this.target.hasOwnProperty(iter343))
-      {
-        iter343 = this.target[iter343];
-        iter343.write(output);
-      }
-    }
-    output.writeListEnd();
+    output.writeFieldBegin('target', Thrift.Type.STRUCT, 3);
+    this.target.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -285,18 +241,18 @@ CloudATL_getJobs_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size344 = 0;
-        var _rtmp3348;
+        var _size328 = 0;
+        var _rtmp3332;
         this.success = [];
-        var _etype347 = 0;
-        _rtmp3348 = input.readListBegin();
-        _etype347 = _rtmp3348.etype;
-        _size344 = _rtmp3348.size;
-        for (var _i349 = 0; _i349 < _size344; ++_i349)
+        var _etype331 = 0;
+        _rtmp3332 = input.readListBegin();
+        _etype331 = _rtmp3332.etype;
+        _size328 = _rtmp3332.size;
+        for (var _i333 = 0; _i333 < _size328; ++_i333)
         {
-          var elem350 = null;
-          elem350 = input.readString().value;
-          this.success.push(elem350);
+          var elem334 = null;
+          elem334 = input.readString().value;
+          this.success.push(elem334);
         }
         input.readListEnd();
       } else {
@@ -320,12 +276,12 @@ CloudATL_getJobs_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter351 in this.success)
+    for (var iter335 in this.success)
     {
-      if (this.success.hasOwnProperty(iter351))
+      if (this.success.hasOwnProperty(iter335))
       {
-        iter351 = this.success[iter351];
-        output.writeString(iter351);
+        iter335 = this.success[iter335];
+        output.writeString(iter335);
       }
     }
     output.writeListEnd();
