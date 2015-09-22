@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Atlanmod.
+ * Copyright (c) 2015 Atlanmod, University of York.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *    Abel Gómez - initial API and implementation
+ *    Antonio Garcia-Dominguez - remove dummy implementation,
+ *                               use new API to add files to the distributed cache
  *******************************************************************************/
 package fr.inria.atlanmod.mondo.integration.cloudatl.servlet;
 
@@ -23,9 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,18 +53,18 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.osgi.framework.Bundle;
 
-import fr.inria.atlanmod.atl_mr.ATLMRMapper;
-import fr.inria.atlanmod.atl_mr.ATLMRMaster;
-import fr.inria.atlanmod.atl_mr.ATLMRReducer;
-import fr.inria.atlanmod.atl_mr.builder.RecordBuilder;
-import fr.inria.atlanmod.atl_mr.builder.RecordBuilder.Builder;
-import fr.inria.atlanmod.atl_mr.utils.ATLMRUtils;
 import uk.ac.york.mondo.integration.api.CloudATL;
 import uk.ac.york.mondo.integration.api.InvalidModelSpec;
 import uk.ac.york.mondo.integration.api.InvalidTransformation;
 import uk.ac.york.mondo.integration.api.ModelSpec;
 import uk.ac.york.mondo.integration.api.TransformationStatus;
 import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
+import fr.inria.atlanmod.atl_mr.ATLMRMapper;
+import fr.inria.atlanmod.atl_mr.ATLMRMaster;
+import fr.inria.atlanmod.atl_mr.ATLMRReducer;
+import fr.inria.atlanmod.atl_mr.builder.RecordBuilder;
+import fr.inria.atlanmod.atl_mr.builder.RecordBuilder.Builder;
+import fr.inria.atlanmod.atl_mr.utils.ATLMRUtils;
 
 /**
  * Entry point to the Cloud-based ATL engine. This servlet exposes a
@@ -76,87 +76,10 @@ import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
 public class CloudAtlThriftServlet extends TServlet {
 
 	/**
-	 * Dummy implementation of the class controlling the CloudATL cluster
-	 * 
-	 * @author agomez
-	 *
-	 */
-	private static class DummyIface implements CloudATL.Iface {
-
-		@SuppressWarnings("unused")
-		private class TransformationInformation {
-			private String transformation;
-			private ModelSpec source;
-			private ModelSpec target;
-			private TransformationStatus status;
-		}
-
-		/**
-		 * Transient {@link Map} that mimics the behavior of a Job Registry
-		 */
-		private Map<String, TransformationInformation> transformations = new ConcurrentHashMap<>();
-
-		@Override
-		public String launch(String transformation, ModelSpec source, ModelSpec target) throws InvalidTransformation, InvalidModelSpec, TException {
-			String id = UUID.randomUUID().toString();
-
-			TransformationInformation information = new TransformationInformation();
-
-			information.transformation = transformation;
-			information.source = source;
-			information.target = target;
-
-			information.status = new TransformationStatus();
-			information.status.setElapsed(0);
-			information.status.setFinished(false);
-			information.status.setError("");
-
-			transformations.put(id, information);
-
-			return id;
-		}
-
-		@Override
-		public List<String> getJobs() throws TException {
-			List<String> ids = new ArrayList<String>();
-			ids.addAll(transformations.keySet());
-			return ids;
-		}
-
-		@Override
-		public TransformationStatus getStatus(String token) throws TransformationTokenNotFound, TException {
-			return getTransformationInformation(token).status;
-		}
-
-		@Override
-		public void kill(String token) throws TransformationTokenNotFound, TException {
-			getTransformationInformation(token).status.finished = true;
-		}
-
-		/**
-		 * Returns the {@link TransformationInformation}
-		 * 
-		 * @param token
-		 *            The transformation Id
-		 * @return
-		 * @throws TransformationTokenNotFound
-		 *             Transformation id not found
-		 */
-		private TransformationInformation getTransformationInformation(String token) throws TransformationTokenNotFound {
-			TransformationInformation information = transformations.get(token);
-			if (information != null) {
-				return information;
-			}
-			throw new TransformationTokenNotFound(token);
-		}
-	}
-
-	/**
 	 * {@link CloudATL.Iface} implementation for controlling a real CloudATL
 	 * cluster running on top of Hadoop
 	 * 
 	 * @author agomez
-	 *
 	 */
 	@SuppressWarnings("unused")
 	private static class CloudATLIface implements CloudATL.Iface {
@@ -172,7 +95,6 @@ public class CloudAtlThriftServlet extends TServlet {
 		public String launch(String transformation, ModelSpec source, ModelSpec target) throws InvalidTransformation, InvalidModelSpec, TException {
 
 			try {
-				
 				Job job = Job.getInstance(getConfiguration(), ATLMRMaster.DEFAULT_JOB_NAME);
 				
 				Configuration conf = job.getConfiguration();
@@ -228,7 +150,7 @@ public class CloudAtlThriftServlet extends TServlet {
 				
 				// TODO: This JobHelper needs to be updated to the new API
 				JobHelper.copyLocalJarsToHdfs(localJarsDir, hdfsJarsDir, conf);
-				JobHelper.addHdfsJarsToDistributedCache(hdfsJarsDir, configuration);
+				JobHelper.addHdfsJarsToDistributedCache(hdfsJarsDir, job);
 				
 				Logger.getGlobal().log(Level.INFO, "Sending Job");
 				job.submit();

@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Job;
 
 public class JobHelper {
     private static final Logger logger = Logger.getLogger(JobHelper.class.getCanonicalName());
@@ -60,18 +60,17 @@ public class JobHelper {
         return jarFiles;
     }
 
-    public static void addHdfsJarsToDistributedCache(String hdfsJarsDir, Configuration configuration) throws IOException {
+    public static void addHdfsJarsToDistributedCache(String hdfsJarsDir, Job job) throws IOException {
         checkRequiredArgument(hdfsJarsDir, "HDFS JARs dir is null");
-        checkRequiredArgument(configuration, "Configuration is null");
+        checkRequiredArgument(job, "Job is null");
 
-        Set<Path> jarPaths = collectJarPathsOnHdfs(hdfsJarsDir, configuration);
+        Set<Path> jarPaths = collectJarPathsOnHdfs(hdfsJarsDir, job.getConfiguration());
         if (!jarPaths.isEmpty()) {
             logger.info(MessageFormat.format("Adding following JARs to distributed cache: {0}", jarPaths));
             System.setProperty("path.separator", ":"); // due to https://issues.apache.org/jira/browse/HADOOP-9123
 
             for (Path jarPath : jarPaths) {
-                FileSystem jarPathFileSystem = jarPath.getFileSystem(configuration);
-                DistributedCache.addFileToClassPath(jarPath, configuration, jarPathFileSystem);
+                job.addFileToClassPath(jarPath);
             }
         }
     }
