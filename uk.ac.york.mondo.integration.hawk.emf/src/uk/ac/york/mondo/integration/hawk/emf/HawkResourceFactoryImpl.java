@@ -10,11 +10,14 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
@@ -24,6 +27,15 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 public class HawkResourceFactoryImpl implements Factory {
+
+	private static final String URLPARAM_CLIENTID = "clientID";
+	private static final String URLPARAM_DURABILITY = "durability";
+	private static final String URLPARAM_SUBSCRIBE = "subscribe";
+	private static final String URLPARAM_LOADING_MODE = "loadingMode";
+	private static final String URLPARAM_REPOSITORY = "repository";
+	private static final String URLPARAM_THRIFT_PROTOCOL = "tprotocol";
+	private static final String URLPARAM_FILE_PATTERNS = "filePatterns";
+	private static final String URLPARAM_INSTANCE = "instance";
 
 	public HawkResourceFactoryImpl() {
 		// TODO get credentials from Eclipse preferences?
@@ -39,7 +51,52 @@ public class HawkResourceFactoryImpl implements Factory {
 		}
 	}
 
-	private HawkModelDescriptor parseHawkURL(URI uri) {
+	/**
+	 * From a {@link HawkModelDescriptor}, this method produces a string
+	 * representation of an URI that can be used to load a model indexed by Hawk
+	 * without a <code>.hawkmodel</code> file. If
+	 * <code>removeDefaultValues</code> is true, the fields with default values
+	 * will not be put in the URL. This may not work correctly if the server and
+	 * the client have different default values, but it produces much shorter
+	 * URLs most of the time.
+	 */
+	public static String generateHawkURL(HawkModelDescriptor d, boolean removeDefaultValues) throws UnsupportedEncodingException {
+		final List<NameValuePair> params = new ArrayList<>();
+		addParameter(params, URLPARAM_INSTANCE,
+				d.getHawkInstance(), HawkModelDescriptor.DEFAULT_INSTANCE, removeDefaultValues);
+		addParameter(params, URLPARAM_FILE_PATTERNS,
+				join(d.getHawkFilePatterns(), ","), HawkModelDescriptor.DEFAULT_FILES, removeDefaultValues);
+		addParameter(params, URLPARAM_THRIFT_PROTOCOL,
+				d.getThriftProtocol().name().toUpperCase(), HawkModelDescriptor.DEFAULT_TPROTOCOL.name().toUpperCase(), removeDefaultValues);
+		addParameter(params, URLPARAM_REPOSITORY,
+				d.getHawkRepository(), HawkModelDescriptor.DEFAULT_REPOSITORY, removeDefaultValues);
+		addParameter(params, URLPARAM_LOADING_MODE,
+				d.getLoadingMode().name().toUpperCase(), HawkModelDescriptor.DEFAULT_LOADING_MODE.name().toUpperCase(), removeDefaultValues);
+
+		addParameter(params, URLPARAM_SUBSCRIBE,
+				d.isSubscribed() + "", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED + "", removeDefaultValues);
+		if (d.isSubscribed()) {
+			addParameter(params, URLPARAM_DURABILITY,
+				d.getSubscriptionDurability().name().toUpperCase(), HawkModelDescriptor.DEFAULT_DURABILITY.name().toUpperCase(), removeDefaultValues);
+			addParameter(params, URLPARAM_CLIENTID,
+				d.getSubscriptionClientID(), null, removeDefaultValues);
+		}
+
+		final StringBuffer url = new StringBuffer("hawk+");
+		url.append(d.getHawkURL());
+		url.append("?");
+		url.append(URLEncodedUtils.format(params, Charset.forName("UTF-8")));
+		return url.toString();
+	}
+
+	protected static void addParameter(final List<NameValuePair> params, final String key, final String value, final String defaultValue,
+			boolean ignoreDefaultValue) {
+		if (!ignoreDefaultValue || defaultValue == null || !defaultValue.equals(value)) {
+			params.add(new BasicNameValuePair(key, value));
+		}
+	}
+
+	private static HawkModelDescriptor parseHawkURL(URI uri) {
 		// construct HawkModelDescriptor from URI on the fly
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		final String instanceURL = uri.trimQuery().toString().replaceFirst("hawk[+]",  "");
@@ -49,29 +106,44 @@ public class HawkResourceFactoryImpl implements Factory {
 		for (NameValuePair pair : pairs) {
 			final String v = pair.getValue();
 			switch (pair.getName()) {
-			case "instance":
+			case URLPARAM_INSTANCE:
 				descriptor.setHawkInstance(v); break;
-			case "filePatterns":
+			case URLPARAM_FILE_PATTERNS:
 				descriptor.setHawkFilePatterns(v.split(",")); break;
-			case "tprotocol":
+			case URLPARAM_THRIFT_PROTOCOL:
 				descriptor.setThriftProtocol(ThriftProtocol.valueOf(v.toUpperCase())); break;
-			case "repository":
+			case URLPARAM_REPOSITORY:
 				descriptor.setHawkRepository(v); break;
-			case "loadingMode":
+			case URLPARAM_LOADING_MODE:
 				descriptor.setLoadingMode(LoadingMode.valueOf(v.toUpperCase())); break;
-			case "subscribe":
+			case URLPARAM_SUBSCRIBE:
 				descriptor.setSubscribed(Boolean.valueOf(v)); break;
-			case "durability":
+			case URLPARAM_DURABILITY:
 				descriptor.setSubscriptionDurability(SubscriptionDurability.valueOf(v.toUpperCase())); break;
-			case "clientID":
+			case URLPARAM_CLIENTID:
 				descriptor.setSubscriptionClientID(v); break;
 			}
 		}
 		return descriptor;
 	}
 
-	private boolean isHawkURL(URI uri) {
+	private static boolean isHawkURL(URI uri) {
 		return uri.hasAbsolutePath() && uri.scheme() != null && uri.scheme().startsWith("hawk+");
 	}
 
+	private static String join(Object[] iterable, String delim) {
+		StringBuffer sbuf = new StringBuffer();
+		boolean first = true;
+		for (Object o : iterable) {
+			if (first) {
+				first = false;
+			} else {
+				sbuf.append(',');
+			}
+			sbuf.append(o.toString());
+		}
+		return sbuf.toString();
+	}
+
 }
+;

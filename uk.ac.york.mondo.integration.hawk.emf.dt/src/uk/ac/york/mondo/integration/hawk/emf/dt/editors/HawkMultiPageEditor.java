@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -22,6 +23,9 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -56,6 +60,7 @@ import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
+import uk.ac.york.mondo.integration.hawk.emf.HawkResourceFactoryImpl;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 
 /**
@@ -90,12 +95,30 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			formBody.setLayout(layout);
 
 			final FormText formText = toolkit.createFormText(formBody, true);
-			formText.setText("<form><p><a href=\"reopenEcore\">Open with the Ecore editor</a></p></form>", true, true);
+			formText.setText("<form><p>"
+					+ "<a href=\"reopenEcore\">Open with the Ecore editor</a> "
+					+ "<a href=\"copyShortURL\">Copy short URL to clipboard</a> "
+					+ "<a href=\"copyLongURL\">Copy long URL to clipboard</a>"
+					+ "</p></form>", true, true);
 			formText.addHyperlinkListener(new HyperlinkAdapter() {
 				@Override
 				public void linkActivated(HyperlinkEvent e) {
-					if ("reopenEcore".equals(e.getHref())) {
+					final String href = e.getHref().toString();
+					switch (href) {
+					case "reopenEcore":
 						HawkMultiPageEditorContributor.reopenWithExeed(HawkMultiPageEditor.this);
+						break;
+					case "copyLongURL":
+					case "copyShortURL":
+						try {
+							final String url = HawkResourceFactoryImpl.generateHawkURL(buildDescriptor(), "copyShortURL".equals(href));
+							final Clipboard cb = new Clipboard(getSite().getShell().getDisplay());
+							cb.setContents(new Object[]{url}, new Transfer[]{TextTransfer.getInstance()});
+							cb.dispose();
+						} catch (UnsupportedEncodingException ex) {
+							Activator.getDefault().logError(ex);
+						}
+						break;
 					}
 				}
 			});
@@ -590,6 +613,19 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	}
 
 	private void refreshRawText() {
+		final HawkModelDescriptor descriptor = buildDescriptor();
+		final StringWriter sW = new StringWriter();
+		try {
+			descriptor.save(sW);
+
+			final IDocument doc = getDocument();
+			doc.set(sW.toString());
+		} catch (IOException e) {
+			Activator.getDefault().logError(e);
+		}
+	}
+
+	protected HawkModelDescriptor buildDescriptor() {
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.setHawkURL(detailsPage.getInstanceSection().getServerURL());
 		descriptor.setHawkInstance(detailsPage.getInstanceSection().getInstanceName());
@@ -600,16 +636,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setSubscribed(detailsPage.getSubscriptionSection().isSubscribed());
 		descriptor.setSubscriptionClientID(detailsPage.getSubscriptionSection().getClientID());
 		descriptor.setSubscriptionDurability(detailsPage.getSubscriptionSection().getDurability());
-
-		final StringWriter sW = new StringWriter();
-		try {
-			descriptor.save(sW);
-
-			final IDocument doc = getDocument();
-			doc.set(sW.toString());
-		} catch (IOException e) {
-			Activator.getDefault().logError(e);
-		}
+		return descriptor;
 	}
 
 	@Override
