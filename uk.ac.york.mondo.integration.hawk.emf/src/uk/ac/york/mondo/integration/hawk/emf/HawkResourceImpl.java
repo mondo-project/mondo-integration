@@ -265,7 +265,11 @@ public class HawkResourceImpl extends ResourceImpl {
 	public HawkResourceImpl() {
 	}
 
-	public HawkResourceImpl(HawkModelDescriptor descriptor) {
+	public HawkResourceImpl(URI uri, HawkModelDescriptor descriptor) {
+		// Even if we're not only to load anything from the URI (as we have a descriptor),
+		// we still need it for proxy resolving (hawk+http URLs won't work from CloudATL
+		// otherwise: for some reason, without an URI it cannot find EString, for instance).
+		super(uri);
 		this.descriptor = descriptor;
 	}
 
@@ -276,8 +280,10 @@ public class HawkResourceImpl extends ResourceImpl {
 	@Override
 	public void load(Map<?, ?> options) throws IOException {
 		if (descriptor != null) {
+			// We already have a descriptor: no need to create an InputStream from the URI
 			doLoad(descriptor);
 		} else {
+			// Let Ecore create an InputStream from the URI and call doLoad(InputStream, Map)
 			super.load(options);
 		}
 	}

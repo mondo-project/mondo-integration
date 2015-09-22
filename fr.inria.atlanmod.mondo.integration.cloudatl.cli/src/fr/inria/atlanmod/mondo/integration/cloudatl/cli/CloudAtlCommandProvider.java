@@ -123,7 +123,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		sbuf.append("cloudAtlConnect <url> - connects to a Thrift endpoint\n\t");
 		sbuf.append("cloudAtlDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Commands--\n\t");
-		sbuf.append("cloudAtlLaunch <transformation> <source-mm> <target-mm> <input> <output> - launches an ATL transformation (all arguments are hdfs:// URIs)\n\t");
+		sbuf.append("cloudAtlLaunch <transformation> <source-mm> <target-mm> <input> <output> - launches an ATL transformation (all arguments are hdfs:// or hawk+http:// URLs)\n\t");
 		sbuf.append("cloudAtlStatus <id> - shows the status of the specified transformation job\n\t");
 		sbuf.append("cloudAtlList - lists all the transformation jobs tracked by this endpoint\n\t");
 		sbuf.append("cloudAtlKill <id> - kills the transformation identified by <id>\n\t");

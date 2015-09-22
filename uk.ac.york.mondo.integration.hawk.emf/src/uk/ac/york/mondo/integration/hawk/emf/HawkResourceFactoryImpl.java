@@ -45,7 +45,7 @@ public class HawkResourceFactoryImpl implements Factory {
 	public Resource createResource(URI uri) {
 		if (isHawkURL(uri)) {
 			final HawkModelDescriptor descriptor = parseHawkURL(uri);
-			return new HawkResourceImpl(descriptor);
+			return new HawkResourceImpl(uri, descriptor);
 		} else {
 			return new HawkResourceImpl(uri);
 		}
@@ -96,7 +96,7 @@ public class HawkResourceFactoryImpl implements Factory {
 		}
 	}
 
-	private static HawkModelDescriptor parseHawkURL(URI uri) {
+	protected HawkModelDescriptor parseHawkURL(URI uri) {
 		// construct HawkModelDescriptor from URI on the fly
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		final String instanceURL = uri.trimQuery().toString().replaceFirst("hawk[+]",  "");
@@ -127,7 +127,7 @@ public class HawkResourceFactoryImpl implements Factory {
 		return descriptor;
 	}
 
-	private static boolean isHawkURL(URI uri) {
+	protected boolean isHawkURL(URI uri) {
 		return uri.hasAbsolutePath() && uri.scheme() != null && uri.scheme().startsWith("hawk+");
 	}
 
