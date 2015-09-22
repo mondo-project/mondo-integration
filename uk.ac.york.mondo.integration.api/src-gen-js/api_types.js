@@ -1553,15 +1553,9 @@ MixedReference.prototype.write = function(output) {
 };
 
 ModelSpec = function(args) {
-  this.name = null;
   this.uri = null;
   this.metamodelUris = null;
   if (args) {
-    if (args.name !== undefined) {
-      this.name = args.name;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
-    }
     if (args.uri !== undefined) {
       this.uri = args.uri;
     } else {
@@ -1590,19 +1584,12 @@ ModelSpec.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.name = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
         this.uri = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 2:
       if (ftype == Thrift.Type.LIST) {
         var _size0 = 0;
         var _rtmp34;
@@ -1633,18 +1620,13 @@ ModelSpec.prototype.read = function(input) {
 
 ModelSpec.prototype.write = function(output) {
   output.writeStructBegin('ModelSpec');
-  if (this.name !== null && this.name !== undefined) {
-    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
-    output.writeString(this.name);
-    output.writeFieldEnd();
-  }
   if (this.uri !== null && this.uri !== undefined) {
-    output.writeFieldBegin('uri', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('uri', Thrift.Type.STRING, 1);
     output.writeString(this.uri);
     output.writeFieldEnd();
   }
   if (this.metamodelUris !== null && this.metamodelUris !== undefined) {
-    output.writeFieldBegin('metamodelUris', Thrift.Type.LIST, 3);
+    output.writeFieldBegin('metamodelUris', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRING, this.metamodelUris.length);
     for (var iter7 in this.metamodelUris)
     {

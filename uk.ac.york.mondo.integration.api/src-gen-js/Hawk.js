@@ -6115,7 +6115,7 @@ HawkClient.prototype.recv_getRootElements = function() {
   throw 'getRootElements failed: unknown result';
 };
 HawkClient.prototype.watchModelChanges = function(name, repositoryUri, filePath, clientID, durableEvents, callback) {
-  this.send_watchModelChanges(name, repositoryUri, filePath, clientID, durableEvents, callback);
+  this.send_watchModelChanges(name, repositoryUri, filePath, clientID, durableEvents, callback); 
   if (!callback) {
     return this.recv_watchModelChanges();
   }

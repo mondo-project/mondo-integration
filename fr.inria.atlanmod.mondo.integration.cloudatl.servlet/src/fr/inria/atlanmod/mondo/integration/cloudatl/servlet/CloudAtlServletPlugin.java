@@ -15,6 +15,8 @@ import org.osgi.framework.BundleContext;
 
 public class CloudAtlServletPlugin implements BundleActivator {
 
+	public static final String PLUGIN_ID = "fr.inria.atlanmod.mondo.integration.cloudatl.servlet"; 
+	
 	private static BundleContext context;
 
 	static BundleContext getContext() {

@@ -11,6 +11,7 @@
 package fr.inria.atlanmod.mondo.integration.cloudatl.cli;
 
 import java.net.ConnectException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		if (client != null) {
 			client.getInputProtocol().getTransport().close();
 			client = null;
-			return String.format("Connection closed");
+			return "Connection closed";
 		}
 		else {
 			return "Connection already closed";
@@ -58,17 +59,17 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		String input = requiredArgument(intp, "input-location");
 		String output = requiredArgument(intp, "output-location");
 		
-		ModelSpec source = new ModelSpec("input", input, Arrays.asList(new String[] { sourcemm }));
-		ModelSpec target = new ModelSpec("output", output, Arrays.asList(new String[] { targetmm }));
+		ModelSpec source = new ModelSpec(input, Arrays.asList(new String[] { sourcemm }));
+		ModelSpec target = new ModelSpec(output, Arrays.asList(new String[] { targetmm }));
 		
-		String id = client.launch(transformation, Arrays.asList(new ModelSpec[] { source }), Arrays.asList(new ModelSpec[] { target }));
-		return String.format("Launched Job with id '%s'", id);
+		String id = client.launch(transformation, source, target);
+		return MessageFormat.format("Launched Job with id ''{0}''", id);
 	}
 
 	public Object _cloudAtlList(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		List<String> ids = client.getJobs();
-		return String.format("Job ids: %s", ids.toString());
+		return MessageFormat.format("Job ids: {0}", ids.toString());
 
 	}
 
@@ -76,14 +77,14 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		checkConnected();
 		String id = requiredArgument(intp, "id");
 		TransformationStatus status = client.getStatus(id);
-		return String.format("Job id: %s, %s, elapsed time: %d", id, status.isFinished() ? "FINISHED" : "RUNNING", status.elapsed);
+		return MessageFormat.format("Job id: {0}, {1}, elapsed time: {2} ms", id, status.isFinished() ? "FINISHED" : "RUNNING", status.elapsed);
 	}
 	
 	public Object _cloudAtlKill(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		String id = requiredArgument(intp, "id");
 		client.kill(id);
-		return String.format("Killed job with id '%s'", id);
+		return MessageFormat.format("Killed job with id ''{0}''", id);
 
 	}
 	
@@ -108,7 +109,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		String value = intp.nextArgument();
 		if (value == null) {
 			throw new IllegalArgumentException(
-				String.format("Required argument '%s' has not been provided", argumentName));
+				MessageFormat.format("Required argument ''{0}'' has not been provided", argumentName));
 		}
 		return value;
 	}
@@ -122,7 +123,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		sbuf.append("cloudAtlConnect <url> - connects to a Thrift endpoint\n\t");
 		sbuf.append("cloudAtlDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Commands--\n\t");
-		sbuf.append("cloudAtlLaunch <tranformation> <source-mm> <target-mm> <input> <output> - launches an ATL transformation (all arguments are URIs to files)\n\t");
+		sbuf.append("cloudAtlLaunch <transformation> <source-mm> <target-mm> <input> <output> - launches an ATL transformation (all arguments are hdfs:// URIs)\n\t");
 		sbuf.append("cloudAtlStatus <id> - shows the status of the specified transformation job\n\t");
 		sbuf.append("cloudAtlList - lists all the transformation jobs tracked by this endpoint\n\t");
 		sbuf.append("cloudAtlKill <id> - kills the transformation identified by <id>\n\t");

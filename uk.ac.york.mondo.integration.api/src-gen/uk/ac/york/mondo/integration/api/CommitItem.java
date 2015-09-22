@@ -531,14 +531,14 @@ public class CommitItem implements org.apache.thrift.TBase<CommitItem, CommitIte
       sb.append(this.revision);
     }
     first = false;
-    if (!first) sb.append(", ");
+      if (!first) sb.append(", ");
     sb.append("path:");
     if (this.path == null) {
-      sb.append("null");
-    } else {
+        sb.append("null");
+      } else {
       sb.append(this.path);
-    }
-    first = false;
+      }
+      first = false;
     if (!first) sb.append(", ");
     sb.append("type:");
     if (this.type == null) {
@@ -662,8 +662,8 @@ public class CommitItem implements org.apache.thrift.TBase<CommitItem, CommitIte
       if (struct.path != null) {
         oprot.writeFieldBegin(PATH_FIELD_DESC);
         oprot.writeString(struct.path);
-        oprot.writeFieldEnd();
-      }
+          oprot.writeFieldEnd();
+        }
       if (struct.type != null) {
         oprot.writeFieldBegin(TYPE_FIELD_DESC);
         oprot.writeI32(struct.type.getValue());

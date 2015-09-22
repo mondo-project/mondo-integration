@@ -129,9 +129,8 @@ union MixedReference {
 }
 
 struct ModelSpec {
-	 /* The local name of the model in the transformation. */ 1: required string name,
-	 /* The URI from which the model will be loaded or to which it will be persisted. */ 2: required string uri,
-	 /* The URIs of the metamodels to which elements of the model conform. */ 3: required list<string> metamodelUris,
+	 /* The URI from which the model will be loaded or to which it will be persisted. */ 1: required string uri,
+	 /* The URIs of the metamodels to which elements of the model conform. */ 2: required list<string> metamodelUris,
 }
 
 struct OperationModel {
@@ -722,8 +721,8 @@ service CloudATL {
      			Returns a token that can be used to check the status of the transformation. Auth needed: Yes */
   string launch(
 	/* The ATL source-code of the transformation. */ 1: required string transformation,
-	/* The input models of the transformation. */ 2: required list<ModelSpec> source,
-	/* The target models of the transformation. */ 3: required list<ModelSpec> target,
+	/* The input models of the transformation. */ 2: required ModelSpec source,
+	/* The target models of the transformation. */ 3: required ModelSpec target,
   )
   throws (
 	1: InvalidTransformation err1 /* The transformation is not valid: it is unparsable or inconsistent. */ 
