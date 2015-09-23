@@ -88,25 +88,31 @@ public class HawkResourceImpl extends ResourceImpl {
 				final HawkChangeEvent change = new HawkChangeEvent();
 				try {
 					change.read(proto);
-					LOGGER.debug("Received message from Artemis: {}", change);
 
-					if (change.isSetModelElementAttributeUpdate()) {
-						handle(change.getModelElementAttributeUpdate());
-					}
-					else if (change.isSetModelElementAttributeRemoval()) {
-						handle(change.getModelElementAttributeRemoval());
-					}
-					else if (change.isSetModelElementAddition()) {
-						handle(change.getModelElementAddition());
-					}
-					else if (change.isSetModelElementRemoval()) {
-						handle(change.getModelElementRemoval());
-					}
-					else if (change.isSetReferenceAddition()) {
-						handle(change.getReferenceAddition());
-					}
-					else if (change.isSetReferenceRemoval()) {
-						handle(change.getReferenceRemoval());
+					// Artemis uses a pool of threads to receive messages: we need to serialize
+					// the accesses to the nodeIdToEObjectMap to avoid race conditions between
+					// 'model element added' and 'attribute changed', for instance.
+					synchronized (nodeIdToEObjectMap) {
+						LOGGER.debug("Received message from Artemis: {}", change);
+
+						if (change.isSetModelElementAttributeUpdate()) {
+							handle(change.getModelElementAttributeUpdate());
+						}
+						else if (change.isSetModelElementAttributeRemoval()) {
+							handle(change.getModelElementAttributeRemoval());
+						}
+						else if (change.isSetModelElementAddition()) {
+							handle(change.getModelElementAddition());
+						}
+						else if (change.isSetModelElementRemoval()) {
+							handle(change.getModelElementRemoval());
+						}
+						else if (change.isSetReferenceAddition()) {
+							handle(change.getReferenceAddition());
+						}
+						else if (change.isSetReferenceRemoval()) {
+							handle(change.getReferenceRemoval());
+						}
 					}
 				} catch (TException | IOException e) {
 					LOGGER.error("Error while decoding incoming message", e);
