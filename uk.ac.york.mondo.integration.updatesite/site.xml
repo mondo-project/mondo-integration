@@ -15,9 +15,6 @@
    <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier">
       <category name="cloudatl"/>
    </feature>
-   <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature" version="0.0.0.qualifier">
-      <category name="cloudatl"/>
-   </feature>
    <category-def name="hawk" label="Hawk"/>
    <category-def name="cloudatl" label="CloudATL"/>
 </site>
