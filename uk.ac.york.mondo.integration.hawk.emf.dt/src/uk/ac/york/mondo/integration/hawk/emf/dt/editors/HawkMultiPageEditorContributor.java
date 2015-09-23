@@ -112,7 +112,7 @@ public class HawkMultiPageEditorContributor extends MultiPageEditorActionBarCont
 		};
 		emfOpenAction.setText("Open with Exeed");
 		emfOpenAction.setToolTipText("Opens the model with the Epsilon Exeed editor");
-		emfOpenAction.setImageDescriptor(Activator.getImageDescriptor("/icons/EcoreModelFile.gif"));
+		emfOpenAction.setImageDescriptor(Activator.getImageDescriptor("/icons/hawkmodel.png"));
 	}
 
 	@Override

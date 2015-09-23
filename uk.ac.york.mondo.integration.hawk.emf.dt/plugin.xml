@@ -7,7 +7,7 @@
       <editor
             name="Remote Hawk Model Descriptor Editor"
             extensions="hawkmodel"
-            icon="icons/sample.gif"
+            icon="icons/hawkmodel.png"
             contributorClass="uk.ac.york.mondo.integration.hawk.emf.dt.editors.HawkMultiPageEditorContributor"
             class="uk.ac.york.mondo.integration.hawk.emf.dt.editors.HawkMultiPageEditor"
             id="uk.ac.york.mondo.integration.hawk.emf.dt.editors.HawkMultiPageEditor">
@@ -21,7 +21,7 @@
       </category>
       <wizard
             name="Remote Hawk Model Descriptor File"
-            icon="icons/sample.gif"
+            icon="icons/hawkmodel.png"
             category="uk.ac.york.mondo.integration.hawk.emf.dt"
             class="uk.ac.york.mondo.integration.hawk.emf.dt.wizards.NewRemoteHawkModelDescriptorWizard"
             id="uk.ac.york.mondo.integration.hawk.emf.dt.wizards.NewRemoteHawkModelDescriptorWizard">
