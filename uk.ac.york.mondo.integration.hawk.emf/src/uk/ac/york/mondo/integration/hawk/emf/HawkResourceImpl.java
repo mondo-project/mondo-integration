@@ -130,8 +130,8 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
-					// we don't want to invoke eGet on pending references/attributes
+				if (!ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on unchangeable or pending references/attributes
 					return;
 				}
 
@@ -150,8 +150,8 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
-					// we don't want to invoke eGet on pending references/attributes
+				if (!ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on unchangeable or pending references/attributes
 					return;
 				}
 
@@ -176,10 +176,6 @@ public class HawkResourceImpl extends ResourceImpl {
 
 				final EObject container = eob.eContainer();
 				if (container != null) {
-					if (eob.eContainmentFeature() != null) {
-						eob.eUnset(eob.eContainmentFeature());
-					}
-
 					final EStructuralFeature containingFeature = eob.eContainingFeature();
 					if (containingFeature.isMany()) {
 						((Collection<EObject>)container.eGet(containingFeature)).remove(eob);
