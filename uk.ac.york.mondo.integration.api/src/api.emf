@@ -108,13 +108,13 @@ class Hawk {
     );
 
 	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
-	op ScalarOrReference[*] query (
+	op VariantOrModelElement[*] query (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
 		@doc(d="The repository for the query (or * for all repositories)") String repository,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
-	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery;
 
 	@doc(d="Returns populated model elements for the provided proxies")
 	op ModelElement[*] resolveProxies (
@@ -330,6 +330,11 @@ class UnknownRepositoryType {}
 @doc(d="The specified query is not valid")
 class InvalidQuery {
 	@doc(d="Reason for the query not being valid.") attr String reason;
+}
+
+@doc(d="The specified query failed to complete its execution")
+class FailedQuery {
+	@doc(d="Reason for the query failing to complete its execution.") attr String reason;
 }
 
 @doc(d="The derived attribute specification is not valid")
@@ -573,15 +578,9 @@ class ContainerSlot extends Slot {
 
 @thrift(union="true")
 @doc(d="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.")
-class ScalarOrReference {
-    attr boolean vBoolean;
-	attr byte vByte;
-	attr short vShort;
-	attr int vInteger;
-	attr long vLong;
-	attr long vReference;
-	attr double vDouble;
-	attr String vString;
+class VariantOrModelElement extends Variant {
+	val ModelElement vModelElement;
+	val ModelElement[*] vModelElements;
 }
 
 @thrift(union="true")
