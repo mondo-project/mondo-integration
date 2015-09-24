@@ -153,17 +153,6 @@ struct Repository {
 	 /* The type of repository. */ 2: required string type,
 }
 
-union ScalarOrReference {
-	 /*  */ 1: optional bool vBoolean,
-	 /*  */ 2: optional byte vByte,
-	 /*  */ 3: optional i16 vShort,
-	 /*  */ 4: optional i32 vInteger,
-	 /*  */ 5: optional i64 vLong,
-	 /*  */ 6: optional i64 vReference,
-	 /*  */ 7: optional double vDouble,
-	 /*  */ 8: optional string vString,
-}
-
 struct Slot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 }
@@ -323,6 +312,25 @@ struct ContainerSlot {
 	 /* Contained elements for this slot. */ 2: required list<ModelElement> elements,
 }
 
+union VariantOrModelElement {
+	 /*  */ 1: optional byte vByte,
+	 /*  */ 2: optional bool vBoolean,
+	 /*  */ 3: optional i16 vShort,
+	 /*  */ 4: optional i32 vInteger,
+	 /*  */ 5: optional i64 vLong,
+	 /*  */ 6: optional double vDouble,
+	 /*  */ 7: optional string vString,
+	 /*  */ 8: optional binary vBytes,
+	 /*  */ 9: optional list<bool> vBooleans,
+	 /*  */ 10: optional list<i16> vShorts,
+	 /*  */ 11: optional list<i32> vIntegers,
+	 /*  */ 12: optional list<i64> vLongs,
+	 /*  */ 13: optional list<double> vDoubles,
+	 /*  */ 14: optional list<string> vStrings,
+	 /*  */ 15: optional ModelElement vModelElement,
+	 /*  */ 16: optional list<ModelElement> vModelElements,
+}
+
 /* The majority of service operations provided by the MONDO
    		platform require user authentication (indicated in the top-left
    		cell of each operation table) to prevent unaccountable use.
@@ -441,7 +449,7 @@ service Hawk {
   )
 	
   /* Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct). Auth needed: Yes */
-  list<ScalarOrReference> query(
+  list<VariantOrModelElement> query(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The query to be executed. */ 2: required string query,
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language,

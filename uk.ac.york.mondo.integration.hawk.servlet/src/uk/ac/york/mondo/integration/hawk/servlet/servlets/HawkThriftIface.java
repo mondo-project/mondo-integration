@@ -65,12 +65,12 @@ import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.Repository;
-import uk.ac.york.mondo.integration.api.ScalarOrReference;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
+import uk.ac.york.mondo.integration.api.VariantOrModelElement;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
@@ -159,16 +159,36 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<ScalarOrReference> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
+	public List<VariantOrModelElement> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		Map<String, String> context = new HashMap<>();
 		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
 		context.put(IQueryEngine.PROPERTY_FILECONTEXT, scope);
 		try {
 			Object ret = model.contextFullQuery(query, language, context);
-			// TODO be able to return other things beyond Strings
-			final ScalarOrReference v = new ScalarOrReference();
+
+			final VariantOrModelElement v = new VariantOrModelElement();
+
+//			v.setVBoolean(value);
+//			v.setVByte(value);
+//			v.setVDouble(value);
+//			v.setVInteger(value);
+//			v.setVLong(value);
+//			v.setVShort(value);
+//			v.setVString(value);
+//			v.setVModelElement(value);
+//
+//			v.setVBooleans(value);
+//			v.setVBytes(value);
+//			v.setVDoubles(value);
+//			v.setVIntegers(value);
+//			v.setVLongs(value);
+//			v.setVShorts(value);
+//			v.setVStrings(value);
+//			v.setVModelElements(value);
+
 			v.setVString("" + ret);
+
 			return Arrays.asList(v);
 		} catch (NoSuchElementException ex) {
 			throw new UnknownQueryLanguage();

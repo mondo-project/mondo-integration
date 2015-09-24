@@ -183,7 +183,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="query" upperBound="-1" eType="#//ScalarOrReference" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery #//FailedQuery">
+    <eOperations name="query" upperBound="-1" eType="#//VariantOrModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery #//FailedQuery">
       <eAnnotations source="doc">
         <details key="d" value="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)"/>
       </eAnnotations>
@@ -1271,21 +1271,17 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ScalarOrReference">
+  <eClassifiers xsi:type="ecore:EClass" name="VariantOrModelElement" eSuperTypes="#//Variant">
     <eAnnotations source="thrift">
       <details key="union" value="true"/>
     </eAnnotations>
     <eAnnotations source="doc">
       <details key="d" value="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vReference" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElement" eType="#//ModelElement"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElements" upperBound="-1"
+        eType="#//ModelElement" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Variant">
     <eAnnotations source="thrift">
