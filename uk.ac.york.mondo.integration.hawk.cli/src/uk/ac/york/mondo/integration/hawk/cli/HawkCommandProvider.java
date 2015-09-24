@@ -582,7 +582,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("---HAWK (commands are case insensitive, <> means required, [] means optional)---\n\t");
 		sbuf.append("hawkHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)");
+		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
