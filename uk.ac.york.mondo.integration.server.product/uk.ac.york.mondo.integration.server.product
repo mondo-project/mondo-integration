@@ -47,6 +47,8 @@
       <feature id="org.hawk.core.feature"/>
       <feature id="org.hawk.osgiserver.feature"/>
       <feature id="org.hawk.bpmn.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.deps.feature"/>
    </features>
 
    <configurations>
