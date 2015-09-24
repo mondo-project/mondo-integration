@@ -17,6 +17,13 @@ SubscriptionDurability = {
   'DURABLE' : 1,
   'TEMPORARY' : 2
 };
+TransformationState = {
+  'FAILED' : 0,
+  'KILLED' : 1,
+  'PREP' : 2,
+  'RUNNING' : 3,
+  'SUCCEEDED' : 4
+};
 AuthenticationFailed = function(args) {
 };
 Thrift.inherits(AuthenticationFailed, Thrift.TException);
@@ -2066,14 +2073,14 @@ Subscription.prototype.write = function(output) {
 };
 
 TransformationStatus = function(args) {
-  this.finished = null;
+  this.state = null;
   this.elapsed = null;
   this.error = null;
   if (args) {
-    if (args.finished !== undefined) {
-      this.finished = args.finished;
+    if (args.state !== undefined) {
+      this.state = args.state;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field finished is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field state is unset!');
     }
     if (args.elapsed !== undefined) {
       this.elapsed = args.elapsed;
@@ -2102,8 +2109,8 @@ TransformationStatus.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.BOOL) {
-        this.finished = input.readBool().value;
+      if (ftype == Thrift.Type.I32) {
+        this.state = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -2133,9 +2140,9 @@ TransformationStatus.prototype.read = function(input) {
 
 TransformationStatus.prototype.write = function(output) {
   output.writeStructBegin('TransformationStatus');
-  if (this.finished !== null && this.finished !== undefined) {
-    output.writeFieldBegin('finished', Thrift.Type.BOOL, 1);
-    output.writeBool(this.finished);
+  if (this.state !== null && this.state !== undefined) {
+    output.writeFieldBegin('state', Thrift.Type.I32, 1);
+    output.writeI32(this.state);
     output.writeFieldEnd();
   }
   if (this.elapsed !== null && this.elapsed !== undefined) {

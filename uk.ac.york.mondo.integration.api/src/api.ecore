@@ -1401,9 +1401,9 @@
     <eAnnotations source="doc">
       <details key="d" value="Used to report the status of a long-running transformation by CloudATL"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="finished" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="state" eType="#//TransformationState">
       <eAnnotations source="doc">
-        <details key="d" value="True if the transformation has finished, false otherwise"/>
+        <details key="d" value="State of the tranformation"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="elapsed" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
@@ -1416,6 +1416,36 @@
         <details key="d" value="Description of the error that caused the transformation to fail"/>
       </eAnnotations>
     </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TransformationState">
+    <eAnnotations source="doc">
+      <details key="d" value="State of the execution of the transformation"/>
+    </eAnnotations>
+    <eLiterals name="RUNNING">
+      <eAnnotations source="doc">
+        <details key="d" value="The transformation is running."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="SUCCEEDED" value="1">
+      <eAnnotations source="doc">
+        <details key="d" value="The transformation has completed successfully."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="FAILED" value="2">
+      <eAnnotations source="doc">
+        <details key="d" value="The transformation has failed."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="PREP" value="3">
+      <eAnnotations source="doc">
+        <details key="d" value="The transformation is in preparation."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="KILLED" value="4">
+      <eAnnotations source="doc">
+        <details key="d" value="The transformation was interrupted by a user (i.e. killed)."/>
+      </eAnnotations>
+    </eLiterals>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkInstance">
     <eAnnotations source="doc">

@@ -77,7 +77,9 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		checkConnected();
 		String id = requiredArgument(intp, "id");
 		TransformationStatus status = client.getStatus(id);
-		return MessageFormat.format("Job id: {0}, {1}, elapsed time: {2} ms", id, status.isFinished() ? "FINISHED" : "RUNNING", status.elapsed);
+		return MessageFormat.format("Job id: {0}, {1}, elapsed time: {2} ms{3}", id,
+				status.getState().toString(), status.elapsed,
+				status.error != null && status.error.length() > 0 ? ", error: " + status.getError() : "");
 	}
 	
 	public Object _cloudAtlKill(CommandInterpreter intp) throws Exception {

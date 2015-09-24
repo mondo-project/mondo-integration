@@ -656,12 +656,21 @@ class DerivedAttributeSpec {
 
 @doc(d="Used to report the status of a long-running transformation by CloudATL")
 class TransformationStatus {
-	@doc(d="True if the transformation has finished, false otherwise")
-	attr boolean finished;
+	@doc(d="State of the tranformation")
+	attr TransformationState state;
 	@doc(d="Time passed since the start of execution")
 	attr long elapsed;
 	@doc(d="Description of the error that caused the transformation to fail")
 	attr String error;
+}
+
+@doc(d="State of the execution of the transformation")
+enum TransformationState {
+    @doc(d="The transformation is running.") RUNNING;
+    @doc(d="The transformation has completed successfully.") SUCCEEDED;
+    @doc(d="The transformation has failed.") FAILED;
+    @doc(d="The transformation is in preparation.") PREP;
+    @doc(d="The transformation was interrupted by a user (i.e. killed).") KILLED;
 }
 
 @doc(d="Status of a Hawk instance")

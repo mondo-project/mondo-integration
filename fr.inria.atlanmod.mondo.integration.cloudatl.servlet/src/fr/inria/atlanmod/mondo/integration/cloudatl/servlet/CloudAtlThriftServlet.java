@@ -57,6 +57,7 @@ import uk.ac.york.mondo.integration.api.CloudATL;
 import uk.ac.york.mondo.integration.api.InvalidModelSpec;
 import uk.ac.york.mondo.integration.api.InvalidTransformation;
 import uk.ac.york.mondo.integration.api.ModelSpec;
+import uk.ac.york.mondo.integration.api.TransformationState;
 import uk.ac.york.mondo.integration.api.TransformationStatus;
 import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
 import fr.inria.atlanmod.atl_mr.ATLMRMapper;
@@ -181,13 +182,26 @@ public class CloudAtlThriftServlet extends TServlet {
 			TransformationStatus transformationStatus = new TransformationStatus();
 			try {
 				Job job = cluster.getJob(JobID.forName(token));
-				if (job.getStatus().isJobComplete()) {
+				final JobStatus status = job.getStatus();
+				if (status.isJobComplete()) {
 					transformationStatus.setElapsed(job.getFinishTime() - job.getStartTime());
 				} else {
 					transformationStatus.setElapsed(System.currentTimeMillis() - job.getStartTime());
 				}
-				transformationStatus.setError(job.getStatus().getFailureInfo());
-				transformationStatus.setFinished(job.getStatus().isJobComplete());
+				transformationStatus.setError(status.getFailureInfo());
+
+				switch (status.getState()) {
+				case FAILED:
+					transformationStatus.setState(TransformationState.FAILED); break;
+				case KILLED:
+					transformationStatus.setState(TransformationState.KILLED); break;
+				case PREP:
+					transformationStatus.setState(TransformationState.PREP); break;
+				case RUNNING:
+					transformationStatus.setState(TransformationState.RUNNING); break;
+				case SUCCEEDED:
+					transformationStatus.setState(TransformationState.SUCCEEDED); break;
+				}
 			} catch (IOException | InterruptedException e) {
 				throw new TException(e);
 			}

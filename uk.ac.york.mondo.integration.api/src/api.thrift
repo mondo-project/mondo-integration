@@ -14,6 +14,14 @@ enum SubscriptionDurability {
 		/* Subscription removed after disconnecting. */ TEMPORARY 
 }
 
+enum TransformationState {
+		/* The transformation has failed. */ FAILED 
+		/* The transformation was interrupted by a user (i.e. killed). */ KILLED 
+		/* The transformation is in preparation. */ PREP 
+		/* The transformation is running. */ RUNNING 
+		/* The transformation has completed successfully. */ SUCCEEDED 
+}
+
 
 exception AuthenticationFailed {
 }
@@ -164,7 +172,7 @@ struct Subscription {
 }
 
 struct TransformationStatus {
-	 /* True if the transformation has finished, false otherwise. */ 1: required bool finished,
+	 /* State of the tranformation. */ 1: required TransformationState state,
 	 /* Time passed since the start of execution. */ 2: required i64 elapsed,
 	 /* Description of the error that caused the transformation to fail. */ 3: required string error,
 }
