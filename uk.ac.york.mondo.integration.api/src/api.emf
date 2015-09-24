@@ -114,7 +114,7 @@ class Hawk {
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
 		@doc(d="The repository for the query (or * for all repositories)") String repository,
 		@doc(d="The scope of the query (e.g. *.uml)") String scope
-	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery;
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery;
 
 	@doc(d="Returns populated model elements for the provided proxies")
 	op ModelElement[*] resolveProxies (
@@ -330,6 +330,11 @@ class UnknownRepositoryType {}
 @doc(d="The specified query is not valid")
 class InvalidQuery {
 	@doc(d="Reason for the query not being valid.") attr String reason;
+}
+
+@doc(d="The specified query failed to complete its execution")
+class FailedQuery {
+	@doc(d="Reason for the query failing to complete its execution.") attr String reason;
 }
 
 @doc(d="The derived attribute specification is not valid")

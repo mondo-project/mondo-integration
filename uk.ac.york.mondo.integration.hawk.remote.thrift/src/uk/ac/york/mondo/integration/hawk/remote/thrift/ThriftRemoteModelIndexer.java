@@ -51,11 +51,14 @@ import org.hawk.core.util.HawkProperties;
 
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
+import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
+import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.Repository;
+import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 import com.thoughtworks.xstream.XStream;
@@ -96,6 +99,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 				throws InvalidQueryException, QueryExecutionException {
 			try {
 				return client.query(name, query, language, "*", "*");
+			} catch (UnknownQueryLanguage|InvalidQuery ex) {
+				throw new InvalidQueryException(ex);
+			} catch (FailedQuery ex) {
+				throw new QueryExecutionException(ex);
 			} catch (TException e) {
 				console.printerrln("Could not run contextless query");
 				console.printerrln(e);
@@ -128,6 +135,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			}
 			try {
 				return client.query(name, query, language, repoScope, fileScope);
+			} catch (UnknownQueryLanguage|InvalidQuery ex) {
+				throw new InvalidQueryException(ex);
+			} catch (FailedQuery ex) {
+				throw new QueryExecutionException(ex);
 			} catch (TException e) {
 				console.printerrln("Could not run contextful query");
 				console.printerrln(e);

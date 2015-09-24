@@ -78,6 +78,10 @@ struct DerivedAttributeSpec {
 	 /* An executable expression of the derivation logic in the language above. */ 9: optional string derivationLogic,
 }
 
+exception FailedQuery {
+	 /* Reason for the query failing to complete its execution. */ 1: required string reason,
+}
+
 struct File {
 	 /*  */ 1: required string name,
 	 /*  */ 2: required binary contents,
@@ -449,6 +453,7 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	3: UnknownQueryLanguage err3 /* The specified query language is not supported by the operation. */ 
 	4: InvalidQuery err4 /* The specified query is not valid. */ 
+	5: FailedQuery err5 /* The specified query failed to complete its execution. */ 
 	) 
 	
   /* Returns populated model elements for the provided proxies. Auth needed: Yes */

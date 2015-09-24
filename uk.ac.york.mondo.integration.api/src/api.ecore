@@ -183,7 +183,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="query" upperBound="-1" eType="#//ScalarOrReference" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery">
+    <eOperations name="query" upperBound="-1" eType="#//ScalarOrReference" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery #//FailedQuery">
       <eAnnotations source="doc">
         <details key="d" value="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)"/>
       </eAnnotations>
@@ -814,6 +814,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="reason" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="Reason for the query not being valid."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FailedQuery">
+    <eAnnotations source="doc">
+      <details key="d" value="The specified query failed to complete its execution"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="reason" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Reason for the query failing to complete its execution."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

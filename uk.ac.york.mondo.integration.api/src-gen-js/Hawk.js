@@ -1346,6 +1346,7 @@ Hawk_query_result = function(args) {
   this.err2 = null;
   this.err3 = null;
   this.err4 = null;
+  this.err5 = null;
   if (args instanceof HawkInstanceNotFound) {
     this.err1 = args;
     return;
@@ -1360,6 +1361,10 @@ Hawk_query_result = function(args) {
   }
   if (args instanceof InvalidQuery) {
     this.err4 = args;
+    return;
+  }
+  if (args instanceof FailedQuery) {
+    this.err5 = args;
     return;
   }
   if (args) {
@@ -1377,6 +1382,9 @@ Hawk_query_result = function(args) {
     }
     if (args.err4 !== undefined) {
       this.err4 = args.err4;
+    }
+    if (args.err5 !== undefined) {
+      this.err5 = args.err5;
     }
   }
 };
@@ -1447,6 +1455,14 @@ Hawk_query_result.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err5 = new FailedQuery();
+        this.err5.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1490,6 +1506,11 @@ Hawk_query_result.prototype.write = function(output) {
   if (this.err4 !== null && this.err4 !== undefined) {
     output.writeFieldBegin('err4', Thrift.Type.STRUCT, 4);
     this.err4.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err5 !== null && this.err5 !== undefined) {
+    output.writeFieldBegin('err5', Thrift.Type.STRUCT, 5);
+    this.err5.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5225,6 +5246,9 @@ HawkClient.prototype.recv_query = function() {
   }
   if (null !== result.err4) {
     throw result.err4;
+  }
+  if (null !== result.err5) {
+    throw result.err5;
   }
   if (null !== result.success) {
     return result.success;

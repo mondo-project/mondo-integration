@@ -36,6 +36,7 @@ import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
+import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.runtime.LocalHawkFactory;
 import org.hawk.graph.FileNode;
 import org.hawk.graph.GraphWrapper;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
+import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
@@ -157,7 +159,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<ScalarOrReference> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, TException {
+	public List<ScalarOrReference> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		Map<String, String> context = new HashMap<>();
 		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
@@ -172,6 +174,8 @@ final class HawkThriftIface implements Hawk.Iface {
 			throw new UnknownQueryLanguage();
 		} catch (InvalidQueryException ex) {
 			throw new InvalidQuery(ex.getMessage());
+		} catch (QueryExecutionException ex) {
+			throw new FailedQuery(ex.getMessage());
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}

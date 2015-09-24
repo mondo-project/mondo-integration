@@ -798,6 +798,62 @@ DerivedAttributeSpec.prototype.write = function(output) {
   return;
 };
 
+FailedQuery = function(args) {
+  this.reason = null;
+  if (args) {
+    if (args.reason !== undefined) {
+      this.reason = args.reason;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field reason is unset!');
+    }
+  }
+};
+Thrift.inherits(FailedQuery, Thrift.TException);
+FailedQuery.prototype.name = 'FailedQuery';
+FailedQuery.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.reason = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+FailedQuery.prototype.write = function(output) {
+  output.writeStructBegin('FailedQuery');
+  if (this.reason !== null && this.reason !== undefined) {
+    output.writeFieldBegin('reason', Thrift.Type.STRING, 1);
+    output.writeString(this.reason);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 File = function(args) {
   this.name = null;
   this.contents = null;
