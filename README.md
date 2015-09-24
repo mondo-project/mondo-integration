@@ -78,9 +78,9 @@ The supported URL schemes are `hdfs://` (for files that have been previously upl
 
 The CloudATL servlet needs to have up-to-date builds of ATL/MapReduce and the Hawk EMF driver in its `libs` folder, so it can send them to Hadoop for processing. Building the `.jar` requires these steps:
 
-1. Download and install a recent version of (Eclipse)[https://www.eclipse.org/downloads/] and a JDK for Java 7.
+1. Download and install a recent version of [Eclipse](https://www.eclipse.org/downloads/) and a JDK for Java 7.
 2. Go to "Window > Preferences > Java > Compiler" and change the default "Compiler compliance level" to 1.7. This is needed for the Docker image above, which comes with Java 7.
-3. Go to "Help > Install New Software..." and install everything from IvyDE through its (update site)[http://www.apache.org/dist/ant/ivyde/updatesite/]. Let Eclipse restart.
+3. Go to "Help > Install New Software..." and install everything from IvyDE through its [update site](http://www.apache.org/dist/ant/ivyde/updatesite/). Let Eclipse restart.
 4. Go to the Git perspective with "Window > Perspective > Open Perspective > Other... > Git".
 5. Clone the `integrate-hawk-emf` `https://github.com/bluezio/ATL_MR` Git repository and import its projects. This can be done by copying the URL into the clipboard, right-clicking on the "Git Repositories" view and selecting "Paste Repository Path or URI". Make sure to check the "Import all existing Eclipse projects" box on the last step of the wizard.
 6. Clone the `https://github.com/atlanmod/org.eclipse.atl.atlMR.git` repository, but do *not* import all projects. Instead, uncheck the box, let the clone finish and right click on the "plugins" folder within "Working Directory", selecting the "Import Projects..." menu entry.
