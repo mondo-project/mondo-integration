@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.thrift.protocol.TJSONProtocol;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
@@ -22,6 +23,7 @@ import uk.ac.york.mondo.integration.api.CloudATL;
 import uk.ac.york.mondo.integration.api.ModelSpec;
 import uk.ac.york.mondo.integration.api.TransformationStatus;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 /**
  * Simple command-line based client for a remote CloudAtl instance, using the Thrift API.
@@ -36,7 +38,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 
 	public Object _cloudAtlConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
-		client = APIUtils.connectTo(CloudATL.Client.class, url);
+		client = APIUtils.connectTo(CloudATL.Client.class, url, ThriftProtocol.JSON);
 		return null;
 	}
 

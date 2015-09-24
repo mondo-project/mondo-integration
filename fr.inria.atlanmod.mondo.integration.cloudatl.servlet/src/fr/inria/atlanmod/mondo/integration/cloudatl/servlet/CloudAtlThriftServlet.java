@@ -43,7 +43,7 @@ import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.server.TServlet;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -253,6 +253,6 @@ public class CloudAtlThriftServlet extends TServlet {
 	private static final long serialVersionUID = 1L;
 
 	public CloudAtlThriftServlet() throws Exception {
-		super(new CloudATL.Processor<CloudATL.Iface>(new CloudATLIface()), new TTupleProtocol.Factory());
+		super(new CloudATL.Processor<CloudATL.Iface>(new CloudATLIface()), new TJSONProtocol.Factory());
 	}
 }
