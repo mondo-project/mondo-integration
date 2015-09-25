@@ -4,7 +4,7 @@
 	<target name="retrieve">
 		<property name="native-package-type" value="jar" />
 		<property name="ivy.default.settings.native-package-type" value="jar" />
-		<ivy:retrieve/>
+		<ivy:retrieve ivypattern="lib/[artifact]-[type]-[revision].[ext]"/>
 	</target>
 
 </project>
