@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="95">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="96">
 <locations>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201509241154"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201509241154"/>
-<repository location="jar:file:/home/szarnyasg/mondo/hawk-updatesite-20150924.zip!/"/>
-</location>
 <location path="${resource_loc:/uk.ac.york.mondo.integration.targetplatform/bundles}" type="Directory"/>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.validation.sdk.feature.group" version="1.8.0.201405281429"/>
@@ -41,6 +27,10 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.jdt.feature.group" version="3.10.1.v20150204-1700"/>
+<repository location="http://download.eclipse.org/releases/luna/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.feature.group" version="2.10.2.v20150123-0452"/>
 <unit id="org.eclipse.gef.feature.group" version="3.9.101.201408150207"/>
 <repository location="http://download.eclipse.org/releases/luna/"/>
@@ -54,12 +44,24 @@
 <repository location="http://download.eclipse.org/releases/luna/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201509251107"/>
+<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201509251107"/>
+<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201509251107"/>
+<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201509251107"/>
+<repository location="http://download.eclipse.org/epsilon/interim/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.incquery.sdk.feature.source.feature.group" version="1.0.1.201508191609"/>
 <repository location="http://download.eclipse.org/incquery/updates/release"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="com.google.guava" version="15.0.0.v201403281430"/>
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.xtext.sdk.feature.group" version="2.8.4.v201508050135"/>
+<unit id="org.eclipse.xtend.sdk.feature.group" version="2.8.4.v201508050135"/>
+<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.transaction.sdk.feature.group" version="1.8.0.201405281451"/>
@@ -72,22 +74,6 @@
 <unit id="org.eclipse.xsd.feature.group" version="2.10.0.v20150123-0452"/>
 <unit id="org.eclipse.xsd.ecore.converter.feature.group" version="2.9.0.v20150123-0452"/>
 <repository location="http://download.eclipse.org/releases/luna/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.8.4.v201508050135"/>
-<unit id="org.eclipse.xtend.sdk.feature.group" version="2.8.4.v201508050135"/>
-<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.jdt.feature.group" version="3.10.1.v20150204-1700"/>
-<repository location="http://download.eclipse.org/releases/luna/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201509251107"/>
-<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201509251107"/>
-<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201509251107"/>
-<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201509251107"/>
-<repository location="http://download.eclipse.org/epsilon/interim/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>

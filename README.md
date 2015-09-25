@@ -35,7 +35,7 @@ In both cases, you may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
-Install Hawk from its update site. (Work-in progress)
+Add Hawk to the target platform definition.
 
 ### Setting the target platform
 
