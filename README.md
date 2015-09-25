@@ -15,6 +15,29 @@ The project has the following external dependencies:
 * Some of the plugins in the [org.eclipse.atl.atlMR](https://github.com/atlanmod/org.eclipse.atl.atlMR) project (see the CloudATL section for details).
 * The [Apache Artemis](https://activemq.apache.org/artemis/) core client and server libraries. These are listed in `uk.ac.york.mondo.integration.artemis/ivy.xml`, so they are easy to download using [IvyDE](https://ant.apache.org/ivy/ivyde/).
 
+Getting started
+---------------
+
+### Artemis dependencies
+
+The Artemis project is located in `uk.ac.york.mondo.integration.artemis`. There are two ways to fetch the dependencies:
+
+1. Install everything from the [IvyDE update site](http://www.apache.org/dist/ant/ivyde/updatesite/). Right click the `fetch-deps.xml` file and choose **Run as** | **Ant Build**.
+
+2. If IvyDE does not work, you should use the command-line tool, available in the `ivy` Ubuntu package.
+
+    ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
+
+You may have to _run it twice_ in order to succeed.
+
+### Hawk
+
+Install Hawk from its update site. (Work-in progress)
+
+### Integration project
+
+Import all projects from this repository.
+
 API
 ---
 
@@ -57,7 +80,7 @@ CloudATL (also known as ATL/MapReduce) is integrated in a similar way to Hawk. `
 
 ### Setting up a trivial Hadoop cluster for testing
 
-The CloudATL servlet works as a frontend node for a Hadoop cluster, which must have been set up in advance. The `conf` folder of the `.servlet` project provides an example of how the configuration would look like for a trivial one-node cluster. Using [Docker](https://www.docker.com/), it is quite simple to start a one-node pseudo-distributed Hadoop cluster:
+The CloudATL servlet works as a frontend node for a Hadoop cluster, which must have been set up in advance. The `conf` folder of the `.servlet` project provides an example of how the configuration would look like for a trivial one-node cluster. Using [Docker](https://www.docker.com/), it is quite simple to start a one-node pseudo-distributed Hadoop cluster. Install Docker and issue the following command.
 
     sudo docker run -it bluezio/hadoop-jh /etc/bootstrap.sh -bash
 
