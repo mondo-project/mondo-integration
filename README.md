@@ -18,26 +18,28 @@ The project has the following external dependencies:
 Getting started
 ---------------
 
+We recommend to use Eclipse Modeling (Luna or later). To start with, import all projects from this repository.
+
 ### Artemis dependencies
 
-The Artemis project is located in `uk.ac.york.mondo.integration.artemis`. There are two ways to fetch the dependencies:
+The dependencies for the project using Artemis are located in `uk.ac.york.mondo.integration.artemis`. There are two ways to fetch the dependencies:
 
-1. Install everything from the [IvyDE update site](http://www.apache.org/dist/ant/ivyde/updatesite/). Right click the `fetch-deps.xml` file and choose **Run as** | **Ant Build**.
-2. If IvyDE does not work, you should use the command-line tool, available in the `ivy` Ubuntu package.
+1. Use the Apache IvyDE plug-in. Install everything from the [IvyDE update site](http://www.apache.org/dist/ant/ivyde/updatesite/). Right click the `fetch-deps.xml` file and choose **Run as** | **Ant Build**. If this does not work, go to option 2.
+2. Use the command-line tool. Install the `ivy` Ubuntu package and issue the following command in the repository:
 
     ```
     ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
     ```
 
-You may have to _run it twice_ in order to succeed.
+    You may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
 Install Hawk from its update site. (Work-in progress)
 
-### Integration project
+### Setting the target platform
 
-Import all projects from this repository. Go to the `uk.ac.york.mondo.integration.targetplatform`, open the `uk.ac.york.mondo.thrift.osgi.example.targetplatform.target` Target Definition file and click **Set as Target Platform**.
+Go to the `uk.ac.york.mondo.integration.targetplatform`, open the `uk.ac.york.mondo.thrift.osgi.example.targetplatform.target` Target Definition file and click **Set as Target Platform**.
 
 API
 ---
