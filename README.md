@@ -37,7 +37,7 @@ Install Hawk from its update site. (Work-in progress)
 
 ### Integration project
 
-Import all projects from this repository.
+Import all projects from this repository. Go to the `uk.ac.york.mondo.integration.targetplatform`, open the `uk.ac.york.mondo.thrift.osgi.example.targetplatform.target` Target Definition file and click **Set as Target Platform**.
 
 API
 ---
