@@ -23,10 +23,11 @@ Getting started
 The Artemis project is located in `uk.ac.york.mondo.integration.artemis`. There are two ways to fetch the dependencies:
 
 1. Install everything from the [IvyDE update site](http://www.apache.org/dist/ant/ivyde/updatesite/). Right click the `fetch-deps.xml` file and choose **Run as** | **Ant Build**.
-
 2. If IvyDE does not work, you should use the command-line tool, available in the `ivy` Ubuntu package.
 
+    ```
     ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
+    ```
 
 You may have to _run it twice_ in order to succeed.
 
