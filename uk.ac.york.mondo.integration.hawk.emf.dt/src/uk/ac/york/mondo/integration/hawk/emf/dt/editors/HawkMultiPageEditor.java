@@ -96,7 +96,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 			final FormText formText = toolkit.createFormText(formBody, true);
 			formText.setText("<form><p>"
-					+ "<a href=\"reopenEcore\">Open with the Ecore editor</a> "
+					+ "<a href=\"reopenEcore\">Open with Exeed</a> "
 					+ "<a href=\"copyShortURL\">Copy short URL to clipboard</a> "
 					+ "<a href=\"copyLongURL\">Copy long URL to clipboard</a>"
 					+ "</p></form>", true, true);
