@@ -35,7 +35,7 @@ In both cases, you may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
-Add Hawk to the target platform definition.
+Add Hawk to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
 
 ### Setting the target platform
 
