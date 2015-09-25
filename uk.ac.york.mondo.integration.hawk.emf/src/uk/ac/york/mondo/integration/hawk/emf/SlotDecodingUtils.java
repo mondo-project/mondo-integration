@@ -28,8 +28,8 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
-import uk.ac.york.mondo.integration.api.Variant;
-import uk.ac.york.mondo.integration.api.Variant._Fields;
+import uk.ac.york.mondo.integration.api.SlotValue;
+import uk.ac.york.mondo.integration.api.SlotValue._Fields;
 
 /**
  * Utility methods for setting {@link EAttribute}s from {@link AttributeSlot}s.
@@ -94,17 +94,17 @@ public final class SlotDecodingUtils {
 		} else if (eType == EcorePackage.Literals.EFLOAT) {
 			fromFloat(eClass, eObject, slot, feature);
 		} else if (eType == EcorePackage.Literals.EDOUBLE) {
-			fromExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
+			fromExpectedType(eClass, eObject, slot,	feature, SlotValue._Fields.V_DOUBLES, SlotValue._Fields.V_DOUBLE);
 		} else if (eType == EcorePackage.Literals.EINT) {
-			fromExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
+			fromExpectedType(eClass, eObject, slot,	feature, SlotValue._Fields.V_INTEGERS, SlotValue._Fields.V_INTEGER);
 		} else if (eType == EcorePackage.Literals.ELONG) {
-			fromExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
+			fromExpectedType(eClass, eObject, slot,	feature, SlotValue._Fields.V_LONGS, SlotValue._Fields.V_LONG);
 		} else if (eType == EcorePackage.Literals.ESHORT) {
-			fromExpectedType(eClass, eObject, slot,	feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
+			fromExpectedType(eClass, eObject, slot,	feature, SlotValue._Fields.V_SHORTS, SlotValue._Fields.V_SHORT);
 		} else if (eType == EcorePackage.Literals.ESTRING) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_STRINGS, SlotValue._Fields.V_STRING);
 		} else if (eType == EcorePackage.Literals.EBOOLEAN) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_BOOLEANS, SlotValue._Fields.V_BOOLEAN);
 		} else {
 			throw new IOException(String.format("Unknown ECore data type '%s'", eType));
 		}
@@ -178,17 +178,17 @@ public final class SlotDecodingUtils {
 		} else if (Float.class.isAssignableFrom(instanceClass) || float.class.isAssignableFrom(instanceClass)) {
 			fromFloat(eClass, eObject, slot, feature);
 		} else if (Double.class.isAssignableFrom(instanceClass) || double.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_DOUBLES, Variant._Fields.V_DOUBLE);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_DOUBLES, SlotValue._Fields.V_DOUBLE);
 		} else if (Integer.class.isAssignableFrom(instanceClass) || int.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_INTEGERS, Variant._Fields.V_INTEGER);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_INTEGERS, SlotValue._Fields.V_INTEGER);
 		} else if (Long.class.isAssignableFrom(instanceClass) || long.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_LONGS, Variant._Fields.V_LONG);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_LONGS, SlotValue._Fields.V_LONG);
 		} else if (Short.class.isAssignableFrom(instanceClass) || short.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_SHORTS, Variant._Fields.V_SHORT);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_SHORTS, SlotValue._Fields.V_SHORT);
 		} else if (String.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_STRINGS, Variant._Fields.V_STRING);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_STRINGS, SlotValue._Fields.V_STRING);
 		} else if (Boolean.class.isAssignableFrom(instanceClass) || boolean.class.isAssignableFrom(instanceClass)) {
-			fromExpectedType(eClass, eObject, slot, feature, Variant._Fields.V_BOOLEANS, Variant._Fields.V_BOOLEAN);
+			fromExpectedType(eClass, eObject, slot, feature, SlotValue._Fields.V_BOOLEANS, SlotValue._Fields.V_BOOLEAN);
 		} else {
 			throw new IOException(String.format(
 					"Unknown data type for %s#%s %s with isMany = false and instance class %s",
@@ -198,7 +198,7 @@ public final class SlotDecodingUtils {
 
 	private static void fromExpectedType(
 			final EClass eClass, final EObject eObject, AttributeSlot slot,
-			final EStructuralFeature feature, final Variant._Fields expectedMultiType, _Fields expectedSingleType)
+			final EStructuralFeature feature, final SlotValue._Fields expectedMultiType, _Fields expectedSingleType)
 			throws IOException {
 		if (!slot.value.isSet(expectedMultiType) && !slot.value.isSet(expectedSingleType)) {
 			throw new IOException(

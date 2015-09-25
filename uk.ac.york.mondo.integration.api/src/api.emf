@@ -107,8 +107,8 @@ class Hawk {
 	@doc(d="The name of the Hawk instance") String name
     );
 
-	@doc(d="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)")
-	op VariantOrModelElement[*] query (
+	@doc(d="Runs a query on a Hawk instance and returns a sequence of scalar values and/or model elements.")
+	op QueryResult[*] query (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
@@ -267,7 +267,7 @@ class HawkAttributeUpdateEvent {
 	@doc(d="Entry within the commit that produced the changes.") val CommitItem vcsItem;
 	@doc(d="Identifier of the model element that was changed.") val String ~id;
 	@doc(d="Name of the attribute that was changed.") val String attribute;
-	@doc(d="New value for the attribute.") val Variant value;
+	@doc(d="New value for the attribute.") val SlotValue value;
 }
 
 @doc(d="Serialized form of an attribute removal event.")
@@ -529,8 +529,8 @@ class Slot {
 
 @doc(d="Represents a slot that can store the value(s) of an attribute of a model element")
 class AttributeSlot extends Slot {
-	@doc(d="Variant value of the slot.")
-	val Variant value;
+	@doc(d="Value of the slot.")
+	val SlotValue value;
 }
 
 @doc(d="
@@ -578,14 +578,13 @@ class ContainerSlot extends Slot {
 
 @thrift(union="true")
 @doc(d="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.")
-class VariantOrModelElement extends Variant {
+class QueryResult extends Value {
 	val ModelElement vModelElement;
-	val ModelElement[*] vModelElements;
 }
 
 @thrift(union="true")
-@doc(d="Union type for a single scalar value or a homogeneous collection of scalar values.")
-class Variant {
+@doc(d="Union type for a single scalar value.")
+class Value {
 	// If we only have one value, even if it should be a list, it's
 	// better to use this so we don't use space specifying "size 1".
 	attr byte vByte;
@@ -595,7 +594,11 @@ class Variant {
 	attr long vLong;
 	attr double vDouble;
 	attr String vString;
+}
 
+@thrift(union="true")
+@doc(d="Union type for a single scalar value or a homogeneous collection of scalar values.")
+class SlotValue extends Value {
 	// Only for when we have 2 or more values!
 	attr EByteArray vBytes;
 	attr boolean[*] vBooleans;

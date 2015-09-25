@@ -183,9 +183,9 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="query" upperBound="-1" eType="#//VariantOrModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery #//FailedQuery">
+    <eOperations name="query" upperBound="-1" eType="#//QueryResult" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning #//UnknownQueryLanguage #//InvalidQuery #//FailedQuery">
       <eAnnotations source="doc">
-        <details key="d" value="Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct)"/>
+        <details key="d" value="Runs a query on a Hawk instance and returns a sequence of scalar values and/or model elements."/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -670,7 +670,7 @@
         <details key="d" value="Name of the attribute that was changed."/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Variant"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//SlotValue"
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="New value for the attribute."/>
@@ -1193,10 +1193,10 @@
     <eAnnotations source="doc">
       <details key="d" value="Represents a slot that can store the value(s) of an attribute of a model element"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Variant"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//SlotValue"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Variant value of the slot."/>
+        <details key="d" value="Value of the slot."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -1271,7 +1271,7 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="VariantOrModelElement" eSuperTypes="#//Variant">
+  <eClassifiers xsi:type="ecore:EClass" name="QueryResult" eSuperTypes="#//Value">
     <eAnnotations source="thrift">
       <details key="union" value="true"/>
     </eAnnotations>
@@ -1280,15 +1280,13 @@
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElement" eType="#//ModelElement"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElements" upperBound="-1"
-        eType="#//ModelElement" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Variant">
+  <eClassifiers xsi:type="ecore:EClass" name="Value">
     <eAnnotations source="thrift">
       <details key="union" value="true"/>
     </eAnnotations>
     <eAnnotations source="doc">
-      <details key="d" value="Union type for a single scalar value or a homogeneous collection of scalar values."/>
+      <details key="d" value="Union type for a single scalar value."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
@@ -1297,6 +1295,14 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SlotValue" eSuperTypes="#//Value">
+    <eAnnotations source="thrift">
+      <details key="union" value="true"/>
+    </eAnnotations>
+    <eAnnotations source="doc">
+      <details key="d" value="Union type for a single scalar value or a homogeneous collection of scalar values."/>
+    </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBooleans" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>

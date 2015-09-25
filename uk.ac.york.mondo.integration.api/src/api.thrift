@@ -157,6 +157,23 @@ struct Slot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 }
 
+union SlotValue {
+	 /*  */ 1: optional byte vByte,
+	 /*  */ 2: optional bool vBoolean,
+	 /*  */ 3: optional i16 vShort,
+	 /*  */ 4: optional i32 vInteger,
+	 /*  */ 5: optional i64 vLong,
+	 /*  */ 6: optional double vDouble,
+	 /*  */ 7: optional string vString,
+	 /*  */ 8: optional binary vBytes,
+	 /*  */ 9: optional list<bool> vBooleans,
+	 /*  */ 10: optional list<i16> vShorts,
+	 /*  */ 11: optional list<i32> vIntegers,
+	 /*  */ 12: optional list<i64> vLongs,
+	 /*  */ 13: optional list<double> vDoubles,
+	 /*  */ 14: optional list<string> vStrings,
+}
+
 struct Subscription {
 	 /* Host name of the message queue server. */ 1: required string host,
 	 /* Port in which the message queue server is listening. */ 2: required i32 port,
@@ -197,7 +214,7 @@ exception VCSAuthenticationFailed {
 exception VCSAuthorizationFailed {
 }
 
-union Variant {
+union Value {
 	 /*  */ 1: optional byte vByte,
 	 /*  */ 2: optional bool vBoolean,
 	 /*  */ 3: optional i16 vShort,
@@ -205,18 +222,11 @@ union Variant {
 	 /*  */ 5: optional i64 vLong,
 	 /*  */ 6: optional double vDouble,
 	 /*  */ 7: optional string vString,
-	 /*  */ 8: optional binary vBytes,
-	 /*  */ 9: optional list<bool> vBooleans,
-	 /*  */ 10: optional list<i16> vShorts,
-	 /*  */ 11: optional list<i32> vIntegers,
-	 /*  */ 12: optional list<i64> vLongs,
-	 /*  */ 13: optional list<double> vDoubles,
-	 /*  */ 14: optional list<string> vStrings,
 }
 
 struct AttributeSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Variant value of the slot. */ 2: required Variant value,
+	 /* Value of the slot. */ 2: required SlotValue value,
 }
 
 struct CollaborationQueryInvocationSpecification {
@@ -246,7 +256,7 @@ struct HawkAttributeUpdateEvent {
 	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
 	 /* Identifier of the model element that was changed. */ 2: required string id,
 	 /* Name of the attribute that was changed. */ 3: required string attribute,
-	 /* New value for the attribute. */ 4: required Variant value,
+	 /* New value for the attribute. */ 4: required SlotValue value,
 }
 
 struct HawkModelElementAdditionEvent {
@@ -312,7 +322,7 @@ struct ContainerSlot {
 	 /* Contained elements for this slot. */ 2: required list<ModelElement> elements,
 }
 
-union VariantOrModelElement {
+union QueryResult {
 	 /*  */ 1: optional byte vByte,
 	 /*  */ 2: optional bool vBoolean,
 	 /*  */ 3: optional i16 vShort,
@@ -320,15 +330,7 @@ union VariantOrModelElement {
 	 /*  */ 5: optional i64 vLong,
 	 /*  */ 6: optional double vDouble,
 	 /*  */ 7: optional string vString,
-	 /*  */ 8: optional binary vBytes,
-	 /*  */ 9: optional list<bool> vBooleans,
-	 /*  */ 10: optional list<i16> vShorts,
-	 /*  */ 11: optional list<i32> vIntegers,
-	 /*  */ 12: optional list<i64> vLongs,
-	 /*  */ 13: optional list<double> vDoubles,
-	 /*  */ 14: optional list<string> vStrings,
-	 /*  */ 15: optional ModelElement vModelElement,
-	 /*  */ 16: optional list<ModelElement> vModelElements,
+	 /*  */ 8: optional ModelElement vModelElement,
 }
 
 /* The majority of service operations provided by the MONDO
@@ -448,8 +450,8 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
   )
 	
-  /* Runs a query on a Hawk instance and returns a collection of primitives and/or model elements (see ModelElement struct). Auth needed: Yes */
-  list<VariantOrModelElement> query(
+  /* Runs a query on a Hawk instance and returns a sequence of scalar values and/or model elements. Auth needed: Yes */
+  list<QueryResult> query(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The query to be executed. */ 2: required string query,
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language,

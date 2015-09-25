@@ -34,8 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked"})
-public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrModelElement, VariantOrModelElement._Fields> {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("VariantOrModelElement");
+public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fields> {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SlotValue");
   private static final org.apache.thrift.protocol.TField V_BYTE_FIELD_DESC = new org.apache.thrift.protocol.TField("vByte", org.apache.thrift.protocol.TType.BYTE, (short)1);
   private static final org.apache.thrift.protocol.TField V_BOOLEAN_FIELD_DESC = new org.apache.thrift.protocol.TField("vBoolean", org.apache.thrift.protocol.TType.BOOL, (short)2);
   private static final org.apache.thrift.protocol.TField V_SHORT_FIELD_DESC = new org.apache.thrift.protocol.TField("vShort", org.apache.thrift.protocol.TType.I16, (short)3);
@@ -50,8 +50,6 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
   private static final org.apache.thrift.protocol.TField V_LONGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vLongs", org.apache.thrift.protocol.TType.LIST, (short)12);
   private static final org.apache.thrift.protocol.TField V_DOUBLES_FIELD_DESC = new org.apache.thrift.protocol.TField("vDoubles", org.apache.thrift.protocol.TType.LIST, (short)13);
   private static final org.apache.thrift.protocol.TField V_STRINGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vStrings", org.apache.thrift.protocol.TType.LIST, (short)14);
-  private static final org.apache.thrift.protocol.TField V_MODEL_ELEMENT_FIELD_DESC = new org.apache.thrift.protocol.TField("vModelElement", org.apache.thrift.protocol.TType.STRUCT, (short)15);
-  private static final org.apache.thrift.protocol.TField V_MODEL_ELEMENTS_FIELD_DESC = new org.apache.thrift.protocol.TField("vModelElements", org.apache.thrift.protocol.TType.LIST, (short)16);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -68,9 +66,7 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
     V_INTEGERS((short)11, "vIntegers"),
     V_LONGS((short)12, "vLongs"),
     V_DOUBLES((short)13, "vDoubles"),
-    V_STRINGS((short)14, "vStrings"),
-    V_MODEL_ELEMENT((short)15, "vModelElement"),
-    V_MODEL_ELEMENTS((short)16, "vModelElements");
+    V_STRINGS((short)14, "vStrings");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -113,10 +109,6 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           return V_DOUBLES;
         case 14: // V_STRINGS
           return V_STRINGS;
-        case 15: // V_MODEL_ELEMENT
-          return V_MODEL_ELEMENT;
-        case 16: // V_MODEL_ELEMENTS
-          return V_MODEL_ELEMENTS;
         default:
           return null;
       }
@@ -193,129 +185,112 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
     tmpMap.put(_Fields.V_STRINGS, new org.apache.thrift.meta_data.FieldMetaData("vStrings", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
-    tmpMap.put(_Fields.V_MODEL_ELEMENT, new org.apache.thrift.meta_data.FieldMetaData("vModelElement", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelElement.class)));
-    tmpMap.put(_Fields.V_MODEL_ELEMENTS, new org.apache.thrift.meta_data.FieldMetaData("vModelElements", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelElement.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(VariantOrModelElement.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(SlotValue.class, metaDataMap);
   }
 
-  public VariantOrModelElement() {
+  public SlotValue() {
     super();
   }
 
-  public VariantOrModelElement(_Fields setField, Object value) {
+  public SlotValue(_Fields setField, Object value) {
     super(setField, value);
   }
 
-  public VariantOrModelElement(VariantOrModelElement other) {
+  public SlotValue(SlotValue other) {
     super(other);
   }
-  public VariantOrModelElement deepCopy() {
-    return new VariantOrModelElement(this);
+  public SlotValue deepCopy() {
+    return new SlotValue(this);
   }
 
-  public static VariantOrModelElement vByte(byte value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vByte(byte value) {
+    SlotValue x = new SlotValue();
     x.setVByte(value);
     return x;
   }
 
-  public static VariantOrModelElement vBoolean(boolean value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vBoolean(boolean value) {
+    SlotValue x = new SlotValue();
     x.setVBoolean(value);
     return x;
   }
 
-  public static VariantOrModelElement vShort(short value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vShort(short value) {
+    SlotValue x = new SlotValue();
     x.setVShort(value);
     return x;
   }
 
-  public static VariantOrModelElement vInteger(int value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vInteger(int value) {
+    SlotValue x = new SlotValue();
     x.setVInteger(value);
     return x;
   }
 
-  public static VariantOrModelElement vLong(long value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vLong(long value) {
+    SlotValue x = new SlotValue();
     x.setVLong(value);
     return x;
   }
 
-  public static VariantOrModelElement vDouble(double value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vDouble(double value) {
+    SlotValue x = new SlotValue();
     x.setVDouble(value);
     return x;
   }
 
-  public static VariantOrModelElement vString(String value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vString(String value) {
+    SlotValue x = new SlotValue();
     x.setVString(value);
     return x;
   }
 
-  public static VariantOrModelElement vBytes(ByteBuffer value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vBytes(ByteBuffer value) {
+    SlotValue x = new SlotValue();
     x.setVBytes(value);
     return x;
   }
 
-  public static VariantOrModelElement vBytes(byte[] value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vBytes(byte[] value) {
+    SlotValue x = new SlotValue();
     x.setVBytes(ByteBuffer.wrap(Arrays.copyOf(value, value.length)));
     return x;
   }
 
-  public static VariantOrModelElement vBooleans(List<Boolean> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vBooleans(List<Boolean> value) {
+    SlotValue x = new SlotValue();
     x.setVBooleans(value);
     return x;
   }
 
-  public static VariantOrModelElement vShorts(List<Short> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vShorts(List<Short> value) {
+    SlotValue x = new SlotValue();
     x.setVShorts(value);
     return x;
   }
 
-  public static VariantOrModelElement vIntegers(List<Integer> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vIntegers(List<Integer> value) {
+    SlotValue x = new SlotValue();
     x.setVIntegers(value);
     return x;
   }
 
-  public static VariantOrModelElement vLongs(List<Long> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vLongs(List<Long> value) {
+    SlotValue x = new SlotValue();
     x.setVLongs(value);
     return x;
   }
 
-  public static VariantOrModelElement vDoubles(List<Double> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vDoubles(List<Double> value) {
+    SlotValue x = new SlotValue();
     x.setVDoubles(value);
     return x;
   }
 
-  public static VariantOrModelElement vStrings(List<String> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
+  public static SlotValue vStrings(List<String> value) {
+    SlotValue x = new SlotValue();
     x.setVStrings(value);
-    return x;
-  }
-
-  public static VariantOrModelElement vModelElement(ModelElement value) {
-    VariantOrModelElement x = new VariantOrModelElement();
-    x.setVModelElement(value);
-    return x;
-  }
-
-  public static VariantOrModelElement vModelElements(List<ModelElement> value) {
-    VariantOrModelElement x = new VariantOrModelElement();
-    x.setVModelElements(value);
     return x;
   }
 
@@ -393,16 +368,6 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           break;
         }
         throw new ClassCastException("Was expecting value of type List<String> for field 'vStrings', but got " + value.getClass().getSimpleName());
-      case V_MODEL_ELEMENT:
-        if (value instanceof ModelElement) {
-          break;
-        }
-        throw new ClassCastException("Was expecting value of type ModelElement for field 'vModelElement', but got " + value.getClass().getSimpleName());
-      case V_MODEL_ELEMENTS:
-        if (value instanceof List) {
-          break;
-        }
-        throw new ClassCastException("Was expecting value of type List<ModelElement> for field 'vModelElements', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -489,13 +454,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_BOOLEANS_FIELD_DESC.type) {
             List<Boolean> vBooleans;
             {
-              org.apache.thrift.protocol.TList _list120 = iprot.readListBegin();
-              vBooleans = new ArrayList<Boolean>(_list120.size);
-              boolean _elem121;
-              for (int _i122 = 0; _i122 < _list120.size; ++_i122)
+              org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+              vBooleans = new ArrayList<Boolean>(_list8.size);
+              boolean _elem9;
+              for (int _i10 = 0; _i10 < _list8.size; ++_i10)
               {
-                _elem121 = iprot.readBool();
-                vBooleans.add(_elem121);
+                _elem9 = iprot.readBool();
+                vBooleans.add(_elem9);
               }
               iprot.readListEnd();
             }
@@ -508,13 +473,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_SHORTS_FIELD_DESC.type) {
             List<Short> vShorts;
             {
-              org.apache.thrift.protocol.TList _list123 = iprot.readListBegin();
-              vShorts = new ArrayList<Short>(_list123.size);
-              short _elem124;
-              for (int _i125 = 0; _i125 < _list123.size; ++_i125)
+              org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
+              vShorts = new ArrayList<Short>(_list11.size);
+              short _elem12;
+              for (int _i13 = 0; _i13 < _list11.size; ++_i13)
               {
-                _elem124 = iprot.readI16();
-                vShorts.add(_elem124);
+                _elem12 = iprot.readI16();
+                vShorts.add(_elem12);
               }
               iprot.readListEnd();
             }
@@ -527,13 +492,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_INTEGERS_FIELD_DESC.type) {
             List<Integer> vIntegers;
             {
-              org.apache.thrift.protocol.TList _list126 = iprot.readListBegin();
-              vIntegers = new ArrayList<Integer>(_list126.size);
-              int _elem127;
-              for (int _i128 = 0; _i128 < _list126.size; ++_i128)
+              org.apache.thrift.protocol.TList _list14 = iprot.readListBegin();
+              vIntegers = new ArrayList<Integer>(_list14.size);
+              int _elem15;
+              for (int _i16 = 0; _i16 < _list14.size; ++_i16)
               {
-                _elem127 = iprot.readI32();
-                vIntegers.add(_elem127);
+                _elem15 = iprot.readI32();
+                vIntegers.add(_elem15);
               }
               iprot.readListEnd();
             }
@@ -546,13 +511,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_LONGS_FIELD_DESC.type) {
             List<Long> vLongs;
             {
-              org.apache.thrift.protocol.TList _list129 = iprot.readListBegin();
-              vLongs = new ArrayList<Long>(_list129.size);
-              long _elem130;
-              for (int _i131 = 0; _i131 < _list129.size; ++_i131)
+              org.apache.thrift.protocol.TList _list17 = iprot.readListBegin();
+              vLongs = new ArrayList<Long>(_list17.size);
+              long _elem18;
+              for (int _i19 = 0; _i19 < _list17.size; ++_i19)
               {
-                _elem130 = iprot.readI64();
-                vLongs.add(_elem130);
+                _elem18 = iprot.readI64();
+                vLongs.add(_elem18);
               }
               iprot.readListEnd();
             }
@@ -565,13 +530,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_DOUBLES_FIELD_DESC.type) {
             List<Double> vDoubles;
             {
-              org.apache.thrift.protocol.TList _list132 = iprot.readListBegin();
-              vDoubles = new ArrayList<Double>(_list132.size);
-              double _elem133;
-              for (int _i134 = 0; _i134 < _list132.size; ++_i134)
+              org.apache.thrift.protocol.TList _list20 = iprot.readListBegin();
+              vDoubles = new ArrayList<Double>(_list20.size);
+              double _elem21;
+              for (int _i22 = 0; _i22 < _list20.size; ++_i22)
               {
-                _elem133 = iprot.readDouble();
-                vDoubles.add(_elem133);
+                _elem21 = iprot.readDouble();
+                vDoubles.add(_elem21);
               }
               iprot.readListEnd();
             }
@@ -584,47 +549,17 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
           if (field.type == V_STRINGS_FIELD_DESC.type) {
             List<String> vStrings;
             {
-              org.apache.thrift.protocol.TList _list135 = iprot.readListBegin();
-              vStrings = new ArrayList<String>(_list135.size);
-              String _elem136;
-              for (int _i137 = 0; _i137 < _list135.size; ++_i137)
+              org.apache.thrift.protocol.TList _list23 = iprot.readListBegin();
+              vStrings = new ArrayList<String>(_list23.size);
+              String _elem24;
+              for (int _i25 = 0; _i25 < _list23.size; ++_i25)
               {
-                _elem136 = iprot.readString();
-                vStrings.add(_elem136);
+                _elem24 = iprot.readString();
+                vStrings.add(_elem24);
               }
               iprot.readListEnd();
             }
             return vStrings;
-          } else {
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
-            return null;
-          }
-        case V_MODEL_ELEMENT:
-          if (field.type == V_MODEL_ELEMENT_FIELD_DESC.type) {
-            ModelElement vModelElement;
-            vModelElement = new ModelElement();
-            vModelElement.read(iprot);
-            return vModelElement;
-          } else {
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
-            return null;
-          }
-        case V_MODEL_ELEMENTS:
-          if (field.type == V_MODEL_ELEMENTS_FIELD_DESC.type) {
-            List<ModelElement> vModelElements;
-            {
-              org.apache.thrift.protocol.TList _list138 = iprot.readListBegin();
-              vModelElements = new ArrayList<ModelElement>(_list138.size);
-              ModelElement _elem139;
-              for (int _i140 = 0; _i140 < _list138.size; ++_i140)
-              {
-                _elem139 = new ModelElement();
-                _elem139.read(iprot);
-                vModelElements.add(_elem139);
-              }
-              iprot.readListEnd();
-            }
-            return vModelElements;
           } else {
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
@@ -677,9 +612,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.BOOL, vBooleans.size()));
-          for (boolean _iter141 : vBooleans)
+          for (boolean _iter26 : vBooleans)
           {
-            oprot.writeBool(_iter141);
+            oprot.writeBool(_iter26);
           }
           oprot.writeListEnd();
         }
@@ -688,9 +623,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Short> vShorts = (List<Short>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I16, vShorts.size()));
-          for (short _iter142 : vShorts)
+          for (short _iter27 : vShorts)
           {
-            oprot.writeI16(_iter142);
+            oprot.writeI16(_iter27);
           }
           oprot.writeListEnd();
         }
@@ -699,9 +634,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Integer> vIntegers = (List<Integer>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, vIntegers.size()));
-          for (int _iter143 : vIntegers)
+          for (int _iter28 : vIntegers)
           {
-            oprot.writeI32(_iter143);
+            oprot.writeI32(_iter28);
           }
           oprot.writeListEnd();
         }
@@ -710,9 +645,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Long> vLongs = (List<Long>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, vLongs.size()));
-          for (long _iter144 : vLongs)
+          for (long _iter29 : vLongs)
           {
-            oprot.writeI64(_iter144);
+            oprot.writeI64(_iter29);
           }
           oprot.writeListEnd();
         }
@@ -721,9 +656,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Double> vDoubles = (List<Double>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, vDoubles.size()));
-          for (double _iter145 : vDoubles)
+          for (double _iter30 : vDoubles)
           {
-            oprot.writeDouble(_iter145);
+            oprot.writeDouble(_iter30);
           }
           oprot.writeListEnd();
         }
@@ -732,24 +667,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<String> vStrings = (List<String>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, vStrings.size()));
-          for (String _iter146 : vStrings)
+          for (String _iter31 : vStrings)
           {
-            oprot.writeString(_iter146);
-          }
-          oprot.writeListEnd();
-        }
-        return;
-      case V_MODEL_ELEMENT:
-        ModelElement vModelElement = (ModelElement)value_;
-        vModelElement.write(oprot);
-        return;
-      case V_MODEL_ELEMENTS:
-        List<ModelElement> vModelElements = (List<ModelElement>)value_;
-        {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, vModelElements.size()));
-          for (ModelElement _iter147 : vModelElements)
-          {
-            _iter147.write(oprot);
+            oprot.writeString(_iter31);
           }
           oprot.writeListEnd();
         }
@@ -799,13 +719,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_BOOLEANS:
           List<Boolean> vBooleans;
           {
-            org.apache.thrift.protocol.TList _list148 = iprot.readListBegin();
-            vBooleans = new ArrayList<Boolean>(_list148.size);
-            boolean _elem149;
-            for (int _i150 = 0; _i150 < _list148.size; ++_i150)
+            org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
+            vBooleans = new ArrayList<Boolean>(_list32.size);
+            boolean _elem33;
+            for (int _i34 = 0; _i34 < _list32.size; ++_i34)
             {
-              _elem149 = iprot.readBool();
-              vBooleans.add(_elem149);
+              _elem33 = iprot.readBool();
+              vBooleans.add(_elem33);
             }
             iprot.readListEnd();
           }
@@ -813,13 +733,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_SHORTS:
           List<Short> vShorts;
           {
-            org.apache.thrift.protocol.TList _list151 = iprot.readListBegin();
-            vShorts = new ArrayList<Short>(_list151.size);
-            short _elem152;
-            for (int _i153 = 0; _i153 < _list151.size; ++_i153)
+            org.apache.thrift.protocol.TList _list35 = iprot.readListBegin();
+            vShorts = new ArrayList<Short>(_list35.size);
+            short _elem36;
+            for (int _i37 = 0; _i37 < _list35.size; ++_i37)
             {
-              _elem152 = iprot.readI16();
-              vShorts.add(_elem152);
+              _elem36 = iprot.readI16();
+              vShorts.add(_elem36);
             }
             iprot.readListEnd();
           }
@@ -827,13 +747,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_INTEGERS:
           List<Integer> vIntegers;
           {
-            org.apache.thrift.protocol.TList _list154 = iprot.readListBegin();
-            vIntegers = new ArrayList<Integer>(_list154.size);
-            int _elem155;
-            for (int _i156 = 0; _i156 < _list154.size; ++_i156)
+            org.apache.thrift.protocol.TList _list38 = iprot.readListBegin();
+            vIntegers = new ArrayList<Integer>(_list38.size);
+            int _elem39;
+            for (int _i40 = 0; _i40 < _list38.size; ++_i40)
             {
-              _elem155 = iprot.readI32();
-              vIntegers.add(_elem155);
+              _elem39 = iprot.readI32();
+              vIntegers.add(_elem39);
             }
             iprot.readListEnd();
           }
@@ -841,13 +761,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_LONGS:
           List<Long> vLongs;
           {
-            org.apache.thrift.protocol.TList _list157 = iprot.readListBegin();
-            vLongs = new ArrayList<Long>(_list157.size);
-            long _elem158;
-            for (int _i159 = 0; _i159 < _list157.size; ++_i159)
+            org.apache.thrift.protocol.TList _list41 = iprot.readListBegin();
+            vLongs = new ArrayList<Long>(_list41.size);
+            long _elem42;
+            for (int _i43 = 0; _i43 < _list41.size; ++_i43)
             {
-              _elem158 = iprot.readI64();
-              vLongs.add(_elem158);
+              _elem42 = iprot.readI64();
+              vLongs.add(_elem42);
             }
             iprot.readListEnd();
           }
@@ -855,13 +775,13 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_DOUBLES:
           List<Double> vDoubles;
           {
-            org.apache.thrift.protocol.TList _list160 = iprot.readListBegin();
-            vDoubles = new ArrayList<Double>(_list160.size);
-            double _elem161;
-            for (int _i162 = 0; _i162 < _list160.size; ++_i162)
+            org.apache.thrift.protocol.TList _list44 = iprot.readListBegin();
+            vDoubles = new ArrayList<Double>(_list44.size);
+            double _elem45;
+            for (int _i46 = 0; _i46 < _list44.size; ++_i46)
             {
-              _elem161 = iprot.readDouble();
-              vDoubles.add(_elem161);
+              _elem45 = iprot.readDouble();
+              vDoubles.add(_elem45);
             }
             iprot.readListEnd();
           }
@@ -869,37 +789,17 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         case V_STRINGS:
           List<String> vStrings;
           {
-            org.apache.thrift.protocol.TList _list163 = iprot.readListBegin();
-            vStrings = new ArrayList<String>(_list163.size);
-            String _elem164;
-            for (int _i165 = 0; _i165 < _list163.size; ++_i165)
+            org.apache.thrift.protocol.TList _list47 = iprot.readListBegin();
+            vStrings = new ArrayList<String>(_list47.size);
+            String _elem48;
+            for (int _i49 = 0; _i49 < _list47.size; ++_i49)
             {
-              _elem164 = iprot.readString();
-              vStrings.add(_elem164);
+              _elem48 = iprot.readString();
+              vStrings.add(_elem48);
             }
             iprot.readListEnd();
           }
           return vStrings;
-        case V_MODEL_ELEMENT:
-          ModelElement vModelElement;
-          vModelElement = new ModelElement();
-          vModelElement.read(iprot);
-          return vModelElement;
-        case V_MODEL_ELEMENTS:
-          List<ModelElement> vModelElements;
-          {
-            org.apache.thrift.protocol.TList _list166 = iprot.readListBegin();
-            vModelElements = new ArrayList<ModelElement>(_list166.size);
-            ModelElement _elem167;
-            for (int _i168 = 0; _i168 < _list166.size; ++_i168)
-            {
-              _elem167 = new ModelElement();
-              _elem167.read(iprot);
-              vModelElements.add(_elem167);
-            }
-            iprot.readListEnd();
-          }
-          return vModelElements;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -947,9 +847,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.BOOL, vBooleans.size()));
-          for (boolean _iter169 : vBooleans)
+          for (boolean _iter50 : vBooleans)
           {
-            oprot.writeBool(_iter169);
+            oprot.writeBool(_iter50);
           }
           oprot.writeListEnd();
         }
@@ -958,9 +858,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Short> vShorts = (List<Short>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I16, vShorts.size()));
-          for (short _iter170 : vShorts)
+          for (short _iter51 : vShorts)
           {
-            oprot.writeI16(_iter170);
+            oprot.writeI16(_iter51);
           }
           oprot.writeListEnd();
         }
@@ -969,9 +869,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Integer> vIntegers = (List<Integer>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, vIntegers.size()));
-          for (int _iter171 : vIntegers)
+          for (int _iter52 : vIntegers)
           {
-            oprot.writeI32(_iter171);
+            oprot.writeI32(_iter52);
           }
           oprot.writeListEnd();
         }
@@ -980,9 +880,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Long> vLongs = (List<Long>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I64, vLongs.size()));
-          for (long _iter172 : vLongs)
+          for (long _iter53 : vLongs)
           {
-            oprot.writeI64(_iter172);
+            oprot.writeI64(_iter53);
           }
           oprot.writeListEnd();
         }
@@ -991,9 +891,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<Double> vDoubles = (List<Double>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, vDoubles.size()));
-          for (double _iter173 : vDoubles)
+          for (double _iter54 : vDoubles)
           {
-            oprot.writeDouble(_iter173);
+            oprot.writeDouble(_iter54);
           }
           oprot.writeListEnd();
         }
@@ -1002,24 +902,9 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         List<String> vStrings = (List<String>)value_;
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, vStrings.size()));
-          for (String _iter174 : vStrings)
+          for (String _iter55 : vStrings)
           {
-            oprot.writeString(_iter174);
-          }
-          oprot.writeListEnd();
-        }
-        return;
-      case V_MODEL_ELEMENT:
-        ModelElement vModelElement = (ModelElement)value_;
-        vModelElement.write(oprot);
-        return;
-      case V_MODEL_ELEMENTS:
-        List<ModelElement> vModelElements = (List<ModelElement>)value_;
-        {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, vModelElements.size()));
-          for (ModelElement _iter175 : vModelElements)
-          {
-            _iter175.write(oprot);
+            oprot.writeString(_iter55);
           }
           oprot.writeListEnd();
         }
@@ -1060,10 +945,6 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
         return V_DOUBLES_FIELD_DESC;
       case V_STRINGS:
         return V_STRINGS_FIELD_DESC;
-      case V_MODEL_ELEMENT:
-        return V_MODEL_ELEMENT_FIELD_DESC;
-      case V_MODEL_ELEMENTS:
-        return V_MODEL_ELEMENTS_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -1284,34 +1165,6 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
     value_ = value;
   }
 
-  public ModelElement getVModelElement() {
-    if (getSetField() == _Fields.V_MODEL_ELEMENT) {
-      return (ModelElement)getFieldValue();
-    } else {
-      throw new RuntimeException("Cannot get field 'vModelElement' because union is currently set to " + getFieldDesc(getSetField()).name);
-    }
-  }
-
-  public void setVModelElement(ModelElement value) {
-    if (value == null) throw new NullPointerException();
-    setField_ = _Fields.V_MODEL_ELEMENT;
-    value_ = value;
-  }
-
-  public List<ModelElement> getVModelElements() {
-    if (getSetField() == _Fields.V_MODEL_ELEMENTS) {
-      return (List<ModelElement>)getFieldValue();
-    } else {
-      throw new RuntimeException("Cannot get field 'vModelElements' because union is currently set to " + getFieldDesc(getSetField()).name);
-    }
-  }
-
-  public void setVModelElements(List<ModelElement> value) {
-    if (value == null) throw new NullPointerException();
-    setField_ = _Fields.V_MODEL_ELEMENTS;
-    value_ = value;
-  }
-
   public boolean isSetVByte() {
     return setField_ == _Fields.V_BYTE;
   }
@@ -1382,30 +1235,20 @@ public class VariantOrModelElement extends org.apache.thrift.TUnion<VariantOrMod
   }
 
 
-  public boolean isSetVModelElement() {
-    return setField_ == _Fields.V_MODEL_ELEMENT;
-  }
-
-
-  public boolean isSetVModelElements() {
-    return setField_ == _Fields.V_MODEL_ELEMENTS;
-  }
-
-
   public boolean equals(Object other) {
-    if (other instanceof VariantOrModelElement) {
-      return equals((VariantOrModelElement)other);
+    if (other instanceof SlotValue) {
+      return equals((SlotValue)other);
     } else {
       return false;
     }
   }
 
-  public boolean equals(VariantOrModelElement other) {
+  public boolean equals(SlotValue other) {
     return other != null && getSetField() == other.getSetField() && getFieldValue().equals(other.getFieldValue());
   }
 
   @Override
-  public int compareTo(VariantOrModelElement other) {
+  public int compareTo(SlotValue other) {
     int lastComparison = org.apache.thrift.TBaseHelper.compareTo(getSetField(), other.getSetField());
     if (lastComparison == 0) {
       return org.apache.thrift.TBaseHelper.compareTo(getFieldValue(), other.getFieldValue());

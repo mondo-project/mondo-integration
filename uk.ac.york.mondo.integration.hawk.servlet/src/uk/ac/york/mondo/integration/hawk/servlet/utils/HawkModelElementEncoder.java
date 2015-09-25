@@ -33,7 +33,7 @@ import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.MixedReference._Fields;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
-import uk.ac.york.mondo.integration.api.Variant;
+import uk.ac.york.mondo.integration.api.SlotValue;
 
 /**
  * Encodes a graph of Hawk {@link ModelElementNode}s into Thrift
@@ -398,7 +398,7 @@ public class HawkModelElementEncoder {
 		assert rawValue != null;
 
 		// TODO encode arrays as well
-		Variant value = new Variant();
+		SlotValue value = new SlotValue();
 		if (rawValue instanceof Object[]) {
 			rawValue = Arrays.asList((Object[])rawValue);
 		}
@@ -410,7 +410,7 @@ public class HawkModelElementEncoder {
 				// 1-5 bytes on TTupleTransport)
 				encodeSingleValueAttributeSlot(value, cValue.iterator().next());
 			} else if (cSize > 0) {
-				value = new Variant();
+				value = new SlotValue();
 				encodeNonEmptyListAttributeSlot(value, rawValue, cValue);
 			} else {
 				// empty list <-> isSet=true and s.values=null
@@ -428,7 +428,7 @@ public class HawkModelElementEncoder {
 		return new AttributeSlot(name, value);
 	}
 
-	private static void encodeSingleValueAttributeSlot(Variant value, final Object rawValue) {
+	private static void encodeSingleValueAttributeSlot(SlotValue value, final Object rawValue) {
 		if (rawValue instanceof Byte) {
 			value.setVByte((byte) rawValue);
 		} else if (rawValue instanceof Float) {
@@ -449,7 +449,7 @@ public class HawkModelElementEncoder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void encodeNonEmptyListAttributeSlot(Variant value, final Object rawValue, final Collection<?> cValue) {
+	private static void encodeNonEmptyListAttributeSlot(SlotValue value, final Object rawValue, final Collection<?> cValue) {
 		final Iterator<?> it = cValue.iterator();
 		final Object o = it.next();
 		if (o instanceof Byte) {

@@ -13,7 +13,7 @@ package uk.ac.york.mondo.integration.hawk.servlet.servlets;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,8 @@ import org.apache.thrift.TException;
 import org.hawk.core.IModelIndexer.ShutdownRequestType;
 import org.hawk.core.IVcsManager;
 import org.hawk.core.graph.IGraphDatabase;
+import org.hawk.core.graph.IGraphNode;
+import org.hawk.core.graph.IGraphNodeReference;
 import org.hawk.core.graph.IGraphTransaction;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
@@ -64,13 +66,14 @@ import uk.ac.york.mondo.integration.api.InvalidMetamodel;
 import uk.ac.york.mondo.integration.api.InvalidPollingConfiguration;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.QueryResult;
+import uk.ac.york.mondo.integration.api.QueryResult._Fields;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.UnknownRepositoryType;
 import uk.ac.york.mondo.integration.api.VCSAuthenticationFailed;
-import uk.ac.york.mondo.integration.api.VariantOrModelElement;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
@@ -159,7 +162,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<VariantOrModelElement> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
+	public List<QueryResult> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		Map<String, String> context = new HashMap<>();
 		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
@@ -167,29 +170,18 @@ final class HawkThriftIface implements Hawk.Iface {
 		try {
 			Object ret = model.contextFullQuery(query, language, context);
 
-			final VariantOrModelElement v = new VariantOrModelElement();
-
-//			v.setVBoolean(value);
-//			v.setVByte(value);
-//			v.setVDouble(value);
-//			v.setVInteger(value);
-//			v.setVLong(value);
-//			v.setVShort(value);
-//			v.setVString(value);
-//			v.setVModelElement(value);
-//
-//			v.setVBooleans(value);
-//			v.setVBytes(value);
-//			v.setVDoubles(value);
-//			v.setVIntegers(value);
-//			v.setVLongs(value);
-//			v.setVShorts(value);
-//			v.setVStrings(value);
-//			v.setVModelElements(value);
-
-			v.setVString("" + ret);
-
-			return Arrays.asList(v);
+			try (final IGraphTransaction t = model.getGraph().beginTransaction()) {
+				final List<QueryResult> l = new ArrayList<>();
+				if (ret instanceof Collection) {
+					final Collection<?> c = (Collection<?>) ret;
+					for (Object o : c) {
+						addEncodedValue(model, o, l);
+					}
+				} else {
+					addEncodedValue(model, ret, l);
+				}
+				return l;
+			}
 		} catch (NoSuchElementException ex) {
 			throw new UnknownQueryLanguage();
 		} catch (InvalidQueryException ex) {
@@ -198,6 +190,39 @@ final class HawkThriftIface implements Hawk.Iface {
 			throw new FailedQuery(ex.getMessage());
 		} catch (Exception ex) {
 			throw new TException(ex);
+		}
+	}
+
+	protected void addEncodedValue(final HModel model, Object ret,
+			final List<QueryResult> l) throws Exception {
+		if (ret instanceof Boolean) {
+			l.add(new QueryResult(_Fields.V_BOOLEAN, (Boolean)ret));
+		} else if (ret instanceof Byte) {
+			l.add(new QueryResult(_Fields.V_BYTE, (Byte)ret));
+		} else if (ret instanceof Double || ret instanceof Float) {
+			l.add(new QueryResult(_Fields.V_DOUBLE, (Double)ret));
+		} else if (ret instanceof Integer) {
+			l.add(new QueryResult(_Fields.V_INTEGER, (Integer)ret));
+		} else if (ret instanceof Long) {
+			l.add(new QueryResult(_Fields.V_LONG, (Long)ret));
+		} else if (ret instanceof Short) {
+			l.add(new QueryResult(_Fields.V_SHORT, (Short)ret));
+		} else if (ret instanceof String) {
+			l.add(new QueryResult(_Fields.V_STRING, (String)ret));
+		} else if (ret instanceof IGraphNodeReference) {
+			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+			enc.setIncludeNodeIDs(true);
+			enc.setUseContainment(false);
+			enc.encode(((IGraphNodeReference)ret).getId());
+			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.getElements().get(0)));
+		} else if (ret instanceof IGraphNode) {
+			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+			enc.setIncludeNodeIDs(true);
+			enc.setUseContainment(false);
+			enc.encode(new ModelElementNode((IGraphNode)ret));
+			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.getElements().get(0)));
+		} else {
+			l.add(new QueryResult(_Fields.V_STRING, ret + ""));
 		}
 	}
 
