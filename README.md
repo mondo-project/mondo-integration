@@ -18,7 +18,7 @@ The project has the following external dependencies:
 Getting started
 ---------------
 
-We recommend to use Eclipse Modeling (Luna or later). To start with, import all projects from this repository.
+We recommend to use Eclipse Modeling (Luna or later). To start with, import all `uk.ac.york.mondo.integration.*` projects from this repository.
 
 ### Artemis dependencies
 
@@ -31,7 +31,7 @@ The dependencies for the project using Artemis are located in `uk.ac.york.mondo.
     ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
     ```
 
-    You may have to _run it twice_ in order to succeed.
+In both cases, you may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
