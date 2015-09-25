@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-commons-1.0.0.jar" sourcepath="/home/antonio/src/apache-artemis-1.0.0"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-core-client-1.0.0.jar" sourcepath="/home/antonio/src/apache-artemis-1.0.0/artemis-core-client/src/main/java"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-journal-1.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-native-1.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-selector-1.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-server-1.0.0.jar" sourcepath="lib/artemis-server-1.0.0-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.9.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-3.1.4.GA.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-annotations-2.0.0.Alpha1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-processor-2.0.0.Alpha2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jboss-logmanager-1.5.3.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jdeparser-2.0.0.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jgroups-3.6.0.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/netty-all-4.0.20.Final.jar"/>
-	<classpathentry kind="lib" path="lib/javassist-3.20.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib/artemis-stomp-protocol-1.0.0.jar" sourcepath="lib/artemis-stomp-protocol-1.0.0-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="lib/artemis-commons-jar-1.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/artemis-core-client-jar-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/artemis-journal-jar-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/artemis-native-jar-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/artemis-selector-jar-1.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/artemis-server-jar-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/artemis-stomp-protocol-jar-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-jar-1.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-jar-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-jar-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-bundle-3.20.0-GA.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-annotations-jar-2.0.0.Alpha1.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-jar-3.1.4.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-processor-jar-2.0.0.Alpha2.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logmanager-jar-1.5.3.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jdeparser-jar-2.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jgroups-bundle-3.6.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/netty-all-jar-4.0.20.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
