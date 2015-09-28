@@ -14,14 +14,19 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -35,6 +40,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -42,6 +48,8 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.forms.IFormColors;
 import org.eclipse.ui.forms.IManagedForm;
@@ -56,7 +64,10 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.FileEditorInput;
 
+import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
@@ -134,6 +145,106 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void loadingModeChanged() { refreshRawText(); }
 				@Override protected void queryLanguageChanged() { refreshRawText(); }
 				@Override protected void queryChanged() { refreshRawText(); }
+
+				@Override protected void selectQueryLanguage() {
+					final HawkModelDescriptor d = buildDescriptor();
+					try {
+						Hawk.Client client = APIUtils.connectToHawk(
+								d.getHawkURL(), d.getThriftProtocol());
+						final String[] languages = client.listQueryLanguages(
+								d.getHawkInstance()).toArray(new String[0]);
+						client.getInputProtocol().getTransport().close();
+
+						final Shell shell = formText.getShell();
+						final ListDialog dlg = new ListDialog(shell);
+						dlg.setInput(languages);
+						dlg.setContentProvider(new ArrayContentProvider());
+						dlg.setLabelProvider(new LabelProvider());
+						dlg.setMessage("Select a query language:");
+						dlg.setTitle("Query language selection");
+						dlg.setInitialSelections(new String[]{d.getHawkQueryLanguage()});
+						if (dlg.open() == IDialogConstants.OK_ID) {
+							final Object[] selected = dlg.getResult();
+							if (selected.length > 0) {
+								setQueryLanguage(selected[0].toString());
+							} else {
+								setQueryLanguage("");
+							}
+						}
+					} catch (Exception ex) {
+						Activator.getDefault().logError(ex);
+					}
+				}
+
+				@Override
+				protected void selectRepository() {
+					final HawkModelDescriptor d = buildDescriptor();
+					try {
+						Hawk.Client client = APIUtils.connectToHawk(
+								d.getHawkURL(), d.getThriftProtocol());
+						List<Repository> repositories = client.listRepositories(d.getHawkInstance());
+						final String[] repos = new String[1 + repositories.size()];
+						repos[0] = "*";
+						int iRepo = 1;
+						for (Repository r : repositories) {
+							repos[iRepo++] = r.uri;
+						}
+						client.getInputProtocol().getTransport().close();
+
+						final Shell shell = formText.getShell();
+						final ListDialog dlg = new ListDialog(shell);
+						dlg.setInput(repos);
+						dlg.setContentProvider(new ArrayContentProvider());
+						dlg.setLabelProvider(new LabelProvider());
+						dlg.setMessage("Select a repository:");
+						dlg.setTitle("Repository selection");
+						dlg.setInitialSelections(new String[]{d.getHawkRepository()});
+						if (dlg.open() == IDialogConstants.OK_ID) {
+							final Object[] selected = dlg.getResult();
+							if (selected.length > 0) {
+								setRepositoryURL(selected[0].toString());
+							} else {
+								setRepositoryURL("*");
+							}
+						}
+					} catch (Exception ex) {
+						Activator.getDefault().logError(ex);
+					}
+				}
+
+				@Override
+				protected void selectFiles() {
+					final HawkModelDescriptor d = buildDescriptor();
+					try {
+						Hawk.Client client = APIUtils.connectToHawk(
+								d.getHawkURL(), d.getThriftProtocol());
+						final String[] languages = client.listFiles(
+								d.getHawkInstance(), Arrays.asList(d.getHawkRepository()),
+								Arrays.asList("*")).toArray(new String[0]);
+						client.getInputProtocol().getTransport().close();
+
+						final Shell shell = formText.getShell();
+						final ListSelectionDialog dlg = new ListSelectionDialog(
+								shell, languages, new ArrayContentProvider(),
+								new LabelProvider(), "Select files (zero files = all files):");
+						dlg.setTitle("File selection");
+						dlg.setInitialSelections(d.getHawkFilePatterns());
+						if (dlg.open() == IDialogConstants.OK_ID) {
+							final Object[] selected = dlg.getResult();
+							if (selected.length > 0) {
+								final String[] sFiles = new String[selected.length];
+								for (int i = 0; i < selected.length; i++) {
+									sFiles[i] = selected[i].toString();
+								}
+								setFilePatterns(sFiles);
+							} else {
+								setFilePatterns("*");
+							}
+						}
+					} catch (Exception ex) {
+						Activator.getDefault().logError(ex);
+					}
+				}
 			};
 			this.subscriptionSection = new SubscriptionSection(toolkit, formBody) {
 				@Override protected void subscribeChanged() { refreshRawText(); }
@@ -177,11 +288,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	 * Paired label and text field.
 	 */
 	private static class FormTextField {
-		private final Label label;
+		private final FormText label;
 		private final Text text;
 
 		public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
-		    label = toolkit.createLabel(sectionClient, labelText, SWT.WRAP);
+		    label = toolkit.createFormText(sectionClient, true);
+		    label.setText("<form><p>" + labelText + "</p></form>", true, false);
 		    label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
 
 		    final TableWrapData layoutData = new TableWrapData();
@@ -200,6 +312,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			text.removeModifyListener(disabledListener);
 			text.setText(newText);
 			text.addModifyListener(disabledListener);
+		}
+
+		public FormText getLabel() {
+			return label;
 		}
 	}
 
@@ -263,12 +379,16 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
 		    cContents.setLayout(createTableWrapLayout(2));
 
-		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
-		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
+		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "<a href=\"selectRepository\">Repository URL</a>:", HawkModelDescriptor.DEFAULT_REPOSITORY);
+		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "<a href=\"selectFiles\">File pattern(s)</a>:", HawkModelDescriptor.DEFAULT_FILES);
 		    this.fldLoadingMode = new FormComboBoxField(toolkit, cContents, "Loading mode:", HawkModelDescriptor.LoadingMode.strings());
-		    this.fldQueryLanguage = new FormTextField(toolkit, cContents, "Query language:", HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE);
+		    this.fldQueryLanguage = new FormTextField(toolkit, cContents, "<a href=\"selectQueryLanguage\">Query language</a>:", HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE);
 		    this.fldQuery = new FormTextField(toolkit, cContents, "Query:", HawkModelDescriptor.DEFAULT_QUERY);
 
+		    this.fldRepositoryURL.getText().setToolTipText(
+		        "Pattern for the URL repositories to be fetched (* means 0+ arbitrary characters).");
+		    this.fldFilePatterns.getText().setToolTipText(
+		        "Comma-separated patterns for the files repositories to be fetched (* means 0+ arbitrary characters).");
 		    this.fldQueryLanguage.getText().setToolTipText(
 		        "Language in which the query will be written. If empty, the entire model will be retrieved.");
 		    this.fldQuery.getText().setToolTipText(
@@ -279,6 +399,26 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    fldLoadingMode.getCombo().addSelectionListener(this);
 		    fldQueryLanguage.getText().addModifyListener(this);
 		    fldQuery.getText().addModifyListener(this);
+
+		    final HyperlinkAdapter hyperlinkListener = new HyperlinkAdapter() {
+				@Override
+				public void linkActivated(HyperlinkEvent e) {
+					switch (e.getHref().toString()) {
+					case "selectQueryLanguage":
+						selectQueryLanguage();
+						break;
+					case "selectRepository":
+						selectRepository();
+						break;
+					case "selectFiles":
+						selectFiles();
+						break;
+					}
+				}
+			};
+			this.fldQueryLanguage.getLabel().addHyperlinkListener(hyperlinkListener);
+			this.fldRepositoryURL.getLabel().addHyperlinkListener(hyperlinkListener);
+			this.fldFilePatterns.getLabel().addHyperlinkListener(hyperlinkListener);
 		}
 
 		public String[] getFilePatterns() {
@@ -326,7 +466,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			}
 		}
 
-		public void setFilePatterns(String[] patterns) {
+		public void setFilePatterns(String... patterns) {
 			fldFilePatterns.setTextWithoutListener(HawkMultiPageEditor.concat(patterns, ","), this);
 		}
 
@@ -351,6 +491,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		protected abstract void loadingModeChanged();
 		protected abstract void queryLanguageChanged();
 		protected abstract void queryChanged();
+
+		protected abstract void selectQueryLanguage();
+		protected abstract void selectRepository();
+		protected abstract void selectFiles();
 	}
 
 	private static abstract class InstanceSection extends FormSection implements ModifyListener, SelectionListener {
