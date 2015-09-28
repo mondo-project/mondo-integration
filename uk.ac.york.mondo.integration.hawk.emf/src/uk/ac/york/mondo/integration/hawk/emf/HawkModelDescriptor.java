@@ -146,26 +146,35 @@ public class HawkModelDescriptor {
 	public static final String DEFAULT_CLIENTID = System.getProperty("user.name");
 	public static final SubscriptionDurability DEFAULT_DURABILITY = SubscriptionDurability.DEFAULT;
 
+	// Empty strings mean entire model - no actual query performed
+	public static final String DEFAULT_QUERY_LANGUAGE = "";
+	public static final String DEFAULT_QUERY = "";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkModelDescriptor.class);
 	private static final String FILE_PATTERN_SEP = ",";
 	private static final String PROPERTY_HAWK_FILES = "hawk.files";
 	private static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
 	private static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
 	private static final String PROPERTY_HAWK_URL = "hawk.url";
-	private static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thrift.protocol";
+	private static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thriftProtocol";
 	private static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
+	private static final String PROPERTY_HAWK_QUERY_LANGUAGE = "hawk.queryLanguage";
+	private static final String PROPERTY_HAWK_QUERY = "hawk.query";
 	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
 	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
 	private static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
 
 	private String hawkURL = DEFAULT_URL;
 	private String hawkInstance = DEFAULT_INSTANCE;
+	private ThriftProtocol thriftProtocol = DEFAULT_TPROTOCOL;
+
 	private String hawkRepository = DEFAULT_REPOSITORY;
 	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
-
 	private LoadingMode loadingMode = DEFAULT_LOADING_MODE;
+	private String hawkQueryLanguage = DEFAULT_QUERY_LANGUAGE;
+	private String hawkQuery = DEFAULT_QUERY;
+
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
-	private ThriftProtocol thriftProtocol = DEFAULT_TPROTOCOL;
 	private String subscriptionClientID = DEFAULT_CLIENTID;
 	private SubscriptionDurability subscriptionDurability = DEFAULT_DURABILITY;
 
@@ -223,6 +232,22 @@ public class HawkModelDescriptor {
 		this.loadingMode = mode;
 	}
 
+	public String getHawkQueryLanguage() {
+		return hawkQueryLanguage;
+	}
+
+	public void setHawkQueryLanguage(String hawkQueryLanguage) {
+		this.hawkQueryLanguage = hawkQueryLanguage;
+	}
+
+	public String getHawkQuery() {
+		return hawkQuery;
+	}
+
+	public void setHawkQuery(String hawkQuery) {
+		this.hawkQuery = hawkQuery;
+	}
+
 	public boolean isSubscribed() {
 		return isSubscribed;
 	}
@@ -272,6 +297,8 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_REPOSITORY, hawkRepository);
 		props.setProperty(PROPERTY_HAWK_FILES, concat(hawkFilePatterns, FILE_PATTERN_SEP));
 		props.setProperty(PROPERTY_HAWK_LOADING_MODE, loadingMode.toString());
+		props.setProperty(PROPERTY_HAWK_QUERY_LANGUAGE, hawkQueryLanguage);
+		props.setProperty(PROPERTY_HAWK_QUERY, hawkQuery);
 
 		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
 		props.setProperty(PROPERTY_HAWK_CLIENTID, subscriptionClientID);
@@ -287,6 +314,8 @@ public class HawkModelDescriptor {
 		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
 		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(FILE_PATTERN_SEP);
 		this.loadingMode = LoadingMode.valueOf(optionalProperty(props, PROPERTY_HAWK_LOADING_MODE, DEFAULT_LOADING_MODE + ""));
+		this.hawkQueryLanguage = optionalProperty(props, PROPERTY_HAWK_QUERY_LANGUAGE, DEFAULT_QUERY_LANGUAGE);
+		this.hawkQuery = optionalProperty(props, PROPERTY_HAWK_QUERY, DEFAULT_QUERY);
 
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
 		this.subscriptionClientID = optionalProperty(props, PROPERTY_HAWK_CLIENTID, DEFAULT_CLIENTID);

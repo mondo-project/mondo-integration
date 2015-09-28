@@ -36,6 +36,8 @@ public class HawkResourceFactoryImpl implements Factory {
 	private static final String URLPARAM_THRIFT_PROTOCOL = "tprotocol";
 	private static final String URLPARAM_FILE_PATTERNS = "filePatterns";
 	private static final String URLPARAM_INSTANCE = "instance";
+	private static final String URLPARAM_QUERY = "query";
+	private static final String URLPARAM_QUERY_LANGUAGE = "queryLanguage";
 
 	public HawkResourceFactoryImpl() {
 		// TODO get credentials from Eclipse preferences?
@@ -72,6 +74,10 @@ public class HawkResourceFactoryImpl implements Factory {
 				d.getHawkRepository(), HawkModelDescriptor.DEFAULT_REPOSITORY, removeDefaultValues);
 		addParameter(params, URLPARAM_LOADING_MODE,
 				d.getLoadingMode().name().toUpperCase(), HawkModelDescriptor.DEFAULT_LOADING_MODE.name().toUpperCase(), removeDefaultValues);
+		addParameter(params, URLPARAM_QUERY_LANGUAGE,
+				d.getHawkQueryLanguage(), HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE, removeDefaultValues);
+		addParameter(params, URLPARAM_QUERY,
+				d.getHawkQuery(), HawkModelDescriptor.DEFAULT_QUERY, removeDefaultValues);
 
 		addParameter(params, URLPARAM_SUBSCRIBE,
 				d.isSubscribed() + "", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED + "", removeDefaultValues);
@@ -122,6 +128,10 @@ public class HawkResourceFactoryImpl implements Factory {
 				descriptor.setSubscriptionDurability(SubscriptionDurability.valueOf(v.toUpperCase())); break;
 			case URLPARAM_CLIENTID:
 				descriptor.setSubscriptionClientID(v); break;
+			case URLPARAM_QUERY_LANGUAGE:
+				descriptor.setHawkQueryLanguage(v); break;
+			case URLPARAM_QUERY:
+				descriptor.setHawkQuery(v); break;
 			}
 		}
 		return descriptor;

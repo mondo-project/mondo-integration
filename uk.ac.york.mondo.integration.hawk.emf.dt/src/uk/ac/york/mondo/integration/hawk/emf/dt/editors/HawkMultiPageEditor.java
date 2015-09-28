@@ -132,6 +132,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
 				@Override protected void repositoryURLChanged() { refreshRawText(); }
 				@Override protected void loadingModeChanged() { refreshRawText(); }
+				@Override protected void queryLanguageChanged() { refreshRawText(); }
+				@Override protected void queryChanged() { refreshRawText(); }
 			};
 			this.subscriptionSection = new SubscriptionSection(toolkit, formBody) {
 				@Override protected void subscribeChanged() { refreshRawText(); }
@@ -193,6 +195,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		public Text getText() {
 			return text;
 		}
+
+		public void setTextWithoutListener(String newText, ModifyListener disabledListener) {
+			text.removeModifyListener(disabledListener);
+			text.setText(newText);
+			text.addModifyListener(disabledListener);
+		}
 	}
 
 	/**
@@ -248,6 +256,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		private final FormTextField fldFilePatterns;
 		private final FormTextField fldRepositoryURL;
 		private final FormComboBoxField fldLoadingMode;
+		private final FormTextField fldQueryLanguage;
+		private final FormTextField fldQuery;
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
@@ -256,10 +266,19 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "Repository URL:", HawkModelDescriptor.DEFAULT_REPOSITORY);
 		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "File pattern(s):", HawkModelDescriptor.DEFAULT_FILES);
 		    this.fldLoadingMode = new FormComboBoxField(toolkit, cContents, "Loading mode:", HawkModelDescriptor.LoadingMode.strings());
+		    this.fldQueryLanguage = new FormTextField(toolkit, cContents, "Query language:", HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE);
+		    this.fldQuery = new FormTextField(toolkit, cContents, "Query:", HawkModelDescriptor.DEFAULT_QUERY);
+
+		    this.fldQueryLanguage.getText().setToolTipText(
+		        "Language in which the query will be written. If empty, the entire model will be retrieved.");
+		    this.fldQuery.getText().setToolTipText(
+		        "Query to be used for the initial contents of the model. If empty, the entire model will be retrieved.");
 
 		    fldRepositoryURL.getText().addModifyListener(this);
 		    fldFilePatterns.getText().addModifyListener(this);
 		    fldLoadingMode.getCombo().addSelectionListener(this);
+		    fldQueryLanguage.getText().addModifyListener(this);
+		    fldQuery.getText().addModifyListener(this);
 		}
 
 		public String[] getFilePatterns() {
@@ -272,6 +291,14 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 		public LoadingMode getLoadingMode() {
 			return LoadingMode.values()[fldLoadingMode.getCombo().getSelectionIndex()];
+		}
+
+		public String getQueryLanguage() {
+			return fldQueryLanguage.getText().getText().trim();
+		}
+
+		public String getQuery() {
+			return fldQuery.getText().getText().trim();
 		}
 
 		@Override
@@ -292,30 +319,38 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				repositoryURLChanged();
 			} else if (e.widget == fldFilePatterns.getText()) {
 				filePatternsChanged();
+			} else if (e.widget == fldQueryLanguage.getText()) {
+				queryLanguageChanged();
+			} else if (e.widget == fldQuery.getText()) {
+				queryChanged();
 			}
 		}
 
 		public void setFilePatterns(String[] patterns) {
-			final Text text = fldFilePatterns.getText();
-			text.removeModifyListener(this);
-			text.setText(HawkMultiPageEditor.concat(patterns, ","));
-			text.addModifyListener(this);
+			fldFilePatterns.setTextWithoutListener(HawkMultiPageEditor.concat(patterns, ","), this);
 		}
 
 		public void setRepositoryURL(String url) {
-			final Text text = fldRepositoryURL.getText();
-			text.removeModifyListener(this);
-			text.setText(url);
-			text.addModifyListener(this);
+			fldRepositoryURL.setTextWithoutListener(url, this);
 		}
 
 		public void setLoadingMode(LoadingMode lazy) {
 			fldLoadingMode.getCombo().select(lazy.ordinal());
 		}
 
+		public void setQueryLanguage(String queryLanguage) {
+			fldQueryLanguage.setTextWithoutListener(queryLanguage, this);
+		}
+
+		public void setQuery(String query) {
+			fldQueryLanguage.setTextWithoutListener(query, this);
+		}
+
 		protected abstract void filePatternsChanged();
 		protected abstract void repositoryURLChanged();
 		protected abstract void loadingModeChanged();
+		protected abstract void queryLanguageChanged();
+		protected abstract void queryChanged();
 	}
 
 	private static abstract class InstanceSection extends FormSection implements ModifyListener, SelectionListener {
@@ -349,17 +384,11 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public void setInstanceName(String name) {
-			final Text text = fldInstanceName.getText();
-			text.removeModifyListener(this);
-			text.setText(name);
-			text.addModifyListener(this);
+			fldInstanceName.setTextWithoutListener(name, this);
 		}
 
 		public void setServerURL(String url) {
-			final Text text = fldServerURL.getText();
-			text.removeModifyListener(this);
-			text.setText(url);
-			text.addModifyListener(this);
+			fldServerURL.setTextWithoutListener(url, this);
 		}
 
 		public void setThriftProtocol(ThriftProtocol t) {
@@ -454,10 +483,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public void setClientID(String s) {
-			final Text text = fldClientID.getText();
-			text.removeModifyListener(this);
-			text.setText(s);
-			text.addModifyListener(this);
+			fldClientID.setTextWithoutListener(s, this);
 		}
 
 		public SubscriptionDurability getDurability() {
@@ -604,6 +630,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
 			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
 			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
+			detailsPage.getContentSection().setQueryLanguage(descriptor.getHawkQueryLanguage());
+			detailsPage.getContentSection().setQuery(descriptor.getHawkQuery());
 			detailsPage.getSubscriptionSection().setSubscribed(descriptor.isSubscribed());
 			detailsPage.getSubscriptionSection().setClientID(descriptor.getSubscriptionClientID());
 			detailsPage.getSubscriptionSection().setDurability(descriptor.getSubscriptionDurability());
@@ -636,6 +664,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setSubscribed(detailsPage.getSubscriptionSection().isSubscribed());
 		descriptor.setSubscriptionClientID(detailsPage.getSubscriptionSection().getClientID());
 		descriptor.setSubscriptionDurability(detailsPage.getSubscriptionSection().getDurability());
+		descriptor.setHawkQueryLanguage(detailsPage.getContentSection().getQueryLanguage());
+		descriptor.setHawkQuery(detailsPage.getContentSection().getQuery());
 		return descriptor;
 	}
 
