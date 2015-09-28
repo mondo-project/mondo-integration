@@ -35,7 +35,7 @@ In both cases, you may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
-Add Hawk to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
+The Hawk update site mentioned in the MONDO target platform by default is only accessible to MONDO members. Non-MONDO developers will need to replace it with their own copy of the Hawk update site following [these instructions](https://github.com/kb634/mondo-hawk/blob/master/README.md#running-from-source). Once built, add it to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
 
 ### Setting the target platform
 
