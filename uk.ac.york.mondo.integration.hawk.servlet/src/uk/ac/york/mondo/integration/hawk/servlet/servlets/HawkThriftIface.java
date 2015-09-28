@@ -331,7 +331,7 @@ final class HawkThriftIface implements Hawk.Iface {
 			final Set<FileNode> fileNodes = gw.getFileNodes(repository, filePatterns);
 			final List<String> files = new ArrayList<>(fileNodes.size());
 			for (FileNode node : fileNodes) {
-				files.add(node.getFileName());
+				files.add(node.getFilePath());
 			}
 
 			return files;

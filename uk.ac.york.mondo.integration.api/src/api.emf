@@ -513,6 +513,10 @@ class CloudATL {
 class ModelElement {
 	@doc(d="Unique ID of the model element (not set if using position-based references)", optional="true")
 	attr String ~id;
+	@doc(d="URI of the repository to which the element belongs (not set if equal to that of the previous model element)", optional="true")
+	attr String repositoryURL;
+	@doc(d="Name of the file to which the element belongs (not set if equal to that of the previous model element)", optional="true")
+	attr String file;
 	@doc(d="URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element)", optional="true")
 	attr String metamodelUri;
 	@doc(d="Name of the type that the model element is an instance of (not set if equal to that of the previous model element)", optional="true")

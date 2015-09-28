@@ -4222,6 +4222,8 @@ HawkChangeEvent.prototype.write = function(output) {
 
 ModelElement = function(args) {
   this.id = null;
+  this.repositoryURL = null;
+  this.file = null;
   this.metamodelUri = null;
   this.typeName = null;
   this.attributes = null;
@@ -4230,6 +4232,12 @@ ModelElement = function(args) {
   if (args) {
     if (args.id !== undefined) {
       this.id = args.id;
+    }
+    if (args.repositoryURL !== undefined) {
+      this.repositoryURL = args.repositoryURL;
+    }
+    if (args.file !== undefined) {
+      this.file = args.file;
     }
     if (args.metamodelUri !== undefined) {
       this.metamodelUri = args.metamodelUri;
@@ -4271,19 +4279,33 @@ ModelElement.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.metamodelUri = input.readString().value;
+        this.repositoryURL = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
-        this.typeName = input.readString().value;
+        this.file = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.metamodelUri = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.STRING) {
+        this.typeName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
       if (ftype == Thrift.Type.LIST) {
         var _size88 = 0;
         var _rtmp392;
@@ -4304,7 +4326,7 @@ ModelElement.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 5:
+      case 7:
       if (ftype == Thrift.Type.LIST) {
         var _size95 = 0;
         var _rtmp399;
@@ -4325,7 +4347,7 @@ ModelElement.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 6:
+      case 8:
       if (ftype == Thrift.Type.LIST) {
         var _size102 = 0;
         var _rtmp3106;
@@ -4362,18 +4384,28 @@ ModelElement.prototype.write = function(output) {
     output.writeString(this.id);
     output.writeFieldEnd();
   }
+  if (this.repositoryURL !== null && this.repositoryURL !== undefined) {
+    output.writeFieldBegin('repositoryURL', Thrift.Type.STRING, 2);
+    output.writeString(this.repositoryURL);
+    output.writeFieldEnd();
+  }
+  if (this.file !== null && this.file !== undefined) {
+    output.writeFieldBegin('file', Thrift.Type.STRING, 3);
+    output.writeString(this.file);
+    output.writeFieldEnd();
+  }
   if (this.metamodelUri !== null && this.metamodelUri !== undefined) {
-    output.writeFieldBegin('metamodelUri', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('metamodelUri', Thrift.Type.STRING, 4);
     output.writeString(this.metamodelUri);
     output.writeFieldEnd();
   }
   if (this.typeName !== null && this.typeName !== undefined) {
-    output.writeFieldBegin('typeName', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('typeName', Thrift.Type.STRING, 5);
     output.writeString(this.typeName);
     output.writeFieldEnd();
   }
   if (this.attributes !== null && this.attributes !== undefined) {
-    output.writeFieldBegin('attributes', Thrift.Type.LIST, 4);
+    output.writeFieldBegin('attributes', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRUCT, this.attributes.length);
     for (var iter109 in this.attributes)
     {
@@ -4387,7 +4419,7 @@ ModelElement.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.references !== null && this.references !== undefined) {
-    output.writeFieldBegin('references', Thrift.Type.LIST, 5);
+    output.writeFieldBegin('references', Thrift.Type.LIST, 7);
     output.writeListBegin(Thrift.Type.STRUCT, this.references.length);
     for (var iter110 in this.references)
     {
@@ -4401,7 +4433,7 @@ ModelElement.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.containers !== null && this.containers !== undefined) {
-    output.writeFieldBegin('containers', Thrift.Type.LIST, 6);
+    output.writeFieldBegin('containers', Thrift.Type.LIST, 8);
     output.writeListBegin(Thrift.Type.STRUCT, this.containers.length);
     for (var iter111 in this.containers)
     {

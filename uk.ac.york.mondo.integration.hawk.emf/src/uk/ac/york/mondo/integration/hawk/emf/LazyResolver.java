@@ -156,6 +156,7 @@ class LazyResolver {
 				for (EList<Object> elems : pending.values()) {
 					addAllStrings(elems, childrenIds);
 				}
+				addAllStrings(ids, childrenIds);
 				resource.fetchNodes(childrenIds);
 			}
 

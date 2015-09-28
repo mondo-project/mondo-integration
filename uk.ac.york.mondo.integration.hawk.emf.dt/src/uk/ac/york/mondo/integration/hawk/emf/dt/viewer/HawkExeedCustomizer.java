@@ -18,7 +18,6 @@ import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.emf.edit.ui.provider.DecoratingColumLabelProvider;
 import org.eclipse.emf.edit.ui.provider.DiagnosticDecorator;
-import org.eclipse.epsilon.dt.exeed.ExeedActionBarContributor;
 import org.eclipse.epsilon.dt.exeed.ExeedEditor;
 import org.eclipse.epsilon.dt.exeed.extensions.IExeedCustomizer;
 import org.eclipse.jface.action.IAction;
@@ -32,7 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 
-import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl;
 
 public class HawkExeedCustomizer implements IExeedCustomizer {
@@ -65,6 +63,7 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 		 * "lazy" loading, and we have no place to do it but right where the DiagnosticDecorator instance
 		 * is created, as the setInput(...) call will start the redecoration process.
 		 */
+		editor.setShowAllResources(true);
 
 		// Creates the model from the editor input
 	    editor.createModel();
@@ -94,10 +93,6 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 	      int pageIndex = editor.addPage(tree);
 	      editor.setPageText(pageIndex, EcoreEditorPlugin.INSTANCE.getString("_UI_SelectionPage_label"));
 	    }
-
-		if (editor.getActionBarContributor() instanceof ExeedActionBarContributor) {
-			//(EditorActionBars)editor.getEditorSite().getActionBars()
-		}
 	}
 
 	@Override
@@ -114,12 +109,7 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 
 	@Override
 	public boolean isEnabledFor(Resource r) {
-		if (r instanceof HawkResourceImpl) {
-			final HawkResourceImpl hawkResource = (HawkResourceImpl)r;
-			final LoadingMode loadingMode = hawkResource.getDescriptor().getLoadingMode();
-			return !loadingMode.isGreedyElements();
-		}
-		return false;
+		return r instanceof HawkResourceImpl;
 	}
 
 }

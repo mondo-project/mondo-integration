@@ -59,7 +59,7 @@ public class HawkModelElementEncoder {
 	private final Map<String, ModelElement> nodeIdToElement = new HashMap<>();
 	private final Set<ModelElement> rootElements = new IdentityLinkedHashSet<>();
 
-	private String lastMetamodelURI, lastTypename;
+	private String lastMetamodelURI, lastTypename, lastRepository, lastFile;
 
 	private boolean discardContainerRefs = false;
 	private boolean includeAttributes = true;
@@ -209,7 +209,7 @@ public class HawkModelElementEncoder {
 					optimizeReferenceSlot(id2pos, r);
 				}
 			}
-			optimizeRepeatedMetamodelOrType(me);
+			optimizeRepeatedAttributes(me);
 			// TODO remove AttributeSlots with default values?
 
 			if (me.isSetContainers()) {
@@ -220,18 +220,29 @@ public class HawkModelElementEncoder {
 		}
 	}
 
-	private void optimizeRepeatedMetamodelOrType(ModelElement me) {
-		// we don't repeat typenames or metamodel URIs if they're the same as the previous element's
+	private void optimizeRepeatedAttributes(ModelElement me) {
+		// we don't repeat typenames, metamodel URIs, repository URLs or files
+		// if they're the same as the previous element's
 		final String currTypename = me.getTypeName();
 		final String currMetamodelURI = me.getMetamodelUri();
+		final String currRepositoryURL = me.getRepositoryURL();
+		final String currFilePath = me.getFile();
 		if (lastTypename != null && lastTypename.equals(currTypename)) {
 			me.unsetTypeName();
 		}
 		if (lastMetamodelURI != null && lastMetamodelURI.equals(currMetamodelURI)) {
 			me.unsetMetamodelUri();
 		}
+		if (lastRepository != null && lastRepository.equals(currRepositoryURL)) {
+			me.unsetRepositoryURL();
+		}
+		if (lastFile != null && lastFile.equals(currFilePath)) {
+			me.unsetFile();
+		}
 		lastTypename = currTypename;
 		lastMetamodelURI = currMetamodelURI;
+		lastRepository = currRepositoryURL;
+		lastFile = currFilePath;
 	}
 
 	private void optimizeReferenceSlot(Map<String, Integer> id2pos,	ReferenceSlot r) {
@@ -333,6 +344,8 @@ public class HawkModelElementEncoder {
 		me.setId(meNode.getId());
 		me.setTypeName(meNode.getTypeNode().getTypeName());
 		me.setMetamodelUri(meNode.getTypeNode().getMetamodelName());
+		me.setFile(meNode.getFileNode().getFilePath());
+		me.setRepositoryURL(meNode.getFileNode().getRepositoryURL());
 
 		// we won't set the ID until someone refers to it, but we
 		// need to keep track of the element for later
@@ -426,7 +439,6 @@ public class HawkModelElementEncoder {
 	public static AttributeSlot encodeAttributeSlot(final String name, Object rawValue) {
 		assert rawValue != null;
 
-		// TODO encode arrays as well
 		SlotValue value = new SlotValue();
 		if (rawValue instanceof Object[]) {
 			rawValue = Arrays.asList((Object[])rawValue);

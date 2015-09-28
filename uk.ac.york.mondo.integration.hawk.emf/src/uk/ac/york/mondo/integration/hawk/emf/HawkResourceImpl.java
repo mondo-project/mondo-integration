@@ -22,6 +22,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.WeakHashMap;
 
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
@@ -48,6 +49,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +81,8 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  * EMF driver that reads a remote model from a Hawk index.
  */
 public class HawkResourceImpl extends ResourceImpl {
+
+	private Map<String, Resource> resources = new WeakHashMap<>();
 
 	private final class ModelSubscriberHandler implements MessageHandler {
 		@Override
@@ -164,7 +168,7 @@ public class HawkResourceImpl extends ResourceImpl {
 				}
 
 				if (ref.isContainer()) {
-					getContents().remove(source);
+					source.eResource().getContents().remove(source);
 				}
 			}
 		}
@@ -173,7 +177,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		protected void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
 			if (eob != null) {
-				getContents().remove(eob);
+				eob.eResource().getContents().remove(eob);
 
 				final EObject container = eob.eContainer();
 				if (container != null) {
@@ -195,7 +199,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
 				final EObject eob = factory.create(eClass);
 				nodeIdToEObjectMap.put(ev.id, eob);
-				getContents().add(eob);
+				addToResource(ev.vcsItem.repoURL, ev.vcsItem.path, eob);
 			}
 		}
 
@@ -233,6 +237,8 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		// Only until references are filled in
 		public final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
+		public String lastRepository;
+		public String lastFile;
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
@@ -256,16 +262,16 @@ public class HawkResourceImpl extends ResourceImpl {
 		return eClass;
 	}
 
-
 	private HawkModelDescriptor descriptor;
 	private Client client;
 
-	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+	private final Map<String, EObject> nodeIdToEObjectMap;
 	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
 	private LazyResolver lazyResolver;
 	private Consumer subscriber;
 
 	public HawkResourceImpl() {
+		this.nodeIdToEObjectMap = new HashMap<>();
 	}
 
 	public HawkResourceImpl(URI uri, HawkModelDescriptor descriptor) {
@@ -274,10 +280,28 @@ public class HawkResourceImpl extends ResourceImpl {
 		// otherwise: for some reason, without an URI it cannot find EString, for instance).
 		super(uri);
 		this.descriptor = descriptor;
+		this.nodeIdToEObjectMap = new HashMap<>();
 	}
 
 	public HawkResourceImpl(URI uri) {
 		super(uri);
+		this.nodeIdToEObjectMap = new HashMap<>();
+	}
+
+	/**
+	 * Creates a HawkResource as a subordinate of another (same internal state).
+	 * Used to indicate the repository URL and file of an {@link EObject}.
+	 */
+	private HawkResourceImpl(URI uri, HawkResourceImpl parent) {
+		super(uri);
+
+		this.resources = parent.resources;
+		this.descriptor = parent.descriptor;
+		this.client = parent.client;
+		this.nodeIdToEObjectMap = parent.nodeIdToEObjectMap;
+		this.factories = parent.factories;
+		this.lazyResolver = parent.lazyResolver;
+		this.subscriber = parent.subscriber;
 	}
 
 	@Override
@@ -317,6 +341,22 @@ public class HawkResourceImpl extends ResourceImpl {
 	}
 
 	public void doLoad(HawkModelDescriptor descriptor) throws IOException {
+		// Needed for the virtual resources we create for EMF files, so
+		// the Exeed customizations can activate.
+		final Factory hawkResourceFactory = new Factory() {
+			@Override
+			public Resource createResource(URI uri) {
+				return new HawkResourceImpl(uri, HawkResourceImpl.this);
+			}
+		};
+		final Map<String, Object> protocolToFactoryMap = getResourceSet().getResourceFactoryRegistry().getProtocolToFactoryMap();
+		protocolToFactoryMap.put("hawkrepo+file", hawkResourceFactory);
+		protocolToFactoryMap.put("hawkrepo+http", hawkResourceFactory);
+		protocolToFactoryMap.put("hawkrepo+https", hawkResourceFactory);
+		protocolToFactoryMap.put("hawkrepo+git", hawkResourceFactory);
+		protocolToFactoryMap.put("hawkrepo+svn", hawkResourceFactory);
+		protocolToFactoryMap.put("hawkrepo+svn+ssh", hawkResourceFactory);
+
 		try {
 			this.descriptor = descriptor;
 			this.client = APIUtils.connectToHawk(descriptor.getHawkURL(), descriptor.getThriftProtocol());
@@ -355,8 +395,7 @@ public class HawkResourceImpl extends ResourceImpl {
 			}
 
 			final TreeLoadingState state = new TreeLoadingState();
-			final List<EObject> rootEObjects = createEObjectTree(elems, state);
-			getContents().addAll(rootEObjects);
+			createEObjectTree(elems, state);
 			fillInReferences(elems, state);
 
 			if (descriptor.isSubscribed()) {
@@ -430,6 +469,16 @@ public class HawkResourceImpl extends ResourceImpl {
 				SlotDecodingUtils.setFromSlot(eFactory, eClass, object, s);
 			}
 		}
+	}
+
+	private void addToResource(final String repoURL, final String path, final EObject eob) {
+		final String fullURL = "hawkrepo+" + repoURL + (repoURL.endsWith("/") ? "!!/" : "/!!/") + path;
+		Resource resource = resources.get(fullURL);
+		if (resource == null) {
+			resource = getResourceSet().createResource(URI.createURI(fullURL));
+			resources.put(fullURL, resource);
+		}
+		resource.getContents().add(eob);
 	}
 
 	private EObject createEObject(ModelElement me) throws IOException {
@@ -535,7 +584,19 @@ public class HawkResourceImpl extends ResourceImpl {
 			} else {
 				me.setTypeName(state.lastTypename);
 			}
-			
+
+			if (me.isSetRepositoryURL()) {
+				state.lastRepository = me.getRepositoryURL();
+			} else {
+				me.setRepositoryURL(state.lastRepository);
+			}
+
+			if (me.isSetFile()) {
+				state.lastFile = me.getFile();
+			} else {
+				me.setFile(state.lastFile);
+			}
+
 			final EObject obj = createEObject(me);
 			state.allEObjects.add(obj);
 			state.meToEObject.put(me, obj);
@@ -549,6 +610,11 @@ public class HawkResourceImpl extends ResourceImpl {
 						obj.eSet(sf, ECollections.toEList(children));
 					} else if (!children.isEmpty()) {
 						obj.eSet(sf, children.get(0));
+					}
+					for (EObject child : children) {
+						if (child.eResource() != null) {
+							child.eResource().getContents().remove(child);
+						}
 					}
 				}
 			}
@@ -571,12 +637,13 @@ public class HawkResourceImpl extends ResourceImpl {
 				final EClass eClass = getEClass(me.getMetamodelUri(), me.getTypeName(), packageRegistry);
 				final EReference feature = (EReference) eClass.getEStructuralFeature(s.name);
 
-				// We always start from the roots, so we always set things from the containment side
 				if (feature.isContainer()) {
-					continue;
+					if (sourceObj.eResource() != null) {
+						sourceObj.eResource().getContents().remove(sourceObj);
+					}
+				} else {
+					fillInReference(sourceObj, s, feature, state);
 				}
-
-				fillInReference(sourceObj, s, feature, state);
 			}
 		}
 
@@ -584,6 +651,11 @@ public class HawkResourceImpl extends ResourceImpl {
 			for (ContainerSlot s : me.getContainers()) {
 				fillInReferences(s.elements, state);
 			}
+		}
+
+		if (sourceObj.eContainer() == null) {
+			// This is a root element for the moment: add it to the appropriate resource
+			addToResource(me.getRepositoryURL(), me.getFile(), sourceObj);
 		}
 	}
 
@@ -598,28 +670,38 @@ public class HawkResourceImpl extends ResourceImpl {
 		// This variable will be set to a non-null value if we need to call eSet
 		EList<Object> eSetValues = null;
 
+		/*
+		 * When using a query in combination with a lazy mode, the query might
+		 * have retrieved the value we wanted straight away (e.g. LAZY_CHILDREN
+		 * + "return Tree.all;"). Therefore, it is better to simply check if we
+		 * already have the value and then add things to the resolver if we
+		 * don't have it *and* we're on a lazy mode.
+		 */
+
 		if (s.isSetId()) {
-			if (greedyElements) {
-				final EObject eObject = nodeIdToEObjectMap.get(s.id);
-				if (eObject != null) {
-					eSetValues = createEList(eObject);
-				}
-			} else {
+			final EObject eObject = nodeIdToEObjectMap.get(s.id);
+			if (eObject != null) {
+				eSetValues = createEList(eObject);
+			} else if (!greedyElements) {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
 				getLazyResolver().addLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else if (s.isSetIds()) {
-			if (greedyElements) {
-				eSetValues = createEList();
-				for (String targetId : s.ids) {
-					final EObject eob = nodeIdToEObjectMap.get(targetId);
-					if (eob != null) {
-						eSetValues.add(eob);
+			eSetValues = createEList();
+			for (String targetId : s.ids) {
+				final EObject eob = nodeIdToEObjectMap.get(targetId);
+				if (eob != null) {
+					eSetValues.add(eob);
+					if (feature.isContainment() && eob.eResource() != null) {
+						eob.eResource().getContents().remove(eob);
 					}
 				}
-			} else {
+			}
+
+			if (!greedyElements && eSetValues.size() != s.ids.size()) {
+				eSetValues = null;
 				final EList<Object> lazyIds = new BasicEList<>();
 				lazyIds.addAll(s.ids);
 				getLazyResolver().addLazyReferences(sourceObj, feature, lazyIds);
@@ -637,13 +719,17 @@ public class HawkResourceImpl extends ResourceImpl {
 		else if (s.isSetMixed()) {
 			final EList<Object> value = createEList();
 
+			boolean allFetched = true;
 			for (MixedReference mixed : s.mixed) {
 				if (mixed.isSetId()) {
-					if (greedyElements) {
-						// normally, if we fetch all elements we won't have mixed ReferenceSlots,
-						// but we handle it here, just in case.
-						value.add(nodeIdToEObjectMap.get(mixed.getId()));
-					} else {
+					final EObject eob = nodeIdToEObjectMap.get(mixed.getId());
+					if (eob != null) {
+						value.add(eob);
+						if (feature.isContainment() && eob.eResource() != null) {
+							eob.eResource().getContents().remove(eob);
+						}
+					} else if (!greedyElements) {
+						allFetched = false;
 						value.add(mixed.getId());
 					}
 				} else if (mixed.isSetPosition()) {
@@ -652,7 +738,7 @@ public class HawkResourceImpl extends ResourceImpl {
 					LOGGER.warn("Unknown mixed reference in {}", mixed);
 				}
 			}
-			if (greedyElements) {
+			if (allFetched) {
 				eSetValues = value;
 			} else {
 				getLazyResolver().addLazyReferences(sourceObj, feature, value);
@@ -667,6 +753,14 @@ public class HawkResourceImpl extends ResourceImpl {
 				sourceObj.eSet(feature, eSetValues);
 			} else if (!eSetValues.isEmpty()) {
 				sourceObj.eSet(feature, eSetValues.get(0));
+			}
+			if (feature.isContainment()) {
+				for (Object o : eSetValues) {
+					final EObject contained = (EObject)o;
+					if (contained.eResource() != null) {
+						contained.eResource().getContents().remove(contained);
+					}
+				}
 			}
 		}
 	}

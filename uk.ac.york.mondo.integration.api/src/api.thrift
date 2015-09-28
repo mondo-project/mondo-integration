@@ -310,11 +310,13 @@ union HawkChangeEvent {
 
 struct ModelElement {
 	 /* Unique ID of the model element (not set if using position-based references). */ 1: optional string id,
-	 /* URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). */ 2: optional string metamodelUri,
-	 /* Name of the type that the model element is an instance of (not set if equal to that of the previous model element). */ 3: optional string typeName,
-	 /* Slots holding the values of the model element's attributes, if any have been set. */ 4: optional list<AttributeSlot> attributes,
-	 /* Slots holding the values of the model element's references, if any have been set. */ 5: optional list<ReferenceSlot> references,
-	 /* Slots holding contained model elements, if any have been set. */ 6: optional list<ContainerSlot> containers,
+	 /* URI of the repository to which the element belongs (not set if equal to that of the previous model element). */ 2: optional string repositoryURL,
+	 /* Name of the file to which the element belongs (not set if equal to that of the previous model element). */ 3: optional string file,
+	 /* URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). */ 4: optional string metamodelUri,
+	 /* Name of the type that the model element is an instance of (not set if equal to that of the previous model element). */ 5: optional string typeName,
+	 /* Slots holding the values of the model element's attributes, if any have been set. */ 6: optional list<AttributeSlot> attributes,
+	 /* Slots holding the values of the model element's references, if any have been set. */ 7: optional list<ReferenceSlot> references,
+	 /* Slots holding contained model elements, if any have been set. */ 8: optional list<ContainerSlot> containers,
 }
 
 struct ContainerSlot {
