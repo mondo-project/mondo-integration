@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>uk.ac.york.mondo.integration</groupId>
+	<artifactId>uk.ac.york.mondo.integration.p2</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.reficio</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>1.2.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<id>org.apache.httpcomponents:httpclient:4.3.6</id>
+								</artifact>
+								<artifact>
+									<id>org.apache.httpcomponents:httpcore:4.3.3</id>
+								</artifact>
+								<artifact>
+									<id>org.jolokia:jolokia-core:1.3.1</id>
+								</artifact>
+								<artifact>
+									<id>org.aspectj:aspectjweaver:1.7.4</id>
+								</artifact>
+								<artifact>
+									<id>org.aspectj:aspectjrt:1.7.4</id>
+								</artifact>
+								<artifact>
+									<id>org.apache.activemq:artemis-server:1.1.0</id>
+									<excludes>
+										<exclude>org.jboss.*</exclude>
+										<exclude>org.jgroups</exclude>
+									</excludes>
+								</artifact>
+								<artifact>
+									<id>org.javassist:javassist:3.20.0-GA</id>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.1.5.v20120716</version>
+				<configuration>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<webAppSourceDirectory>${basedir}/target/repository/</webAppSourceDirectory>
+					<webApp>
+						<contextPath>/site</contextPath>
+					</webApp>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>reficio</id>
+			<url>http://repo.reficio.org/maven/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+</project>
