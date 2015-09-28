@@ -455,8 +455,12 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The query to be executed. */ 2: required string query,
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language,
-	/* The repository for the query (or * for all repositories). */ 4: required string repository,
-	/* The scope of the query (e.g. *.uml). */ 5: required string scope,
+	/* The repository for the query (or * for all repositories). */ 4: required string repositoryPattern,
+	/* The file patterns for the query (e.g. *.uml). */ 5: required list<string> filePatterns,
+	/* Whether to include attributes (true) or not (false) in model element results. */ 6:  bool includeAttributes = true,
+	/* Whether to include references (true) or not (false) in model element results. */ 7:  bool includeReferences = true,
+	/* Whether to include node IDs (true) or not (false) in model element results. */ 8:  bool includeNodeIDs = true,
+	/* Whether to include all the child elements of the model element results (true) or not (false). */ 9:  bool includeContained = true,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

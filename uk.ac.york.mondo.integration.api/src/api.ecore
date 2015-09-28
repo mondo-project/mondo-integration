@@ -202,14 +202,42 @@
           <details key="d" value="The name of the query language used (e.g. EOL, OCL)"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repository" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="repositoryPattern" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The repository for the query (or * for all repositories)"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="scope" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="filePatterns" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The scope of the query (e.g. *.uml)"/>
+          <details key="d" value="The file patterns for the query (e.g. *.uml)"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include attributes (true) or not (false) in model element results"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include references (true) or not (false) in model element results"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include node IDs (true) or not (false) in model element results"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="includeContained" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether to include all the child elements of the model element results (true) or not (false)"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="true"/>
         </eAnnotations>
       </eParameters>
     </eOperations>

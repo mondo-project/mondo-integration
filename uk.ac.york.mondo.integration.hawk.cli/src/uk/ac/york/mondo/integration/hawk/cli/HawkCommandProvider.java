@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
@@ -48,7 +47,6 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
-import uk.ac.york.mondo.integration.artemis.consumer.Consumer.QueueType;
 
 /**
  * Simple command-line based client for a remote Hawk instance, using the Thrift API.
@@ -272,12 +270,14 @@ public class HawkCommandProvider implements CommandProvider {
 		if (repo == null) {
 			repo = "*";
 		}
-		String scope = intp.nextArgument();
-		if (scope == null) {
-			scope = "*";
+
+		List<String> filePatterns = readRemainingArguments(intp);
+		if (filePatterns.isEmpty()) {
+			filePatterns.add("*");
 		}
 
-		Object ret = client.query(currentInstance, query, language, repo, scope);
+		// TODO extend hawkQuery command to provide flags
+		Object ret = client.query(currentInstance, query, language, repo, filePatterns, true, true, true, false);
 		// TODO do something better than toString here
 		return "Result: " + ret;
 	}

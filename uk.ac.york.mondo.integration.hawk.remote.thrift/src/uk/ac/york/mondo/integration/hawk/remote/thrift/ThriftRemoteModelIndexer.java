@@ -98,7 +98,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		public Object contextlessQuery(IGraphDatabase g, String query)
 				throws InvalidQueryException, QueryExecutionException {
 			try {
-				return client.query(name, query, language, "*", "*");
+				final boolean includeAttributes = true;
+				final boolean includeReferences = true;
+				final boolean includeNodeIDs = true;
+				final boolean includeContained = false;
+				return client.query(name, query, language, "*", Arrays.asList("*"),
+						includeAttributes, includeReferences, includeNodeIDs, includeContained);
 			} catch (UnknownQueryLanguage|InvalidQuery ex) {
 				throw new InvalidQueryException(ex);
 			} catch (FailedQuery ex) {
@@ -125,16 +130,30 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		public Object contextfullQuery(IGraphDatabase g, String query,
 				Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
-			String fileScope = context.get(PROPERTY_FILECONTEXT);
-			if (fileScope == null) {
-				fileScope = "*";
+			String sRepoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
+			if (sRepoScope == null) {
+				sRepoScope = "*";
 			}
-			String repoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
-			if (repoScope == null) {
-				repoScope = "*";
+
+			final String sFileScope = context.get(PROPERTY_FILECONTEXT);
+			final List<String> filePatterns = new ArrayList<>();
+			if (sFileScope == null) {
+				filePatterns.add("*");
+			} else {
+				final String[] sFilePatterns = sFileScope.split(",");
+				for (String sFilePattern : sFilePatterns) {
+					filePatterns.add(sFilePattern);
+				}
 			}
+
 			try {
-				return client.query(name, query, language, repoScope, fileScope);
+				final boolean includeAttributes = true;
+				final boolean includeReferences = true;
+				final boolean includeNodeIDs = true;
+				final boolean includeContained = false;
+				return client.query(name, query, language, sRepoScope,
+						filePatterns, includeAttributes, includeReferences,
+						includeNodeIDs, includeContained);
 			} catch (UnknownQueryLanguage|InvalidQuery ex) {
 				throw new InvalidQueryException(ex);
 			} catch (FailedQuery ex) {

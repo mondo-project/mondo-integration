@@ -112,8 +112,12 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
-		@doc(d="The repository for the query (or * for all repositories)") String repository,
-		@doc(d="The scope of the query (e.g. *.uml)") String scope
+		@doc(d="The repository for the query (or * for all repositories)") String repositoryPattern,
+		@doc(d="The file patterns for the query (e.g. *.uml)") String[*] filePatterns,
+		@doc(d="Whether to include attributes (true) or not (false) in model element results", optional="true", default="true") Boolean includeAttributes,
+		@doc(d="Whether to include references (true) or not (false) in model element results", optional="true", default="true") Boolean includeReferences,
+		@doc(d="Whether to include node IDs (true) or not (false) in model element results", optional="true", default="true") Boolean includeNodeIDs,
+		@doc(d="Whether to include all the child elements of the model element results (true) or not (false)", optional="true", default="true") Boolean includeContained
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery;
 
 	@doc(d="Returns populated model elements for the provided proxies")

@@ -162,23 +162,33 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<QueryResult> query(String name, String query, String language, String repo, String scope) throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
+	public List<QueryResult> query(String name, String query, String language,
+			String repo, List<String> filePatterns, boolean includeAttributes,
+			boolean includeReferences, boolean includeNodeIDs, boolean includeContained)
+			throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery,
+			FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		Map<String, String> context = new HashMap<>();
 		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
-		context.put(IQueryEngine.PROPERTY_FILECONTEXT, scope);
+		context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(filePatterns, ","));
 		try {
 			Object ret = model.contextFullQuery(query, language, context);
+
+			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+			enc.setUseContainment(includeContained);
+			enc.setIncludeNodeIDs(includeNodeIDs);
+			enc.setIncludeAttributes(includeAttributes);
+			enc.setIncludeReferences(includeReferences);
 
 			try (final IGraphTransaction t = model.getGraph().beginTransaction()) {
 				final List<QueryResult> l = new ArrayList<>();
 				if (ret instanceof Collection) {
 					final Collection<?> c = (Collection<?>) ret;
 					for (Object o : c) {
-						addEncodedValue(model, o, l);
+						addEncodedValue(model, o, l, enc);
 					}
 				} else {
-					addEncodedValue(model, ret, l);
+					addEncodedValue(model, ret, l, enc);
 				}
 				return l;
 			}
@@ -193,8 +203,22 @@ final class HawkThriftIface implements Hawk.Iface {
 		}
 	}
 
-	protected void addEncodedValue(final HModel model, Object ret,
-			final List<QueryResult> l) throws Exception {
+	private String join(List<String> strings, String separator) {
+		final StringBuffer sbuf = new StringBuffer();
+		boolean first = true;
+		for (String s : strings) {
+			if (first) {
+				first = false;
+			} else {
+				sbuf.append(separator);
+			}
+			sbuf.append(s);
+		}
+		return sbuf.toString();
+	}
+
+	private void addEncodedValue(final HModel model, Object ret,
+			final List<QueryResult> l, HawkModelElementEncoder enc) throws Exception {
 		if (ret instanceof Boolean) {
 			l.add(new QueryResult(_Fields.V_BOOLEAN, (Boolean)ret));
 		} else if (ret instanceof Byte) {
@@ -210,17 +234,15 @@ final class HawkThriftIface implements Hawk.Iface {
 		} else if (ret instanceof String) {
 			l.add(new QueryResult(_Fields.V_STRING, (String)ret));
 		} else if (ret instanceof IGraphNodeReference) {
-			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
-			enc.setIncludeNodeIDs(true);
-			enc.setUseContainment(false);
-			enc.encode(((IGraphNodeReference)ret).getId());
-			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.getElements().get(0)));
+			final String id = ((IGraphNodeReference)ret).getId();
+			if (!enc.isEncoded(id)) {
+				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(id)));
+			}
 		} else if (ret instanceof IGraphNode) {
-			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
-			enc.setIncludeNodeIDs(true);
-			enc.setUseContainment(false);
-			enc.encode(new ModelElementNode((IGraphNode)ret));
-			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.getElements().get(0)));
+			final ModelElementNode meNode = new ModelElementNode((IGraphNode)ret);
+			if (!enc.isEncoded(meNode)) {
+				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(meNode)));
+			}
 		} else {
 			l.add(new QueryResult(_Fields.V_STRING, ret + ""));
 		}

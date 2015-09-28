@@ -170,6 +170,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 							} else {
 								setQueryLanguage("");
 							}
+							queryLanguageChanged();
 						}
 					} catch (Exception ex) {
 						Activator.getDefault().logError(ex);
@@ -206,6 +207,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 							} else {
 								setRepositoryURL("*");
 							}
+							repositoryURLChanged();
 						}
 					} catch (Exception ex) {
 						Activator.getDefault().logError(ex);
@@ -240,6 +242,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 							} else {
 								setFilePatterns("*");
 							}
+							filePatternsChanged();
 						}
 					} catch (Exception ex) {
 						Activator.getDefault().logError(ex);
@@ -438,7 +441,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public String getQuery() {
-			return fldQuery.getText().getText().trim();
+			return fldQuery.getText().getText();
 		}
 
 		@Override
@@ -483,7 +486,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 
 		public void setQuery(String query) {
-			fldQueryLanguage.setTextWithoutListener(query, this);
+			fldQuery.setTextWithoutListener(query, this);
 		}
 
 		protected abstract void filePatternsChanged();

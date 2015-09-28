@@ -66,6 +66,7 @@ import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
@@ -323,7 +324,24 @@ public class HawkResourceImpl extends ResourceImpl {
 			// TODO allow for multiple repositories
 			final LoadingMode mode = descriptor.getLoadingMode();
 			List<ModelElement> elems;
-			if (mode.isGreedyElements()) {
+			final String queryLanguage = descriptor.getHawkQueryLanguage();
+			final String query = descriptor.getHawkQuery();
+			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
+				final List<QueryResult> results = client.query(
+						descriptor.getHawkInstance(), query, queryLanguage,
+						descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()),
+						mode.isGreedyAttributes(),
+						true,
+						!mode.isGreedyAttributes() || descriptor.isSubscribed(),
+						mode.isGreedyElements()
+				);
+				elems = new ArrayList<>();
+				for (QueryResult result : results) {
+					if (result.isSetVModelElement()) {
+						elems.add(result.getVModelElement());
+					}
+				}
+			} else if (mode.isGreedyElements()) {
 				// We need node IDs if attributes are lazy or if we're subscribing to remote changes
 				elems = client.getModel(descriptor.getHawkInstance(),
 					Arrays.asList(descriptor.getHawkRepository()),
@@ -332,7 +350,8 @@ public class HawkResourceImpl extends ResourceImpl {
 			} else {
 				elems = client.getRootElements(descriptor.getHawkInstance(),
 						Arrays.asList(descriptor.getHawkRepository()),
-						Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(), true);
+						Arrays.asList(descriptor.getHawkFilePatterns()),
+						mode.isGreedyAttributes(), true);
 			}
 
 			final TreeLoadingState state = new TreeLoadingState();
@@ -581,7 +600,10 @@ public class HawkResourceImpl extends ResourceImpl {
 
 		if (s.isSetId()) {
 			if (greedyElements) {
-				eSetValues = createEList(nodeIdToEObjectMap.get(s.id));
+				final EObject eObject = nodeIdToEObjectMap.get(s.id);
+				if (eObject != null) {
+					eSetValues = createEList(eObject);
+				}
 			} else {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
@@ -592,7 +614,10 @@ public class HawkResourceImpl extends ResourceImpl {
 			if (greedyElements) {
 				eSetValues = createEList();
 				for (String targetId : s.ids) {
-					eSetValues.add(nodeIdToEObjectMap.get(targetId));
+					final EObject eob = nodeIdToEObjectMap.get(targetId);
+					if (eob != null) {
+						eSetValues.add(eob);
+					}
 				}
 			} else {
 				final EList<Object> lazyIds = new BasicEList<>();

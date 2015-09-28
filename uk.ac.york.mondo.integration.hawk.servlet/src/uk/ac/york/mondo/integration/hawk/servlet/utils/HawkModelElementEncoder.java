@@ -37,9 +37,16 @@ import uk.ac.york.mondo.integration.api.SlotValue;
 
 /**
  * Encodes a graph of Hawk {@link ModelElementNode}s into Thrift
- * {@link ModelElement}s. This is an accumulator: the user should specify the
- * encoding options, call {@link #encode(ModelElementNode)} repeatedly and then
- * finally call {@link #getElements()}.
+ * {@link ModelElement}s.
+ * 
+ * This can be used as an accumulator: the user can specify the encoding
+ * options, call {@link #encode(ModelElementNode)} repeatedly and then finally
+ * call {@link #getElements()}.
+ * 
+ * Alternatively, users of this class may simply use the return value of
+ * {@link #encode(ModelElementNode)} to encode individual model elements
+ * separately, without the containment and position-based reference
+ * optimisations.
  *
  * Depending on whether we intend to send the entire model or not, it might make
  * sense to call {@link #setIncludeNodeIDs(boolean)} accordingly before any
@@ -283,15 +290,37 @@ public class HawkModelElementEncoder {
 		return local2global;
 	}
 
-	public void encode(String id) throws Exception {
+	/**
+	 * Encodes a single model element.
+	 * @return The unoptimised encoded model element.
+	 */
+	public ModelElement encode(String id) throws Exception {
 		final ModelElementNode me = graph.getModelElementNodeById(id);
-		encodeInternal(me);
+		return encodeInternal(me);
 	}
 
-	public void encode(ModelElementNode meNode) throws Exception {
+	/**
+	 * Encodes a single model element.
+	 * @return The unoptimised encoded model element.
+	 */
+	public ModelElement encode(ModelElementNode meNode) throws Exception {
 		assert meNode.getNode().getGraph() == this.graph.getGraph()
 			: "The node should belong to the same graph as this encoder";
-		encodeInternal(meNode);
+		return encodeInternal(meNode);
+	}
+
+	/**
+	 * Returns <code>true</code> if the model element has already been encoded before.
+	 */
+	public boolean isEncoded(String id) {
+		return nodeIdToElement.containsKey(id);
+	}
+
+	/**
+	 * Returns <code>true</code> if the model element has already been encoded before.
+	 */
+	public boolean isEncoded(ModelElementNode meNode) {
+		return isEncoded(meNode.getId());
 	}
 
 	private ModelElement encodeInternal(ModelElementNode meNode) throws Exception {
