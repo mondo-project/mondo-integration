@@ -35,7 +35,9 @@ In both cases, you may have to _run it twice_ in order to succeed.
 
 ### Hawk
 
-The Hawk update site mentioned in the MONDO target platform by default is only accessible to MONDO members. Non-MONDO developers will need to replace it with their own copy of the Hawk update site following [these instructions](https://github.com/kb634/mondo-hawk/blob/master/README.md#running-from-source). Once built, add it to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
+The Hawk update site mentioned in the MONDO target platform by default is only accessible to MONDO members. The mentioned web server requires Server Name Identification, which does not work properly in Eclipse Mars (see [this bug report](https://bugs.eclipse.org/bugs/show_bug.cgi?id=478655)). An update site with a fixed version of `ecf.provider.filetransfer.httpclient4` for Eclipse Luna/Mars is available [here](https://www.cs.york.ac.uk/mondo/downloads/fix-sni-luna-updatesite.zip).
+
+Non-MONDO developers will need to replace it with their own copy of the Hawk update site following [these instructions](https://github.com/kb634/mondo-hawk/blob/master/README.md#running-from-source). Once built, add it to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
 
 ### Setting the target platform
 
