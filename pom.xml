@@ -16,17 +16,34 @@
   </properties>
 
   <modules>
-    <module>uk.ac.york.mondo.integration.targetplatform</module>
     <module>uk.ac.york.mondo.integration.api</module>
+    <module>uk.ac.york.mondo.integration.artemis</module>
+    <module>uk.ac.york.mondo.integration.artemis.targetplatform</module>
   </modules>
 
   <build>
+    <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho.version}</version>
         <extensions>true</extensions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <target>
+            <artifact>
+              <groupId>uk.ac.york.mondo.integration</groupId>
+              <artifactId>uk.ac.york.mondo.integration.artemis.targetplatform</artifactId>
+              <version>1.0.0-SNAPSHOT</version>
+            </artifact>
+          </target>
+        </configuration>
       </plugin>
     </plugins>
   </build>

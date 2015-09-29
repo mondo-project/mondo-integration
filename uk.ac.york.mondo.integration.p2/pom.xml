@@ -63,7 +63,9 @@
 									<id>javax.servlet:servlet-api:3.0-alpha-1</id>
 								</artifact>
 								<artifact>
-									<id>org.slf4j:slf4j-api:1.7.12</id>
+									<id>org.apache.directory.studio:org.slf4j.api:1.7.2</id>
+									<!-- or use this and change the MANIFEST file -->
+									<!-- <id>org.slf4j:slf4j-api:1.7.12</id> -->
 								</artifact>
 							</artifacts>
 						</configuration>

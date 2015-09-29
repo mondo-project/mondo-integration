@@ -9,7 +9,7 @@
     <artifactId>uk.ac.york.mondo.integration</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>uk.ac.york.mondo.integration.artemis.targetplatform</artifactId>
-  <packaging>eclipse-target-definition</packaging>
-  
+  <artifactId>uk.ac.york.mondo.integration.artemis</artifactId>
+  <packaging>eclipse-plugin</packaging>
+
 </project>

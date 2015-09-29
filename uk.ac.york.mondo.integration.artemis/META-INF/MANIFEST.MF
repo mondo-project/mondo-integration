@@ -4,8 +4,15 @@ Bundle-Name: Apache Artemis Integration for remote notifications -- server side
 Bundle-SymbolicName: uk.ac.york.mondo.integration.artemis
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of York
-Require-Bundle: org.eclipse.core.runtime,
- org.slf4j.api;bundle-version="1.7.2"
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
+ org.eclipse.core.runtime,
+ org.apache.activemq.artemis-commons;bundle-version="1.1.0",
+ org.apache.activemq.artemis-core-client;bundle-version="1.1.0",
+ org.apache.activemq.artemis-journal;bundle-version="1.1.0",
+ org.apache.activemq.artemis-native;bundle-version="1.1.0",
+ org.apache.activemq.artemis-selector;bundle-version="1.1.0",
+ org.apache.activemq.artemis-server;bundle-version="1.1.0",
+ org.apache.activemq.artemis-stomp-protocol;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/artemis-commons-jar-1.0.0.jar,
  lib/artemis-core-client-jar-1.0.0.jar,
