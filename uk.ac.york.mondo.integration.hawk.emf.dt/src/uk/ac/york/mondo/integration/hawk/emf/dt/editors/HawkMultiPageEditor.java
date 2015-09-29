@@ -15,12 +15,14 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.epsilon.common.dt.util.ListContentProvider;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -35,6 +37,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -65,6 +68,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.ui.part.FileEditorInput;
 
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
@@ -138,6 +142,53 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void instanceNameChanged() { refreshRawText(); }
 				@Override protected void serverURLChanged()    { refreshRawText(); }
 				@Override protected void thriftProtocolChanged() { refreshRawText(); }
+				@Override protected void selectInstance() {
+					final HawkModelDescriptor d = buildDescriptor();
+					try {
+						Hawk.Client client = APIUtils.connectToHawk(
+								d.getHawkURL(), d.getThriftProtocol());
+						final List<HawkInstance> instances = client.listInstances();
+						Collections.sort(instances);
+						client.getInputProtocol().getTransport().close();
+
+						final Shell shell = formText.getShell();
+						final ListDialog dlg = new ListDialog(shell);
+						dlg.setInput(instances);
+						dlg.setContentProvider(new ListContentProvider());
+						dlg.setLabelProvider(new LabelProvider(){
+							@Override
+							public String getText(Object o) {
+								if (o instanceof HawkInstance) {
+									final HawkInstance hi = (HawkInstance)o;
+									return hi.name;
+								}
+								return super.getText(o);
+							}
+
+							@Override
+							public Image getImage(Object o) {
+								if (o instanceof HawkInstance) {
+									final HawkInstance hi = (HawkInstance) o;
+									return Activator.getImageDescriptor(hi.running
+										? "/icons/nav_go.gif" : "/icons/nav_stop.gif")
+										.createImage();
+								}
+								return super.getImage(o);
+							}
+						});
+						dlg.setMessage("Select a Hawk instance:");
+						dlg.setTitle("Hawk instance selection");
+						if (dlg.open() == IDialogConstants.OK_ID) {
+							final Object[] selected = dlg.getResult();
+							if (selected.length > 0) {
+								setInstanceName(((HawkInstance)selected[0]).name);
+								instanceNameChanged();
+							}
+						}
+					} catch (Exception ex) {
+						Activator.getDefault().logError(ex);
+					}
+				}
 			};
 			this.contentSection = new ContentSection(toolkit, formBody) {
 				@Override protected void filePatternsChanged()  { refreshRawText(); }
@@ -510,12 +561,22 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    cContents.setLayout(createTableWrapLayout(2));
 
 		    this.fldServerURL = new FormTextField(toolkit, cContents, "Server URL:", "");
-		    this.fldInstanceName = new FormTextField(toolkit, cContents, "Instance name:", "");
 		    this.fldTProtocol = new FormComboBoxField(toolkit, cContents, "Thrift protocol:", ThriftProtocol.strings());
+		    this.fldInstanceName = new FormTextField(toolkit, cContents, "<a href=\"selectInstance\">Instance name</a>:", "");
 
 		    fldServerURL.getText().addModifyListener(this);
 		    fldInstanceName.getText().addModifyListener(this);
 		    fldTProtocol.getCombo().addSelectionListener(this);
+
+		    fldInstanceName.getLabel().addHyperlinkListener(new HyperlinkAdapter() {
+		    	public void linkActivated(HyperlinkEvent e) {
+		    		switch (e.getHref().toString()) {
+		    		case "selectInstance":
+		    			selectInstance();
+		    			break;
+		    		}
+		    	}
+		    });
 		}
 
 		public String getInstanceName() {
@@ -566,6 +627,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		protected abstract void instanceNameChanged();
 		protected abstract void serverURLChanged();
 		protected abstract void thriftProtocolChanged();
+		protected abstract void selectInstance();
 	}
 
 	private static abstract class SubscriptionSection extends FormSection implements SelectionListener, ModifyListener {
