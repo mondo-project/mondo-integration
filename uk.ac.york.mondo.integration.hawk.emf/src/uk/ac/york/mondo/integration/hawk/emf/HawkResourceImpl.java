@@ -801,7 +801,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	@Override
 	protected void doSave(OutputStream outputStream, Map<?, ?> options) throws IOException {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("Remote views are read-only");
 	}
 
 }
