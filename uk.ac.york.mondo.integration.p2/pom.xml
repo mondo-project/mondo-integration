@@ -43,7 +43,20 @@
 									</excludes>
 								</artifact>
 								<artifact>
+									<id>org.apache.activemq:artemis-stomp-protocol:1.0.0</id>
+									<excludes>
+										<exclude>org.jboss.*</exclude>
+										<exclude>org.jgroups</exclude>
+									</excludes>
+								</artifact>
+								<artifact>
 									<id>org.javassist:javassist:3.20.0-GA</id>
+								</artifact>
+								<artifact>
+									<id>org.apache.thrift:libthrift:0.9.2</id>
+									<excludes>
+										<exclude>*slf4j*</exclude>
+									</excludes>
 								</artifact>
 							</artifacts>
 						</configuration>
@@ -66,11 +79,26 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>maven.oracle.com</id>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<url>https://maven.oracle.com</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>reficio</id>
 			<url>http://repo.reficio.org/maven/</url>
 		</pluginRepository>
 	</pluginRepositories>
+
 
 </project>
