@@ -144,8 +144,6 @@ public class NewRemoteHawkModelDescriptorWizard extends Wizard implements INewWi
 	 */
 	private InputStream openContentStream() throws IOException {
 		HawkModelDescriptor md = new HawkModelDescriptor();
-		md.setHawkURL("http://example.com/thrift/hawk");
-		md.setHawkInstance("example");
 		StringWriter sW = new StringWriter();
 		md.save(sW);
 		String contents = sW.toString();

@@ -98,7 +98,7 @@ public class HawkResourceImpl extends ResourceImpl {
 					// the accesses to the nodeIdToEObjectMap to avoid race conditions between
 					// 'model element added' and 'attribute changed', for instance.
 					synchronized (nodeIdToEObjectMap) {
-						LOGGER.debug("Received message from Artemis: {}", change);
+						LOGGER.debug("Received message from Artemis at {}: {}", message.getAddress(), change);
 
 						if (change.isSetModelElementAttributeUpdate()) {
 							handle(change.getModelElementAttributeUpdate());
@@ -155,8 +155,10 @@ public class HawkResourceImpl extends ResourceImpl {
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-				if (!ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
-					// we don't want to invoke eGet on unchangeable or pending references/attributes
+				if (ref == null || !ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					// we don't want to invoke eGet on unchangeable or pending references/attributes.
+					// also, ref may be null if the node ID has been reused for a different type of node
+					// since we received that message.
 					return;
 				}
 
@@ -221,6 +223,8 @@ public class HawkResourceImpl extends ResourceImpl {
 				final EClass eClass = eob.eClass();
 				final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
 				SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
+			} else {
+				LOGGER.debug("EObject for ID {} not found when handling attribute update", ev.getId());
 			}
 		}
 	}
