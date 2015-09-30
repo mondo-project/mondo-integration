@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="build-site">
+
+	<property name="project.name" value="uk.ac.york.mondo.integration.updatesite"/>
+	
+	<target name="build-site">
+		<pde.exportFeatures
+			useworkspacecompiledclasses="true"
+			exportsource="true"
+			exporttype="folder"
+			allowbinarycycles="true"
+			features="uk.ac.york.mondo.integration.hawk.remote.thrift.feature,uk.ac.york.mondo.integration.clients.cli.feature,uk.ac.york.mondo.integration.hawk.emf.dt.feature,uk.ac.york.mondo.integration.hawk.emf.feature,fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature"
+			destination="." />
+	</target>
+
+	<target name="publish-site">
+		<eclipse.refreshLocal
+			resource="${project.name}"
+			depth="project" />
+
+		<delete dir="${basedir}" includes="artifact.xml,content.xml"/>
+
+		<eclipse.publish.featuresAndBundles
+			repository="file:/${basedir}/"
+			category="file:/${basedir}/category.xml"
+			compress="true">
+			<features dir="${basedir}/features" />
+			<bundles dir="${basedir}/plugins" />
+		</eclipse.publish.featuresAndBundles>
+
+		<tstamp/>
+		<zip
+			basedir="${basedir}"
+			zipfile="mondo-updatesite-${DSTAMP}.zip"
+			includes="features/*.jar,plugins/*.jar,*.jar"
+			update="false"/>
+
+		<eclipse.refreshLocal
+			resource="${project.name}"
+			depth="project" />
+	</target>
+</project>
