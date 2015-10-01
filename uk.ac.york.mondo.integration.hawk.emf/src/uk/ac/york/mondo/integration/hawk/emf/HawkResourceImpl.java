@@ -22,7 +22,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.WeakHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -269,16 +268,13 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 	private HawkModelDescriptor descriptor;
 	private Client client;
 
-	private final Map<String, Resource> resources;
-	private final Map<String, EObject> nodeIdToEObjectMap;
+	private final Map<String, Resource> resources = new HashMap<>();
+	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
 	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
 	private LazyResolver lazyResolver;
 	private Consumer subscriber;
 
-	public HawkResourceImpl() {
-		this.nodeIdToEObjectMap = new HashMap<>();
-		this.resources = new WeakHashMap<>();
-	}
+	public HawkResourceImpl() {}
 
 	public HawkResourceImpl(URI uri, HawkModelDescriptor descriptor) {
 		// Even if we're not only to load anything from the URI (as we have a descriptor),
@@ -286,14 +282,10 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 		// otherwise: for some reason, without an URI it cannot find EString, for instance).
 		super(uri);
 		this.descriptor = descriptor;
-		this.nodeIdToEObjectMap = new HashMap<>();
-		this.resources = new WeakHashMap<>();
 	}
 
 	public HawkResourceImpl(URI uri) {
 		super(uri);
-		this.nodeIdToEObjectMap = new HashMap<>();
-		this.resources = new WeakHashMap<>();
 	}
 
 	@Override
@@ -778,8 +770,16 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 
 	@Override
 	protected void doUnload() {
-		// TODO: why isn't this called when we close the Ecore editor?
 		super.doUnload();
+
+		resources.clear();
+		nodeIdToEObjectMap.clear();
+
+		if (client != null) {
+			client.getInputProtocol().getTransport().close();
+			client = null;
+		}
+
 		if (subscriber != null) {
 			try {
 				subscriber.closeSession();
@@ -788,6 +788,8 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 			subscriber = null;
 		}
+
+		lazyResolver = null;
 	}
 
 	@Override
