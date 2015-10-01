@@ -18,6 +18,11 @@ public class HawkFileResourceImpl extends ResourceImpl implements IHawkResource 
 
 	private final IHawkResource mainResource;
 
+	/** Only to be used from Exeed (from the createExecutableExtension Eclipse call). */
+	public HawkFileResourceImpl() {
+		this.mainResource = null;
+	}
+
 	/**
 	 * Creates a resource as a subordinate of another. Used to indicate the
 	 * repository URL and file of an {@link EObject}.
@@ -29,6 +34,10 @@ public class HawkFileResourceImpl extends ResourceImpl implements IHawkResource 
 
 	@Override
 	public boolean hasChildren(EObject o) {
-		return mainResource.hasChildren(o);
+		if (mainResource != null) {
+			return mainResource.hasChildren(o);
+		} else {
+			return o.eAllContents().hasNext();
+		}
 	}
 }
