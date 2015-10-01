@@ -116,7 +116,7 @@ public class HawkCommandProvider implements CommandProvider {
 			StringBuffer sbuf = new StringBuffer();
 			for (HawkInstance i : instances) {
 				sbuf.append(String.format("%s (%s%s)\n", i.name,
-					i.running ? "running" : "stopped",
+					i.isRunning ? "running" : "stopped",
 					i.name.equals(currentInstance) ? ", selected": ""
 				));
 			}
@@ -153,7 +153,7 @@ public class HawkCommandProvider implements CommandProvider {
 		final String name = requiredArgument(intp, "name");
 		final String adminPassword = requiredArgument(intp, "adminPassword");
 		final HawkInstance hi = findInstance(name);
-		if (!hi.running) {
+		if (!hi.isRunning) {
 			client.startInstance(name, adminPassword);
 			return String.format("Started instance %s", name);
 		} else {
@@ -165,7 +165,7 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		final HawkInstance hi = findInstance(name);
-		if (hi.running) {
+		if (hi.isRunning) {
 			client.stopInstance(name);
 			return String.format("Stopped instance %s", name);
 		} else {

@@ -486,7 +486,7 @@ final class HawkThriftIface implements Hawk.Iface {
 		for (HModel m : manager.getHawks()) {
 			final HawkInstance instance = new HawkInstance();
 			instance.name = m.getName();
-			instance.running = m.isRunning();
+			instance.isRunning = m.isRunning();
 			instances.add(instance);
 		}
 		return instances;

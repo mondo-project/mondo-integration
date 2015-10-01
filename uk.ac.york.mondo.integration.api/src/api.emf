@@ -688,7 +688,7 @@ class HawkInstance {
 	@doc(d="The name of the instance")
 	attr String name;
 	@doc(d="Whether the instance is running or not")
-	attr boolean running;
+	attr boolean isRunning;
 }
 
 @doc(d="Minimal details about registered users")
