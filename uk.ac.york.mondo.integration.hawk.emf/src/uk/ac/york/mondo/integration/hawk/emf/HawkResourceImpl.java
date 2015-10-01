@@ -24,10 +24,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 
-import net.sf.cglib.proxy.CallbackHelper;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.NoOp;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
@@ -54,6 +50,9 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.cglib.proxy.CallbackHelper;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
@@ -78,11 +77,12 @@ import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 /**
- * EMF driver that reads a remote model from a Hawk index.
+ * EMF driver that reads a remote model from a Hawk index. This is the main resource
+ * for the <code>.hawkmodel</code> file: during its loading, it will create several
+ * {@link HawkFileResourceImpl} instances that will contain the model elements that
+ * belong to each file in the Hawk index.
  */
-public class HawkResourceImpl extends ResourceImpl {
-
-	private Map<String, Resource> resources = new WeakHashMap<>();
+public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 
 	private final class ModelSubscriberHandler implements MessageHandler {
 		@Override
@@ -269,6 +269,7 @@ public class HawkResourceImpl extends ResourceImpl {
 	private HawkModelDescriptor descriptor;
 	private Client client;
 
+	private final Map<String, Resource> resources;
 	private final Map<String, EObject> nodeIdToEObjectMap;
 	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
 	private LazyResolver lazyResolver;
@@ -276,6 +277,7 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	public HawkResourceImpl() {
 		this.nodeIdToEObjectMap = new HashMap<>();
+		this.resources = new WeakHashMap<>();
 	}
 
 	public HawkResourceImpl(URI uri, HawkModelDescriptor descriptor) {
@@ -285,27 +287,13 @@ public class HawkResourceImpl extends ResourceImpl {
 		super(uri);
 		this.descriptor = descriptor;
 		this.nodeIdToEObjectMap = new HashMap<>();
+		this.resources = new WeakHashMap<>();
 	}
 
 	public HawkResourceImpl(URI uri) {
 		super(uri);
 		this.nodeIdToEObjectMap = new HashMap<>();
-	}
-
-	/**
-	 * Creates a HawkResource as a subordinate of another (same internal state).
-	 * Used to indicate the repository URL and file of an {@link EObject}.
-	 */
-	private HawkResourceImpl(URI uri, HawkResourceImpl parent) {
-		super(uri);
-
-		this.resources = parent.resources;
-		this.descriptor = parent.descriptor;
-		this.client = parent.client;
-		this.nodeIdToEObjectMap = parent.nodeIdToEObjectMap;
-		this.factories = parent.factories;
-		this.lazyResolver = parent.lazyResolver;
-		this.subscriber = parent.subscriber;
+		this.resources = new WeakHashMap<>();
 	}
 
 	@Override
@@ -323,10 +311,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		return descriptor;
 	}
 
-	/**
-	 * Reports whether an object has children or not. In lazy modes, uses the LazyResolver to
-	 * answer this question without hitting the network.
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public boolean hasChildren(EObject o) {
 		for (EReference r : o.eClass().getEAllReferences()) {
@@ -350,7 +335,7 @@ public class HawkResourceImpl extends ResourceImpl {
 		final Factory hawkResourceFactory = new Factory() {
 			@Override
 			public Resource createResource(URI uri) {
-				return new HawkResourceImpl(uri, HawkResourceImpl.this);
+				return new HawkFileResourceImpl(uri, HawkResourceImpl.this);
 			}
 		};
 		final Map<String, Object> protocolToFactoryMap = getResourceSet().getResourceFactoryRegistry().getProtocolToFactoryMap();
@@ -477,12 +462,14 @@ public class HawkResourceImpl extends ResourceImpl {
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {
 		final String fullURL = "hawkrepo+" + repoURL + (repoURL.endsWith("/") ? "!!/" : "/!!/") + path;
-		Resource resource = resources.get(fullURL);
-		if (resource == null) {
-			resource = getResourceSet().createResource(URI.createURI(fullURL));
-			resources.put(fullURL, resource);
+		synchronized(resources) {
+			Resource resource = resources.get(fullURL);
+			if (resource == null) {
+				resource = getResourceSet().createResource(URI.createURI(fullURL));
+				resources.put(fullURL, resource);
+			}
+			resource.getContents().add(eob);
 		}
-		resource.getContents().add(eob);
 	}
 
 	private EObject createEObject(ModelElement me) throws IOException {
