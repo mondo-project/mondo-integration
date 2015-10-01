@@ -474,7 +474,9 @@ final class HawkThriftIface implements Hawk.Iface {
 	@Override
 	public void createInstance(String name, String adminPassword) throws TException {
 		try {
-			HModel.create(new LocalHawkFactory(), name, storageFolder(name), null, Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
+			if (manager.getHawkByName(name) == null) {
+				HModel.create(new LocalHawkFactory(), name, storageFolder(name), null, Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
+			}
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}
@@ -505,13 +507,17 @@ final class HawkThriftIface implements Hawk.Iface {
 	@Override
 	public void startInstance(String name, String adminPassword) throws HawkInstanceNotFound, TException {
 		final HModel model = getHawkByName(name);
-		model.start(manager, adminPassword.toCharArray());
+		if (!model.isRunning()) {
+			model.start(manager, adminPassword.toCharArray());
+		}
 	}
 
 	@Override
 	public void stopInstance(String name) throws HawkInstanceNotFound, TException {
 		final HModel model = getHawkByName(name);
-		model.stop(ShutdownRequestType.ALWAYS);
+		if (model.isRunning()) {
+			model.stop(ShutdownRequestType.ALWAYS);
+		}
 	}
 
 	@Override
