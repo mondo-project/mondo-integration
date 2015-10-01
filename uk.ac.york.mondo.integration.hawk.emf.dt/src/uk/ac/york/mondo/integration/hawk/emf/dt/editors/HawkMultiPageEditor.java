@@ -169,7 +169,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 							public Image getImage(Object o) {
 								if (o instanceof HawkInstance) {
 									final HawkInstance hi = (HawkInstance) o;
-									return Activator.getImageDescriptor(hi.isRunning
+									return Activator.getImageDescriptor(hi.running
 										? "/icons/nav_go.gif" : "/icons/nav_stop.gif")
 										.createImage();
 								}

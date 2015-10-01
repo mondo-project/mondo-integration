@@ -926,17 +926,17 @@ File.prototype.write = function(output) {
 
 HawkInstance = function(args) {
   this.name = null;
-  this.isRunning = null;
+  this.running = null;
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
     }
-    if (args.isRunning !== undefined) {
-      this.isRunning = args.isRunning;
+    if (args.running !== undefined) {
+      this.running = args.running;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field isRunning is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field running is unset!');
     }
   }
 };
@@ -963,7 +963,7 @@ HawkInstance.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.BOOL) {
-        this.isRunning = input.readBool().value;
+        this.running = input.readBool().value;
       } else {
         input.skip(ftype);
       }
@@ -984,9 +984,9 @@ HawkInstance.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.isRunning !== null && this.isRunning !== undefined) {
-    output.writeFieldBegin('isRunning', Thrift.Type.BOOL, 2);
-    output.writeBool(this.isRunning);
+  if (this.running !== null && this.running !== undefined) {
+    output.writeFieldBegin('running', Thrift.Type.BOOL, 2);
+    output.writeBool(this.running);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -89,7 +89,7 @@ struct File {
 
 struct HawkInstance {
 	 /* The name of the instance. */ 1: required string name,
-	 /* Whether the instance is running or not. */ 2: required bool isRunning,
+	 /* Whether the instance is running or not. */ 2: required bool running,
 }
 
 exception HawkInstanceNotFound {

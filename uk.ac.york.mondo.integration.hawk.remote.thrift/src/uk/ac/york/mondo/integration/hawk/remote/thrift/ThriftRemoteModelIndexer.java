@@ -652,7 +652,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		try {
 			for (HawkInstance instance : client.listInstances()) {
 				if (instance.name.equals(name)) {
-					return instance.isRunning;
+					return instance.running;
 				}
 			}
 		} catch (TException e) {

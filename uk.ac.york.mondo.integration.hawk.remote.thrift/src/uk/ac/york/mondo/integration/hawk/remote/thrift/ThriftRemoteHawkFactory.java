@@ -53,7 +53,7 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 		final InstanceInfo[] infos = new InstanceInfo[instances.size()];
 		for (int iInfo = 0; iInfo < instances.size(); ++iInfo) {
 			HawkInstance instance = instances.get(iInfo);
-			infos[iInfo] = new InstanceInfo(instance.name, null, instance.isRunning);
+			infos[iInfo] = new InstanceInfo(instance.name, null, instance.running);
 		}
 
 		return infos;
