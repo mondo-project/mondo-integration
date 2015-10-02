@@ -49,6 +49,9 @@ import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.runtime.util.SecurityManager;
 import org.hawk.core.util.HawkProperties;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.FailedQuery;
@@ -60,9 +63,6 @@ import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class ThriftRemoteModelIndexer implements IModelIndexer {
 
@@ -361,9 +361,8 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public boolean synchronise() throws Exception {
-		// the server takes care of the synchronisation on its own
-		return true;
+	public void requestImmediateSync() throws Exception {
+		client.syncInstance(name);
 	}
 
 	@Override
@@ -537,11 +536,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void resetScheduler() {
-		console.printerrln("Cannot reset the scheduler for a " + this.getClass().getName());
-	}
-
-	@Override
 	public void setMetaModelUpdater(IMetaModelUpdater metaModelUpdater) {
 		console.printerrln("Cannot change the metamodel updater in " + this.getClass().getName());
 	}
@@ -663,20 +657,25 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public boolean addGraphChangeListener(IGraphChangeListener changeListener) {
-		// TODO Integrate remote notifications here!
+		// TODO Add remote notifications here?
 		return false;
 	}
 
 	@Override
 	public boolean removeGraphChangeListener(IGraphChangeListener changeListener) {
-		// TODO Integrate remote notifications here!
+		// TODO Add remote notifications here?
 		return false;
 	}
 
 	@Override
 	public IGraphChangeListener getCompositeGraphChangeListener() {
-		// TODO Integrate remote notifications here!
+		// TODO Add remote notifications here?
 		return null;
+	}
+
+	@Override
+	public void setSyncMetricsEnabled(Boolean enable) {
+		// do nothing
 	}
 
 }

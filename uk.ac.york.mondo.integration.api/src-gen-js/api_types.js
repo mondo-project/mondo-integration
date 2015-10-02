@@ -1053,12 +1053,12 @@ HawkInstanceNotRunning.prototype.write = function(output) {
 };
 
 HawkSynchronizationEndEvent = function(args) {
-  this.timestamp = null;
+  this.timestampNanos = null;
   if (args) {
-    if (args.timestamp !== undefined) {
-      this.timestamp = args.timestamp;
+    if (args.timestampNanos !== undefined) {
+      this.timestampNanos = args.timestampNanos;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestamp is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestampNanos is unset!');
     }
   }
 };
@@ -1078,7 +1078,7 @@ HawkSynchronizationEndEvent.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I64) {
-        this.timestamp = input.readI64().value;
+        this.timestampNanos = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -1097,9 +1097,9 @@ HawkSynchronizationEndEvent.prototype.read = function(input) {
 
 HawkSynchronizationEndEvent.prototype.write = function(output) {
   output.writeStructBegin('HawkSynchronizationEndEvent');
-  if (this.timestamp !== null && this.timestamp !== undefined) {
-    output.writeFieldBegin('timestamp', Thrift.Type.I64, 1);
-    output.writeI64(this.timestamp);
+  if (this.timestampNanos !== null && this.timestampNanos !== undefined) {
+    output.writeFieldBegin('timestampNanos', Thrift.Type.I64, 1);
+    output.writeI64(this.timestampNanos);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1108,12 +1108,12 @@ HawkSynchronizationEndEvent.prototype.write = function(output) {
 };
 
 HawkSynchronizationStartEvent = function(args) {
-  this.timestamp = null;
+  this.timestampNanos = null;
   if (args) {
-    if (args.timestamp !== undefined) {
-      this.timestamp = args.timestamp;
+    if (args.timestampNanos !== undefined) {
+      this.timestampNanos = args.timestampNanos;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestamp is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestampNanos is unset!');
     }
   }
 };
@@ -1133,7 +1133,7 @@ HawkSynchronizationStartEvent.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I64) {
-        this.timestamp = input.readI64().value;
+        this.timestampNanos = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -1152,9 +1152,9 @@ HawkSynchronizationStartEvent.prototype.read = function(input) {
 
 HawkSynchronizationStartEvent.prototype.write = function(output) {
   output.writeStructBegin('HawkSynchronizationStartEvent');
-  if (this.timestamp !== null && this.timestamp !== undefined) {
-    output.writeFieldBegin('timestamp', Thrift.Type.I64, 1);
-    output.writeI64(this.timestamp);
+  if (this.timestampNanos !== null && this.timestampNanos !== undefined) {
+    output.writeFieldBegin('timestampNanos', Thrift.Type.I64, 1);
+    output.writeI64(this.timestampNanos);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

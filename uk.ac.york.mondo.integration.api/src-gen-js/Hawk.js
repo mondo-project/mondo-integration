@@ -581,6 +581,137 @@ Hawk_stopInstance_result.prototype.write = function(output) {
   return;
 };
 
+Hawk_syncInstance_args = function(args) {
+  this.name = null;
+  if (args) {
+    if (args.name !== undefined) {
+      this.name = args.name;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
+    }
+  }
+};
+Hawk_syncInstance_args.prototype = {};
+Hawk_syncInstance_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_syncInstance_args.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_syncInstance_args');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Hawk_syncInstance_result = function(args) {
+  this.err1 = null;
+  this.err2 = null;
+  if (args instanceof HawkInstanceNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof HawkInstanceNotRunning) {
+    this.err2 = args;
+    return;
+  }
+  if (args) {
+    if (args.err1 !== undefined) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined) {
+      this.err2 = args.err2;
+    }
+  }
+};
+Hawk_syncInstance_result.prototype = {};
+Hawk_syncInstance_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new HawkInstanceNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new HawkInstanceNotRunning();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_syncInstance_result.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_syncInstance_result');
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 Hawk_registerMetamodels_args = function(args) {
   this.name = null;
   this.metamodel = null;
@@ -5049,6 +5180,58 @@ HawkClient.prototype.recv_stopInstance = function() {
     throw x;
   }
   var result = new Hawk_stopInstance_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  return;
+};
+HawkClient.prototype.syncInstance = function(name, callback) {
+  this.send_syncInstance(name, callback); 
+  if (!callback) {
+  this.recv_syncInstance();
+  }
+};
+
+HawkClient.prototype.send_syncInstance = function(name, callback) {
+  this.output.writeMessageBegin('syncInstance', Thrift.MessageType.CALL, this.seqid);
+  var args = new Hawk_syncInstance_args();
+  args.name = name;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_syncInstance();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+HawkClient.prototype.recv_syncInstance = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new Hawk_syncInstance_result();
   result.read(this.input);
   this.input.readMessageEnd();
 

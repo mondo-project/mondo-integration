@@ -173,6 +173,18 @@ public class HawkCommandProvider implements CommandProvider {
 		}
 	}
 
+	public Object _hawkSyncInstance(CommandInterpreter intp) throws Exception {
+		checkConnected();
+		final String name = requiredArgument(intp, "name");
+		final HawkInstance hi = findInstance(name);
+		if (hi.running) {
+			client.syncInstance(name);
+			return String.format("Requested immediate sync on instance %s", currentInstance);
+		} else {
+			return String.format("Instance %s is not running", name);
+		}
+	}
+
 	/* METAMODEL MANAGEMENT */
 
 	public Object _hawkRegisterMetamodel(CommandInterpreter intp) throws Exception {
@@ -590,7 +602,8 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
 		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
-		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n");
+		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n\t");
+		sbuf.append("hawkSyncInstance <name> - forces an immediate sync on the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
 		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");

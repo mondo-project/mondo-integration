@@ -99,11 +99,11 @@ exception HawkInstanceNotRunning {
 }
 
 struct HawkSynchronizationEndEvent {
-	 /* Local timestamp. */ 1: required i64 timestamp,
+	 /* Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost. */ 1: required i64 timestampNanos,
 }
 
 struct HawkSynchronizationStartEvent {
-	 /* Local timestamp. */ 1: required i64 timestamp,
+	 /* Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost. */ 1: required i64 timestampNanos,
 }
 
 struct IndexedAttributeSpec {
@@ -418,6 +418,15 @@ service Hawk {
 	
   /* Stops a running Hawk instance. Auth needed: Yes */
   void stopInstance(
+	/* The name of the Hawk instance to stop. */ 1: required string name,
+  )
+  throws (
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
+	) 
+	
+  /* Forces an immediate synchronization on a Hawk instance. Auth needed: Yes */
+  void syncInstance(
 	/* The name of the Hawk instance to stop. */ 1: required string name,
   )
   throws (

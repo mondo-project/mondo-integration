@@ -83,6 +83,11 @@ class Hawk {
 		@doc(d="The name of the Hawk instance to stop") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
+    @doc(d="Forces an immediate synchronization on a Hawk instance")
+    op void syncInstance(
+		@doc(d="The name of the Hawk instance to stop") String name
+    ) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
 	@doc(d="Registers a set of file-based metamodels with a Hawk instance")
 	op void registerMetamodels (
 		@doc(d="The name of the Hawk instance") String name,

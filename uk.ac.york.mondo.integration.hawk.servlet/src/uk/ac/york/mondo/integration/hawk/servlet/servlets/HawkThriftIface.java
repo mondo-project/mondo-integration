@@ -582,4 +582,14 @@ final class HawkThriftIface implements Hawk.Iface {
 		}
 		return dataFile;
 	}
+
+	@Override
+	public void syncInstance(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final HModel model = getRunningHawkByName(name);
+		try {
+			model.sync();
+		} catch (Exception e) {
+			throw new TException("Could not force an immediate synchronisation", e);
+		}
+	}
 }

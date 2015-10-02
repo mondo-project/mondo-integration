@@ -211,7 +211,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 		@Override
 		public void handle(HawkSynchronizationStartEvent syncStart) {
-			this.lastSyncStart = syncStart.getTimestamp();
+			this.lastSyncStart = syncStart.getTimestampNanos();
 			LOGGER.debug("Sync started: local timestamp is {} ns", lastSyncStart);
 		}
 
@@ -219,8 +219,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		public void handle(HawkSynchronizationEndEvent syncEnd) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Sync ended: local timestamp is {} ns (elapsed time: {} ms)",
-						syncEnd.getTimestamp(),
-						(syncEnd.getTimestamp() - lastSyncStart)/1_000_000.0);
+						syncEnd.getTimestampNanos(),
+						(syncEnd.getTimestampNanos() - lastSyncStart)/1_000_000.0);
 			}
 		}
 	}

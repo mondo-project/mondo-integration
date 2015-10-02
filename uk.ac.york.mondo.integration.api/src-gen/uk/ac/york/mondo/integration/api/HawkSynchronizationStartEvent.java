@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<HawkSynchronizationStartEvent, HawkSynchronizationStartEvent._Fields>, java.io.Serializable, Cloneable, Comparable<HawkSynchronizationStartEvent> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("HawkSynchronizationStartEvent");
 
-  private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)1);
+  private static final org.apache.thrift.protocol.TField TIMESTAMP_NANOS_FIELD_DESC = new org.apache.thrift.protocol.TField("timestampNanos", org.apache.thrift.protocol.TType.I64, (short)1);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -46,11 +46,11 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
     schemes.put(TupleScheme.class, new HawkSynchronizationStartEventTupleSchemeFactory());
   }
 
-  public long timestamp; // required
+  public long timestampNanos; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TIMESTAMP((short)1, "timestamp");
+    TIMESTAMP_NANOS((short)1, "timestampNanos");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -65,8 +65,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TIMESTAMP
-          return TIMESTAMP;
+        case 1: // TIMESTAMP_NANOS
+          return TIMESTAMP_NANOS;
         default:
           return null;
       }
@@ -107,12 +107,12 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
   }
 
   // isset id assignments
-  private static final int __TIMESTAMP_ISSET_ID = 0;
+  private static final int __TIMESTAMPNANOS_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.TIMESTAMP_NANOS, new org.apache.thrift.meta_data.FieldMetaData("timestampNanos", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HawkSynchronizationStartEvent.class, metaDataMap);
@@ -122,11 +122,11 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
   }
 
   public HawkSynchronizationStartEvent(
-    long timestamp)
+    long timestampNanos)
   {
     this();
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
+    this.timestampNanos = timestampNanos;
+    setTimestampNanosIsSet(true);
   }
 
   /**
@@ -134,7 +134,7 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
    */
   public HawkSynchronizationStartEvent(HawkSynchronizationStartEvent other) {
     __isset_bitfield = other.__isset_bitfield;
-    this.timestamp = other.timestamp;
+    this.timestampNanos = other.timestampNanos;
   }
 
   public HawkSynchronizationStartEvent deepCopy() {
@@ -143,40 +143,40 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
 
   @Override
   public void clear() {
-    setTimestampIsSet(false);
-    this.timestamp = 0;
+    setTimestampNanosIsSet(false);
+    this.timestampNanos = 0;
   }
 
-  public long getTimestamp() {
-    return this.timestamp;
+  public long getTimestampNanos() {
+    return this.timestampNanos;
   }
 
-  public HawkSynchronizationStartEvent setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
+  public HawkSynchronizationStartEvent setTimestampNanos(long timestampNanos) {
+    this.timestampNanos = timestampNanos;
+    setTimestampNanosIsSet(true);
     return this;
   }
 
-  public void unsetTimestamp() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
+  public void unsetTimestampNanos() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TIMESTAMPNANOS_ISSET_ID);
   }
 
-  /** Returns true if field timestamp is set (has been assigned a value) and false otherwise */
-  public boolean isSetTimestamp() {
-    return EncodingUtils.testBit(__isset_bitfield, __TIMESTAMP_ISSET_ID);
+  /** Returns true if field timestampNanos is set (has been assigned a value) and false otherwise */
+  public boolean isSetTimestampNanos() {
+    return EncodingUtils.testBit(__isset_bitfield, __TIMESTAMPNANOS_ISSET_ID);
   }
 
-  public void setTimestampIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TIMESTAMP_ISSET_ID, value);
+  public void setTimestampNanosIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TIMESTAMPNANOS_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TIMESTAMP:
+    case TIMESTAMP_NANOS:
       if (value == null) {
-        unsetTimestamp();
+        unsetTimestampNanos();
       } else {
-        setTimestamp((Long)value);
+        setTimestampNanos((Long)value);
       }
       break;
 
@@ -185,8 +185,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TIMESTAMP:
-      return Long.valueOf(getTimestamp());
+    case TIMESTAMP_NANOS:
+      return Long.valueOf(getTimestampNanos());
 
     }
     throw new IllegalStateException();
@@ -199,8 +199,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
     }
 
     switch (field) {
-    case TIMESTAMP:
-      return isSetTimestamp();
+    case TIMESTAMP_NANOS:
+      return isSetTimestampNanos();
     }
     throw new IllegalStateException();
   }
@@ -218,12 +218,12 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
     if (that == null)
       return false;
 
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
-    if (this_present_timestamp || that_present_timestamp) {
-      if (!(this_present_timestamp && that_present_timestamp))
+    boolean this_present_timestampNanos = true;
+    boolean that_present_timestampNanos = true;
+    if (this_present_timestampNanos || that_present_timestampNanos) {
+      if (!(this_present_timestampNanos && that_present_timestampNanos))
         return false;
-      if (this.timestamp != that.timestamp)
+      if (this.timestampNanos != that.timestampNanos)
         return false;
     }
 
@@ -234,10 +234,10 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
   public int hashCode() {
     List<Object> list = new ArrayList<Object>();
 
-    boolean present_timestamp = true;
-    list.add(present_timestamp);
-    if (present_timestamp)
-      list.add(timestamp);
+    boolean present_timestampNanos = true;
+    list.add(present_timestampNanos);
+    if (present_timestampNanos)
+      list.add(timestampNanos);
 
     return list.hashCode();
   }
@@ -250,12 +250,12 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
 
     int lastComparison = 0;
 
-    lastComparison = Boolean.valueOf(isSetTimestamp()).compareTo(other.isSetTimestamp());
+    lastComparison = Boolean.valueOf(isSetTimestampNanos()).compareTo(other.isSetTimestampNanos());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTimestamp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestamp, other.timestamp);
+    if (isSetTimestampNanos()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.timestampNanos, other.timestampNanos);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -280,8 +280,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
     StringBuilder sb = new StringBuilder("HawkSynchronizationStartEvent(");
     boolean first = true;
 
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
+    sb.append("timestampNanos:");
+    sb.append(this.timestampNanos);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -289,7 +289,7 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
-    // alas, we cannot check 'timestamp' because it's a primitive and you chose the non-beans generator.
+    // alas, we cannot check 'timestampNanos' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
   }
 
@@ -329,10 +329,10 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
           break;
         }
         switch (schemeField.id) {
-          case 1: // TIMESTAMP
+          case 1: // TIMESTAMP_NANOS
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.timestamp = iprot.readI64();
-              struct.setTimestampIsSet(true);
+              struct.timestampNanos = iprot.readI64();
+              struct.setTimestampNanosIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -345,8 +345,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetTimestamp()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'timestamp' was not found in serialized data! Struct: " + toString());
+      if (!struct.isSetTimestampNanos()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'timestampNanos' was not found in serialized data! Struct: " + toString());
       }
       struct.validate();
     }
@@ -355,8 +355,8 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
+      oprot.writeFieldBegin(TIMESTAMP_NANOS_FIELD_DESC);
+      oprot.writeI64(struct.timestampNanos);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -375,14 +375,14 @@ public class HawkSynchronizationStartEvent implements org.apache.thrift.TBase<Ha
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, HawkSynchronizationStartEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      oprot.writeI64(struct.timestamp);
+      oprot.writeI64(struct.timestampNanos);
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, HawkSynchronizationStartEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      struct.timestamp = iprot.readI64();
-      struct.setTimestampIsSet(true);
+      struct.timestampNanos = iprot.readI64();
+      struct.setTimestampNanosIsSet(true);
     }
   }
 
