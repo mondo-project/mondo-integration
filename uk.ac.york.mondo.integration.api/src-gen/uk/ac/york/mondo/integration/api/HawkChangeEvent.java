@@ -42,6 +42,8 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
   private static final org.apache.thrift.protocol.TField MODEL_ELEMENT_ATTRIBUTE_REMOVAL_FIELD_DESC = new org.apache.thrift.protocol.TField("modelElementAttributeRemoval", org.apache.thrift.protocol.TType.STRUCT, (short)4);
   private static final org.apache.thrift.protocol.TField REFERENCE_ADDITION_FIELD_DESC = new org.apache.thrift.protocol.TField("referenceAddition", org.apache.thrift.protocol.TType.STRUCT, (short)5);
   private static final org.apache.thrift.protocol.TField REFERENCE_REMOVAL_FIELD_DESC = new org.apache.thrift.protocol.TField("referenceRemoval", org.apache.thrift.protocol.TType.STRUCT, (short)6);
+  private static final org.apache.thrift.protocol.TField SYNC_START_FIELD_DESC = new org.apache.thrift.protocol.TField("syncStart", org.apache.thrift.protocol.TType.STRUCT, (short)7);
+  private static final org.apache.thrift.protocol.TField SYNC_END_FIELD_DESC = new org.apache.thrift.protocol.TField("syncEnd", org.apache.thrift.protocol.TType.STRUCT, (short)8);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -50,7 +52,9 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     MODEL_ELEMENT_ATTRIBUTE_UPDATE((short)3, "modelElementAttributeUpdate"),
     MODEL_ELEMENT_ATTRIBUTE_REMOVAL((short)4, "modelElementAttributeRemoval"),
     REFERENCE_ADDITION((short)5, "referenceAddition"),
-    REFERENCE_REMOVAL((short)6, "referenceRemoval");
+    REFERENCE_REMOVAL((short)6, "referenceRemoval"),
+    SYNC_START((short)7, "syncStart"),
+    SYNC_END((short)8, "syncEnd");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,6 +81,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           return REFERENCE_ADDITION;
         case 6: // REFERENCE_REMOVAL
           return REFERENCE_REMOVAL;
+        case 7: // SYNC_START
+          return SYNC_START;
+        case 8: // SYNC_END
+          return SYNC_END;
         default:
           return null;
       }
@@ -131,6 +139,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkReferenceAdditionEvent.class)));
     tmpMap.put(_Fields.REFERENCE_REMOVAL, new org.apache.thrift.meta_data.FieldMetaData("referenceRemoval", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkReferenceRemovalEvent.class)));
+    tmpMap.put(_Fields.SYNC_START, new org.apache.thrift.meta_data.FieldMetaData("syncStart", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkSynchronizationStartEvent.class)));
+    tmpMap.put(_Fields.SYNC_END, new org.apache.thrift.meta_data.FieldMetaData("syncEnd", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkSynchronizationEndEvent.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HawkChangeEvent.class, metaDataMap);
   }
@@ -186,6 +198,18 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     return x;
   }
 
+  public static HawkChangeEvent syncStart(HawkSynchronizationStartEvent value) {
+    HawkChangeEvent x = new HawkChangeEvent();
+    x.setSyncStart(value);
+    return x;
+  }
+
+  public static HawkChangeEvent syncEnd(HawkSynchronizationEndEvent value) {
+    HawkChangeEvent x = new HawkChangeEvent();
+    x.setSyncEnd(value);
+    return x;
+  }
+
 
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
@@ -220,6 +244,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           break;
         }
         throw new ClassCastException("Was expecting value of type HawkReferenceRemovalEvent for field 'referenceRemoval', but got " + value.getClass().getSimpleName());
+      case SYNC_START:
+        if (value instanceof HawkSynchronizationStartEvent) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type HawkSynchronizationStartEvent for field 'syncStart', but got " + value.getClass().getSimpleName());
+      case SYNC_END:
+        if (value instanceof HawkSynchronizationEndEvent) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type HawkSynchronizationEndEvent for field 'syncEnd', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -290,6 +324,26 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case SYNC_START:
+          if (field.type == SYNC_START_FIELD_DESC.type) {
+            HawkSynchronizationStartEvent syncStart;
+            syncStart = new HawkSynchronizationStartEvent();
+            syncStart.read(iprot);
+            return syncStart;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case SYNC_END:
+          if (field.type == SYNC_END_FIELD_DESC.type) {
+            HawkSynchronizationEndEvent syncEnd;
+            syncEnd = new HawkSynchronizationEndEvent();
+            syncEnd.read(iprot);
+            return syncEnd;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -325,6 +379,14 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
       case REFERENCE_REMOVAL:
         HawkReferenceRemovalEvent referenceRemoval = (HawkReferenceRemovalEvent)value_;
         referenceRemoval.write(oprot);
+        return;
+      case SYNC_START:
+        HawkSynchronizationStartEvent syncStart = (HawkSynchronizationStartEvent)value_;
+        syncStart.write(oprot);
+        return;
+      case SYNC_END:
+        HawkSynchronizationEndEvent syncEnd = (HawkSynchronizationEndEvent)value_;
+        syncEnd.write(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -366,6 +428,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           referenceRemoval = new HawkReferenceRemovalEvent();
           referenceRemoval.read(iprot);
           return referenceRemoval;
+        case SYNC_START:
+          HawkSynchronizationStartEvent syncStart;
+          syncStart = new HawkSynchronizationStartEvent();
+          syncStart.read(iprot);
+          return syncStart;
+        case SYNC_END:
+          HawkSynchronizationEndEvent syncEnd;
+          syncEnd = new HawkSynchronizationEndEvent();
+          syncEnd.read(iprot);
+          return syncEnd;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -401,6 +473,14 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         HawkReferenceRemovalEvent referenceRemoval = (HawkReferenceRemovalEvent)value_;
         referenceRemoval.write(oprot);
         return;
+      case SYNC_START:
+        HawkSynchronizationStartEvent syncStart = (HawkSynchronizationStartEvent)value_;
+        syncStart.write(oprot);
+        return;
+      case SYNC_END:
+        HawkSynchronizationEndEvent syncEnd = (HawkSynchronizationEndEvent)value_;
+        syncEnd.write(oprot);
+        return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -421,6 +501,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         return REFERENCE_ADDITION_FIELD_DESC;
       case REFERENCE_REMOVAL:
         return REFERENCE_REMOVAL_FIELD_DESC;
+      case SYNC_START:
+        return SYNC_START_FIELD_DESC;
+      case SYNC_END:
+        return SYNC_END_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -525,6 +609,34 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     value_ = value;
   }
 
+  public HawkSynchronizationStartEvent getSyncStart() {
+    if (getSetField() == _Fields.SYNC_START) {
+      return (HawkSynchronizationStartEvent)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'syncStart' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setSyncStart(HawkSynchronizationStartEvent value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.SYNC_START;
+    value_ = value;
+  }
+
+  public HawkSynchronizationEndEvent getSyncEnd() {
+    if (getSetField() == _Fields.SYNC_END) {
+      return (HawkSynchronizationEndEvent)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'syncEnd' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setSyncEnd(HawkSynchronizationEndEvent value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.SYNC_END;
+    value_ = value;
+  }
+
   public boolean isSetModelElementAddition() {
     return setField_ == _Fields.MODEL_ELEMENT_ADDITION;
   }
@@ -552,6 +664,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
 
   public boolean isSetReferenceRemoval() {
     return setField_ == _Fields.REFERENCE_REMOVAL;
+  }
+
+
+  public boolean isSetSyncStart() {
+    return setField_ == _Fields.SYNC_START;
+  }
+
+
+  public boolean isSetSyncEnd() {
+    return setField_ == _Fields.SYNC_END;
   }
 
 

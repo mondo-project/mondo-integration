@@ -64,6 +64,8 @@ import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkSynchronizationEndEvent;
+import uk.ac.york.mondo.integration.api.HawkSynchronizationStartEvent;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.QueryResult;
@@ -83,7 +85,9 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  */
 public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 
-	private final class ModelSubscriberHandler implements MessageHandler {
+	public final class ModelSubscriberHandler implements MessageHandler {
+		private long lastSyncStart;
+
 		@Override
 		public void onMessage(ClientMessage message) {
 			try {
@@ -116,6 +120,12 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 						}
 						else if (change.isSetReferenceRemoval()) {
 							handle(change.getReferenceRemoval());
+						}
+						else if (change.isSetSyncStart()) {
+							handle(change.getSyncStart());
+						}
+						else if (change.isSetSyncEnd()) {
+							handle(change.getSyncEnd());
 						}
 					}
 				} catch (TException | IOException e) {
@@ -224,6 +234,19 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 				SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
 			} else {
 				LOGGER.debug("EObject for ID {} not found when handling attribute update", ev.getId());
+			}
+		}
+
+		protected void handle(HawkSynchronizationStartEvent syncStart) {
+			this.lastSyncStart = syncStart.getTimestamp();
+			LOGGER.debug("Sync started: local timestamp is {} ns", lastSyncStart);
+		}
+
+		protected void handle(HawkSynchronizationEndEvent syncEnd) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Sync ended: local timestamp is {} ns (elapsed time: {} ms)",
+						syncEnd.getTimestamp(),
+						(syncEnd.getTimestamp() - lastSyncStart)/1_000_000.0);
 			}
 		}
 	}
@@ -390,7 +413,7 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 
 				subscriber = APIUtils.connectToArtemis(subscription, sd);
 				subscriber.openSession();
-				subscriber.processChangesAsync(new ModelSubscriberHandler());
+				subscriber.processChangesAsync(createSubscriberHandler());
 			}
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -401,6 +424,14 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Creates an instance of a model subscriber. Subclasses may override this
+	 * to provide their own subclass of {@link ModelSubscriberHandler}.
+	 */
+	protected ModelSubscriberHandler createSubscriberHandler() {
+		return new ModelSubscriberHandler();
 	}
 
 	public EList<EObject> fetchNodes(List<String> ids)

@@ -250,6 +250,8 @@ class HawkChangeEvent {
 	@doc(d="An attribute was removed.") val HawkAttributeRemovalEvent modelElementAttributeRemoval;
 	@doc(d="A reference was added.") val HawkReferenceAdditionEvent referenceAddition;
 	@doc(d="A reference was removed.") val HawkReferenceRemovalEvent referenceRemoval;
+	@doc(d="Synchronization started.") val HawkSynchronizationStartEvent syncStart;
+	@doc(d="Synchronization ended.") val HawkSynchronizationEndEvent syncEnd;
 }
 
 @doc(d="Serialized form of a model element addition event.")
@@ -295,6 +297,16 @@ class HawkReferenceRemovalEvent {
 	@doc(d="Identifier of the source model element.") val String ~sourceId;
 	@doc(d="Identifier of the target model element.") val String ~targetId;
 	@doc(d="Name of the reference that was removed.") val String refName;
+}
+
+@doc(d="Serialized form of a sync start event.")
+class HawkSynchronizationStartEvent {
+	@doc(d="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost.") val long timestampNanos;
+}
+
+@doc(d="Serialized form of a sync end event.")
+class HawkSynchronizationEndEvent {
+	@doc(d="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost.") val long timestampNanos;
 }
 
 @doc(d="Simplified entry within a commit of a repository.")

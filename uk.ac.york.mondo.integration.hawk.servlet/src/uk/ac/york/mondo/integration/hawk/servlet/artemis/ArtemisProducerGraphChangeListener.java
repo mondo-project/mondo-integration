@@ -50,6 +50,8 @@ import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkSynchronizationEndEvent;
+import uk.ac.york.mondo.integration.api.HawkSynchronizationStartEvent;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
@@ -122,27 +124,44 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void synchroniseStart() {
-		// nothing to do
-	}
-
-	@Override
-	public void synchroniseEnd() {
-		// nothing to do
-	}
-
-	@Override
-	public void changeStart() {
 		if (session == null) {
 			try {
 				this.session = sessionFactory
 						.createSession(false, false, false);
 				this.producer = session.createProducer(queueAddress);
+
+				final HawkSynchronizationStartEvent ev = new HawkSynchronizationStartEvent(System.nanoTime());
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setSyncStart(ev);
+				sendEvent(change);
+
+				session.commit();
 			} catch (ActiveMQException e) {
 				LOGGER.error("Could not start a new Artemis session", e);
 			}
 		} else {
-			LOGGER.warn("session already open: last changeStart not closed");
+			LOGGER.warn("session already open: last synchronizeStart not closed");
 		}
+	}
+
+	@Override
+	public void synchroniseEnd() {
+		try {
+			final HawkSynchronizationEndEvent ev = new HawkSynchronizationEndEvent(System.nanoTime());
+			final HawkChangeEvent change = new HawkChangeEvent();
+			change.setSyncEnd(ev);
+			sendEvent(change);
+			session.commit();
+		} catch (ActiveMQException e) {
+			LOGGER.error("Could not commit the transaction", e);
+		} finally {
+			closeSession();
+		}
+	}
+
+	@Override
+	public void changeStart() {
+		// nothing to do
 	}
 
 	@Override
@@ -157,8 +176,6 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			} catch (ActiveMQException e1) {
 				LOGGER.error("Could not rollback the transaction", e1);
 			}
-		} finally {
-			closeSession();
 		}
 	}
 
@@ -169,8 +186,6 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			LOGGER.debug("Session rolled back");
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not rollback the transaction", e);
-		} finally {
-			closeSession();
 		}
 	}
 

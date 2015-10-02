@@ -629,6 +629,18 @@
         <details key="d" value="A reference was removed."/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="syncStart" eType="#//HawkSynchronizationStartEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Synchronization started."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="syncEnd" eType="#//HawkSynchronizationEndEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Synchronization ended."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkModelElementAdditionEvent">
     <eAnnotations source="doc">
@@ -783,6 +795,28 @@
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Name of the reference that was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkSynchronizationStartEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a sync start event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="timestampNanos" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkSynchronizationEndEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a sync end event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="timestampNanos" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

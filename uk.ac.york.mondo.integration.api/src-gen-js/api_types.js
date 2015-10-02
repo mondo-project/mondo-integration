@@ -1052,6 +1052,116 @@ HawkInstanceNotRunning.prototype.write = function(output) {
   return;
 };
 
+HawkSynchronizationEndEvent = function(args) {
+  this.timestamp = null;
+  if (args) {
+    if (args.timestamp !== undefined) {
+      this.timestamp = args.timestamp;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestamp is unset!');
+    }
+  }
+};
+HawkSynchronizationEndEvent.prototype = {};
+HawkSynchronizationEndEvent.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.timestamp = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HawkSynchronizationEndEvent.prototype.write = function(output) {
+  output.writeStructBegin('HawkSynchronizationEndEvent');
+  if (this.timestamp !== null && this.timestamp !== undefined) {
+    output.writeFieldBegin('timestamp', Thrift.Type.I64, 1);
+    output.writeI64(this.timestamp);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+HawkSynchronizationStartEvent = function(args) {
+  this.timestamp = null;
+  if (args) {
+    if (args.timestamp !== undefined) {
+      this.timestamp = args.timestamp;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestamp is unset!');
+    }
+  }
+};
+HawkSynchronizationStartEvent.prototype = {};
+HawkSynchronizationStartEvent.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.timestamp = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HawkSynchronizationStartEvent.prototype.write = function(output) {
+  output.writeStructBegin('HawkSynchronizationStartEvent');
+  if (this.timestamp !== null && this.timestamp !== undefined) {
+    output.writeFieldBegin('timestamp', Thrift.Type.I64, 1);
+    output.writeI64(this.timestamp);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 IndexedAttributeSpec = function(args) {
   this.metamodelUri = null;
   this.typeName = null;
@@ -4091,6 +4201,8 @@ HawkChangeEvent = function(args) {
   this.modelElementAttributeRemoval = null;
   this.referenceAddition = null;
   this.referenceRemoval = null;
+  this.syncStart = null;
+  this.syncEnd = null;
   if (args) {
     if (args.modelElementAddition !== undefined) {
       this.modelElementAddition = args.modelElementAddition;
@@ -4109,6 +4221,12 @@ HawkChangeEvent = function(args) {
     }
     if (args.referenceRemoval !== undefined) {
       this.referenceRemoval = args.referenceRemoval;
+    }
+    if (args.syncStart !== undefined) {
+      this.syncStart = args.syncStart;
+    }
+    if (args.syncEnd !== undefined) {
+      this.syncEnd = args.syncEnd;
     }
   }
 };
@@ -4174,6 +4292,22 @@ HawkChangeEvent.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 7:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.syncStart = new HawkSynchronizationStartEvent();
+        this.syncStart.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 8:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.syncEnd = new HawkSynchronizationEndEvent();
+        this.syncEnd.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -4213,6 +4347,16 @@ HawkChangeEvent.prototype.write = function(output) {
   if (this.referenceRemoval !== null && this.referenceRemoval !== undefined) {
     output.writeFieldBegin('referenceRemoval', Thrift.Type.STRUCT, 6);
     this.referenceRemoval.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.syncStart !== null && this.syncStart !== undefined) {
+    output.writeFieldBegin('syncStart', Thrift.Type.STRUCT, 7);
+    this.syncStart.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.syncEnd !== null && this.syncEnd !== undefined) {
+    output.writeFieldBegin('syncEnd', Thrift.Type.STRUCT, 8);
+    this.syncEnd.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

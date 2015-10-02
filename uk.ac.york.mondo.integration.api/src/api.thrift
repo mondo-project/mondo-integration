@@ -98,6 +98,14 @@ exception HawkInstanceNotFound {
 exception HawkInstanceNotRunning {
 }
 
+struct HawkSynchronizationEndEvent {
+	 /* Local timestamp. */ 1: required i64 timestamp,
+}
+
+struct HawkSynchronizationStartEvent {
+	 /* Local timestamp. */ 1: required i64 timestamp,
+}
+
 struct IndexedAttributeSpec {
 	 /* The URI of the metamodel to which the indexed attribute belongs. */ 1: required string metamodelUri,
 	 /* The name of the type to which the indexed attribute belongs. */ 2: required string typeName,
@@ -306,6 +314,8 @@ union HawkChangeEvent {
 	 /* An attribute was removed. */ 4: optional HawkAttributeRemovalEvent modelElementAttributeRemoval,
 	 /* A reference was added. */ 5: optional HawkReferenceAdditionEvent referenceAddition,
 	 /* A reference was removed. */ 6: optional HawkReferenceRemovalEvent referenceRemoval,
+	 /* Synchronization started. */ 7: optional HawkSynchronizationStartEvent syncStart,
+	 /* Synchronization ended. */ 8: optional HawkSynchronizationEndEvent syncEnd,
 }
 
 struct ModelElement {
