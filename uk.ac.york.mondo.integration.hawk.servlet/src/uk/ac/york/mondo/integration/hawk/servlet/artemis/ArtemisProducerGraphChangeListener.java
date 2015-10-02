@@ -27,6 +27,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TTransport;
+import org.hawk.core.IModelIndexer;
 import org.hawk.core.VcsChangeType;
 import org.hawk.core.VcsCommit;
 import org.hawk.core.VcsCommitItem;
@@ -83,9 +84,14 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	private final Pattern repositoryURIPattern, filePathPattern;
 
-	public ArtemisProducerGraphChangeListener(String hawkInstance, String repositoryUri, List<String> filePaths, SubscriptionDurability durability, ThriftProtocol protocol) throws Exception {
-		// Convert the repository URI and file paths into regexps, for faster matching
-		this.repositoryURIPattern = Pattern.compile(repositoryUri.replace("*", ".*"));
+	public ArtemisProducerGraphChangeListener(String hawkInstance,
+			String repositoryUri, List<String> filePaths,
+			SubscriptionDurability durability, ThriftProtocol protocol)
+			throws Exception {
+		// Convert the repository URI and file paths into regexps, for faster
+		// matching
+		this.repositoryURIPattern = Pattern.compile(repositoryUri.replace("*",
+				".*"));
 		StringBuffer sbuf = new StringBuffer();
 		boolean first = true;
 		for (String filePath : filePaths) {
@@ -108,9 +114,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		this.sessionFactory = locator.createSessionFactory();
 		this.messagesAreDurable = durability == SubscriptionDurability.DURABLE;
 		this.queueAddress = String.format("hawk.graphchanges.%s.%s.%s.%s.%s",
-				hawkInstance, protocol.toString().toLowerCase(),
-				repositoryUri.hashCode(), filePaths.hashCode(),
-				durability.toString().toLowerCase());
+				hawkInstance, protocol.toString().toLowerCase(), repositoryUri
+						.hashCode(), filePaths.hashCode(), durability
+						.toString().toLowerCase());
 	}
 
 	public String getQueueAddress() {
@@ -130,7 +136,8 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 						.createSession(false, false, false);
 				this.producer = session.createProducer(queueAddress);
 
-				final HawkSynchronizationStartEvent ev = new HawkSynchronizationStartEvent(System.nanoTime());
+				final HawkSynchronizationStartEvent ev = new HawkSynchronizationStartEvent(
+						System.nanoTime());
 				final HawkChangeEvent change = new HawkChangeEvent();
 				change.setSyncStart(ev);
 				sendEvent(change);
@@ -147,7 +154,8 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	@Override
 	public void synchroniseEnd() {
 		try {
-			final HawkSynchronizationEndEvent ev = new HawkSynchronizationEndEvent(System.nanoTime());
+			final HawkSynchronizationEndEvent ev = new HawkSynchronizationEndEvent(
+					System.nanoTime());
 			final HawkChangeEvent change = new HawkChangeEvent();
 			change.setSyncEnd(ev);
 			sendEvent(change);
@@ -209,8 +217,10 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	@Override
-	public void modelElementAddition(VcsCommitItem s, IHawkObject element, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+	public void modelElementAddition(VcsCommitItem s, IHawkObject element,
+			IGraphNode elementNode, boolean isTransient) {
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		try {
 			final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
@@ -228,8 +238,10 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	@Override
-	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode,
+			boolean isTransient) {
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		final HawkModelElementRemovalEvent ev = new HawkModelElementRemovalEvent();
 		ev.setVcsItem(mapToThrift(s));
@@ -244,12 +256,14 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	public void modelElementAttributeUpdate(VcsCommitItem s,
 			IHawkObject eObject, String attrName, Object oldValue,
 			Object newValue, IGraphNode elementNode, boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		final HawkAttributeUpdateEvent ev = new HawkAttributeUpdateEvent();
 		ev.setAttribute(attrName);
 		ev.setId(elementNode.getId().toString());
-		ev.setValue(HawkModelElementEncoder.encodeAttributeSlot(attrName, newValue).value);
+		ev.setValue(HawkModelElementEncoder.encodeAttributeSlot(attrName,
+				newValue).value);
 		ev.setVcsItem(mapToThrift(s));
 
 		final HawkChangeEvent change = new HawkChangeEvent();
@@ -261,7 +275,8 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	public void modelElementAttributeRemoval(VcsCommitItem s,
 			IHawkObject eObject, String attrName, IGraphNode elementNode,
 			boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		final HawkAttributeRemovalEvent ev = new HawkAttributeRemovalEvent();
 		ev.setAttribute(attrName);
@@ -276,7 +291,8 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	@Override
 	public void referenceAddition(VcsCommitItem s, IGraphNode source,
 			IGraphNode target, String refName, boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		final HawkReferenceAdditionEvent ev = new HawkReferenceAdditionEvent();
 		ev.setSourceId(source.getId().toString());
@@ -292,7 +308,8 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	@Override
 	public void referenceRemoval(VcsCommitItem s, IGraphNode source,
 			IGraphNode target, String refName, boolean isTransient) {
-		if (isTransient || !isAcceptedByFilter(s)) return;
+		if (isTransient || !isAcceptedByFilter(s))
+			return;
 
 		final HawkReferenceRemovalEvent ev = new HawkReferenceRemovalEvent();
 		ev.setSourceId(source.getId().toString());
@@ -316,29 +333,36 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	private CommitItem mapToThrift(VcsCommitItem s) {
 		final VcsCommit commit = s.getCommit();
-	
+
 		final String repoURL = commit.getDelta().getRepository().getUrl();
 		final String revision = commit.getRevision();
 		final String path = s.getPath();
 		final CommitItemChangeType changeType = mapToThrift(s.getChangeType());
-	
+
 		return new CommitItem(repoURL, revision, path, changeType);
 	}
 
 	private CommitItemChangeType mapToThrift(VcsChangeType changeType) {
 		switch (changeType) {
-		case ADDED: return CommitItemChangeType.ADDED;
-		case DELETED: return CommitItemChangeType.DELETED;
-		case REPLACED: return CommitItemChangeType.REPLACED;
-		case UPDATED: return CommitItemChangeType.UPDATED;
-		default: return CommitItemChangeType.UNKNOWN;
+		case ADDED:
+			return CommitItemChangeType.ADDED;
+		case DELETED:
+			return CommitItemChangeType.DELETED;
+		case REPLACED:
+			return CommitItemChangeType.REPLACED;
+		case UPDATED:
+			return CommitItemChangeType.UPDATED;
+		default:
+			return CommitItemChangeType.UNKNOWN;
 		}
 	}
 
 	private void sendEvent(HawkChangeEvent change) {
 		try {
-			final ClientMessage msg = session.createMessage(Message.BYTES_TYPE, messagesAreDurable);
-			final TTransport trans = new ActiveMQBufferTransport(msg.getBodyBuffer());
+			final ClientMessage msg = session.createMessage(Message.BYTES_TYPE,
+					messagesAreDurable);
+			final TTransport trans = new ActiveMQBufferTransport(
+					msg.getBodyBuffer());
 			final TProtocol proto = protocolFactory.getProtocol(trans);
 			change.write(proto);
 
@@ -386,5 +410,11 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		} else if (!queueAddress.equals(other.queueAddress))
 			return false;
 		return true;
+	}
+
+	@Override
+	public void setModelIndexer(IModelIndexer m) {
+		// not used
+
 	}
 }
