@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf;
+package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,11 +24,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -57,7 +53,6 @@ import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
-import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
@@ -73,9 +68,11 @@ import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
-import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
+import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
+import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 
 /**
  * EMF driver that reads a remote model from a Hawk index. This is the main resource
@@ -83,63 +80,30 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  * {@link HawkFileResourceImpl} instances that will contain the model elements that
  * belong to each file in the Hawk index.
  */
-public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
+public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
-	public final class ModelSubscriberHandler implements MessageHandler {
+	/**
+	 * Internal state used only while loading a tree of {@link ModelElement}s. It's
+	 * kept separate so Java can reclaim the memory as soon as we're done with that
+	 * tree.
+	 */
+	private final class TreeLoadingState {
+		// Only for the initial load (allEObjects is cleared afterwards)
+		public String lastTypename, lastMetamodelURI;
+		public final List<EObject> allEObjects = new ArrayList<>();
+
+		// Only until references are filled in
+		public final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
+		public String lastRepository;
+		public String lastFile;
+	}
+
+	private final class InternalHawkChangeEventHandler implements IHawkChangeEventHandler {
 		private long lastSyncStart;
 
 		@Override
-		public void onMessage(ClientMessage message) {
-			try {
-				final TProtocolFactory protocolFactory = descriptor.getThriftProtocol().getProtocolFactory();
-				final TProtocol proto = protocolFactory.getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
-				final HawkChangeEvent change = new HawkChangeEvent();
-				try {
-					change.read(proto);
-
-					// Artemis uses a pool of threads to receive messages: we need to serialize
-					// the accesses to the nodeIdToEObjectMap to avoid race conditions between
-					// 'model element added' and 'attribute changed', for instance.
-					synchronized (nodeIdToEObjectMap) {
-						LOGGER.debug("Received message from Artemis at {}: {}", message.getAddress(), change);
-
-						if (change.isSetModelElementAttributeUpdate()) {
-							handle(change.getModelElementAttributeUpdate());
-						}
-						else if (change.isSetModelElementAttributeRemoval()) {
-							handle(change.getModelElementAttributeRemoval());
-						}
-						else if (change.isSetModelElementAddition()) {
-							handle(change.getModelElementAddition());
-						}
-						else if (change.isSetModelElementRemoval()) {
-							handle(change.getModelElementRemoval());
-						}
-						else if (change.isSetReferenceAddition()) {
-							handle(change.getReferenceAddition());
-						}
-						else if (change.isSetReferenceRemoval()) {
-							handle(change.getReferenceRemoval());
-						}
-						else if (change.isSetSyncStart()) {
-							handle(change.getSyncStart());
-						}
-						else if (change.isSetSyncEnd()) {
-							handle(change.getSyncEnd());
-						}
-					}
-				} catch (TException | IOException e) {
-					LOGGER.error("Error while decoding incoming message", e);
-				}
-
-				message.acknowledge();
-			} catch (ActiveMQException e) {
-				LOGGER.error("Failed to ack message", e);
-			}
-		}
-
 		@SuppressWarnings("unchecked")
-		protected void handle(final HawkReferenceRemovalEvent ev) {
+		public void handle(final HawkReferenceRemovalEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
@@ -158,8 +122,9 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
-		protected void handle(final HawkReferenceAdditionEvent ev) {
+		public void handle(final HawkReferenceAdditionEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
@@ -184,8 +149,9 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
-		protected void handle(final HawkModelElementRemovalEvent ev) {
+		public void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
 			if (eob != null) {
 				eob.eResource().getContents().remove(eob);
@@ -202,9 +168,10 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 		}
 
-		protected void handle(final HawkModelElementAdditionEvent ev) {
+		@Override
+		public void handle(final HawkModelElementAdditionEvent ev) {
 			final Registry registry = getResourceSet().getPackageRegistry();
-			final EClass eClass = getEClass(ev.metamodelURI, ev.typeName, registry);
+			final EClass eClass = HawkResourceImpl.getEClass(ev.metamodelURI, ev.typeName, registry);
 			final EFactory factory = registry.getEFactory(ev.metamodelURI);
 
 			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
@@ -214,7 +181,8 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 		}
 
-		protected void handle(final HawkAttributeRemovalEvent ev) {
+		@Override
+		public void handle(final HawkAttributeRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
@@ -225,46 +193,36 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 			}
 		}
 
-		protected void handle(final HawkAttributeUpdateEvent ev)
-				throws IOException {
+		@Override
+		public void handle(final HawkAttributeUpdateEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EClass eClass = eob.eClass();
 				final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
-				SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
+				try {
+					SlotDecodingUtils.setFromSlot(eClass.getEPackage().getEFactoryInstance(), eClass, eob, slot);
+				} catch (IOException e) {
+					LOGGER.error(e.getMessage(), e);
+				}
 			} else {
 				LOGGER.debug("EObject for ID {} not found when handling attribute update", ev.getId());
 			}
 		}
 
-		protected void handle(HawkSynchronizationStartEvent syncStart) {
+		@Override
+		public void handle(HawkSynchronizationStartEvent syncStart) {
 			this.lastSyncStart = syncStart.getTimestamp();
 			LOGGER.debug("Sync started: local timestamp is {} ns", lastSyncStart);
 		}
 
-		protected void handle(HawkSynchronizationEndEvent syncEnd) {
+		@Override
+		public void handle(HawkSynchronizationEndEvent syncEnd) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Sync ended: local timestamp is {} ns (elapsed time: {} ms)",
 						syncEnd.getTimestamp(),
 						(syncEnd.getTimestamp() - lastSyncStart)/1_000_000.0);
 			}
 		}
-	}
-
-	/**
-	 * Internal state used only while loading a tree of {@link ModelElement}s. It's
-	 * kept separate so Java can reclaim the memory as soon as we're done with that
-	 * tree.
-	 */
-	private final class TreeLoadingState {
-		// Only for the initial load (allEObjects is cleared afterwards)
-		public String lastTypename, lastMetamodelURI;
-		public final List<EObject> allEObjects = new ArrayList<>();
-
-		// Only until references are filled in
-		public final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
-		public String lastRepository;
-		public String lastFile;
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
@@ -288,13 +246,15 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 		return eClass;
 	}
 
+	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+	private final Map<String, Resource> resources = new HashMap<>();
+	private final CompositeHawkChangeEventHandler messageHandler = new CompositeHawkChangeEventHandler(new InternalHawkChangeEventHandler());
+
 	private HawkModelDescriptor descriptor;
 	private Client client;
-
-	private final Map<String, Resource> resources = new HashMap<>();
-	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
-	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
 	private LazyResolver lazyResolver;
+	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
+
 	private Consumer subscriber;
 
 	public HawkResourceImpl() {}
@@ -413,7 +373,7 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 
 				subscriber = APIUtils.connectToArtemis(subscription, sd);
 				subscriber.openSession();
-				subscriber.processChangesAsync(createSubscriberHandler());
+				subscriber.processChangesAsync(messageHandler);
 			}
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -427,11 +387,10 @@ public class HawkResourceImpl extends ResourceImpl implements IHawkResource {
 	}
 
 	/**
-	 * Creates an instance of a model subscriber. Subclasses may override this
-	 * to provide their own subclass of {@link ModelSubscriberHandler}.
+	 * Changes the message handler to be used with Artemis.
 	 */
-	protected ModelSubscriberHandler createSubscriberHandler() {
-		return new ModelSubscriberHandler();
+	public void addChangeEventHandler(IHawkChangeEventHandler handler) {
+		this.messageHandler.addHandler(handler);
 	}
 
 	public EList<EObject> fetchNodes(List<String> ids)

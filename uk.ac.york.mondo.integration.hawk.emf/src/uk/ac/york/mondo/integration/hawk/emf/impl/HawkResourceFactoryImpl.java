@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf;
+package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.resource.Resource.Factory;
 
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 public class HawkResourceFactoryImpl implements Factory {

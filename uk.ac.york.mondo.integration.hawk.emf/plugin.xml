@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.emf.ecore.extension_parser">
       <parser
-            class="uk.ac.york.mondo.integration.hawk.emf.HawkResourceFactoryImpl"
+            class="uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceFactoryImpl"
             type="hawkmodel">
       </parser>
    </extension>

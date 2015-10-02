@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf;
+package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;

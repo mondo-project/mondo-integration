@@ -8,15 +8,17 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf;
+package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 
-public class HawkFileResourceImpl extends ResourceImpl implements IHawkResource {
+import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
-	private final IHawkResource mainResource;
+public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
+
+	private final HawkResource mainResource;
 
 	/** Only to be used from Exeed (from the createExecutableExtension Eclipse call). */
 	public HawkFileResourceImpl() {
@@ -27,7 +29,7 @@ public class HawkFileResourceImpl extends ResourceImpl implements IHawkResource 
 	 * Creates a resource as a subordinate of another. Used to indicate the
 	 * repository URL and file of an {@link EObject}.
 	 */
-	public HawkFileResourceImpl(URI uri, IHawkResource mainResource) {
+	public HawkFileResourceImpl(URI uri, HawkResource mainResource) {
 		super(uri);
 		this.mainResource = mainResource;
 	}

@@ -46,7 +46,7 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
 
-import uk.ac.york.mondo.integration.hawk.emf.IHawkResource;
+import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkExeedCustomizer implements IExeedCustomizer {
 
@@ -149,7 +149,7 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 
 	@Override
 	public boolean hasChildren(Resource r, EObject eob) {
-		final IHawkResource hawkResource = (IHawkResource)r;
+		final HawkResource hawkResource = (HawkResource)r;
 		return hawkResource.hasChildren(eob);
 	}
 
@@ -161,7 +161,7 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 
 	@Override
 	public boolean isEnabledFor(Resource r) {
-		return r instanceof IHawkResource;
+		return r instanceof HawkResource;
 	}
 
 }

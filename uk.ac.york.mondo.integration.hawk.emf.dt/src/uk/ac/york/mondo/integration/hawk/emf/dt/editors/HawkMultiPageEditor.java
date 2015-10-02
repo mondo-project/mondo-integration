@@ -75,8 +75,8 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
-import uk.ac.york.mondo.integration.hawk.emf.HawkResourceFactoryImpl;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
+import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceFactoryImpl;
 
 /**
  * Editor for <code>.hawkmodel</code> files. The first page is a form-based UI

@@ -168,7 +168,6 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	public void changeSuccess() {
 		try {
 			session.commit();
-			LOGGER.debug("Session committed");
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not commit the transaction", e);
 			try {

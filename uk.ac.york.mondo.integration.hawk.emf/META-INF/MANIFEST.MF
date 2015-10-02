@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: uk.ac.york.mondo.integration.hawk.emf
+Export-Package: uk.ac.york.mondo.integration.hawk.emf,
+ uk.ac.york.mondo.integration.hawk.emf.impl
 Bundle-ClassPath: lib/cglib-nodep-3.1.jar,
  .

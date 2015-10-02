@@ -10,22 +10,14 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf;
 
-/**
- * Classloader that combines two existing classloaders into one. Based on the
- * example from http://www.infoq.com/articles/code-generation-with-osgi.
- *
- * This classloader is only used for the lazy loading modes.
- */
-public class BridgeClassLoader extends ClassLoader {
-	private final ClassLoader secondary;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 
-	public BridgeClassLoader(ClassLoader primary, ClassLoader secondary) {
-		super(primary);
-		this.secondary = secondary;
-	}
+public interface HawkResource extends Resource {
+	/**
+	 * Reports whether an object has children or not. In lazy modes, uses the LazyResolver to
+	 * answer this question without hitting the network.
+	 */
+	boolean hasChildren(EObject o);
 
-	@Override
-	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		return secondary.loadClass(name);
-	}
 }

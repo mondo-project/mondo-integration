@@ -31,11 +31,11 @@
          point="org.eclipse.epsilon.dt.exeed.customizer">
       <customizer
             customizerClass="uk.ac.york.mondo.integration.hawk.emf.dt.viewer.HawkExeedCustomizer"
-            resourceClass="uk.ac.york.mondo.integration.hawk.emf.HawkResourceImpl">
+            resourceClass="uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl">
       </customizer>
       <customizer
             customizerClass="uk.ac.york.mondo.integration.hawk.emf.dt.viewer.HawkExeedCustomizer"
-            resourceClass="uk.ac.york.mondo.integration.hawk.emf.HawkFileResourceImpl">
+            resourceClass="uk.ac.york.mondo.integration.hawk.emf.impl.HawkFileResourceImpl">
       </customizer>
    </extension>
 
