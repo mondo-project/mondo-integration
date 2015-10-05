@@ -69,7 +69,6 @@ import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
  * {@link CompositeGraphChangeListener} in most indexers.
  */
 public class ArtemisProducerGraphChangeListener implements IGraphChangeListener {
-
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ArtemisProducerGraphChangeListener.class);
 
@@ -83,6 +82,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private ClientProducer producer;
 
 	private final Pattern repositoryURIPattern, filePathPattern;
+
+	// True if the current session was opened from synchronizeStart
+	private boolean isSessionOpenedFromSync = false;
 
 	public ArtemisProducerGraphChangeListener(String hawkInstance,
 			String repositoryUri, List<String> filePaths,
@@ -130,32 +132,24 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void synchroniseStart() {
-		if (session == null) {
-			try {
-				this.session = sessionFactory
-						.createSession(false, false, false);
-				this.producer = session.createProducer(queueAddress);
+		openSession();
+		isSessionOpenedFromSync = true;
 
-				final HawkSynchronizationStartEvent ev = new HawkSynchronizationStartEvent(
-						System.nanoTime());
-				final HawkChangeEvent change = new HawkChangeEvent();
-				change.setSyncStart(ev);
-				sendEvent(change);
-
-				session.commit();
-			} catch (ActiveMQException e) {
-				LOGGER.error("Could not start a new Artemis session", e);
-			}
-		} else {
-			LOGGER.warn("session already open: last synchronizeStart not closed");
+		final HawkSynchronizationStartEvent ev = new HawkSynchronizationStartEvent(System.nanoTime());
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setSyncStart(ev);
+		sendEvent(change);
+		try {
+			session.commit();
+		} catch (ActiveMQException e) {
+			LOGGER.error("Could not commit the synchronisation start event", e);
 		}
 	}
 
 	@Override
 	public void synchroniseEnd() {
 		try {
-			final HawkSynchronizationEndEvent ev = new HawkSynchronizationEndEvent(
-					System.nanoTime());
+			final HawkSynchronizationEndEvent ev = new HawkSynchronizationEndEvent(System.nanoTime());
 			final HawkChangeEvent change = new HawkChangeEvent();
 			change.setSyncEnd(ev);
 			sendEvent(change);
@@ -169,7 +163,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void changeStart() {
-		// nothing to do
+		openSession();
 	}
 
 	@Override
@@ -183,6 +177,10 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			} catch (ActiveMQException e1) {
 				LOGGER.error("Could not rollback the transaction", e1);
 			}
+		} finally {
+			if (!isSessionOpenedFromSync) {
+				closeSession();
+			}
 		}
 	}
 
@@ -193,6 +191,10 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			LOGGER.debug("Session rolled back");
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not rollback the transaction", e);
+		} finally {
+			if (!isSessionOpenedFromSync) {
+				closeSession();
+			}
 		}
 	}
 
@@ -374,6 +376,17 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		}
 	}
 
+	private void openSession() {
+		if (session == null) {
+			try {
+				this.session = sessionFactory.createSession(false, false, false);
+				this.producer = session.createProducer(queueAddress);
+			} catch (ActiveMQException e) {
+				LOGGER.error("Could not start a new Artemis session", e);
+			}
+		}
+	}
+
 	private void closeSession() {
 		try {
 			if (session != null) {
@@ -383,6 +396,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 			LOGGER.error("Could not close the session", e);
 		} finally {
 			session = null;
+			isSessionOpenedFromSync = false;
 		}
 	}
 
