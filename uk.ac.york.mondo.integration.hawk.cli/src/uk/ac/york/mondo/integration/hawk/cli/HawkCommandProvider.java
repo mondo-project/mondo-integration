@@ -129,7 +129,13 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		final String adminPassword = requiredArgument(intp, "adminPassword");
-		client.createInstance(name, adminPassword);
+
+		final String sMinimum = intp.nextArgument();
+		final String sMaximum = intp.nextArgument();
+		final int minimumDelay = sMinimum != null ? Integer.parseInt(sMinimum) : 1000;
+		final int maximumDelay = sMaximum != null ? Integer.parseInt(sMaximum) : 512 * 1000;
+
+		client.createInstance(name, adminPassword, minimumDelay, maximumDelay);
 		return String.format("Created instance %s", name);
 	}
 
@@ -152,6 +158,7 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		final String adminPassword = requiredArgument(intp, "adminPassword");
+
 		final HawkInstance hi = findInstance(name);
 		if (!hi.running) {
 			client.startInstance(name, adminPassword);
@@ -597,7 +604,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
-		sbuf.append("hawkAddInstance <name> <adminPassword> - adds an instance with the provided name\n\t");
+		sbuf.append("hawkAddInstance <name> <adminPassword> [minDelay] [maxDelay|0] - adds an instance with the provided name (if maxDelay = 0, periodic updates are disabled)\n\t");
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");

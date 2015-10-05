@@ -472,10 +472,12 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void createInstance(String name, String adminPassword) throws TException {
+	public void createInstance(String name, String adminPassword, int minDelay, int maxDelay) throws TException {
 		try {
 			if (manager.getHawkByName(name) == null) {
-				HModel.create(new LocalHawkFactory(), name, storageFolder(name), null, Neo4JDatabase.class.getName(), null, manager, adminPassword.toCharArray());
+				HModel.create(new LocalHawkFactory(), name, storageFolder(name),
+						null, Neo4JDatabase.class.getName(), null,
+						manager, adminPassword.toCharArray(), minDelay, maxDelay);
 			}
 		} catch (Exception ex) {
 			throw new TException(ex);

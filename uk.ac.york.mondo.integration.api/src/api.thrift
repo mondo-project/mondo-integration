@@ -393,6 +393,8 @@ service Hawk {
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name,
 	/* The admin password for encrypting credentials. */ 2: required string adminPassword,
+	/* Minimum delay between periodic synchronization in milliseconds. */ 3: required i32 minimumDelayMillis,
+	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 4: required i32 maximumDelayMillis,
   )
 	
   /* Lists the details of all Hawk instances. Auth needed: Yes */

@@ -91,6 +91,16 @@
           <details key="d" value="The admin password for encrypting credentials"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="minimumDelayMillis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+        <eAnnotations source="doc">
+          <details key="d" value="Minimum delay between periodic synchronization in milliseconds"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="maximumDelayMillis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+        <eAnnotations source="doc">
+          <details key="d" value="Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization)"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="listInstances" upperBound="-1" eType="#//HawkInstance">
       <eAnnotations source="doc">

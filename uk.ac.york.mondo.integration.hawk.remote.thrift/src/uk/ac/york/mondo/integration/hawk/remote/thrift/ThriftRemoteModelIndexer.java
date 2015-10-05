@@ -46,6 +46,7 @@ import org.hawk.core.query.IAccessListener;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
+import org.hawk.core.runtime.ModelIndexerImpl;
 import org.hawk.core.runtime.util.SecurityManager;
 import org.hawk.core.util.HawkProperties;
 
@@ -490,11 +491,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void init() throws Exception {
+	public void init(int minDelay, int maxDelay) throws Exception {
 		try {
 			client.startInstance(name, new String(adminPw));
 		} catch (HawkInstanceNotFound ex) {
-			client.createInstance(name, new String(adminPw));
+			client.createInstance(name, new String(adminPw), minDelay, maxDelay);
 		}
 	}
 
