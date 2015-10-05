@@ -43,7 +43,7 @@ mvn eclipse:to-maven \
 
 LATEST_API_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/api/1.* | sort | head -1)")"
 LATEST_ARTEMIS_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/artemis/1.* | sort | head -1)")"
-LATEST_HAWK_VERSION="$(basename "$(ls -d "$DEST"/org/hawk/1.* | sort | head -1)")"
+LATEST_HAWK_VERSION="$(basename "$(ls -d "$DEST"/org/hawk/core/1.* | sort | head -1)")"
 
 for f in $DEST/org/eclipse/core/runtime/3.*/runtime-3.*.pom; do
     pom_replace_version "$f" "org.eclipse.equinox" "app" "[1.0.0,2.0.0)"
