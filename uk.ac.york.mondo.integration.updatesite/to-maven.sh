@@ -2,9 +2,6 @@
 
 DEST="$HOME/Documents/mondo-updates/mondo-m2"
 CURDIR="$(dirname $(readlink -f "$0"))"
-LATEST_API_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/api/1.* | sort | head -1)")"
-LATEST_ARTEMIS_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/artemis/1.* | sort | head -1)")"
-LATEST_HAWK_VERSION="$(basename "$(ls -d "$DEST"/org/hawk/1.* | sort | head -1)")"
 
 pom_replace_version() {
     FILE="$1"
@@ -43,6 +40,10 @@ rm -rf "$DEST"
 mvn eclipse:to-maven \
     "-DdeployTo=id::default::file://$DEST" \
     "-DeclipseDir=$CURDIR"
+
+LATEST_API_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/api/1.* | sort | head -1)")"
+LATEST_ARTEMIS_VERSION="$(basename "$(ls -d "$DEST"/uk/ac/york/mondo/integration/artemis/1.* | sort | head -1)")"
+LATEST_HAWK_VERSION="$(basename "$(ls -d "$DEST"/org/hawk/1.* | sort | head -1)")"
 
 for f in $DEST/org/eclipse/core/runtime/3.*/runtime-3.*.pom; do
     pom_replace_version "$f" "org.eclipse.equinox" "app" "[1.0.0,2.0.0)"
