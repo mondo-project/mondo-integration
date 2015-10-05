@@ -31,6 +31,7 @@
       <import plugin="org.eclipse.equinox.preferences" version="3.2.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.registry" version="3.2.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.common" version="3.2.0" match="compatible"/>
+      <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

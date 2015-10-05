@@ -26,6 +26,7 @@
       <import plugin="org.eclipse.core.resources" version="3.7.101" match="greaterOrEqual"/>
       <import plugin="org.hawk.core.dependencies" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.slf4j.api" version="1.7.2" match="greaterOrEqual"/>
+      <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

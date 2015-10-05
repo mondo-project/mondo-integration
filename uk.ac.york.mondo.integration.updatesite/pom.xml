@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>uk.ac.york.mondo.integration.updatesite</groupId>
+  <artifactId>test-project</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <mondo.version>1.0.0-201510051218</mondo.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>uk.ac.york.mondo.integration.hawk</groupId>
+      <artifactId>emf</artifactId>
+      <version>${mondo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.york.mondo.integration.hawk</groupId>
+      <artifactId>cli</artifactId>
+      <version>${mondo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.york.mondo.integration.hawk</groupId>
+      <artifactId>cli</artifactId>
+      <version>${mondo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.york.mondo.integration.hawk.remote</groupId>
+      <artifactId>thrift</artifactId>
+      <version>${mondo.version}</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>built-repository</id>
+      <url>file:///home/antonio/Documents/mondo-updates/mondo-m2/</url>
+    </repository>
+  </repositories>
+</project>
