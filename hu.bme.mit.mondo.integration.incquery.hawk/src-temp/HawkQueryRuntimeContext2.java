@@ -1,4 +1,4 @@
-package hu.bme.mit.mondo.integration.incquery.hawk;
+package hu.bme.mit.mondo.integration.incquery.hawk.temp;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
