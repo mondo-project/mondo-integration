@@ -146,6 +146,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				if (ref.isContainer()) {
 					source.eResource().getContents().remove(source);
 				}
+				else if (ref.isContainment()) {
+					target.eResource().getContents().remove(target);
+				}
 			}
 		}
 
