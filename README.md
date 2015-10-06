@@ -20,7 +20,10 @@ Compiled versions of the remote client components are available as an Eclipse up
 Getting started
 ---------------
 
-We recommend to use Eclipse Modeling (Luna or later). To start with, import all `uk.ac.york.mondo.integration.*` projects from this repository.
+We recommend to use Eclipse Modeling (Luna or later). 
+
+* Go to the [MONDO updates](http://mondo-project.github.io/mondo-updates/) site and install the fix for SNI updates.
+* Import all `uk.ac.york.mondo.integration.*` projects from this repository.
 
 ### Artemis dependencies
 
@@ -33,7 +36,7 @@ The dependencies for the project using Artemis are located in `uk.ac.york.mondo.
     ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
     ```
 
-In both cases, you may have to _run it twice_ in order to succeed.
+You may have to the Ant job _run it twice_ in order to succeed.
 
 ### Hawk
 
