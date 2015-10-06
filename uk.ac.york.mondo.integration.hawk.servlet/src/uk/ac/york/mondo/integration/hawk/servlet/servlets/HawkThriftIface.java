@@ -13,7 +13,7 @@ package uk.ac.york.mondo.integration.hawk.servlet.servlets;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +172,12 @@ final class HawkThriftIface implements Hawk.Iface {
 		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
 		context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(filePatterns, ","));
 		try {
-			Object ret = model.contextFullQuery(query, language, context);
+			Object ret;
+			if ("*".equals(repo) && Arrays.asList("*").equals(filePatterns)) {
+				ret = model.query(query, language);
+			} else {
+				ret = model.contextFullQuery(query, language, context);
+			}
 
 			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
 			enc.setUseContainment(includeContained);
@@ -182,17 +187,11 @@ final class HawkThriftIface implements Hawk.Iface {
 
 			try (final IGraphTransaction t = model.getGraph().beginTransaction()) {
 				final List<QueryResult> l = new ArrayList<>();
-				if (ret instanceof Collection) {
-					final Collection<?> c = (Collection<?>) ret;
-					for (Object o : c) {
-						addEncodedValue(model, o, l, enc);
-					}
-				} else {
-					addEncodedValue(model, ret, l, enc);
-				}
+				addEncodedValue(model, ret, l, enc);
 				return l;
 			}
 		} catch (NoSuchElementException ex) {
+			ex.printStackTrace();
 			throw new UnknownQueryLanguage();
 		} catch (InvalidQueryException ex) {
 			throw new InvalidQuery(ex.getMessage());
@@ -200,6 +199,14 @@ final class HawkThriftIface implements Hawk.Iface {
 			throw new FailedQuery(ex.getMessage());
 		} catch (Exception ex) {
 			throw new TException(ex);
+		}
+	}
+
+	protected void addEncodedValues(final HModel model, Object ret, final List<QueryResult> l,
+			final HawkModelElementEncoder enc) throws Exception {
+		final Iterable<?> c = (Iterable<?>) ret;
+		for (Object o : c) {
+			addEncodedValue(model, o, l, enc);
 		}
 	}
 
@@ -243,6 +250,8 @@ final class HawkThriftIface implements Hawk.Iface {
 			if (!enc.isEncoded(meNode)) {
 				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(meNode)));
 			}
+		} else if (ret instanceof Iterable) {
+			addEncodedValues(model, ret, l, enc);
 		} else {
 			l.add(new QueryResult(_Fields.V_STRING, ret + ""));
 		}
