@@ -661,6 +661,18 @@
         <details key="d" value="Synchronization ended."/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fileAddition" eType="#//HawkFileAdditionEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A file was added."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fileRemoval" eType="#//HawkFileRemovalEvent"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="A file was removed."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkModelElementAdditionEvent">
     <eAnnotations source="doc">
@@ -837,6 +849,28 @@
         containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkFileAdditionEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a file addition event."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Reference to file that was added, including VCS metadata."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkFileRemovalEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="A file was removed."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="vcsItem" eType="#//CommitItem"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Reference to file that was removed, including VCS metadata."/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

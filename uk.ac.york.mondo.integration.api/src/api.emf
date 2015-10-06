@@ -259,6 +259,8 @@ class HawkChangeEvent {
 	@doc(d="A reference was removed.") val HawkReferenceRemovalEvent referenceRemoval;
 	@doc(d="Synchronization started.") val HawkSynchronizationStartEvent syncStart;
 	@doc(d="Synchronization ended.") val HawkSynchronizationEndEvent syncEnd;
+	@doc(d="A file was added.") val HawkFileAdditionEvent fileAddition;
+	@doc(d="A file was removed.") val HawkFileRemovalEvent fileRemoval;
 }
 
 @doc(d="Serialized form of a model element addition event.")
@@ -314,6 +316,16 @@ class HawkSynchronizationStartEvent {
 @doc(d="Serialized form of a sync end event.")
 class HawkSynchronizationEndEvent {
 	@doc(d="Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost.") val long timestampNanos;
+}
+
+@doc(d="Serialized form of a file addition event.")
+class HawkFileAdditionEvent {	
+	@doc(d="Reference to file that was added, including VCS metadata.") val CommitItem vcsItem;
+}
+
+@doc(d="A file was removed.")
+class HawkFileRemovalEvent {
+	@doc(d="Reference to file that was removed, including VCS metadata.") val CommitItem vcsItem;
 }
 
 @doc(d="Simplified entry within a commit of a repository.")

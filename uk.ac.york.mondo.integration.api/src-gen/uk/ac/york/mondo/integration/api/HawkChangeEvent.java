@@ -44,6 +44,8 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
   private static final org.apache.thrift.protocol.TField REFERENCE_REMOVAL_FIELD_DESC = new org.apache.thrift.protocol.TField("referenceRemoval", org.apache.thrift.protocol.TType.STRUCT, (short)6);
   private static final org.apache.thrift.protocol.TField SYNC_START_FIELD_DESC = new org.apache.thrift.protocol.TField("syncStart", org.apache.thrift.protocol.TType.STRUCT, (short)7);
   private static final org.apache.thrift.protocol.TField SYNC_END_FIELD_DESC = new org.apache.thrift.protocol.TField("syncEnd", org.apache.thrift.protocol.TType.STRUCT, (short)8);
+  private static final org.apache.thrift.protocol.TField FILE_ADDITION_FIELD_DESC = new org.apache.thrift.protocol.TField("fileAddition", org.apache.thrift.protocol.TType.STRUCT, (short)9);
+  private static final org.apache.thrift.protocol.TField FILE_REMOVAL_FIELD_DESC = new org.apache.thrift.protocol.TField("fileRemoval", org.apache.thrift.protocol.TType.STRUCT, (short)10);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -54,7 +56,9 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     REFERENCE_ADDITION((short)5, "referenceAddition"),
     REFERENCE_REMOVAL((short)6, "referenceRemoval"),
     SYNC_START((short)7, "syncStart"),
-    SYNC_END((short)8, "syncEnd");
+    SYNC_END((short)8, "syncEnd"),
+    FILE_ADDITION((short)9, "fileAddition"),
+    FILE_REMOVAL((short)10, "fileRemoval");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -85,6 +89,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           return SYNC_START;
         case 8: // SYNC_END
           return SYNC_END;
+        case 9: // FILE_ADDITION
+          return FILE_ADDITION;
+        case 10: // FILE_REMOVAL
+          return FILE_REMOVAL;
         default:
           return null;
       }
@@ -143,6 +151,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkSynchronizationStartEvent.class)));
     tmpMap.put(_Fields.SYNC_END, new org.apache.thrift.meta_data.FieldMetaData("syncEnd", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkSynchronizationEndEvent.class)));
+    tmpMap.put(_Fields.FILE_ADDITION, new org.apache.thrift.meta_data.FieldMetaData("fileAddition", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkFileAdditionEvent.class)));
+    tmpMap.put(_Fields.FILE_REMOVAL, new org.apache.thrift.meta_data.FieldMetaData("fileRemoval", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, HawkFileRemovalEvent.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(HawkChangeEvent.class, metaDataMap);
   }
@@ -210,6 +222,18 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     return x;
   }
 
+  public static HawkChangeEvent fileAddition(HawkFileAdditionEvent value) {
+    HawkChangeEvent x = new HawkChangeEvent();
+    x.setFileAddition(value);
+    return x;
+  }
+
+  public static HawkChangeEvent fileRemoval(HawkFileRemovalEvent value) {
+    HawkChangeEvent x = new HawkChangeEvent();
+    x.setFileRemoval(value);
+    return x;
+  }
+
 
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
@@ -254,6 +278,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           break;
         }
         throw new ClassCastException("Was expecting value of type HawkSynchronizationEndEvent for field 'syncEnd', but got " + value.getClass().getSimpleName());
+      case FILE_ADDITION:
+        if (value instanceof HawkFileAdditionEvent) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type HawkFileAdditionEvent for field 'fileAddition', but got " + value.getClass().getSimpleName());
+      case FILE_REMOVAL:
+        if (value instanceof HawkFileRemovalEvent) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type HawkFileRemovalEvent for field 'fileRemoval', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -344,6 +378,26 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case FILE_ADDITION:
+          if (field.type == FILE_ADDITION_FIELD_DESC.type) {
+            HawkFileAdditionEvent fileAddition;
+            fileAddition = new HawkFileAdditionEvent();
+            fileAddition.read(iprot);
+            return fileAddition;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case FILE_REMOVAL:
+          if (field.type == FILE_REMOVAL_FIELD_DESC.type) {
+            HawkFileRemovalEvent fileRemoval;
+            fileRemoval = new HawkFileRemovalEvent();
+            fileRemoval.read(iprot);
+            return fileRemoval;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -387,6 +441,14 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
       case SYNC_END:
         HawkSynchronizationEndEvent syncEnd = (HawkSynchronizationEndEvent)value_;
         syncEnd.write(oprot);
+        return;
+      case FILE_ADDITION:
+        HawkFileAdditionEvent fileAddition = (HawkFileAdditionEvent)value_;
+        fileAddition.write(oprot);
+        return;
+      case FILE_REMOVAL:
+        HawkFileRemovalEvent fileRemoval = (HawkFileRemovalEvent)value_;
+        fileRemoval.write(oprot);
         return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
@@ -438,6 +500,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
           syncEnd = new HawkSynchronizationEndEvent();
           syncEnd.read(iprot);
           return syncEnd;
+        case FILE_ADDITION:
+          HawkFileAdditionEvent fileAddition;
+          fileAddition = new HawkFileAdditionEvent();
+          fileAddition.read(iprot);
+          return fileAddition;
+        case FILE_REMOVAL:
+          HawkFileRemovalEvent fileRemoval;
+          fileRemoval = new HawkFileRemovalEvent();
+          fileRemoval.read(iprot);
+          return fileRemoval;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -481,6 +553,14 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         HawkSynchronizationEndEvent syncEnd = (HawkSynchronizationEndEvent)value_;
         syncEnd.write(oprot);
         return;
+      case FILE_ADDITION:
+        HawkFileAdditionEvent fileAddition = (HawkFileAdditionEvent)value_;
+        fileAddition.write(oprot);
+        return;
+      case FILE_REMOVAL:
+        HawkFileRemovalEvent fileRemoval = (HawkFileRemovalEvent)value_;
+        fileRemoval.write(oprot);
+        return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -505,6 +585,10 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
         return SYNC_START_FIELD_DESC;
       case SYNC_END:
         return SYNC_END_FIELD_DESC;
+      case FILE_ADDITION:
+        return FILE_ADDITION_FIELD_DESC;
+      case FILE_REMOVAL:
+        return FILE_REMOVAL_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -637,6 +721,34 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
     value_ = value;
   }
 
+  public HawkFileAdditionEvent getFileAddition() {
+    if (getSetField() == _Fields.FILE_ADDITION) {
+      return (HawkFileAdditionEvent)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'fileAddition' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setFileAddition(HawkFileAdditionEvent value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.FILE_ADDITION;
+    value_ = value;
+  }
+
+  public HawkFileRemovalEvent getFileRemoval() {
+    if (getSetField() == _Fields.FILE_REMOVAL) {
+      return (HawkFileRemovalEvent)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'fileRemoval' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setFileRemoval(HawkFileRemovalEvent value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.FILE_REMOVAL;
+    value_ = value;
+  }
+
   public boolean isSetModelElementAddition() {
     return setField_ == _Fields.MODEL_ELEMENT_ADDITION;
   }
@@ -674,6 +786,16 @@ public class HawkChangeEvent extends org.apache.thrift.TUnion<HawkChangeEvent, H
 
   public boolean isSetSyncEnd() {
     return setField_ == _Fields.SYNC_END;
+  }
+
+
+  public boolean isSetFileAddition() {
+    return setField_ == _Fields.FILE_ADDITION;
+  }
+
+
+  public boolean isSetFileRemoval() {
+    return setField_ == _Fields.FILE_REMOVAL;
   }
 
 

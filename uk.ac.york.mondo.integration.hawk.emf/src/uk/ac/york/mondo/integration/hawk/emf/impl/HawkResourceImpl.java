@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -53,6 +54,8 @@ import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
+import uk.ac.york.mondo.integration.api.HawkFileAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkFileRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
@@ -156,7 +159,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		@SuppressWarnings("unchecked")
 		public void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
-			if (eob != null) {
+			if (eob != null && eob.eResource() != null) {
 				eob.eResource().getContents().remove(eob);
 
 				final EObject container = eob.eContainer();
@@ -224,6 +227,27 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				LOGGER.debug("Sync ended: local timestamp is {} ns (elapsed time: {} ms)",
 						syncEnd.getTimestampNanos(),
 						(syncEnd.getTimestampNanos() - lastSyncStart)/1_000_000.0);
+			}
+		}
+
+		@Override
+		public void handle(HawkFileAdditionEvent ev) {
+			// we don't really have to do anything here - delay the
+			// addition of the resource until we have something to put
+			// in there.
+		}
+
+		@Override
+		public void handle(HawkFileRemovalEvent ev) {
+			// Remove the associated resource from the resource set, if we have it
+			final String fullUrl = computeFileResourceURL(ev.vcsItem.repoURL, ev.vcsItem.path);
+
+			synchronized (resources) {
+				Resource r = resources.remove(fullUrl);
+				if (r != null) {
+					r.unload();
+					getResourceSet().getResources().remove(r);
+				}
 			}
 		}
 	}
@@ -446,7 +470,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {
-		final String fullURL = "hawkrepo+" + repoURL + (repoURL.endsWith("/") ? "!!/" : "/!!/") + path;
+		final String fullURL = computeFileResourceURL(repoURL, path);
 		synchronized(resources) {
 			Resource resource = resources.get(fullURL);
 			if (resource == null) {
@@ -455,6 +479,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 			resource.getContents().add(eob);
 		}
+	}
+
+	private String computeFileResourceURL(final String repoURL, final String path) {
+		return "hawkrepo+" + repoURL + (repoURL.endsWith("/") ? "!!/" : "/!!/") + path;
 	}
 
 	private EObject createEObject(ModelElement me) throws IOException {

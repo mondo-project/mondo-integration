@@ -267,6 +267,14 @@ struct HawkAttributeUpdateEvent {
 	 /* New value for the attribute. */ 4: required SlotValue value,
 }
 
+struct HawkFileAdditionEvent {
+	 /* Reference to file that was added, including VCS metadata. */ 1: required CommitItem vcsItem,
+}
+
+struct HawkFileRemovalEvent {
+	 /* Reference to file that was removed, including VCS metadata. */ 1: required CommitItem vcsItem,
+}
+
 struct HawkModelElementAdditionEvent {
 	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
 	 /* Metamodel URI of the type of the model element. */ 2: required string metamodelURI,
@@ -316,6 +324,8 @@ union HawkChangeEvent {
 	 /* A reference was removed. */ 6: optional HawkReferenceRemovalEvent referenceRemoval,
 	 /* Synchronization started. */ 7: optional HawkSynchronizationStartEvent syncStart,
 	 /* Synchronization ended. */ 8: optional HawkSynchronizationEndEvent syncEnd,
+	 /* A file was added. */ 9: optional HawkFileAdditionEvent fileAddition,
+	 /* A file was removed. */ 10: optional HawkFileRemovalEvent fileRemoval,
 }
 
 struct ModelElement {

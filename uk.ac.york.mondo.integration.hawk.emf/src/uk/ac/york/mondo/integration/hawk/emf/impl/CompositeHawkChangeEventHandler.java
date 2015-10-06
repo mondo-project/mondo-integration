@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
 import uk.ac.york.mondo.integration.api.HawkChangeEvent;
+import uk.ac.york.mondo.integration.api.HawkFileAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkFileRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
@@ -33,8 +35,8 @@ import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkSynchronizationEndEvent;
 import uk.ac.york.mondo.integration.api.HawkSynchronizationStartEvent;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
-import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
+import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 
 /**
  * Maps the Thrift messages sent through Artemis to a {@link HawkResourceImpl}, which simply keeps the contents of the resource up
@@ -95,6 +97,12 @@ class CompositeHawkChangeEventHandler implements MessageHandler, IHawkChangeEven
 					}
 					else if (change.isSetSyncEnd()) {
 						handle(change.getSyncEnd());
+					}
+					else if (change.isSetFileAddition()) {
+						handle(change.getFileAddition());
+					}
+					else if (change.isSetFileRemoval()) {
+						handle(change.getFileRemoval());
 					}
 				}
 			} catch (TException e) {
@@ -158,6 +166,21 @@ class CompositeHawkChangeEventHandler implements MessageHandler, IHawkChangeEven
 
 	@Override
 	public void handle(HawkSynchronizationEndEvent ev) {
+		for (IHawkChangeEventHandler h : handlers) {
+			h.handle(ev);
+		}
+	}
+
+
+	@Override
+	public void handle(HawkFileAdditionEvent ev) {
+		for (IHawkChangeEventHandler h : handlers) {
+			h.handle(ev);
+		}
+	}
+
+	@Override
+	public void handle(HawkFileRemovalEvent ev) {
 		for (IHawkChangeEventHandler h : handlers) {
 			h.handle(ev);
 		}

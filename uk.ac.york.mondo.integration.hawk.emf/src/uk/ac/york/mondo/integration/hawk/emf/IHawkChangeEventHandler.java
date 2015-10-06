@@ -13,6 +13,8 @@ package uk.ac.york.mondo.integration.hawk.emf;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
 import uk.ac.york.mondo.integration.api.HawkChangeEvent;
+import uk.ac.york.mondo.integration.api.HawkFileAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkFileRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
@@ -42,4 +44,7 @@ public interface IHawkChangeEventHandler {
 
 	void handle(HawkSynchronizationEndEvent syncEnd);
 
+	void handle(HawkFileAdditionEvent ev);
+
+	void handle(HawkFileRemovalEvent ev);
 }

@@ -3531,6 +3531,118 @@ HawkAttributeUpdateEvent.prototype.write = function(output) {
   return;
 };
 
+HawkFileAdditionEvent = function(args) {
+  this.vcsItem = null;
+  if (args) {
+    if (args.vcsItem !== undefined) {
+      this.vcsItem = args.vcsItem;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field vcsItem is unset!');
+    }
+  }
+};
+HawkFileAdditionEvent.prototype = {};
+HawkFileAdditionEvent.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.vcsItem = new CommitItem();
+        this.vcsItem.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HawkFileAdditionEvent.prototype.write = function(output) {
+  output.writeStructBegin('HawkFileAdditionEvent');
+  if (this.vcsItem !== null && this.vcsItem !== undefined) {
+    output.writeFieldBegin('vcsItem', Thrift.Type.STRUCT, 1);
+    this.vcsItem.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+HawkFileRemovalEvent = function(args) {
+  this.vcsItem = null;
+  if (args) {
+    if (args.vcsItem !== undefined) {
+      this.vcsItem = args.vcsItem;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field vcsItem is unset!');
+    }
+  }
+};
+HawkFileRemovalEvent.prototype = {};
+HawkFileRemovalEvent.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.vcsItem = new CommitItem();
+        this.vcsItem.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HawkFileRemovalEvent.prototype.write = function(output) {
+  output.writeStructBegin('HawkFileRemovalEvent');
+  if (this.vcsItem !== null && this.vcsItem !== undefined) {
+    output.writeFieldBegin('vcsItem', Thrift.Type.STRUCT, 1);
+    this.vcsItem.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 HawkModelElementAdditionEvent = function(args) {
   this.vcsItem = null;
   this.metamodelURI = null;
@@ -4203,6 +4315,8 @@ HawkChangeEvent = function(args) {
   this.referenceRemoval = null;
   this.syncStart = null;
   this.syncEnd = null;
+  this.fileAddition = null;
+  this.fileRemoval = null;
   if (args) {
     if (args.modelElementAddition !== undefined) {
       this.modelElementAddition = args.modelElementAddition;
@@ -4227,6 +4341,12 @@ HawkChangeEvent = function(args) {
     }
     if (args.syncEnd !== undefined) {
       this.syncEnd = args.syncEnd;
+    }
+    if (args.fileAddition !== undefined) {
+      this.fileAddition = args.fileAddition;
+    }
+    if (args.fileRemoval !== undefined) {
+      this.fileRemoval = args.fileRemoval;
     }
   }
 };
@@ -4308,6 +4428,22 @@ HawkChangeEvent.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 9:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.fileAddition = new HawkFileAdditionEvent();
+        this.fileAddition.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 10:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.fileRemoval = new HawkFileRemovalEvent();
+        this.fileRemoval.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -4357,6 +4493,16 @@ HawkChangeEvent.prototype.write = function(output) {
   if (this.syncEnd !== null && this.syncEnd !== undefined) {
     output.writeFieldBegin('syncEnd', Thrift.Type.STRUCT, 8);
     this.syncEnd.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.fileAddition !== null && this.fileAddition !== undefined) {
+    output.writeFieldBegin('fileAddition', Thrift.Type.STRUCT, 9);
+    this.fileAddition.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.fileRemoval !== null && this.fileRemoval !== undefined) {
+    output.writeFieldBegin('fileRemoval', Thrift.Type.STRUCT, 10);
+    this.fileRemoval.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

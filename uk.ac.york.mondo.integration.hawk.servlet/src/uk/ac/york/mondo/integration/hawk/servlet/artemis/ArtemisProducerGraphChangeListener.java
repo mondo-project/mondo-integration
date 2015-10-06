@@ -47,6 +47,8 @@ import uk.ac.york.mondo.integration.api.CommitItemChangeType;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
 import uk.ac.york.mondo.integration.api.HawkChangeEvent;
+import uk.ac.york.mondo.integration.api.HawkFileAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkFileRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
@@ -210,12 +212,26 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void fileAddition(VcsCommitItem s, IGraphNode fileNode) {
-		// nothing to do!
+		if (!isAcceptedByFilter(s))
+			return;
+
+		final HawkFileAdditionEvent ev = new HawkFileAdditionEvent();
+		ev.setVcsItem(mapToThrift(s));
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setFileAddition(ev);
+		sendEvent(change);
 	}
 
 	@Override
 	public void fileRemoval(VcsCommitItem s, IGraphNode fileNode) {
-		// nothing to do!
+		if (!isAcceptedByFilter(s))
+			return;
+
+		final HawkFileRemovalEvent ev = new HawkFileRemovalEvent();
+		ev.setVcsItem(mapToThrift(s));
+		final HawkChangeEvent change = new HawkChangeEvent();
+		change.setFileRemoval(ev);
+		sendEvent(change);
 	}
 
 	@Override
