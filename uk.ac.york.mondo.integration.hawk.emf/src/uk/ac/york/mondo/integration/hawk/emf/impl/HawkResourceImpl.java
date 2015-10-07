@@ -485,6 +485,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return finalList;
 	}
 
+	@Override
 	public EList<EObject> fetchNodesByType(EClass eClass)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		synchronized (classToEObjectsMap) {
@@ -514,6 +515,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return fetched;
 	}
 
+	@Override
 	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
 		// Retrieves the types that are present in the model
 		// TODO: add "getExistingTypes" to Hawk API instead of this EOL query?
@@ -549,6 +551,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return values;
 	}
 
+	@Override
 	public List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		final EClass featureEClass = feature.getEContainingClass();
 		final EList<EObject> eobs = fetchNodesByType(featureEClass);

@@ -10,10 +10,23 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf.impl;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.thrift.TException;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 
+import uk.ac.york.mondo.integration.api.FailedQuery;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
+import uk.ac.york.mondo.integration.api.InvalidQuery;
+import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
@@ -41,5 +54,23 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 		} else {
 			return o.eAllContents().hasNext();
 		}
+	}
+
+	@Override
+	public List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		return mainResource.fetchValuesByEStructuralFeature(feature);
+	}
+
+	@Override
+	public EList<EObject> fetchNodesByType(EClass eClass)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		return mainResource.fetchNodesByType(eClass);
+	}
+
+	@Override
+	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
+			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
+		return mainResource.fetchValuesByEClassifier(dataType);
 	}
 }
