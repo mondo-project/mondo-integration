@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,6 +29,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EFactory;
@@ -51,6 +51,7 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
+import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
@@ -64,12 +65,14 @@ import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkSynchronizationEndEvent;
 import uk.ac.york.mondo.integration.api.HawkSynchronizationStartEvent;
+import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
+import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
@@ -84,6 +87,8 @@ import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
  * belong to each file in the Hawk index.
  */
 public class HawkResourceImpl extends ResourceImpl implements HawkResource {
+
+	private static final String EOL_QUERY_LANG = "org.hawk.epsilon.emc.EOLQueryEngine";
 
 	/**
 	 * Internal state used only while loading a tree of {@link ModelElement}s. It's
@@ -160,6 +165,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		public void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
 			if (eob != null && eob.eResource() != null) {
+				synchronized (classToEObjectsMap) {
+					final EList<EObject> instances = classToEObjectsMap.get(eob.eClass());
+					if (instances != null) {
+						instances.remove(eob);
+					}
+				}
 				eob.eResource().getContents().remove(eob);
 
 				final EObject container = eob.eContainer();
@@ -183,6 +194,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
 				final EObject eob = factory.create(eClass);
 				nodeIdToEObjectMap.put(ev.id, eob);
+				synchronized(classToEObjectsMap) {
+					final EList<EObject> instances = classToEObjectsMap.get(eClass);
+					if (instances != null) {
+						instances.add(eob);
+					}
+				}
 				addToResource(ev.vcsItem.repoURL, ev.vcsItem.path, eob);
 			}
 		}
@@ -283,6 +300,14 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
 	private final Map<String, Resource> resources = new HashMap<>();
+
+	/**
+	 * Cache from class to its instances. New entries are added upon calls to
+	 * {@link #fetchNodesByType(EClass)}, which are then kept up to date during
+	 * notifications and lazy loads.
+	 */
+	private final Map<EClass, EList<EObject>> classToEObjectsMap = new HashMap<>();
+
 	private final CompositeHawkChangeEventHandler messageHandler = new CompositeHawkChangeEventHandler(new InternalHawkChangeEventHandler());
 
 	private HawkModelDescriptor descriptor;
@@ -459,6 +484,71 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return finalList;
 	}
 
+	public EList<EObject> fetchNodesByType(EClass eClass)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		synchronized (classToEObjectsMap) {
+			final EList<EObject> precomputed = classToEObjectsMap.get(eClass);
+			if (precomputed != null) {
+				return precomputed;
+			}
+
+			final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
+					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG,
+					descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true,
+					false);
+			final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs);
+			classToEObjectsMap.put(eClass, fetched);
+			return fetched;
+		}
+	}
+
+	protected EList<EObject> fetchNodesByQueryResults(final List<QueryResult> typeInstanceIDs)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		final List<String> ids = new ArrayList<>();
+		for (QueryResult qr : typeInstanceIDs) {
+			ids.add(qr.getVModelElement().getId());
+		}
+		final EList<EObject> fetched = fetchNodes(ids);
+		return fetched;
+	}
+
+	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
+		// Retrieves the IDs of the instances which may have a value of the desired type
+		final List<QueryResult> edatatypeInstanceIDs = client.query(descriptor.getHawkInstance(),
+				String.format("return Model.types.select(t|t.attributes.contains(a|a.type='%s')).all;", dataType.getName()),
+				EOL_QUERY_LANG,
+				descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true, false);
+
+		final EList<EObject> fetched = fetchNodesByQueryResults(edatatypeInstanceIDs);
+		final List<Object> values = new ArrayList<>();
+		for (EObject obj : fetched) {
+			final EClass ec = obj.eClass();
+			for (EAttribute eAttr : ec.getEAllAttributes()) {
+				if (eAttr.getEType() == dataType) {
+					final Object o = obj.eGet(eAttr);
+					if (o != null) {
+						values.add(o);
+					}
+				}
+			}
+		}
+		return values;
+	}
+
+	public List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		final EClass featureEClass = feature.getEContainingClass();
+		final EList<EObject> eobs = fetchNodesByType(featureEClass);
+
+		final List<Object> values = new ArrayList<>();
+		for (EObject eob : eobs) {
+			final Object value = eob.eGet(feature);
+			if (value != null) {
+				values.add(value);
+			}
+		}
+		return values;
+	}
+
 	public void fetchAttributes(InternalEObject object, final List<String> ids) throws IOException, HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final List<ModelElement> elems = client.resolveProxies(
 			descriptor.getHawkInstance(), ids,
@@ -506,6 +596,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 		if (me.isSetId()) {
 			nodeIdToEObjectMap.put(me.id, obj);
+
+			synchronized(classToEObjectsMap) {
+				final EList<EObject> instances = classToEObjectsMap.get(eClass);
+				if (instances != null) {
+					instances.add(obj);
+				}
+			}
 		}
 
 		if (me.isSetAttributes()) {
@@ -803,6 +900,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 		resources.clear();
 		nodeIdToEObjectMap.clear();
+		classToEObjectsMap.clear();
 
 		if (client != null) {
 			client.getInputProtocol().getTransport().close();
