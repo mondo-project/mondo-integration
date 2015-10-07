@@ -228,6 +228,14 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						syncEnd.getTimestampNanos(),
 						(syncEnd.getTimestampNanos() - lastSyncStart)/1_000_000.0);
 			}
+
+			// We commit acknowledgements after synchronization is done:
+			// we only have one of these per set of changes.
+			try {
+				subscriber.commitSession();
+			} catch (ActiveMQException e) {
+				LOGGER.error("Could not commit client session", e);
+			}
 		}
 
 		@Override
