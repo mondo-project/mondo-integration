@@ -8,16 +8,21 @@ import org.eclipse.incquery.runtime.api.scope.IIndexingErrorListener;
 import org.eclipse.incquery.runtime.emf.EMFScope;
 import org.eclipse.incquery.runtime.exception.IncQueryException;
 
+import uk.ac.york.mondo.integration.api.Hawk.Client;
+
 public class HawkScope extends EMFScope {
 
-	public HawkScope(Notifier scopeRoot) throws IncQueryException {
+	private Client client;
+
+	public HawkScope(Notifier scopeRoot, Client client) throws IncQueryException {
 		super(scopeRoot);
+		this.client = client;
 	}
 	
 	@Override
 	protected IEngineContext createEngineContext(IncQueryEngine engine, IIndexingErrorListener errorListener,
 			Logger logger) {
-		return new HawkEngineContext(this, engine, errorListener, logger);
+		return new HawkEngineContext(this, engine, logger, client);
 	}
 
 }

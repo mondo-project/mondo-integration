@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.incquery.runtime.base.api.NavigationHelper;
 import org.eclipse.incquery.runtime.emf.EMFQueryRuntimeContext;
 import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
@@ -15,10 +14,15 @@ import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey;
 import org.eclipse.incquery.runtime.matchers.context.IInputKey;
 import org.eclipse.incquery.runtime.matchers.tuple.Tuple;
 
+import uk.ac.york.mondo.integration.api.Hawk.Client;
+
 public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
-	public HawkQueryRuntimeContext(NavigationHelper baseIndex, Logger logger) {
-		super(baseIndex, logger);
+	private Client client;
+
+	public HawkQueryRuntimeContext(Client client, Logger logger) {
+		super(null, logger);
+		this.client = client;
 	}	
 
 	@Override
