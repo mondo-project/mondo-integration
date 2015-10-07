@@ -36,6 +36,7 @@ import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeReference;
 import org.hawk.core.graph.IGraphTransaction;
+import org.hawk.core.graph.IGraphTypeNodeReference;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
@@ -79,6 +80,7 @@ import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 import uk.ac.york.mondo.integration.hawk.servlet.artemis.ArtemisProducerGraphChangeListener;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
+import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncoder;
 
 /**
  * Entry point to the Hawk model indexers, implementing a Thrift-based API.
@@ -179,15 +181,18 @@ final class HawkThriftIface implements Hawk.Iface {
 				ret = model.contextFullQuery(query, language, context);
 			}
 
-			final HawkModelElementEncoder enc = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+			final GraphWrapper gw = new GraphWrapper(model.getGraph());
+			final HawkModelElementEncoder enc = new HawkModelElementEncoder(gw);
 			enc.setUseContainment(includeContained);
 			enc.setIncludeNodeIDs(includeNodeIDs);
 			enc.setIncludeAttributes(includeAttributes);
 			enc.setIncludeReferences(includeReferences);
 
+			final HawkModelElementTypeEncoder typeEnc = new HawkModelElementTypeEncoder(gw);
+
 			try (final IGraphTransaction t = model.getGraph().beginTransaction()) {
 				final List<QueryResult> l = new ArrayList<>();
-				addEncodedValue(model, ret, l, enc);
+				addEncodedValue(model, ret, l, enc, typeEnc);
 				return l;
 			}
 		} catch (NoSuchElementException ex) {
@@ -199,14 +204,6 @@ final class HawkThriftIface implements Hawk.Iface {
 			throw new FailedQuery(ex.getMessage());
 		} catch (Exception ex) {
 			throw new TException(ex);
-		}
-	}
-
-	protected void addEncodedValues(final HModel model, Object ret, final List<QueryResult> l,
-			final HawkModelElementEncoder enc) throws Exception {
-		final Iterable<?> c = (Iterable<?>) ret;
-		for (Object o : c) {
-			addEncodedValue(model, o, l, enc);
 		}
 	}
 
@@ -224,8 +221,9 @@ final class HawkThriftIface implements Hawk.Iface {
 		return sbuf.toString();
 	}
 
-	private void addEncodedValue(final HModel model, Object ret,
-			final List<QueryResult> l, HawkModelElementEncoder enc) throws Exception {
+	private void addEncodedValue(final HModel model, Object ret, final List<QueryResult> l,
+			HawkModelElementEncoder enc,
+			HawkModelElementTypeEncoder typeEnc) throws Exception {
 		if (ret instanceof Boolean) {
 			l.add(new QueryResult(_Fields.V_BOOLEAN, (Boolean)ret));
 		} else if (ret instanceof Byte) {
@@ -240,6 +238,9 @@ final class HawkThriftIface implements Hawk.Iface {
 			l.add(new QueryResult(_Fields.V_SHORT, (Short)ret));
 		} else if (ret instanceof String) {
 			l.add(new QueryResult(_Fields.V_STRING, (String)ret));
+		} else if (ret instanceof IGraphTypeNodeReference) {
+			final String id = ((IGraphTypeNodeReference)ret).getId();
+			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT_TYPE, typeEnc.encode(id)));
 		} else if (ret instanceof IGraphNodeReference) {
 			final String id = ((IGraphNodeReference)ret).getId();
 			if (!enc.isEncoded(id)) {
@@ -251,7 +252,10 @@ final class HawkThriftIface implements Hawk.Iface {
 				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(meNode)));
 			}
 		} else if (ret instanceof Iterable) {
-			addEncodedValues(model, ret, l, enc);
+			final Iterable<?> c = (Iterable<?>) ret;
+			for (Object o : c) {
+				addEncodedValue(model, o, l, enc, typeEnc);
+			}
 		} else {
 			l.add(new QueryResult(_Fields.V_STRING, ret + ""));
 		}

@@ -165,6 +165,14 @@ struct Slot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 }
 
+struct SlotMetadata {
+	 /* The name of the model element property that is stored in this slot. */ 1: required string name,
+	 /* The type of the values in this slot. */ 2: required string type,
+	 /* True if this slot holds a collection of values instead of a single value. */ 3: required bool isMany,
+	 /* True if the values in this slot are ordered. */ 4: required bool isOrdered,
+	 /* True if the value of this slot must be unique within its containing model. */ 5: required bool isUnique,
+}
+
 union SlotValue {
 	 /*  */ 1: optional byte vByte,
 	 /*  */ 2: optional bool vBoolean,
@@ -306,6 +314,14 @@ exception InvalidModelSpec {
 	 /* Reason for the spec not being valid. */ 2: required string reason,
 }
 
+struct ModelElementType {
+	 /* Unique ID of the model element type. */ 1: required string id,
+	 /* URI of the metamodel to which the type belongs. */ 2: required string metamodelUri,
+	 /* Name of the type. */ 3: required string typeName,
+	 /* Metadata for the attribute slots. */ 4: required list<SlotMetadata> attributes,
+	 /* Metadata for the reference slots. */ 5: required list<SlotMetadata> references,
+}
+
 struct ReferenceSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 	 /* Position of the referenced element (if there is only one position-based reference in this slot). */ 2: optional i32 position,
@@ -353,6 +369,7 @@ union QueryResult {
 	 /*  */ 6: optional double vDouble,
 	 /*  */ 7: optional string vString,
 	 /*  */ 8: optional ModelElement vModelElement,
+	 /*  */ 9: optional ModelElementType vModelElementType,
 }
 
 /* The majority of service operations provided by the MONDO

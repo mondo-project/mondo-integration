@@ -560,10 +560,38 @@ class ModelElement {
 	val ContainerSlot[*] containers;
 }
 
+@doc(d="Represents a type of model element")
+class ModelElementType {
+	@doc(d="Unique ID of the model element type")
+	attr String ~id;
+	@doc(d="URI of the metamodel to which the type belongs")
+	attr String metamodelUri;
+	@doc(d="Name of the type")
+	attr String typeName;
+	@doc(d="Metadata for the attribute slots")
+	val SlotMetadata[*] attributes;
+	@doc(d="Metadata for the reference slots")
+	val SlotMetadata[*] references;
+}
+
 @doc(d="Represents a slot that can store the value(s) of a property of a model element")
 class Slot {
 	@doc(d="The name of the model element property the value of which is stored in this slot")
 	attr String name;
+}
+
+@doc(d="Represents the metadata of a slot in a model element type")
+class SlotMetadata {
+	@doc(d="The name of the model element property that is stored in this slot")
+	attr String name;
+	@doc(d="The type of the values in this slot")
+	attr String type;
+	@doc(d="True if this slot holds a collection of values instead of a single value.")
+	attr boolean isMany;
+	@doc(d="True if the values in this slot are ordered.")
+	attr boolean isOrdered;
+	@doc(d="True if the value of this slot must be unique within its containing model.")
+	attr boolean isUnique;
 }
 
 @doc(d="Represents a slot that can store the value(s) of an attribute of a model element")
@@ -619,6 +647,7 @@ class ContainerSlot extends Slot {
 @doc(d="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.")
 class QueryResult extends Value {
 	val ModelElement vModelElement;
+	val ModelElementType vModelElementType;
 }
 
 @thrift(union="true")

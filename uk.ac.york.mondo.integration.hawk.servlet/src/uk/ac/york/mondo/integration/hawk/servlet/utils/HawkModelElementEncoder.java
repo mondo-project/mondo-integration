@@ -343,7 +343,7 @@ public class HawkModelElementEncoder {
 		final ModelElement me = new ModelElement();
 		me.setId(meNode.getId());
 		me.setTypeName(meNode.getTypeNode().getTypeName());
-		me.setMetamodelUri(meNode.getTypeNode().getMetamodelName());
+		me.setMetamodelUri(meNode.getTypeNode().getMetamodelURI());
 		me.setFile(meNode.getFileNode().getFilePath());
 		me.setRepositoryURL(meNode.getFileNode().getRepositoryURL());
 

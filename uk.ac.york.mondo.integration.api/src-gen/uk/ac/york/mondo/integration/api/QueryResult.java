@@ -44,6 +44,7 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
   private static final org.apache.thrift.protocol.TField V_DOUBLE_FIELD_DESC = new org.apache.thrift.protocol.TField("vDouble", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
   private static final org.apache.thrift.protocol.TField V_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("vString", org.apache.thrift.protocol.TType.STRING, (short)7);
   private static final org.apache.thrift.protocol.TField V_MODEL_ELEMENT_FIELD_DESC = new org.apache.thrift.protocol.TField("vModelElement", org.apache.thrift.protocol.TType.STRUCT, (short)8);
+  private static final org.apache.thrift.protocol.TField V_MODEL_ELEMENT_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("vModelElementType", org.apache.thrift.protocol.TType.STRUCT, (short)9);
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -54,7 +55,8 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
     V_LONG((short)5, "vLong"),
     V_DOUBLE((short)6, "vDouble"),
     V_STRING((short)7, "vString"),
-    V_MODEL_ELEMENT((short)8, "vModelElement");
+    V_MODEL_ELEMENT((short)8, "vModelElement"),
+    V_MODEL_ELEMENT_TYPE((short)9, "vModelElementType");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -85,6 +87,8 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
           return V_STRING;
         case 8: // V_MODEL_ELEMENT
           return V_MODEL_ELEMENT;
+        case 9: // V_MODEL_ELEMENT_TYPE
+          return V_MODEL_ELEMENT_TYPE;
         default:
           return null;
       }
@@ -143,6 +147,8 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.V_MODEL_ELEMENT, new org.apache.thrift.meta_data.FieldMetaData("vModelElement", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelElement.class)));
+    tmpMap.put(_Fields.V_MODEL_ELEMENT_TYPE, new org.apache.thrift.meta_data.FieldMetaData("vModelElementType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ModelElementType.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(QueryResult.class, metaDataMap);
   }
@@ -210,6 +216,12 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
     return x;
   }
 
+  public static QueryResult vModelElementType(ModelElementType value) {
+    QueryResult x = new QueryResult();
+    x.setVModelElementType(value);
+    return x;
+  }
+
 
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
@@ -254,6 +266,11 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
           break;
         }
         throw new ClassCastException("Was expecting value of type ModelElement for field 'vModelElement', but got " + value.getClass().getSimpleName());
+      case V_MODEL_ELEMENT_TYPE:
+        if (value instanceof ModelElementType) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type ModelElementType for field 'vModelElementType', but got " + value.getClass().getSimpleName());
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -337,6 +354,16 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
+        case V_MODEL_ELEMENT_TYPE:
+          if (field.type == V_MODEL_ELEMENT_TYPE_FIELD_DESC.type) {
+            ModelElementType vModelElementType;
+            vModelElementType = new ModelElementType();
+            vModelElementType.read(iprot);
+            return vModelElementType;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -381,6 +408,10 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
         ModelElement vModelElement = (ModelElement)value_;
         vModelElement.write(oprot);
         return;
+      case V_MODEL_ELEMENT_TYPE:
+        ModelElementType vModelElementType = (ModelElementType)value_;
+        vModelElementType.write(oprot);
+        return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -424,6 +455,11 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
           vModelElement = new ModelElement();
           vModelElement.read(iprot);
           return vModelElement;
+        case V_MODEL_ELEMENT_TYPE:
+          ModelElementType vModelElementType;
+          vModelElementType = new ModelElementType();
+          vModelElementType.read(iprot);
+          return vModelElementType;
         default:
           throw new IllegalStateException("setField wasn't null, but didn't match any of the case statements!");
       }
@@ -467,6 +503,10 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
         ModelElement vModelElement = (ModelElement)value_;
         vModelElement.write(oprot);
         return;
+      case V_MODEL_ELEMENT_TYPE:
+        ModelElementType vModelElementType = (ModelElementType)value_;
+        vModelElementType.write(oprot);
+        return;
       default:
         throw new IllegalStateException("Cannot write union with unknown field " + setField_);
     }
@@ -491,6 +531,8 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
         return V_STRING_FIELD_DESC;
       case V_MODEL_ELEMENT:
         return V_MODEL_ELEMENT_FIELD_DESC;
+      case V_MODEL_ELEMENT_TYPE:
+        return V_MODEL_ELEMENT_TYPE_FIELD_DESC;
       default:
         throw new IllegalArgumentException("Unknown field id " + setField);
     }
@@ -617,6 +659,20 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
     value_ = value;
   }
 
+  public ModelElementType getVModelElementType() {
+    if (getSetField() == _Fields.V_MODEL_ELEMENT_TYPE) {
+      return (ModelElementType)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vModelElementType' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVModelElementType(ModelElementType value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.V_MODEL_ELEMENT_TYPE;
+    value_ = value;
+  }
+
   public boolean isSetVByte() {
     return setField_ == _Fields.V_BYTE;
   }
@@ -654,6 +710,11 @@ public class QueryResult extends org.apache.thrift.TUnion<QueryResult, QueryResu
 
   public boolean isSetVModelElement() {
     return setField_ == _Fields.V_MODEL_ELEMENT;
+  }
+
+
+  public boolean isSetVModelElementType() {
+    return setField_ == _Fields.V_MODEL_ELEMENT_TYPE;
   }
 
 
