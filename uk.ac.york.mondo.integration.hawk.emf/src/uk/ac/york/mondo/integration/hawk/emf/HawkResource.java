@@ -12,6 +12,7 @@ package uk.ac.york.mondo.integration.hawk.emf;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
@@ -19,7 +20,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import uk.ac.york.mondo.integration.api.FailedQuery;
@@ -35,7 +35,7 @@ public interface HawkResource extends Resource {
 	 */
 	boolean hasChildren(EObject o);
 
-	List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
+	Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException;
 
 	EList<EObject> fetchNodesByType(EClass eClass)

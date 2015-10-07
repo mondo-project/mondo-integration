@@ -12,6 +12,7 @@ package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
@@ -57,7 +58,7 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
+	public Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		return mainResource.fetchValuesByEStructuralFeature(feature);
 	}

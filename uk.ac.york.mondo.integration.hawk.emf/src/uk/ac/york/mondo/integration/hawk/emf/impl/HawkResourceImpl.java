@@ -552,15 +552,15 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public List<Object> fetchValuesByEStructuralFeature(EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+	public Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		final EClass featureEClass = feature.getEContainingClass();
 		final EList<EObject> eobs = fetchNodesByType(featureEClass);
 
-		final List<Object> values = new ArrayList<>();
+		final Map<EObject, Object> values = new IdentityHashMap<>();
 		for (EObject eob : eobs) {
 			final Object value = eob.eGet(feature);
 			if (value != null) {
-				values.add(value);
+				values.put(eob, value);
 			}
 		}
 		return values;
