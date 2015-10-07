@@ -68,6 +68,7 @@ import uk.ac.york.mondo.integration.api.HawkSynchronizationStartEvent;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.ModelElement;
+import uk.ac.york.mondo.integration.api.ModelElementType;
 import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
 import uk.ac.york.mondo.integration.api.Subscription;
@@ -492,6 +493,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				return precomputed;
 			}
 
+			// TODO: add "getInstancesOfType" to Hawk API instead of Hawk EOL query?
 			final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
 					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG,
 					descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true,
@@ -513,25 +515,37 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
-		// Retrieves the IDs of the instances which may have a value of the desired type
-		final List<QueryResult> edatatypeInstanceIDs = client.query(descriptor.getHawkInstance(),
-				String.format("return Model.types.select(t|t.attributes.contains(a|a.type='%s')).all;", dataType.getName()),
+		// Retrieves the types that are present in the model
+		// TODO: add "getExistingTypes" to Hawk API instead of this EOL query?
+		final List<QueryResult> typesWithInstances = client.query(descriptor.getHawkInstance(),
+				"return Model.types.select(t|not t.all.isEmpty);",
 				EOL_QUERY_LANG,
 				descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true, false);
 
-		final EList<EObject> fetched = fetchNodesByQueryResults(edatatypeInstanceIDs);
 		final List<Object> values = new ArrayList<>();
-		for (EObject obj : fetched) {
-			final EClass ec = obj.eClass();
-			for (EAttribute eAttr : ec.getEAllAttributes()) {
-				if (eAttr.getEType() == dataType) {
-					final Object o = obj.eGet(eAttr);
-					if (o != null) {
-						values.add(o);
+		for (QueryResult qr : typesWithInstances) {
+			final ModelElementType type = qr.getVModelElementType();
+			final EClass eClass = getEClass(type.metamodelUri, type.typeName, getResourceSet().getPackageRegistry());
+
+			final List<EAttribute> attrsWithType = new ArrayList<>();
+			for (EAttribute attr : eClass.getEAllAttributes()) {
+				if (attr.getEType() == dataType) {
+					attrsWithType.add(attr);
+				}
+			}
+
+			if (attrsWithType.isEmpty()) {
+				for (EObject eob : fetchNodesByType(eClass)) {
+					for (EAttribute attr : attrsWithType) {
+						final Object o = eob.eGet(attr);
+						if (o != null) {
+							values.add(o);
+						}
 					}
 				}
 			}
 		}
+
 		return values;
 	}
 
