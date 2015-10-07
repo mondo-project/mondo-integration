@@ -37,8 +37,8 @@ public class HawkEngineContext implements IEngineContext {
 			
 			if (notifier instanceof ResourceSet) {
 				for (Resource resource : ((ResourceSet) notifier).getResources()) {
-					if (notifier instanceof HawkResource) {
-						hawkResource = (HawkResource) notifier;
+					if (resource instanceof HawkResource) {
+						hawkResource = (HawkResource) resource;
 						break outer;
 					}
 				}

@@ -2,8 +2,9 @@ package hu.bme.mit.mondo.integration.incquery.hawk;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
 import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey;
 import org.eclipse.incquery.runtime.matchers.context.IInputKey;
+import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListener;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 import org.eclipse.incquery.runtime.matchers.tuple.Tuple;
 
@@ -30,6 +32,13 @@ import com.google.common.collect.Iterables;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
+
+	private static final String Collection = null;
+
+	protected String clean(String s) {
+		return s.replaceAll("http://www.semanticweb.org/ontologies/2015/trainbenchmark/", "")
+				.replaceAll("hu\\.bme\\.mit\\.trainbenchmark\\.railway\\.impl\\.", "").replaceAll(";", "); ");
+	}
 
 	private HawkResource hawkResource;
 
@@ -64,6 +73,8 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 	@Override
 	public int countTuples(IInputKey key, Tuple seed) {
+		int result = 0;
+
 		try {
 			if (key instanceof EClassTransitiveInstancesKey) {
 				EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
@@ -71,9 +82,9 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				EList<EObject> instances = hawkResource.fetchNodesByType(eClass);
 				if (seedInstance == null) { // unseeded
-					return instances.size();
+					result = instances.size();
 				} else { // fully seeded
-					return instances.contains(seedInstance) ? 1 : 0;
+					result = instances.contains(seedInstance) ? 1 : 0;
 				}
 			} else if (key instanceof EDataTypeInSlotsKey) {
 				EDataType dataType = ((EDataTypeInSlotsKey) key).getEmfKey();
@@ -81,9 +92,9 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				List<Object> values = hawkResource.fetchValuesByEClassifier(dataType);
 				if (seedInstance == null) { // unseeded
-					return values.size();
+					result = values.size();
 				} else { // fully seeded
-					return values.contains(seedInstance) ? 1 : 0;
+					result = values.contains(seedInstance) ? 1 : 0;
 				}
 			} else if (key instanceof EStructuralFeatureInstancesKey) {
 				EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
@@ -93,14 +104,14 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 				Map<EObject, Object> featureValues = hawkResource.fetchValuesByEStructuralFeature(feature);
 
 				if (seedSource == null && seedTarget != null) {
-					return featureValues.values().contains(seedTarget) ? 1 : 0;
+					result = featureValues.values().contains(seedTarget) ? 1 : 0;
 				} else if (seedSource != null && seedTarget != null) { // fully seeded
-					return seedTarget.equals(featureValues.get(seedSource)) ? 1 : 0;
+					result = seedTarget.equals(featureValues.get(seedSource)) ? 1 : 0;
 				} else if (seedSource == null && seedTarget == null) { // fully unseeded
-					return featureValues.size();
+					result = featureValues.size();
 				} else if (seedSource != null && seedTarget == null) {
 					Object value = featureValues.get(seedSource);
-					return value != null ? 1 : 0;
+					result = value != null ? 1 : 0;
 				}
 			} else {
 				illegalInputKey(key);
@@ -109,12 +120,16 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 			throw new RuntimeException(e);
 		}
 
-		return 0;
+		System.out.println("countTuples: " + clean(key.toString()) + ", " + seed);
+		System.out.println(result);
+		System.out.println();
+
+		return result;
 	}
 
 	@Override
 	public Iterable<Tuple> enumerateTuples(IInputKey key, Tuple seed) {
-		Collection<Tuple> result = new HashSet<Tuple>();
+		Iterable<Tuple> result = null;
 		try {
 
 			if (key instanceof EClassTransitiveInstancesKey) {
@@ -123,10 +138,10 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				EList<EObject> instances = hawkResource.fetchNodesByType(eClass);
 				if (seedInstance == null) { // unseeded
-					return Iterables.transform(instances, wrapUnary);
+					result = Iterables.transform(instances, wrapUnary);
 				} else { // fully seeded
 					if (instances.contains(seedInstance)) {
-						result.add(new FlatTuple(seedInstance));
+						result = Arrays.asList(new FlatTuple(seedInstance));
 					}
 				}
 			} else if (key instanceof EDataTypeInSlotsKey) {
@@ -135,10 +150,10 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				List<Object> values = hawkResource.fetchValuesByEClassifier(dataType);
 				if (seedInstance == null) { // unseeded
-					return Iterables.transform(values, wrapUnary);
+					result = Iterables.transform(values, wrapUnary);
 				} else { // fully seeded
 					if (values.contains(seedInstance)) {
-						result.add(new FlatTuple(seedInstance));
+						result = Arrays.asList(new FlatTuple(seedInstance));
 					}
 				}
 			} else if (key instanceof EStructuralFeatureInstancesKey) {
@@ -148,38 +163,51 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				Map<EObject, Object> featureValues = hawkResource.fetchValuesByEStructuralFeature(feature);
 
+				List<Tuple> tuples = new ArrayList<>();
 				if (seedSource == null && seedTarget != null) {
 					for (Entry<EObject, Object> entry : featureValues.entrySet()) {
 						if (entry.getValue().equals(seedTarget)) {
-							result.add(new FlatTuple(entry.getKey(), entry.getValue()));
+							tuples.add(new FlatTuple(entry.getKey(), entry.getValue()));
 						}
 					}
 				} else if (seedSource != null && seedTarget != null) { // fully seeded
 					if (seedTarget.equals(featureValues.get(seedSource))) {
-						result.add(new FlatTuple(seedSource, seedTarget));
+						tuples.add(new FlatTuple(seedSource, seedTarget));
 					}
 				} else if (seedSource == null && seedTarget == null) { // fully unseeded
 					for (Entry<EObject, Object> entry : featureValues.entrySet()) {
-						result.add(new FlatTuple(entry.getKey(), entry.getValue()));
+						if (entry.getValue() instanceof Collection) {
+							for (Object value : (Collection) entry.getValue()) {
+								tuples.add(new FlatTuple(entry.getKey(), value));
+							}
+						} else {
+							tuples.add(new FlatTuple(entry.getKey(), entry.getValue()));
+						}
 					}
 				} else if (seedSource != null && seedTarget == null) {
 					Object value = featureValues.get(seedSource);
 					if (value != null) {
-						result.add(new FlatTuple(seedSource, value));
+						tuples.add(new FlatTuple(seedSource, value));
 					}
 				}
+				result = tuples;
 			} else {
 				illegalInputKey(key);
 			}
 		} catch (TException | IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		System.out.println("enumerateTuples: " + clean(key.toString()) + ", " + seed);
+		System.out.println(clean(result.toString()));
+		System.out.println();
 
 		return result;
 	}
 
 	@Override
 	public Iterable<? extends Object> enumerateValues(IInputKey key, Tuple seed) {
+		Iterable<? extends Object> result = null;
 		try {
 
 			if (key instanceof EClassTransitiveInstancesKey) {
@@ -188,7 +216,7 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				Object seedInstance = getFromSeed(seed, 0);
 				if (seedInstance == null) { // unseeded
-					return hawkResource.fetchNodesByType(eClass);
+					result = hawkResource.fetchNodesByType(eClass);
 				} else {
 					// must be unseeded, this is enumerateValues after all!
 					illegalEnumerateValues(seed);
@@ -198,7 +226,7 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 
 				Object seedInstance = getFromSeed(seed, 0);
 				if (seedInstance == null) { // unseeded
-					return hawkResource.fetchValuesByEClassifier(dataType);
+					result = hawkResource.fetchValuesByEClassifier(dataType);
 				} else {
 					// must be unseeded, this is enumerateValues after all!
 					illegalEnumerateValues(seed);
@@ -207,13 +235,13 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 				EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
 
 				Map<EObject, Object> features = hawkResource.fetchValuesByEStructuralFeature(feature);
-				
+
 				Object seedSource = getFromSeed(seed, 0);
 				Object seedTarget = getFromSeed(seed, 1);
 				if (seedSource == null && seedTarget != null) {
-					return features.keySet();
+					result = features.keySet();
 				} else if (seedSource != null && seedTarget == null) {
-					return features.values();
+					result = features.values();
 				} else {
 					// must be singly unseeded, this is enumerateValues after all!
 					illegalEnumerateValues(seed);
@@ -225,7 +253,10 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 			throw new RuntimeException(e);
 		}
 
-		return null;
+		System.out.println("enumerateValues: " + clean(key.toString()) + ", " + seed);
+		System.out.println(clean(result.toString()));
+		System.out.println();
+		return result;
 
 	}
 
@@ -239,5 +270,14 @@ public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
 			return new FlatTuple(obj);
 		}
 	};
+
+	public void addUpdateListener(IInputKey key, Tuple seed, IQueryRuntimeContextListener listener) {
+		// do nothing
+	}
+
+	@Override
+	public void removeUpdateListener(IInputKey key, Tuple seed, IQueryRuntimeContextListener listener) {
+		// do nothing
+	}
 
 }
