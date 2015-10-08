@@ -10,17 +10,16 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.servlet.servlets;
 
-import org.apache.thrift.protocol.TTupleProtocol;
+import javax.servlet.http.HttpServletRequest;
 
-import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import org.apache.thrift.TProcessor;
 
 /**
- * Servlet that exposes {@link HawkThriftIface} through the {@link TTupleProtocol}.
+ * Interface for a factory which creates lightweight per-request Thrift
+ * processors. The main use for this is making the Thrift service operation
+ * implementations aware of the current user, so they may perform access control
+ * checks.
  */
-public class HawkThriftTupleServlet extends HawkThriftServlet {
-	private static final long serialVersionUID = 1L;
-
-	public HawkThriftTupleServlet() throws Exception {
-		super(new HawkThriftProcessorFactory(ThriftProtocol.TUPLE));
-	}
+public interface IAuthenticatedProcessorFactory {
+	TProcessor create(HttpServletRequest p);
 }

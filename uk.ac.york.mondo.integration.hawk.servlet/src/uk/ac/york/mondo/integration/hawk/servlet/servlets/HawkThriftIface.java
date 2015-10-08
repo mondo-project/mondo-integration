@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -89,22 +91,28 @@ final class HawkThriftIface implements Hawk.Iface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftIface.class); 
 
-	private final HManager manager = HManager.getInstance();
 	private final ThriftProtocol thriftProtocol;
-	private Server artemisServer;
+	private final HttpServletRequest request;
+	private final Server artemisServer;
 
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
 
-	public HawkThriftIface(ThriftProtocol eventProtocol) {
+	/**
+	 * Only to be used from {@link HawkThriftProcessorFactory} to retrieve the
+	 * original process map.
+	 */
+	HawkThriftIface() {
+		this(null, null, null);
+	}
+
+	public HawkThriftIface(ThriftProtocol eventProtocol, HttpServletRequest request, Server artemisServer) {
 		this.thriftProtocol = eventProtocol;
+		this.request = request;
+		this.artemisServer = artemisServer;
 	}
 
 	public ThriftProtocol getThriftProtocol() {
 		return thriftProtocol;
-	}
-
-	public void setArtemisServer(Server artemisServer) {
-		this.artemisServer = artemisServer;
 	}
 
 	private HModel getRunningHawkByName(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning {
@@ -117,7 +125,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	private HModel getHawkByName(String name) throws HawkInstanceNotFound {
-		final HModel model = manager.getHawkByName(name);
+		final HModel model = HManager.getInstance().getHawkByName(name);
 		if (model == null) {
 			throw new HawkInstanceNotFound();
 		}
@@ -331,7 +339,7 @@ final class HawkThriftIface implements Hawk.Iface {
 
 	@Override
 	public List<String> listRepositoryTypes() {
-		return new ArrayList<String>(manager.getVCSTypes());
+		return new ArrayList<String>(HManager.getInstance().getVCSTypes());
 	}
 
 	@Override
@@ -488,6 +496,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	@Override
 	public void createInstance(String name, String adminPassword, int minDelay, int maxDelay) throws TException {
 		try {
+			final HManager manager = HManager.getInstance();
 			if (manager.getHawkByName(name) == null) {
 				HModel.create(new LocalHawkFactory(), name, storageFolder(name),
 						null, Neo4JDatabase.class.getName(), null,
@@ -501,7 +510,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	@Override
 	public List<HawkInstance> listInstances() throws TException {
 		final List<HawkInstance> instances = new ArrayList<>();
-		for (HModel m : manager.getHawks()) {
+		for (HModel m : HManager.getInstance().getHawks()) {
 			final HawkInstance instance = new HawkInstance();
 			instance.name = m.getName();
 			instance.running = m.isRunning();
@@ -514,7 +523,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	public void removeInstance(String name) throws HawkInstanceNotFound, TException {
 		final HModel model = getHawkByName(name);
 		try {
-			manager.delete(model, true);
+			HManager.getInstance().delete(model, true);
 		} catch (BackingStoreException e) {
 			throw new TException(e.getMessage(), e);
 		}
@@ -524,7 +533,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	public void startInstance(String name, String adminPassword) throws HawkInstanceNotFound, TException {
 		final HModel model = getHawkByName(name);
 		if (!model.isRunning()) {
-			model.start(manager, adminPassword.toCharArray());
+			model.start(HManager.getInstance(), adminPassword.toCharArray());
 		}
 	}
 

@@ -11,25 +11,16 @@
 package uk.ac.york.mondo.integration.hawk.servlet.servlets;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TServlet;
 
-import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
-import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 
 /**
  * Servlet that exposes {@link HawkThriftIface} through the {@link TBinaryProtocol}.
  */
-public class HawkThriftBinaryServlet extends TServlet {
+public class HawkThriftBinaryServlet extends HawkThriftServlet {
 	private static final long serialVersionUID = 1L;
 
 	public HawkThriftBinaryServlet() throws Exception {
-		this(new HawkThriftIface(ThriftProtocol.BINARY));
+		super(new HawkThriftProcessorFactory(ThriftProtocol.BINARY));
 	}
-
-	private HawkThriftBinaryServlet(HawkThriftIface iface) {
-		super(new Hawk.Processor<Hawk.Iface>(iface), iface.getThriftProtocol().getProtocolFactory());
-		iface.setArtemisServer(Activator.getInstance().getArtemisServer());
-	}
- 
 }
