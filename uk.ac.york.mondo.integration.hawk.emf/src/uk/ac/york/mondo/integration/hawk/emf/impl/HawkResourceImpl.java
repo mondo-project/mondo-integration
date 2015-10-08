@@ -438,6 +438,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				subscriber.openSession();
 				subscriber.processChangesAsync(messageHandler);
 			}
+
+			setLoaded(true);
 		} catch (TException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw new IOException(e);

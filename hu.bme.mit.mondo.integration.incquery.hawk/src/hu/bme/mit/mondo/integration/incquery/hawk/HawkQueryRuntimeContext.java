@@ -536,7 +536,8 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				final EClass eClass = feature.getEContainingClass();
 
 				// Instrument existing instances
-				for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
+				final EList<EObject> existing = hawkResource.fetchNodesByType(eClass);
+				for (final EObject eob : existing) {
 					// We need to fetch all values in advance to avoid duplicate notifications during lazy loading.
 					eob.eGet(feature);
 					eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
