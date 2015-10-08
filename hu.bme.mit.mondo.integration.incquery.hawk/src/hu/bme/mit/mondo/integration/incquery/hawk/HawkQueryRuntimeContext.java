@@ -31,7 +31,7 @@ import com.google.common.collect.Iterables;
 
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
-public class HawkQueryRuntimeContext extends EMFQueryRuntimeContext {
+public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 	private static final String Collection = null;
 

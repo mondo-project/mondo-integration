@@ -763,13 +763,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				final EClass eClass = getEClass(me.getMetamodelUri(), me.getTypeName(), packageRegistry);
 				final EReference feature = (EReference) eClass.getEStructuralFeature(s.name);
 
-				if (feature.isContainer()) {
-					if (sourceObj.eResource() != null) {
-						sourceObj.eResource().getContents().remove(sourceObj);
-					}
-				} else {
-					fillInReference(sourceObj, s, feature, state);
+				if (feature.isContainer() && sourceObj.eResource() != null) {
+					sourceObj.eResource().getContents().remove(sourceObj);
 				}
+				fillInReference(sourceObj, s, feature, state);
 			}
 		}
 

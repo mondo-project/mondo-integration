@@ -279,7 +279,8 @@ final class HawkThriftIface implements Hawk.Iface {
 					LOGGER.error(ex.getMessage(), ex);
 				}
 			}
-			return new ArrayList<ModelElement>(encoder.getElements());
+			final List<ModelElement> results = new ArrayList<ModelElement>(encoder.getElements());
+			return results;
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}
