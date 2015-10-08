@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
-import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -136,6 +135,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					// the accesses to avoid race conditions between 'model element added' and
 					// 'attribute changed', for instance.
 					synchronized (nodeIdToEObjectMap) {
+						isModelUpdateInProgress = true;
 						LOGGER.debug("Received message from Artemis at {}: {}", message.getAddress(), change);
 
 						if (change.isSetModelElementAttributeUpdate()) {
@@ -171,6 +171,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					}
 				} catch (TException e) {
 					LOGGER.error("Error while decoding incoming message", e);
+				} finally {
+					isModelUpdateInProgress = false;
 				}
 
 				message.acknowledge();
@@ -368,8 +370,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	/** Resolves lazy references and attributes. */
 	private LazyResolver lazyResolver;
 
-	/** This flag is set to true during lazy loads, so EMF notifications can ask for it. */
-	private volatile boolean isLazyLoadInProgress = false;
+	/**
+	 * This flag is set to <code>true</code> while processing an update of the
+	 * underlying model (as detected by Hawk), so EMF adapters can tell these
+	 * apart from lazy loads or external requests to complete a lazily loaded
+	 * resource.
+	 */
+	private volatile boolean isModelUpdateInProgress = false;
 
 	/** Map from classes to factories of instances instrumented by CGLIB for lazy loading. */
 	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
@@ -382,12 +389,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			// for consistency and for the ability to signal if an EMF notification comes
 			// from lazy loading or not.
 			synchronized(nodeIdToEObjectMap) {
-				try {
-					isLazyLoadInProgress = true;
-					getLazyResolver().resolve((InternalEObject)o, (EStructuralFeature)args[0]);
-				} finally {
-					isLazyLoadInProgress = false;
-				}
+				getLazyResolver().resolve((InternalEObject)o, (EStructuralFeature)args[0]);
 			}
 			return proxy.invokeSuper(o, args);
 		}
@@ -675,8 +677,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public boolean isLazyLoadInProgress() {
-		return isLazyLoadInProgress;
+	public boolean isModelUpdateInProgress() {
+		return isModelUpdateInProgress;
 	}
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {

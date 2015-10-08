@@ -83,8 +83,7 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public boolean isLazyLoadInProgress() {
-		return mainResource.isLazyLoadInProgress();
+	public boolean isModelUpdateInProgress() {
+		return mainResource.isModelUpdateInProgress();
 	}
-	
 }

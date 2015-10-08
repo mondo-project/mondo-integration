@@ -44,8 +44,8 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 	/**
 	 * Composite EMF adapter that listens for any changes and notifies the
-	 * adapters registered by IncQuery, while ignoring notifications coming from
-	 * lazy loads.
+	 * adapters registered by IncQuery of changes due to model updates
+	 * (notified through the Artemis message queue).
 	 */
 	private final class HawkQueryRuntimeContextAdapter extends EContentAdapter {
 		private Map<EClass, Set<EClassTransitiveInstancesAdapter>> adaptersByClass = new HashMap<>();
@@ -55,7 +55,14 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 		@Override
 		public void notifyChanged(Notification notification) {
 			super.notifyChanged(notification);
-			if (hawkResource.isLazyLoadInProgress()) {
+			if (!hawkResource.isModelUpdateInProgress()) {
+				/*
+				 * This notification is not a model update from changes detected
+				 * by Hawk, but rather some random change due to a lazy load or
+				 * a request from IncQuery to fetch extra data (e.g. while
+				 * computing the number of occurrences of each value of a
+				 * certain EDataType): ignore it.
+				 */
 				return;
 			}
 
@@ -147,7 +154,6 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 					for (EStructuralFeatureInstancesKeyAdapter incqAdapter : adapters) {
 						switch (notification.getEventType()) {
 						case Notification.SET:
-							// TODO: what to do with the last boolean flag?
 							if (notification.getOldValue() != null) {
 								incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
 							}

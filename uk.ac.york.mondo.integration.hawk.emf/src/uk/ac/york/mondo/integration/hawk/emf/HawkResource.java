@@ -50,10 +50,10 @@ public interface HawkResource extends Resource {
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException;
 
 	/**
-	 * Returns <code>true</code> if a lazy loading operation is currently in progress.
-	 * This is useful mostly for {@link Adapter} instances that want to ignore notifications
-	 * for changes due to lazy loads.
+	 * Returns <code>true</code> if a remote update is being processed.
+	 * This is useful mostly for {@link Adapter} instances that only want
+	 * to process notification during those moments.
 	 */
-	boolean isLazyLoadInProgress();
+	boolean isModelUpdateInProgress();
 
 }
