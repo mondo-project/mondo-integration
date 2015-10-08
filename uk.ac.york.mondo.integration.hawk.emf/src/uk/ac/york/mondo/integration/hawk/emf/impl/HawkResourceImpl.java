@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -450,8 +451,19 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	/**
 	 * Changes the message handler to be used with Artemis.
 	 */
+	@Override
 	public void addChangeEventHandler(IHawkChangeEventHandler handler) {
 		this.messageHandler.addHandler(handler);
+	}
+
+	/**
+	 * Returns an EObject by graph node identifier. If we don't have the EObject yet,
+	 * returns <code>null</code>. If you'd like to fetch the EObject on demand, please
+	 * use {@link #fetchNodes(List)}.
+	 */
+	@Override
+	public EObject getEObjectFromNodeID(String id) {
+		return nodeIdToEObjectMap.get(id);
 	}
 
 	public EList<EObject> fetchNodes(List<String> ids)
@@ -517,14 +529,35 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	@Override
 	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
-		// Retrieves the types that are present in the model
+		final Map<EClass, List<EAttribute>> candidateTypes = fetchTypesWithEClassifier(dataType);
+
+		final List<Object> values = new ArrayList<>();
+		for (Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
+			final EClass eClass = entry.getKey();
+			final List<EAttribute> attrsWithType = entry.getValue();
+			for (EObject eob : fetchNodesByType(eClass)) {
+				for (EAttribute attr : attrsWithType) {
+					final Object o = eob.eGet(attr);
+					if (o != null) {
+						values.add(o);
+					}
+				}
+			}
+		}
+
+		return values;
+	}
+
+	@Override
+	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		// TODO: add "getExistingTypes" to Hawk API instead of this EOL query?
 		final List<QueryResult> typesWithInstances = client.query(descriptor.getHawkInstance(),
 				"return Model.types.select(t|not t.all.isEmpty);",
 				EOL_QUERY_LANG,
 				descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true, false);
 
-		final List<Object> values = new ArrayList<>();
+		final Map<EClass, List<EAttribute>> candidateTypes = new IdentityHashMap<EClass, List<EAttribute>>();
 		for (QueryResult qr : typesWithInstances) {
 			final ModelElementType type = qr.getVModelElementType();
 			final EClass eClass = getEClass(type.metamodelUri, type.typeName, getResourceSet().getPackageRegistry());
@@ -535,20 +568,11 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					attrsWithType.add(attr);
 				}
 			}
-
 			if (attrsWithType.isEmpty()) {
-				for (EObject eob : fetchNodesByType(eClass)) {
-					for (EAttribute attr : attrsWithType) {
-						final Object o = eob.eGet(attr);
-						if (o != null) {
-							values.add(o);
-						}
-					}
-				}
+				candidateTypes.put(eClass, attrsWithType);
 			}
 		}
-
-		return values;
+		return candidateTypes;
 	}
 
 	@Override

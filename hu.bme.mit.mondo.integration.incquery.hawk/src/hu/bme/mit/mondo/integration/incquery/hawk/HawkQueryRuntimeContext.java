@@ -12,7 +12,10 @@ import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -23,15 +26,131 @@ import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
 import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey;
 import org.eclipse.incquery.runtime.matchers.context.IInputKey;
 import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListener;
+import org.eclipse.incquery.runtime.matchers.context.common.JavaTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 import org.eclipse.incquery.runtime.matchers.tuple.Tuple;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
+import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
+import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
+import uk.ac.york.mondo.integration.hawk.emf.HawkChangeEventAdapter;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
+
+	private final class EStructuralFeatureChangeAdapter extends AdapterImpl {
+		private final EStructuralFeatureInstancesKeyAdapter incqAdapter;
+		private final EObject eob;
+		private final EStructuralFeature feature;
+
+		private EStructuralFeatureChangeAdapter(EObject eob, EStructuralFeature feature,
+				EStructuralFeatureInstancesKeyAdapter incqAdapter) {
+			this.incqAdapter = incqAdapter;
+			this.eob = eob;
+			this.feature = feature;
+		}
+
+		@Override
+		public void notifyChanged(Notification notification) {
+			super.notifyChanged(notification);
+			if (notification.getFeature() != feature) {
+				return;
+			}
+
+			switch (notification.getEventType()) {
+			case Notification.SET:
+				// TODO: what to do with the last boolean flag?
+				if (notification.getOldValue() != null) {
+					incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+				}
+				incqAdapter.featureInserted(eob, feature, notification.getNewValue());
+				break;
+			case Notification.UNSET:
+				incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+				break;
+
+			case Notification.ADD:
+				incqAdapter.featureInserted(eob, feature, notification.getNewValue());
+				break;
+			case Notification.REMOVE:
+				incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+				break;
+
+			case Notification.ADD_MANY:
+				if (notification.getNewValue() instanceof Iterable) {
+					for (Object o : (Iterable<?>) notification.getNewValue()) {
+						incqAdapter.featureInserted(eob, feature, o);
+					}
+				}
+				break;
+			case Notification.REMOVE_MANY:
+				if (notification.getOldValue() instanceof Iterable) {
+					for (Object o : (Iterable<?>) notification.getOldValue()) {
+						incqAdapter.featureDeleted(eob, feature, o);
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	private final class EDataTypeChangeAdapter extends AdapterImpl {
+		private final EDataType dataType;
+		private final List<EAttribute> eAttrs;
+		private final EDataTypeInSlotsAdapter incqAdapter;
+
+		private EDataTypeChangeAdapter(EDataType dataType, List<EAttribute> eAttrs,
+				EDataTypeInSlotsAdapter incqAdapter) {
+			this.dataType = dataType;
+			this.eAttrs = eAttrs;
+			this.incqAdapter = incqAdapter;
+		}
+
+		@Override
+		public void notifyChanged(Notification notification) {
+			super.notifyChanged(notification);
+			if (!eAttrs.contains(notification.getFeature())) {
+				return;
+			}
+
+			switch (notification.getEventType()) {
+			case Notification.SET:
+				// TODO: what to do with the last boolean flag?
+				if (notification.getOldValue() != null) {
+					incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+				}
+				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), true);
+				break;
+			case Notification.UNSET:
+				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+				break;
+
+			case Notification.ADD:
+				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), true);
+				break;
+			case Notification.REMOVE:
+				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+				break;
+
+			case Notification.ADD_MANY:
+				if (notification.getNewValue() instanceof Iterable) {
+					for (Object o : (Iterable<?>) notification.getNewValue()) {
+						incqAdapter.dataTypeInstanceInserted(dataType, o, true);
+					}
+				}
+				break;
+			case Notification.REMOVE_MANY:
+				if (notification.getOldValue() instanceof Iterable) {
+					for (Object o : (Iterable<?>) notification.getOldValue()) {
+						incqAdapter.dataTypeInstanceDeleted(dataType, o, false);
+					}
+				}
+				break;
+			}
+		}
+	}
 
 	private static final String Collection = null;
 
@@ -272,7 +391,99 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 	};
 
 	public void addUpdateListener(IInputKey key, Tuple seed, IQueryRuntimeContextListener listener) {
-		// do nothing
+		// stateless, so NOP
+		if (key instanceof JavaTransitiveInstancesKey)
+			return;
+
+		if (key instanceof EClassTransitiveInstancesKey) {
+			final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
+			final Object seedInstance = seed.get(0);
+			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener,
+					seedInstance);
+
+			hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
+				@Override
+				public void handle(HawkModelElementRemovalEvent ev) {
+					final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
+					if (eob.eClass() == eClass) {
+						incqAdapter.instanceDeleted(eClass, eob);
+					}
+				}
+
+				@Override
+				public void handle(HawkModelElementAdditionEvent ev) {
+					final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
+					if (eob.eClass() == eClass) {
+						incqAdapter.instanceInserted(eClass, eob);
+					}
+				}
+			});
+
+		} else if (key instanceof EDataTypeInSlotsKey) {
+			final EDataType dataType = ((EDataTypeInSlotsKey) key).getEmfKey();
+			final Object seedInstance = seed.get(0);
+			final EDataTypeInSlotsAdapter incqAdapter = new EDataTypeInSlotsAdapter(listener, seedInstance);
+
+			try {
+				final Map<EClass, List<EAttribute>> candidateTypes = hawkResource.fetchTypesWithEClassifier(dataType);
+
+				// Instrument existing instances of the candidate EClasses
+				for (Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
+					final EClass eClass = entry.getKey();
+					final List<EAttribute> eAttrs = entry.getValue();
+					for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
+						eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, eAttrs, incqAdapter));
+					}
+				}
+
+				// Instrument new instances of the candidate EClasses
+				hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
+					@Override
+					public void handle(HawkModelElementAdditionEvent ev) {
+						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
+						final List<EAttribute> attrs = candidateTypes.get(eob.eClass());
+						if (attrs != null) {
+							eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, attrs, incqAdapter));
+						}
+					}
+				});
+
+			} catch (TException | IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		} else if (key instanceof EStructuralFeatureInstancesKey) {
+			final EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
+			final Object seedHost = seed.get(0);
+			final Object seedValue = seed.get(1);
+			final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(listener, seedHost, seedValue);
+
+			try {
+				final EClass eClass = feature.getEContainingClass();
+
+				// Instrument existing instances
+				for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
+					eob.eGet(feature);
+					eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
+				}
+
+				// Instrument new instances
+				hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
+					@Override
+					public void handle(HawkModelElementAdditionEvent ev) {
+						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
+						if (eClass.isSuperTypeOf(eob.eClass())) {
+							eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
+						}
+					}
+				});
+				
+			} catch (TException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			illegalInputKey(key);
+		}
 	}
 
 	@Override

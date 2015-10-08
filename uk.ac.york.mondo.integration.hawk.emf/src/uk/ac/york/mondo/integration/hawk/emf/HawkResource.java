@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -43,5 +44,12 @@ public interface HawkResource extends Resource {
 
 	List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning,
 			UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException;
+
+	void addChangeEventHandler(IHawkChangeEventHandler handler);
+
+	EObject getEObjectFromNodeID(String id);
+
+	Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
+			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException;
 
 }

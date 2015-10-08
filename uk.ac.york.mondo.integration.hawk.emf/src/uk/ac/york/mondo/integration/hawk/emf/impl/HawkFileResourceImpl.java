@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -29,6 +30,7 @@ import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
+import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 
 public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 
@@ -74,4 +76,21 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
 		return mainResource.fetchValuesByEClassifier(dataType);
 	}
+
+	@Override
+	public void addChangeEventHandler(IHawkChangeEventHandler handler) {
+		mainResource.addChangeEventHandler(handler);
+	}
+
+	@Override
+	public EObject getEObjectFromNodeID(String id) {
+		return mainResource.getEObjectFromNodeID(id);
+	}
+
+	@Override
+	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
+			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
+		return mainResource.fetchTypesWithEClassifier(dataType);
+	}
+	
 }

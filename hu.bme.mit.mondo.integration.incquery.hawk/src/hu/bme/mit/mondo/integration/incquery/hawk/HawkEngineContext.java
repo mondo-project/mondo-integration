@@ -15,7 +15,7 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 public class HawkEngineContext implements IEngineContext {
 
 	protected HawkScope hawkScope;
-	protected HawkQueryRuntimeContext hawkQueryRuntimeContext;
+	protected HawkQueryRuntimeContext<?> hawkQueryRuntimeContext;
 
 	protected IncQueryEngine engine;
 	protected Logger logger;
@@ -50,7 +50,7 @@ public class HawkEngineContext implements IEngineContext {
 		}
 		
 		if (hawkQueryRuntimeContext == null) {
-			hawkQueryRuntimeContext = new HawkQueryRuntimeContext(hawkResource, logger);
+			hawkQueryRuntimeContext = new HawkQueryRuntimeContext<>(hawkResource, logger);
 			initializer.initializeWith(hawkQueryRuntimeContext);
 		}
 	}
