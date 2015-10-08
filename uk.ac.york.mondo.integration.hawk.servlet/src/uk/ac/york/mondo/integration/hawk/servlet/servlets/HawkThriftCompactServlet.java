@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.servlet.servlets;
 import org.apache.thrift.protocol.TCompactProtocol;
 
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.hawk.servlet.processors.HawkThriftProcessorFactory;
 
 /**
  * Servlet that exposes {@link HawkThriftIface} through the {@link TCompactProtocol}.

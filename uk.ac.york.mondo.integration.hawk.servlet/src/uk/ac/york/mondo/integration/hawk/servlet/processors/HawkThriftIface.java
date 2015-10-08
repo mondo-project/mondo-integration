@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.servlet.servlets;
+package uk.ac.york.mondo.integration.hawk.servlet.processors;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -81,6 +81,7 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 import uk.ac.york.mondo.integration.hawk.servlet.artemis.ArtemisProducerGraphChangeListener;
+import uk.ac.york.mondo.integration.hawk.servlet.servlets.HawkThriftTupleServlet;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncoder;
 
@@ -92,9 +93,12 @@ final class HawkThriftIface implements Hawk.Iface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftIface.class); 
 
 	private final ThriftProtocol thriftProtocol;
-	private final HttpServletRequest request;
 	private final Server artemisServer;
 
+	// TODO: create Equinox declarative service for using this information for ACL
+	@SuppressWarnings("unused")
+	private final HttpServletRequest request;
+	
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
 
 	/**

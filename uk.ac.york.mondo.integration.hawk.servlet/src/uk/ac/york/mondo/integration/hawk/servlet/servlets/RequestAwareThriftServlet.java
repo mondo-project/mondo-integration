@@ -30,6 +30,8 @@ import org.apache.thrift.server.TServlet;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 
+import uk.ac.york.mondo.integration.hawk.servlet.processors.IAuthenticatedProcessorFactory;
+
 /**
  * Specialized version of a {@link TServlet} which creates new
  * processors on the fly for each request, so they can take into

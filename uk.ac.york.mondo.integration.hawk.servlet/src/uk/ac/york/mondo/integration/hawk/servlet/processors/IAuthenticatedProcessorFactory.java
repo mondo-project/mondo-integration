@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.servlet.servlets;
+package uk.ac.york.mondo.integration.hawk.servlet.processors;
 
 import javax.servlet.http.HttpServletRequest;
 

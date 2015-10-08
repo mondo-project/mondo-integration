@@ -1,4 +1,4 @@
-package uk.ac.york.mondo.integration.hawk.servlet.servlets;
+package uk.ac.york.mondo.integration.hawk.servlet.processors;
 
 import java.util.Map;
 
