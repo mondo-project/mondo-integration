@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.thrift.TException;
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -39,17 +40,20 @@ public interface HawkResource extends Resource {
 	Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException;
 
-	EList<EObject> fetchNodesByType(EClass eClass)
+	EList<EObject> fetchNodes(EClass eClass)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException;
 
 	List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning,
 			UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException;
 
-	void addChangeEventHandler(IHawkChangeEventHandler handler);
-
-	EObject getEObjectFromNodeID(String id);
-
 	Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException;
+
+	/**
+	 * Returns <code>true</code> if a lazy loading operation is currently in progress.
+	 * This is useful mostly for {@link Adapter} instances that want to ignore notifications
+	 * for changes due to lazy loads.
+	 */
+	boolean isLazyLoadInProgress();
 
 }

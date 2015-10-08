@@ -9,20 +9,23 @@ import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 
 class EClassTransitiveInstancesAdapter extends ListenerAdapter implements InstanceListener {
 	private Object seedInstance;
+
 	public EClassTransitiveInstancesAdapter(IQueryRuntimeContextListener listener, Object seedInstance) {
 		super(listener, seedInstance);
 		this.seedInstance = seedInstance;
 	}
+
 	@Override
 	public void instanceInserted(EClass clazz, EObject instance) {
-		if (seedInstance != null && !seedInstance.equals(instance)) return;
-		listener.update(new EClassTransitiveInstancesKey(clazz), 
-				new FlatTuple(instance), true);
+		if (seedInstance != null && !seedInstance.equals(instance))
+			return;
+		listener.update(new EClassTransitiveInstancesKey(clazz), new FlatTuple(instance), true);
 	}
+
 	@Override
 	public void instanceDeleted(EClass clazz, EObject instance) {
-		if (seedInstance != null && !seedInstance.equals(instance)) return;
-		listener.update(new EClassTransitiveInstancesKey(clazz), 
-				new FlatTuple(instance), false);
-	}    	
+		if (seedInstance != null && !seedInstance.equals(instance))
+			return;
+		listener.update(new EClassTransitiveInstancesKey(clazz), new FlatTuple(instance), false);
+	}
 }

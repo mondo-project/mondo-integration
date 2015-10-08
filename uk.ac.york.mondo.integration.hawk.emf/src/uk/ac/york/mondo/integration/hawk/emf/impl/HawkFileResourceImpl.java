@@ -30,7 +30,6 @@ import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
-import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 
 public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 
@@ -66,9 +65,9 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public EList<EObject> fetchNodesByType(EClass eClass)
+	public EList<EObject> fetchNodes(EClass eClass)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
-		return mainResource.fetchNodesByType(eClass);
+		return mainResource.fetchNodes(eClass);
 	}
 
 	@Override
@@ -78,19 +77,14 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public void addChangeEventHandler(IHawkChangeEventHandler handler) {
-		mainResource.addChangeEventHandler(handler);
-	}
-
-	@Override
-	public EObject getEObjectFromNodeID(String id) {
-		return mainResource.getEObjectFromNodeID(id);
-	}
-
-	@Override
 	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		return mainResource.fetchTypesWithEClassifier(dataType);
+	}
+
+	@Override
+	public boolean isLazyLoadInProgress() {
+		return mainResource.isLazyLoadInProgress();
 	}
 	
 }

@@ -25,7 +25,12 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -49,6 +54,8 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.cglib.proxy.CallbackHelper;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
@@ -56,6 +63,7 @@ import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
+import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkFileAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkFileRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
@@ -76,11 +84,11 @@ import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
-import uk.ac.york.mondo.integration.hawk.emf.IHawkChangeEventHandler;
 
 /**
  * EMF driver that reads a remote model from a Hawk index. This is the main resource
@@ -108,12 +116,71 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		public String lastFile;
 	}
 
-	private final class InternalHawkChangeEventHandler implements IHawkChangeEventHandler {
+	private final class HawkResourceMessageHandler implements MessageHandler {
 		private long lastSyncStart;
+		private final TProtocolFactory protocolFactory;
+
+		public HawkResourceMessageHandler(TProtocolFactory protocolFactory) {
+			this.protocolFactory = protocolFactory;
+		}
 
 		@Override
+		public void onMessage(ClientMessage message) {
+			try {
+				final TProtocol proto = protocolFactory.getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+				final HawkChangeEvent change = new HawkChangeEvent();
+				try {
+					change.read(proto);
+
+					// Artemis uses a pool of threads to receive messages: we need to serialize
+					// the accesses to avoid race conditions between 'model element added' and
+					// 'attribute changed', for instance.
+					synchronized (nodeIdToEObjectMap) {
+						LOGGER.debug("Received message from Artemis at {}: {}", message.getAddress(), change);
+
+						if (change.isSetModelElementAttributeUpdate()) {
+							handle(change.getModelElementAttributeUpdate());
+						}
+						else if (change.isSetModelElementAttributeRemoval()) {
+							handle(change.getModelElementAttributeRemoval());
+						}
+						else if (change.isSetModelElementAddition()) {
+							handle(change.getModelElementAddition());
+						}
+						else if (change.isSetModelElementRemoval()) {
+							handle(change.getModelElementRemoval());
+						}
+						else if (change.isSetReferenceAddition()) {
+							handle(change.getReferenceAddition());
+						}
+						else if (change.isSetReferenceRemoval()) {
+							handle(change.getReferenceRemoval());
+						}
+						else if (change.isSetSyncStart()) {
+							handle(change.getSyncStart());
+						}
+						else if (change.isSetSyncEnd()) {
+							handle(change.getSyncEnd());
+						}
+						else if (change.isSetFileAddition()) {
+							handle(change.getFileAddition());
+						}
+						else if (change.isSetFileRemoval()) {
+							handle(change.getFileRemoval());
+						}
+					}
+				} catch (TException e) {
+					LOGGER.error("Error while decoding incoming message", e);
+				}
+
+				message.acknowledge();
+			} catch (ActiveMQException e) {
+				LOGGER.error("Failed to ack message", e);
+			}
+		}
+
 		@SuppressWarnings("unchecked")
-		public void handle(final HawkReferenceRemovalEvent ev) {
+		private void handle(final HawkReferenceRemovalEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
@@ -132,9 +199,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
-		public void handle(final HawkReferenceAdditionEvent ev) {
+		private void handle(final HawkReferenceAdditionEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
 			if (source != null && target != null) {
@@ -162,9 +228,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
-		public void handle(final HawkModelElementRemovalEvent ev) {
+		private void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
 			if (eob != null && eob.eResource() != null) {
 				synchronized (classToEObjectsMap) {
@@ -187,8 +252,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
-		public void handle(final HawkModelElementAdditionEvent ev) {
+		private void handle(final HawkModelElementAdditionEvent ev) {
 			final Registry registry = getResourceSet().getPackageRegistry();
 			final EClass eClass = HawkResourceImpl.getEClass(ev.metamodelURI, ev.typeName, registry);
 			final EFactory factory = registry.getEFactory(ev.metamodelURI);
@@ -206,20 +270,17 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
-		public void handle(final HawkAttributeRemovalEvent ev) {
+		private void handle(final HawkAttributeRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EStructuralFeature eAttr = eob.eClass().getEStructuralFeature(ev.attribute);
-
 				if (eAttr != null) {
 					eob.eUnset(eAttr);
 				}
 			}
 		}
 
-		@Override
-		public void handle(final HawkAttributeUpdateEvent ev) {
+		private void handle(final HawkAttributeUpdateEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EClass eClass = eob.eClass();
@@ -234,14 +295,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
-		public void handle(HawkSynchronizationStartEvent syncStart) {
+		private void handle(HawkSynchronizationStartEvent syncStart) {
 			this.lastSyncStart = syncStart.getTimestampNanos();
 			LOGGER.debug("Sync started: local timestamp is {} ns", lastSyncStart);
 		}
 
-		@Override
-		public void handle(HawkSynchronizationEndEvent syncEnd) {
+		private void handle(HawkSynchronizationEndEvent syncEnd) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Sync ended: local timestamp is {} ns (elapsed time: {} ms)",
 						syncEnd.getTimestampNanos(),
@@ -257,15 +316,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 		}
 
-		@Override
-		public void handle(HawkFileAdditionEvent ev) {
+		private void handle(HawkFileAdditionEvent ev) {
 			// we don't really have to do anything here - delay the
 			// addition of the resource until we have something to put
 			// in there.
 		}
 
-		@Override
-		public void handle(HawkFileRemovalEvent ev) {
+		private void handle(HawkFileRemovalEvent ev) {
 			// Remove the associated resource from the resource set, if we have it
 			final String fullUrl = computeFileResourceURL(ev.vcsItem.repoURL, ev.vcsItem.path);
 
@@ -302,22 +359,46 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
 	private final Map<String, Resource> resources = new HashMap<>();
+	private HawkModelDescriptor descriptor;
+	private Client client;
+
+	/** Consumer for notifications coming from Artemis. */
+	private Consumer subscriber;
+
+	/** Resolves lazy references and attributes. */
+	private LazyResolver lazyResolver;
+
+	/** This flag is set to true during lazy loads, so EMF notifications can ask for it. */
+	private volatile boolean isLazyLoadInProgress = false;
+
+	/** Map from classes to factories of instances instrumented by CGLIB for lazy loading. */
+	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
+
+	/** Interceptor to be reused by all CGLIB {@link Enhancer}s in lazy loading modes. */
+	private final MethodInterceptor methodInterceptor = new MethodInterceptor() {
+		@Override
+		public Object intercept(Object o, Method m, Object[] args, MethodProxy proxy) throws Throwable {
+			// We need to serialize modifications from lazy loading + change notifications,
+			// for consistency and for the ability to signal if an EMF notification comes
+			// from lazy loading or not.
+			synchronized(nodeIdToEObjectMap) {
+				try {
+					isLazyLoadInProgress = true;
+					getLazyResolver().resolve((InternalEObject)o, (EStructuralFeature)args[0]);
+				} finally {
+					isLazyLoadInProgress = false;
+				}
+			}
+			return proxy.invokeSuper(o, args);
+		}
+	};
 
 	/**
 	 * Cache from class to its instances. New entries are added upon calls to
-	 * {@link #fetchNodesByType(EClass)}, which are then kept up to date during
+	 * {@link #fetchNodes(EClass)}, which are then kept up to date during
 	 * notifications and lazy loads.
 	 */
 	private final Map<EClass, EList<EObject>> classToEObjectsMap = new HashMap<>();
-
-	private final CompositeHawkChangeEventHandler messageHandler = new CompositeHawkChangeEventHandler(new InternalHawkChangeEventHandler());
-
-	private HawkModelDescriptor descriptor;
-	private Client client;
-	private LazyResolver lazyResolver;
-	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
-
-	private Consumer subscriber;
 
 	public HawkResourceImpl() {}
 
@@ -435,7 +516,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 				subscriber = APIUtils.connectToArtemis(subscription, sd);
 				subscriber.openSession();
-				subscriber.processChangesAsync(messageHandler);
+				subscriber.processChangesAsync(new HawkResourceMessageHandler(
+					descriptor.getThriftProtocol().getProtocolFactory()));
 			}
 
 			setLoaded(true);
@@ -448,24 +530,6 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
-	}
-
-	/**
-	 * Changes the message handler to be used with Artemis.
-	 */
-	@Override
-	public void addChangeEventHandler(IHawkChangeEventHandler handler) {
-		this.messageHandler.addHandler(handler);
-	}
-
-	/**
-	 * Returns an EObject by graph node identifier. If we don't have the EObject yet,
-	 * returns <code>null</code>. If you'd like to fetch the EObject on demand, please
-	 * use {@link #fetchNodes(List)}.
-	 */
-	@Override
-	public EObject getEObjectFromNodeID(String id) {
-		return nodeIdToEObjectMap.get(id);
 	}
 
 	public EList<EObject> fetchNodes(List<String> ids)
@@ -500,7 +564,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public EList<EObject> fetchNodesByType(EClass eClass)
+	public EList<EObject> fetchNodes(EClass eClass)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		synchronized (classToEObjectsMap) {
 			final EList<EObject> precomputed = classToEObjectsMap.get(eClass);
@@ -537,7 +601,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		for (Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
 			final EClass eClass = entry.getKey();
 			final List<EAttribute> attrsWithType = entry.getValue();
-			for (EObject eob : fetchNodesByType(eClass)) {
+			for (EObject eob : fetchNodes(eClass)) {
 				for (EAttribute attr : attrsWithType) {
 					final Object o = eob.eGet(attr);
 					if (o != null) {
@@ -580,7 +644,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	@Override
 	public Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		final EClass featureEClass = feature.getEContainingClass();
-		final EList<EObject> eobs = fetchNodesByType(featureEClass);
+		final EList<EObject> eobs = fetchNodes(featureEClass);
 
 		final Map<EObject, Object> values = new IdentityHashMap<>();
 		for (EObject eob : eobs) {
@@ -608,6 +672,11 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				SlotDecodingUtils.setFromSlot(eFactory, eClass, object, s);
 			}
 		}
+	}
+
+	@Override
+	public boolean isLazyLoadInProgress() {
+		return isLazyLoadInProgress;
 	}
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {
@@ -673,6 +742,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		net.sf.cglib.proxy.Factory factory = factories.get(klass);
 		EObject o;
 		if (factory == null) {
+			
 			Enhancer enh = new Enhancer();
 			CallbackHelper helper = new CallbackHelper(klass, new Class[0]) {
 				@Override
@@ -680,7 +750,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					if ("eGet".equals(m.getName())
 							&& m.getParameterTypes().length > 0
 							&& EStructuralFeature.class.isAssignableFrom(m.getParameterTypes()[0])) {
-						return getLazyResolver().getMethodInterceptor();
+						return methodInterceptor;
 					} else {
 						return NoOp.INSTANCE;
 					}

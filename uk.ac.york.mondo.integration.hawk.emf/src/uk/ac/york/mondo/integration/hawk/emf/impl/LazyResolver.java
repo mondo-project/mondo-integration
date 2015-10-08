@@ -10,7 +10,6 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -27,9 +26,6 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
 /**
@@ -53,24 +49,6 @@ class LazyResolver {
 
 	/** Pending EReferences to be fetched.*/
 	private Map<EObject, Map<EReference, EList<Object>>> pendingRefs = new IdentityHashMap<>();
-
-	/** Interceptor to be reused by all CGLIB {@link Enhancer}s. */
-	private final MethodInterceptor methodInterceptor = new MethodInterceptor() {
-		@Override
-		public Object intercept(Object o, Method m, Object[] args, MethodProxy proxy) throws Throwable {
-			resolve((InternalEObject)o, (EStructuralFeature)args[0]);
-			return proxy.invokeSuper(o, args);
-		}
-	};
-
-	/**
-	 * Returns the CGLIB method interceptor to be used to enhance the real
-	 * classes and intercept calls to {@link EObject#eGet(EStructuralFeature)}
-	 * or {@link EObject#eGet(EStructuralFeature, boolean)}.
-	 */
-	public MethodInterceptor getMethodInterceptor() {
-		return methodInterceptor;
-	}
 
 	/**
 	 * Resolves the referenced feature, if it has been marked as lazy. After

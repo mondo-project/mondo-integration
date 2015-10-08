@@ -6,21 +6,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.incquery.runtime.emf.EMFQueryRuntimeContext;
@@ -36,166 +38,216 @@ import org.eclipse.incquery.runtime.matchers.tuple.Tuple;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
-import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
-import uk.ac.york.mondo.integration.hawk.emf.HawkChangeEventAdapter;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
-	private static final class InstanceCounter {
-		private final Map<Object, Integer> counts = new HashMap<>();
+	/**
+	 * Composite EMF adapter that listens for any changes and notifies the
+	 * adapters registered by IncQuery, while ignoring notifications coming from
+	 * lazy loads.
+	 */
+	private final class HawkQueryRuntimeContextAdapter extends EContentAdapter {
+		private Map<EClass, Set<EClassTransitiveInstancesAdapter>> adaptersByClass = new HashMap<>();
+		private Map<EClassifier, Set<EDataTypeInSlotsAdapter>> adaptersByEDataType = new HashMap<>();
+		private Map<EStructuralFeature, Set<EStructuralFeatureInstancesKeyAdapter>> adaptersByEStructuralFeature = new HashMap<>();
 
-		/**
-		 * Counts an additional instance of a specific value. Returns true if this is the first instance of that value.
-		 */
-		public boolean add(Object o) {
-			Integer count = counts.get(o);
-			if (count == null) {
-				count = 0;
+		@Override
+		public void notifyChanged(Notification notification) {
+			super.notifyChanged(notification);
+			if (hawkResource.isLazyLoadInProgress()) {
+				return;
 			}
-			count++;
-			counts.put(o, count);
-			return count == 1;
+
+			// Changes on EObject instances
+			if (notification.getOldValue() instanceof EObject) {
+				final EObject eob = (EObject) notification.getOldValue();
+				for (EClass eSuper : eob.eClass().getEAllSuperTypes()) {
+					Set<EClassTransitiveInstancesAdapter> adapters = adaptersByClass.get(eSuper);
+					if (adapters != null) {
+						for (EClassTransitiveInstancesAdapter adapter : adapters) {
+							adapter.instanceDeleted(eSuper, eob);
+						}
+					}
+				}
+			}
+			if (notification.getNewValue() instanceof EObject) {
+				final EObject eob = (EObject) notification.getOldValue();
+				for (EClass eSuper : eob.eClass().getEAllSuperTypes()) {
+					Set<EClassTransitiveInstancesAdapter> adapters = adaptersByClass.get(eSuper);
+					if (adapters != null) {
+						for (EClassTransitiveInstancesAdapter adapter : adapters) {
+							adapter.instanceInserted(eSuper, eob);
+						}
+					}
+				}
+			}
+
+			// Changes on EDataType instances
+			if (notification.getFeature() instanceof EAttribute) {
+				final EAttribute eAttr = (EAttribute) notification.getFeature();
+				final EDataType dataType = (EDataType) eAttr.getEType();
+				Set<EDataTypeInSlotsAdapter> adapters = adaptersByEDataType.get(dataType);
+				if (adapters != null) {
+					for (EDataTypeInSlotsAdapter incqAdapter : adapters) {
+						final InstanceCounter occurrences = incqAdapter.getCounter();
+						switch (notification.getEventType()) {
+						case Notification.SET:
+							if (notification.getOldValue() != null) {
+								final boolean lastOccurrenceSet = occurrences.remove(notification.getOldValue());
+								incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(),
+										lastOccurrenceSet);
+							}
+							final boolean firstOccurrenceSet = occurrences.add(notification.getNewValue());
+							incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(),
+									firstOccurrenceSet);
+							break;
+						case Notification.UNSET:
+							final boolean lastOccurrenceUnset = occurrences.remove(notification.getOldValue());
+							incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(),
+									lastOccurrenceUnset);
+							break;
+						case Notification.ADD:
+							final boolean firstOccurrenceAdd = occurrences.add(notification.getNewValue());
+							incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(),
+									firstOccurrenceAdd);
+							break;
+						case Notification.REMOVE:
+							final boolean lastOccurrenceRemove = occurrences.remove(notification.getOldValue());
+							incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(),
+									lastOccurrenceRemove);
+							break;
+						case Notification.ADD_MANY:
+							if (notification.getNewValue() instanceof Iterable) {
+								for (Object o : (Iterable<?>) notification.getNewValue()) {
+									final boolean firstOccurrence = occurrences.add(o);
+									incqAdapter.dataTypeInstanceInserted(dataType, o, firstOccurrence);
+								}
+							}
+							break;
+						case Notification.REMOVE_MANY:
+							if (notification.getOldValue() instanceof Iterable) {
+								for (Object o : (Iterable<?>) notification.getOldValue()) {
+									final boolean lastOccurrence = occurrences.remove(o);
+									incqAdapter.dataTypeInstanceDeleted(dataType, o, lastOccurrence);
+								}
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			// Changes on references
+			if (notification.getFeature() instanceof EReference) {
+				final EReference feature = (EReference) notification.getFeature();
+				Set<EStructuralFeatureInstancesKeyAdapter> adapters = adaptersByEStructuralFeature.get(feature);
+				if (adapters != null) {
+					final EObject eob = (EObject) notification.getNotifier();
+					for (EStructuralFeatureInstancesKeyAdapter incqAdapter : adapters) {
+						switch (notification.getEventType()) {
+						case Notification.SET:
+							// TODO: what to do with the last boolean flag?
+							if (notification.getOldValue() != null) {
+								incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+							}
+							incqAdapter.featureInserted(eob, feature, notification.getNewValue());
+							break;
+						case Notification.UNSET:
+							incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+							break;
+
+						case Notification.ADD:
+							incqAdapter.featureInserted(eob, feature, notification.getNewValue());
+							break;
+						case Notification.REMOVE:
+							incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
+							break;
+
+						case Notification.ADD_MANY:
+							if (notification.getNewValue() instanceof Iterable) {
+								for (Object o : (Iterable<?>) notification.getNewValue()) {
+									incqAdapter.featureInserted(eob, feature, o);
+								}
+							}
+							break;
+						case Notification.REMOVE_MANY:
+							if (notification.getOldValue() instanceof Iterable) {
+								for (Object o : (Iterable<?>) notification.getOldValue()) {
+									incqAdapter.featureDeleted(eob, feature, o);
+								}
+							}
+							break;
+						}
+					}
+				}
+			}
+
 		}
 
-		/**
-		 * Counts a removed instance of a specific value. Returns true if this is the last instance of that value (the
-		 * next call to {@link #add(Object)} with the same value will return <code>true</code>).
-		 * 
-		 * @throws NoSuchElementException
-		 *             The value was never counted before.
-		 */
-		public boolean remove(Object o) {
-			Integer count = counts.get(o);
-			if (count == null) {
-				throw new NoSuchElementException();
+		public boolean addEClassListener(EClass ec, EClassTransitiveInstancesAdapter incqAdapter) {
+			Set<EClassTransitiveInstancesAdapter> adapters = adaptersByClass.get(ec);
+			if (adapters == null) {
+				adapters = new HashSet<>();
+				adaptersByClass.put(ec, adapters);
 			}
-			count--;
-			if (count == 0) {
-				counts.remove(o);
-			} else {
-				counts.put(o, count);
-			}
-			return count == 0;
+			return adapters.add(incqAdapter);
 		}
-	}
 
-	private final class EStructuralFeatureChangeAdapter extends AdapterImpl {
-		private final EStructuralFeatureInstancesKeyAdapter incqAdapter;
-		private final EObject eob;
-		private final EStructuralFeature feature;
+		public boolean addEDataTypeListener(EClassifier classifier, EDataTypeInSlotsAdapter incqAdapter) {
+			Set<EDataTypeInSlotsAdapter> adapters = adaptersByEDataType.get(classifier);
+			if (adapters == null) {
+				adapters = new HashSet<>();
+				adaptersByEDataType.put(classifier, adapters);
+			}
+			return adapters.add(incqAdapter);
+		}
 
-		private EStructuralFeatureChangeAdapter(EObject eob, EStructuralFeature feature,
+		public boolean addEStructuralFeatureListener(EStructuralFeature sf,
 				EStructuralFeatureInstancesKeyAdapter incqAdapter) {
-			this.incqAdapter = incqAdapter;
-			this.eob = eob;
-			this.feature = feature;
+			Set<EStructuralFeatureInstancesKeyAdapter> adapters = adaptersByEStructuralFeature.get(sf);
+			if (adapters == null) {
+				adapters = new HashSet<>();
+				adaptersByEStructuralFeature.put(sf, adapters);
+			}
+			return adapters.add(incqAdapter);
 		}
 
-		@Override
-		public void notifyChanged(Notification notification) {
-			super.notifyChanged(notification);
-			if (notification.getFeature() != feature) {
-				return;
+		public boolean removeEClassListener(EClass ec, EClassTransitiveInstancesAdapter incqAdapter) {
+			boolean ret = false;
+			Set<EClassTransitiveInstancesAdapter> adapters = adaptersByClass.get(ec);
+			if (adapters != null) {
+				ret = adapters.remove(incqAdapter);
+				if (adapters.isEmpty()) {
+					adaptersByClass.remove(ec);
+				}
 			}
-
-			switch (notification.getEventType()) {
-			case Notification.SET:
-				// TODO: what to do with the last boolean flag?
-				if (notification.getOldValue() != null) {
-					incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
-				}
-				incqAdapter.featureInserted(eob, feature, notification.getNewValue());
-				break;
-			case Notification.UNSET:
-				incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
-				break;
-
-			case Notification.ADD:
-				incqAdapter.featureInserted(eob, feature, notification.getNewValue());
-				break;
-			case Notification.REMOVE:
-				incqAdapter.featureDeleted(eob, feature, notification.getOldValue());
-				break;
-
-			case Notification.ADD_MANY:
-				if (notification.getNewValue() instanceof Iterable) {
-					for (Object o : (Iterable<?>) notification.getNewValue()) {
-						incqAdapter.featureInserted(eob, feature, o);
-					}
-				}
-				break;
-			case Notification.REMOVE_MANY:
-				if (notification.getOldValue() instanceof Iterable) {
-					for (Object o : (Iterable<?>) notification.getOldValue()) {
-						incqAdapter.featureDeleted(eob, feature, o);
-					}
-				}
-				break;
-			}
-		}
-	}
-
-	private final class EDataTypeChangeAdapter extends AdapterImpl {
-		private final EDataType dataType;
-		private final List<EAttribute> eAttrs;
-		private final EDataTypeInSlotsAdapter incqAdapter;
-		private final InstanceCounter occurrences;
-
-		private EDataTypeChangeAdapter(EDataType dataType, List<EAttribute> eAttrs,
-				EDataTypeInSlotsAdapter incqAdapter, InstanceCounter occurrences) {
-			this.dataType = dataType;
-			this.eAttrs = eAttrs;
-			this.incqAdapter = incqAdapter;
-			this.occurrences = occurrences;
+			return ret;
 		}
 
-		@Override
-		public void notifyChanged(Notification notification) {
-			super.notifyChanged(notification);
-			if (!eAttrs.contains(notification.getFeature())) {
-				return;
+		public boolean removeEDataTypeListener(EClassifier classifier, EDataTypeInSlotsAdapter incqAdapter) {
+			boolean ret = false;
+			Set<EDataTypeInSlotsAdapter> adapters = adaptersByEDataType.get(classifier);
+			if (adapters != null) {
+				ret = adapters.remove(incqAdapter);
+				if (adapters.isEmpty()) {
+					adaptersByEDataType.remove(classifier);
+				}
 			}
+			return ret;
+		}
 
-			switch (notification.getEventType()) {
-			case Notification.SET:
-				if (notification.getOldValue() != null) {
-					final boolean lastOccurrenceSet = occurrences.remove(notification.getOldValue());
-					incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceSet);
+		public boolean removeEStructuralFeatureListener(EStructuralFeature sf,
+				EStructuralFeatureInstancesKeyAdapter incqAdapter) {
+			boolean ret = false;
+			Set<EStructuralFeatureInstancesKeyAdapter> adapters = adaptersByEStructuralFeature.get(sf);
+			if (adapters != null) {
+				ret = adapters.remove(incqAdapter);
+				if (adapters.isEmpty()) {
+					adaptersByEStructuralFeature.remove(sf);
 				}
-				final boolean firstOccurrenceSet = occurrences.add(notification.getNewValue());
-				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), firstOccurrenceSet);
-				break;
-			case Notification.UNSET:
-				final boolean lastOccurrenceUnset = occurrences.remove(notification.getOldValue());
-				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceUnset);
-				break;
-			case Notification.ADD:
-				final boolean firstOccurrenceAdd = occurrences.add(notification.getNewValue());
-				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), firstOccurrenceAdd);
-				break;
-			case Notification.REMOVE:
-				final boolean lastOccurrenceRemove = occurrences.remove(notification.getOldValue());
-				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceRemove);
-				break;
-
-			case Notification.ADD_MANY:
-				if (notification.getNewValue() instanceof Iterable) {
-					for (Object o : (Iterable<?>) notification.getNewValue()) {
-						final boolean firstOccurrence = occurrences.add(o);
-						incqAdapter.dataTypeInstanceInserted(dataType, o, firstOccurrence);
-					}
-				}
-				break;
-			case Notification.REMOVE_MANY:
-				if (notification.getOldValue() instanceof Iterable) {
-					for (Object o : (Iterable<?>) notification.getOldValue()) {
-						final boolean lastOccurrence = occurrences.remove(o);
-						incqAdapter.dataTypeInstanceDeleted(dataType, o, lastOccurrence);
-					}
-				}
-				break;
 			}
+			return ret;
 		}
 	}
 
@@ -204,11 +256,14 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				.replaceAll("hu\\.bme\\.mit\\.trainbenchmark\\.railway\\.impl\\.", "").replaceAll(";", "); ");
 	}
 
-	private HawkResource hawkResource;
+	private final HawkResource hawkResource;
+	private final HawkQueryRuntimeContextAdapter listenerAdapter;
 
 	public HawkQueryRuntimeContext(HawkResource hawkResource, Logger logger) {
 		super(null, logger);
 		this.hawkResource = hawkResource;
+		this.listenerAdapter = new HawkQueryRuntimeContextAdapter();
+		hawkResource.getResourceSet().eAdapters().add(listenerAdapter);
 	}
 
 	@Override
@@ -244,7 +299,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 				Object seedInstance = getFromSeed(seed, 0);
 
-				EList<EObject> instances = hawkResource.fetchNodesByType(eClass);
+				EList<EObject> instances = hawkResource.fetchNodes(eClass);
 				if (seedInstance == null) { // unseeded
 					result = instances.size();
 				} else { // fully seeded
@@ -269,9 +324,11 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 				if (seedSource == null && seedTarget != null) {
 					result = featureValues.values().contains(seedTarget) ? 1 : 0;
-				} else if (seedSource != null && seedTarget != null) { // fully seeded
+				} else if (seedSource != null && seedTarget != null) { // fully
+																		// seeded
 					result = seedTarget.equals(featureValues.get(seedSource)) ? 1 : 0;
-				} else if (seedSource == null && seedTarget == null) { // fully unseeded
+				} else if (seedSource == null && seedTarget == null) { // fully
+																		// unseeded
 					result = featureValues.size();
 				} else if (seedSource != null && seedTarget == null) {
 					Object value = featureValues.get(seedSource);
@@ -300,7 +357,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 				Object seedInstance = getFromSeed(seed, 0);
 
-				EList<EObject> instances = hawkResource.fetchNodesByType(eClass);
+				EList<EObject> instances = hawkResource.fetchNodes(eClass);
 				if (seedInstance == null) { // unseeded
 					result = Iterables.transform(instances, wrapUnary);
 				} else { // fully seeded
@@ -334,14 +391,16 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 							tuples.add(new FlatTuple(entry.getKey(), entry.getValue()));
 						}
 					}
-				} else if (seedSource != null && seedTarget != null) { // fully seeded
+				} else if (seedSource != null && seedTarget != null) { // fully
+																		// seeded
 					if (seedTarget.equals(featureValues.get(seedSource))) {
 						tuples.add(new FlatTuple(seedSource, seedTarget));
 					}
-				} else if (seedSource == null && seedTarget == null) { // fully unseeded
+				} else if (seedSource == null && seedTarget == null) { // fully
+																		// unseeded
 					for (Entry<EObject, Object> entry : featureValues.entrySet()) {
 						if (entry.getValue() instanceof Collection) {
-							for (Object value : (Collection) entry.getValue()) {
+							for (Object value : (Collection<?>) entry.getValue()) {
 								tuples.add(new FlatTuple(entry.getKey(), value));
 							}
 						} else {
@@ -380,7 +439,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 				Object seedInstance = getFromSeed(seed, 0);
 				if (seedInstance == null) { // unseeded
-					result = hawkResource.fetchNodesByType(eClass);
+					result = hawkResource.fetchNodes(eClass);
 				} else {
 					// must be unseeded, this is enumerateValues after all!
 					illegalEnumerateValues(seed);
@@ -407,7 +466,8 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				} else if (seedSource != null && seedTarget == null) {
 					result = features.values();
 				} else {
-					// must be singly unseeded, this is enumerateValues after all!
+					// must be singly unseeded, this is enumerateValues after
+					// all!
 					illegalEnumerateValues(seed);
 				}
 			} else {
@@ -443,85 +503,37 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 		if (key instanceof EClassTransitiveInstancesKey) {
 			final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 			final Object seedInstance = seed.get(0);
-			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener, seedInstance);
-
-			// We need to fetch all the existing instances in advance so the lazy loading won't
-			// result in unwanted notifications.
-			try {
-				hawkResource.fetchNodesByType(eClass);
-			} catch (TException | IOException e) {
-				throw new RuntimeException(e);
-			}
-
-			// Removal is only done through Artemis events, and not through lazy loading,
-			// but by the time we get to the HawkModelElementRemovalEvent the EObject has
-			// already been removed and is not available, so we have to use EMF notifications.
-			hawkResource.getResourceSet().eAdapters().add(new EContentAdapter() {
-				@Override
-				public void notifyChanged(Notification notification) {
-					super.notifyChanged(notification);
-					if (notification.getOldValue() instanceof EObject) {
-						final EObject eob = (EObject)notification.getOldValue();
-						if (eClass.isSuperTypeOf(eob.eClass())) {
-							incqAdapter.instanceDeleted(eClass, eob);
-						}
-					}
-				}
-			});
-
-			// Model element instances may be added through lazy loading or Artemis notifications:
-			// we're only interested in new instances (coming from Artemis).
-			hawkResource.addChangeEventHandler(new HawkChangeEventAdapter(){
-				@Override
-				public void handle(HawkModelElementAdditionEvent ev) {
-					final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-					final EClass eobEClass = eob.eClass();
-					if (eClass.isSuperTypeOf(eobEClass)) {
-						incqAdapter.instanceInserted(eClass, eob);
-					}
-				}
-			});
-
+			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener,
+					seedInstance);
+			listenerAdapter.addEClassListener(eClass, incqAdapter);
 		} else if (key instanceof EDataTypeInSlotsKey) {
 			final EDataType dataType = ((EDataTypeInSlotsKey) key).getEmfKey();
 			final Object seedInstance = seed.get(0);
 			final EDataTypeInSlotsAdapter incqAdapter = new EDataTypeInSlotsAdapter(listener, seedInstance);
 
 			try {
-				final InstanceCounter occurrences = new InstanceCounter();
+				final InstanceCounter occurrences = incqAdapter.getCounter();
 				final Map<EClass, List<EAttribute>> candidateTypes = hawkResource.fetchTypesWithEClassifier(dataType);
 
 				// Instrument existing instances of the candidate EClasses
 				for (Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
 					final EClass eClass = entry.getKey();
 					final List<EAttribute> eAttrs = entry.getValue();
-					for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
+					for (final EObject eob : hawkResource.fetchNodes(eClass)) {
 						for (EAttribute attr : eAttrs) {
 							final Object value = eob.eGet(attr);
 							if (value instanceof Iterable) {
-								for (Object o : (Iterable<?>)value) {
+								for (Object o : (Iterable<?>) value) {
 									occurrences.add(o);
 								}
 							} else if (value != null) {
 								occurrences.add(value);
 							}
 						}
-						eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, eAttrs, incqAdapter, occurrences));
 					}
 				}
 
-				// Instrument new instances of the candidate EClasses
-				hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
-					@Override
-					public void handle(HawkModelElementAdditionEvent ev) {
-						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-						final List<EAttribute> attrs = candidateTypes.get(eob.eClass());
-						if (attrs != null) {
-							eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, attrs, incqAdapter, occurrences));
-						}
-					}
-				});
-
+				listenerAdapter.addEDataTypeListener(dataType, incqAdapter);
 			} catch (TException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -530,37 +542,9 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			final EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
 			final Object seedHost = seed.get(0);
 			final Object seedValue = seed.get(1);
-			final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(listener, seedHost, seedValue);
-
-			try {
-				final EClass eClass = feature.getEContainingClass();
-
-				// Instrument existing instances
-				final EList<EObject> existing = hawkResource.fetchNodesByType(eClass);
-				for (final EObject eob : existing) {
-					// We need to fetch all values in advance to avoid duplicate notifications during lazy loading.
-					eob.eGet(feature);
-					eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
-				}
-
-				// Instrument new instances
-				hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
-					@Override
-					public void handle(HawkModelElementAdditionEvent ev) {
-						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-						if (eob != null) {
-							if (eClass.isSuperTypeOf(eob.eClass())) {
-								eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
-							}
-						} else {
-							System.err.println("WARNING: did not find eobject for node id " + ev.id);
-						}
-					}
-				});
-				
-			} catch (TException | IOException e) {
-				throw new RuntimeException(e);
-			}
+			final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
+					listener, seedHost, seedValue);
+			listenerAdapter.addEStructuralFeatureListener(feature, incqAdapter);
 		} else {
 			illegalInputKey(key);
 		}
@@ -568,7 +552,30 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 	@Override
 	public void removeUpdateListener(IInputKey key, Tuple seed, IQueryRuntimeContextListener listener) {
-		// do nothing
+		if (key instanceof JavaTransitiveInstancesKey)
+			return;
+
+		if (key instanceof EClassTransitiveInstancesKey) {
+			final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
+			final Object seedInstance = seed.get(0);
+			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener,
+					seedInstance);
+			listenerAdapter.removeEClassListener(eClass, incqAdapter);
+		} else if (key instanceof EDataTypeInSlotsKey) {
+			final EDataType dataType = ((EDataTypeInSlotsKey) key).getEmfKey();
+			final Object seedInstance = seed.get(0);
+			final EDataTypeInSlotsAdapter incqAdapter = new EDataTypeInSlotsAdapter(listener, seedInstance);
+			listenerAdapter.removeEDataTypeListener(dataType, incqAdapter);
+		} else if (key instanceof EStructuralFeatureInstancesKey) {
+			final EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
+			final Object seedHost = seed.get(0);
+			final Object seedValue = seed.get(1);
+			final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
+					listener, seedHost, seedValue);
+			listenerAdapter.removeEStructuralFeatureListener(feature, incqAdapter);
+		} else {
+			illegalInputKey(key);
+		}
 	}
 
 }

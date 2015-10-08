@@ -7,11 +7,15 @@ import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListene
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 
 class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListener {
+
+	private final InstanceCounter counter = new InstanceCounter();
 	private Object seedValue;
+
 	public EDataTypeInSlotsAdapter(IQueryRuntimeContextListener listener, Object seedValue) {
 		super(listener, seedValue);
 		this.seedValue = seedValue;
 	}
+
 	@Override
 	public void dataTypeInstanceInserted(EDataType type, Object instance,
 			boolean firstOccurrence) {
@@ -21,6 +25,7 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
     				new FlatTuple(instance), true);
 		}
 	}
+
 	@Override
 	public void dataTypeInstanceDeleted(EDataType type, Object instance,
 			boolean lastOccurrence) {
@@ -30,4 +35,9 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
     				new FlatTuple(instance), false);
 		}
 	}
+
+	public InstanceCounter getCounter() {
+		return counter;
+	}
+
 }
