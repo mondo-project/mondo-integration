@@ -196,6 +196,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			if (!nodeIdToEObjectMap.containsKey(ev.id)) {
 				final EObject eob = factory.create(eClass);
 				nodeIdToEObjectMap.put(ev.id, eob);
+				System.out.println("Added EObject for ID " + ev.id);
 				synchronized(classToEObjectsMap) {
 					final EList<EObject> instances = classToEObjectsMap.get(eClass);
 					if (instances != null) {

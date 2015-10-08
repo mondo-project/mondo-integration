@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -20,6 +22,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.incquery.runtime.emf.EMFQueryRuntimeContext;
 import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
@@ -34,11 +37,48 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
-import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
 import uk.ac.york.mondo.integration.hawk.emf.HawkChangeEventAdapter;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
+
+	private static final class InstanceCounter {
+		private final Map<Object, Integer> counts = new HashMap<>();
+
+		/**
+		 * Counts an additional instance of a specific value. Returns true if this is the first instance of that value.
+		 */
+		public boolean add(Object o) {
+			Integer count = counts.get(o);
+			if (count == null) {
+				count = 0;
+			}
+			count++;
+			counts.put(o, count);
+			return count == 1;
+		}
+
+		/**
+		 * Counts a removed instance of a specific value. Returns true if this is the last instance of that value (the
+		 * next call to {@link #add(Object)} with the same value will return <code>true</code>).
+		 * 
+		 * @throws NoSuchElementException
+		 *             The value was never counted before.
+		 */
+		public boolean remove(Object o) {
+			Integer count = counts.get(o);
+			if (count == null) {
+				throw new NoSuchElementException();
+			}
+			count--;
+			if (count == 0) {
+				counts.remove(o);
+			} else {
+				counts.put(o, count);
+			}
+			return count == 0;
+		}
+	}
 
 	private final class EStructuralFeatureChangeAdapter extends AdapterImpl {
 		private final EStructuralFeatureInstancesKeyAdapter incqAdapter;
@@ -100,12 +140,14 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 		private final EDataType dataType;
 		private final List<EAttribute> eAttrs;
 		private final EDataTypeInSlotsAdapter incqAdapter;
+		private final InstanceCounter occurrences;
 
 		private EDataTypeChangeAdapter(EDataType dataType, List<EAttribute> eAttrs,
-				EDataTypeInSlotsAdapter incqAdapter) {
+				EDataTypeInSlotsAdapter incqAdapter, InstanceCounter occurrences) {
 			this.dataType = dataType;
 			this.eAttrs = eAttrs;
 			this.incqAdapter = incqAdapter;
+			this.occurrences = occurrences;
 		}
 
 		@Override
@@ -117,42 +159,45 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 			switch (notification.getEventType()) {
 			case Notification.SET:
-				// TODO: what to do with the last boolean flag?
 				if (notification.getOldValue() != null) {
-					incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+					final boolean lastOccurrenceSet = occurrences.remove(notification.getOldValue());
+					incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceSet);
 				}
-				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), true);
+				final boolean firstOccurrenceSet = occurrences.add(notification.getNewValue());
+				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), firstOccurrenceSet);
 				break;
 			case Notification.UNSET:
-				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+				final boolean lastOccurrenceUnset = occurrences.remove(notification.getOldValue());
+				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceUnset);
 				break;
-
 			case Notification.ADD:
-				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), true);
+				final boolean firstOccurrenceAdd = occurrences.add(notification.getNewValue());
+				incqAdapter.dataTypeInstanceInserted(dataType, notification.getNewValue(), firstOccurrenceAdd);
 				break;
 			case Notification.REMOVE:
-				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), false);
+				final boolean lastOccurrenceRemove = occurrences.remove(notification.getOldValue());
+				incqAdapter.dataTypeInstanceDeleted(dataType, notification.getOldValue(), lastOccurrenceRemove);
 				break;
 
 			case Notification.ADD_MANY:
 				if (notification.getNewValue() instanceof Iterable) {
 					for (Object o : (Iterable<?>) notification.getNewValue()) {
-						incqAdapter.dataTypeInstanceInserted(dataType, o, true);
+						final boolean firstOccurrence = occurrences.add(o);
+						incqAdapter.dataTypeInstanceInserted(dataType, o, firstOccurrence);
 					}
 				}
 				break;
 			case Notification.REMOVE_MANY:
 				if (notification.getOldValue() instanceof Iterable) {
 					for (Object o : (Iterable<?>) notification.getOldValue()) {
-						incqAdapter.dataTypeInstanceDeleted(dataType, o, false);
+						final boolean lastOccurrence = occurrences.remove(o);
+						incqAdapter.dataTypeInstanceDeleted(dataType, o, lastOccurrence);
 					}
 				}
 				break;
 			}
 		}
 	}
-
-	private static final String Collection = null;
 
 	protected String clean(String s) {
 		return s.replaceAll("http://www.semanticweb.org/ontologies/2015/trainbenchmark/", "")
@@ -398,22 +443,40 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 		if (key instanceof EClassTransitiveInstancesKey) {
 			final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 			final Object seedInstance = seed.get(0);
-			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener,
-					seedInstance);
+			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener, seedInstance);
 
-			hawkResource.addChangeEventHandler(new HawkChangeEventAdapter() {
+			// We need to fetch all the existing instances in advance so the lazy loading won't
+			// result in unwanted notifications.
+			try {
+				hawkResource.fetchNodesByType(eClass);
+			} catch (TException | IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			// Removal is only done through Artemis events, and not through lazy loading,
+			// but by the time we get to the HawkModelElementRemovalEvent the EObject has
+			// already been removed and is not available, so we have to use EMF notifications.
+			hawkResource.getResourceSet().eAdapters().add(new EContentAdapter() {
 				@Override
-				public void handle(HawkModelElementRemovalEvent ev) {
-					final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-					if (eob.eClass() == eClass) {
-						incqAdapter.instanceDeleted(eClass, eob);
+				public void notifyChanged(Notification notification) {
+					super.notifyChanged(notification);
+					if (notification.getOldValue() instanceof EObject) {
+						final EObject eob = (EObject)notification.getOldValue();
+						if (eClass.isSuperTypeOf(eob.eClass())) {
+							incqAdapter.instanceDeleted(eClass, eob);
+						}
 					}
 				}
+			});
 
+			// Model element instances may be added through lazy loading or Artemis notifications:
+			// we're only interested in new instances (coming from Artemis).
+			hawkResource.addChangeEventHandler(new HawkChangeEventAdapter(){
 				@Override
 				public void handle(HawkModelElementAdditionEvent ev) {
 					final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-					if (eob.eClass() == eClass) {
+					final EClass eobEClass = eob.eClass();
+					if (eClass.isSuperTypeOf(eobEClass)) {
 						incqAdapter.instanceInserted(eClass, eob);
 					}
 				}
@@ -425,6 +488,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			final EDataTypeInSlotsAdapter incqAdapter = new EDataTypeInSlotsAdapter(listener, seedInstance);
 
 			try {
+				final InstanceCounter occurrences = new InstanceCounter();
 				final Map<EClass, List<EAttribute>> candidateTypes = hawkResource.fetchTypesWithEClassifier(dataType);
 
 				// Instrument existing instances of the candidate EClasses
@@ -432,7 +496,17 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 					final EClass eClass = entry.getKey();
 					final List<EAttribute> eAttrs = entry.getValue();
 					for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
-						eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, eAttrs, incqAdapter));
+						for (EAttribute attr : eAttrs) {
+							final Object value = eob.eGet(attr);
+							if (value instanceof Iterable) {
+								for (Object o : (Iterable<?>)value) {
+									occurrences.add(o);
+								}
+							} else if (value != null) {
+								occurrences.add(value);
+							}
+						}
+						eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, eAttrs, incqAdapter, occurrences));
 					}
 				}
 
@@ -443,7 +517,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
 						final List<EAttribute> attrs = candidateTypes.get(eob.eClass());
 						if (attrs != null) {
-							eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, attrs, incqAdapter));
+							eob.eAdapters().add(new EDataTypeChangeAdapter(dataType, attrs, incqAdapter, occurrences));
 						}
 					}
 				});
@@ -463,6 +537,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 				// Instrument existing instances
 				for (final EObject eob : hawkResource.fetchNodesByType(eClass)) {
+					// We need to fetch all values in advance to avoid duplicate notifications during lazy loading.
 					eob.eGet(feature);
 					eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
 				}
@@ -472,8 +547,12 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 					@Override
 					public void handle(HawkModelElementAdditionEvent ev) {
 						final EObject eob = hawkResource.getEObjectFromNodeID(ev.id);
-						if (eClass.isSuperTypeOf(eob.eClass())) {
-							eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
+						if (eob != null) {
+							if (eClass.isSuperTypeOf(eob.eClass())) {
+								eob.eAdapters().add(new EStructuralFeatureChangeAdapter(eob, feature, incqAdapter));
+							}
+						} else {
+							System.err.println("WARNING: did not find eobject for node id " + ev.id);
 						}
 					}
 				});
