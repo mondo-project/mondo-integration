@@ -9,7 +9,7 @@
 			exportsource="true"
 			exporttype="folder"
 			allowbinarycycles="true"
-			features="uk.ac.york.mondo.integration.hawk.remote.thrift.feature,uk.ac.york.mondo.integration.clients.cli.feature,uk.ac.york.mondo.integration.hawk.emf.dt.feature,uk.ac.york.mondo.integration.hawk.emf.feature,fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature"
+			features="uk.ac.york.mondo.integration.hawk.remote.thrift.feature,uk.ac.york.mondo.integration.clients.cli.feature,uk.ac.york.mondo.integration.hawk.emf.dt.feature,uk.ac.york.mondo.integration.hawk.emf.feature,fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature,hu.bme.mit.mondo.integration.incquery.hawk.feature"
 			destination="." />
 	</target>
 

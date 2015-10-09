@@ -15,6 +15,10 @@
    <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier">
       <category name="cloudatl"/>
    </feature>
+   <feature url="features/hu.bme.mit.mondo.integration.incquery.hawk.feature_1.0.0.qualifier.jar" id="hu.bme.mit.mondo.integration.incquery.hawk.feature" version="1.0.0.qualifier">
+      <category name="incquery"/>
+   </feature>
    <category-def name="hawk" label="Hawk"/>
    <category-def name="cloudatl" label="CloudATL"/>
+   <category-def name="incquery" label="IncQuery"/>
 </site>
