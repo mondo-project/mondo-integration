@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.equinox.http.jetty.JettyCustomizer;
 import org.eclipse.jetty.http.gzip.AbstractCompressedStream;
 import org.eclipse.jetty.http.gzip.CompressedResponseWrapper;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.GzipHandler;
 
