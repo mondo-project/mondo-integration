@@ -86,4 +86,14 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	public boolean isModelUpdateInProgress() {
 		return mainResource.isModelUpdateInProgress();
 	}
+
+	@Override
+	public boolean addSyncEndListener(Runnable r) {
+		return mainResource.addSyncEndListener(r);
+	}
+
+	@Override
+	public boolean removeSyncEndListener(Runnable r) {
+		return mainResource.removeSyncEndListener(r);
+	}
 }

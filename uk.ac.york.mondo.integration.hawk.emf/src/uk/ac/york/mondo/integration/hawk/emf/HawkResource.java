@@ -56,4 +56,8 @@ public interface HawkResource extends Resource {
 	 */
 	boolean isModelUpdateInProgress();
 
+	boolean addSyncEndListener(Runnable r);
+
+	boolean removeSyncEndListener(Runnable r);
+
 }

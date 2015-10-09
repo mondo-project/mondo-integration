@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -316,6 +318,14 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			} catch (ActiveMQException e) {
 				LOGGER.error("Could not commit client session", e);
 			}
+
+			for (Runnable r : syncEndListeners) {
+				try {
+					r.run();
+				} catch (Throwable t) {
+					LOGGER.error("Error while executing sync end listener", t);
+				}
+			}
 		}
 
 		private void handle(HawkFileAdditionEvent ev) {
@@ -401,6 +411,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	 * notifications and lazy loads.
 	 */
 	private final Map<EClass, EList<EObject>> classToEObjectsMap = new HashMap<>();
+
+	/** Collection of runnables that should be invoked when a synchronisation is complete. */
+	private final Set<Runnable> syncEndListeners = new HashSet<>();
 
 	public HawkResourceImpl() {}
 
@@ -679,6 +692,16 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	@Override
 	public boolean isModelUpdateInProgress() {
 		return isModelUpdateInProgress;
+	}
+
+	@Override
+	public boolean addSyncEndListener(Runnable r) {
+		return syncEndListeners.add(r);
+	}
+
+	@Override
+	public boolean removeSyncEndListener(Runnable r) {
+		return syncEndListeners.remove(r);
 	}
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {
