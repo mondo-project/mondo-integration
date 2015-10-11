@@ -405,6 +405,9 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	private void closeSession() {
 		try {
+			if (producer != null) {
+				producer.close();
+			}
 			if (session != null) {
 				session.close();
 			}

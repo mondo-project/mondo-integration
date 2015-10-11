@@ -10,7 +10,7 @@
       <programArgs>-console -consoleLog
       </programArgs>
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
--Dosgi.noShutdown=true
+-Dosgi.noShutdown=true -Xmx2048m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer
       </vmArgs>
       <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules

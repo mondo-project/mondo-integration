@@ -172,6 +172,7 @@ In the future, it would be good to split off the dependencies introduced by Mode
       <import plugin="ch.qos.logback.core" version="1.0.7" match="compatible"/>
       <import plugin="ch.qos.logback.classic" version="1.0.7" match="compatible"/>
       <import plugin="org.slf4j.api" version="1.7.2" match="compatible"/>
+      <import plugin="org.eclipse.core.variables" version="3.1.0" match="compatible"/>
    </requires>
 
    <plugin
