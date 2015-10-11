@@ -20,7 +20,7 @@ public class HawkAuthFilter extends IniShiroFilter {
 		final File shiroFile = bundle.getDataFile("shiro.ini");
 		if (!shiroFile.exists()) {
 			final URL urlDefaultShiro = bundle.getEntry("resources/shiro.ini.default");
-			final File fDefaultShiro = new File(FileLocator.resolve(urlDefaultShiro).toURI());
+			final File fDefaultShiro = new File(FileLocator.toFileURL(urlDefaultShiro).toURI());
 			try (final FileInputStream fIS = new FileInputStream(fDefaultShiro)) {
 				Files.copy(fIS, shiroFile.toPath());
 			}
