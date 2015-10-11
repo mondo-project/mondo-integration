@@ -12,10 +12,13 @@
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
 -Dosgi.noShutdown=true
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer
--Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
       </vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
+      </vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
       </vmArgsMac>
+      <vmArgsWin>-Dorg.hawk.modelio.modules.path=C:\Users\wv8596\.modelio\3.2\modules
+      </vmArgsWin>
    </launcherArgs>
 
    <launcher name="mondo-server">
@@ -27,6 +30,9 @@
 
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
+      <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
+      <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
    <plugins>
