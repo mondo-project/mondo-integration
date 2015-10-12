@@ -53,6 +53,12 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.osgi.framework.Bundle;
 
+import fr.inria.atlanmod.atl_mr.ATLMRMapper;
+import fr.inria.atlanmod.atl_mr.ATLMRMaster;
+import fr.inria.atlanmod.atl_mr.ATLMRReducer;
+import fr.inria.atlanmod.atl_mr.builder.RecordBuilder;
+import fr.inria.atlanmod.atl_mr.builder.RecordBuilder.Builder;
+import fr.inria.atlanmod.atl_mr.utils.ATLMRUtils;
 import uk.ac.york.mondo.integration.api.CloudATL;
 import uk.ac.york.mondo.integration.api.InvalidModelSpec;
 import uk.ac.york.mondo.integration.api.InvalidTransformation;
@@ -60,12 +66,6 @@ import uk.ac.york.mondo.integration.api.ModelSpec;
 import uk.ac.york.mondo.integration.api.TransformationState;
 import uk.ac.york.mondo.integration.api.TransformationStatus;
 import uk.ac.york.mondo.integration.api.TransformationTokenNotFound;
-import fr.inria.atlanmod.atl_mr.ATLMRMapper;
-import fr.inria.atlanmod.atl_mr.ATLMRMaster;
-import fr.inria.atlanmod.atl_mr.ATLMRReducer;
-import fr.inria.atlanmod.atl_mr.builder.RecordBuilder;
-import fr.inria.atlanmod.atl_mr.builder.RecordBuilder.Builder;
-import fr.inria.atlanmod.atl_mr.utils.ATLMRUtils;
 
 /**
  * Entry point to the Cloud-based ATL engine. This servlet exposes a
@@ -102,7 +102,9 @@ public class CloudAtlThriftServlet extends TServlet {
 				conf.set("mapreduce.app-submission.cross-platform", "true");
 
 				// Configure classes
-				job.setJarByClass(ATLMRMaster.class);
+				Bundle bundle = Platform.getBundle(CloudAtlServletPlugin.PLUGIN_ID);
+				final File fJar = new File(FileLocator.toFileURL(bundle.getResource("libs/atl-mr.jar")).toURI());
+				job.setJar(fJar.getAbsolutePath());
 				job.setMapperClass(ATLMRMapper.class);
 				job.setReducerClass(ATLMRReducer.class);
 				job.setInputFormatClass(NLineInputFormat.class);
@@ -143,10 +145,9 @@ public class CloudAtlThriftServlet extends TServlet {
 				job.getConfiguration().set(ATLMRMaster.OUTPUT_MODEL, target.getUri());
 
 				// Copy libraries to populate the job's classpath
-				Bundle bundle = Platform.getBundle(CloudAtlServletPlugin.PLUGIN_ID);
 				IPath path = new org.eclipse.core.runtime.Path("libs");
 				URL fileURL = FileLocator.find(bundle, path, null);
-				String localJarsDir = new File(FileLocator.resolve(fileURL).toURI()).getAbsolutePath();
+				String localJarsDir = new File(FileLocator.toFileURL(fileURL).toURI()).getAbsolutePath();
 				String hdfsJarsDir = "/temp/hadoop/atlrm/libs";
 				
 				// TODO: This JobHelper needs to be updated to the new API
