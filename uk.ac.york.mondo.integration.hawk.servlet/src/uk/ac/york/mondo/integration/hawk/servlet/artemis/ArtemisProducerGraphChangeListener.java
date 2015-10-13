@@ -111,10 +111,13 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		// Thrift protocol factory (for encoding the events)
 		this.protocolFactory = protocol.getProtocolFactory();
 
-		// Connect to Artemis
+		// Connect to Artemis (use compression for messages above 10KB)
 		this.locator = ActiveMQClient
 				.createServerLocatorWithoutHA(new TransportConfiguration(
 						InVMConnectorFactory.class.getName()));
+		locator.setCompressLargeMessage(true);
+		locator.setMinLargeMessageSize(10_240);
+
 		this.sessionFactory = locator.createSessionFactory();
 		this.messagesAreDurable = durability == SubscriptionDurability.DURABLE;
 		this.queueAddress = String.format("hawk.graphchanges.%s.%s.%s.%s.%s",
