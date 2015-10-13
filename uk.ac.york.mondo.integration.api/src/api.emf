@@ -99,9 +99,9 @@ class Hawk {
 	) throws HawkInstanceNotFound, InvalidMetamodel, HawkInstanceNotRunning;
 
 	@doc(d="Unregisters a metamodel from a Hawk instance")
-	op void unregisterMetamodel (
+	op void unregisterMetamodels (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the metamodel") String metamodel
+		@doc(d="The URIs of the metamodels") String[*] metamodel
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Lists the URIs of the registered metamodels of a Hawk instance")

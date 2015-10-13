@@ -477,9 +477,9 @@ service Hawk {
 	) 
 	
   /* Unregisters a metamodel from a Hawk instance. Auth needed: Yes */
-  void unregisterMetamodel(
+  void unregisterMetamodels(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the metamodel. */ 2: required string metamodel,
+	/* The URIs of the metamodels. */ 2: required list<string> metamodel,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

@@ -167,7 +167,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="unregisterMetamodel" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+    <eOperations name="unregisterMetamodels" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Unregisters a metamodel from a Hawk instance"/>
       </eAnnotations>
@@ -176,9 +176,9 @@
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="metamodel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="metamodel" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The URI of the metamodel"/>
+          <details key="d" value="The URIs of the metamodels"/>
         </eAnnotations>
       </eParameters>
     </eOperations>

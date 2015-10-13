@@ -209,9 +209,9 @@ public class HawkCommandProvider implements CommandProvider {
 
 	public Object _hawkUnregisterMetamodel(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
-		final String mmURI = requiredArgument(intp, "uri");
-		client.unregisterMetamodel(currentInstance, mmURI);
-		return String.format("Unregistered metamodel %s", mmURI);
+		final List<String> mmURIs = readRemainingArguments(intp);
+		client.unregisterMetamodels(currentInstance, mmURIs);
+		return String.format("Unregistered metamodels %s", mmURIs);
 	}
 
 	public Object _hawkListMetamodels(CommandInterpreter intp) throws Exception {

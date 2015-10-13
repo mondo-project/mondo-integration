@@ -53,7 +53,7 @@ public class Hawk {
 
     public void registerMetamodels(String name, List<File> metamodel) throws HawkInstanceNotFound, InvalidMetamodel, HawkInstanceNotRunning, org.apache.thrift.TException;
 
-    public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
+    public void unregisterMetamodels(String name, List<String> metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
     public List<String> listMetamodels(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException;
 
@@ -113,7 +113,7 @@ public class Hawk {
 
     public void registerMetamodels(String name, List<File> metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void unregisterMetamodel(String name, String metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void unregisterMetamodels(String name, List<String> metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void listMetamodels(String name, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -351,24 +351,24 @@ public class Hawk {
       return;
     }
 
-    public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    public void unregisterMetamodels(String name, List<String> metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
     {
-      send_unregisterMetamodel(name, metamodel);
-      recv_unregisterMetamodel();
+      send_unregisterMetamodels(name, metamodel);
+      recv_unregisterMetamodels();
     }
 
-    public void send_unregisterMetamodel(String name, String metamodel) throws org.apache.thrift.TException
+    public void send_unregisterMetamodels(String name, List<String> metamodel) throws org.apache.thrift.TException
     {
-      unregisterMetamodel_args args = new unregisterMetamodel_args();
+      unregisterMetamodels_args args = new unregisterMetamodels_args();
       args.setName(name);
       args.setMetamodel(metamodel);
-      sendBase("unregisterMetamodel", args);
+      sendBase("unregisterMetamodels", args);
     }
 
-    public void recv_unregisterMetamodel() throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
+    public void recv_unregisterMetamodels() throws HawkInstanceNotFound, HawkInstanceNotRunning, org.apache.thrift.TException
     {
-      unregisterMetamodel_result result = new unregisterMetamodel_result();
-      receiveBase(result, "unregisterMetamodel");
+      unregisterMetamodels_result result = new unregisterMetamodels_result();
+      receiveBase(result, "unregisterMetamodels");
       if (result.err1 != null) {
         throw result.err1;
       }
@@ -1230,25 +1230,25 @@ public class Hawk {
       }
     }
 
-    public void unregisterMetamodel(String name, String metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void unregisterMetamodels(String name, List<String> metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      unregisterMetamodel_call method_call = new unregisterMetamodel_call(name, metamodel, resultHandler, this, ___protocolFactory, ___transport);
+      unregisterMetamodels_call method_call = new unregisterMetamodels_call(name, metamodel, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
-    public static class unregisterMetamodel_call extends org.apache.thrift.async.TAsyncMethodCall {
+    public static class unregisterMetamodels_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String name;
-      private String metamodel;
-      public unregisterMetamodel_call(String name, String metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private List<String> metamodel;
+      public unregisterMetamodels_call(String name, List<String> metamodel, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.name = name;
         this.metamodel = metamodel;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("unregisterMetamodel", org.apache.thrift.protocol.TMessageType.CALL, 0));
-        unregisterMetamodel_args args = new unregisterMetamodel_args();
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("unregisterMetamodels", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        unregisterMetamodels_args args = new unregisterMetamodels_args();
         args.setName(name);
         args.setMetamodel(metamodel);
         args.write(prot);
@@ -1261,7 +1261,7 @@ public class Hawk {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_unregisterMetamodel();
+        (new Client(prot)).recv_unregisterMetamodels();
       }
     }
 
@@ -2033,7 +2033,7 @@ public class Hawk {
       processMap.put("stopInstance", new stopInstance());
       processMap.put("syncInstance", new syncInstance());
       processMap.put("registerMetamodels", new registerMetamodels());
-      processMap.put("unregisterMetamodel", new unregisterMetamodel());
+      processMap.put("unregisterMetamodels", new unregisterMetamodels());
       processMap.put("listMetamodels", new listMetamodels());
       processMap.put("listQueryLanguages", new listQueryLanguages());
       processMap.put("query", new query());
@@ -2225,23 +2225,23 @@ public class Hawk {
       }
     }
 
-    public static class unregisterMetamodel<I extends Iface> extends org.apache.thrift.ProcessFunction<I, unregisterMetamodel_args> {
-      public unregisterMetamodel() {
-        super("unregisterMetamodel");
+    public static class unregisterMetamodels<I extends Iface> extends org.apache.thrift.ProcessFunction<I, unregisterMetamodels_args> {
+      public unregisterMetamodels() {
+        super("unregisterMetamodels");
       }
 
-      public unregisterMetamodel_args getEmptyArgsInstance() {
-        return new unregisterMetamodel_args();
+      public unregisterMetamodels_args getEmptyArgsInstance() {
+        return new unregisterMetamodels_args();
       }
 
       protected boolean isOneway() {
         return false;
       }
 
-      public unregisterMetamodel_result getResult(I iface, unregisterMetamodel_args args) throws org.apache.thrift.TException {
-        unregisterMetamodel_result result = new unregisterMetamodel_result();
+      public unregisterMetamodels_result getResult(I iface, unregisterMetamodels_args args) throws org.apache.thrift.TException {
+        unregisterMetamodels_result result = new unregisterMetamodels_result();
         try {
-          iface.unregisterMetamodel(args.name, args.metamodel);
+          iface.unregisterMetamodels(args.name, args.metamodel);
         } catch (HawkInstanceNotFound err1) {
           result.err1 = err1;
         } catch (HawkInstanceNotRunning err2) {
@@ -2789,7 +2789,7 @@ public class Hawk {
       processMap.put("stopInstance", new stopInstance());
       processMap.put("syncInstance", new syncInstance());
       processMap.put("registerMetamodels", new registerMetamodels());
-      processMap.put("unregisterMetamodel", new unregisterMetamodel());
+      processMap.put("unregisterMetamodels", new unregisterMetamodels());
       processMap.put("listMetamodels", new listMetamodels());
       processMap.put("listQueryLanguages", new listQueryLanguages());
       processMap.put("query", new query());
@@ -3214,20 +3214,20 @@ public class Hawk {
       }
     }
 
-    public static class unregisterMetamodel<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, unregisterMetamodel_args, Void> {
-      public unregisterMetamodel() {
-        super("unregisterMetamodel");
+    public static class unregisterMetamodels<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, unregisterMetamodels_args, Void> {
+      public unregisterMetamodels() {
+        super("unregisterMetamodels");
       }
 
-      public unregisterMetamodel_args getEmptyArgsInstance() {
-        return new unregisterMetamodel_args();
+      public unregisterMetamodels_args getEmptyArgsInstance() {
+        return new unregisterMetamodels_args();
       }
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<Void>() { 
           public void onComplete(Void o) {
-            unregisterMetamodel_result result = new unregisterMetamodel_result();
+            unregisterMetamodels_result result = new unregisterMetamodels_result();
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -3239,7 +3239,7 @@ public class Hawk {
           public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
-            unregisterMetamodel_result result = new unregisterMetamodel_result();
+            unregisterMetamodels_result result = new unregisterMetamodels_result();
             if (e instanceof HawkInstanceNotFound) {
                         result.err1 = (HawkInstanceNotFound) e;
                         result.setErr1IsSet(true);
@@ -3270,8 +3270,8 @@ public class Hawk {
         return false;
       }
 
-      public void start(I iface, unregisterMetamodel_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.unregisterMetamodel(args.name, args.metamodel,resultHandler);
+      public void start(I iface, unregisterMetamodels_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.unregisterMetamodels(args.name, args.metamodel,resultHandler);
       }
     }
 
@@ -10347,20 +10347,20 @@ public class Hawk {
 
   }
 
-  public static class unregisterMetamodel_args implements org.apache.thrift.TBase<unregisterMetamodel_args, unregisterMetamodel_args._Fields>, java.io.Serializable, Cloneable, Comparable<unregisterMetamodel_args>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("unregisterMetamodel_args");
+  public static class unregisterMetamodels_args implements org.apache.thrift.TBase<unregisterMetamodels_args, unregisterMetamodels_args._Fields>, java.io.Serializable, Cloneable, Comparable<unregisterMetamodels_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("unregisterMetamodels_args");
 
     private static final org.apache.thrift.protocol.TField NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("name", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField METAMODEL_FIELD_DESC = new org.apache.thrift.protocol.TField("metamodel", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField METAMODEL_FIELD_DESC = new org.apache.thrift.protocol.TField("metamodel", org.apache.thrift.protocol.TType.LIST, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new unregisterMetamodel_argsStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new unregisterMetamodel_argsTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new unregisterMetamodels_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new unregisterMetamodels_argsTupleSchemeFactory());
     }
 
     public String name; // required
-    public String metamodel; // required
+    public List<String> metamodel; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -10430,17 +10430,18 @@ public class Hawk {
       tmpMap.put(_Fields.NAME, new org.apache.thrift.meta_data.FieldMetaData("name", org.apache.thrift.TFieldRequirementType.REQUIRED, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.METAMODEL, new org.apache.thrift.meta_data.FieldMetaData("metamodel", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unregisterMetamodel_args.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unregisterMetamodels_args.class, metaDataMap);
     }
 
-    public unregisterMetamodel_args() {
+    public unregisterMetamodels_args() {
     }
 
-    public unregisterMetamodel_args(
+    public unregisterMetamodels_args(
       String name,
-      String metamodel)
+      List<String> metamodel)
     {
       this();
       this.name = name;
@@ -10450,17 +10451,18 @@ public class Hawk {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public unregisterMetamodel_args(unregisterMetamodel_args other) {
+    public unregisterMetamodels_args(unregisterMetamodels_args other) {
       if (other.isSetName()) {
         this.name = other.name;
       }
       if (other.isSetMetamodel()) {
-        this.metamodel = other.metamodel;
+        List<String> __this__metamodel = new ArrayList<String>(other.metamodel);
+        this.metamodel = __this__metamodel;
       }
     }
 
-    public unregisterMetamodel_args deepCopy() {
-      return new unregisterMetamodel_args(this);
+    public unregisterMetamodels_args deepCopy() {
+      return new unregisterMetamodels_args(this);
     }
 
     @Override
@@ -10473,7 +10475,7 @@ public class Hawk {
       return this.name;
     }
 
-    public unregisterMetamodel_args setName(String name) {
+    public unregisterMetamodels_args setName(String name) {
       this.name = name;
       return this;
     }
@@ -10493,11 +10495,26 @@ public class Hawk {
       }
     }
 
-    public String getMetamodel() {
+    public int getMetamodelSize() {
+      return (this.metamodel == null) ? 0 : this.metamodel.size();
+    }
+
+    public java.util.Iterator<String> getMetamodelIterator() {
+      return (this.metamodel == null) ? null : this.metamodel.iterator();
+    }
+
+    public void addToMetamodel(String elem) {
+      if (this.metamodel == null) {
+        this.metamodel = new ArrayList<String>();
+      }
+      this.metamodel.add(elem);
+    }
+
+    public List<String> getMetamodel() {
       return this.metamodel;
     }
 
-    public unregisterMetamodel_args setMetamodel(String metamodel) {
+    public unregisterMetamodels_args setMetamodel(List<String> metamodel) {
       this.metamodel = metamodel;
       return this;
     }
@@ -10531,7 +10548,7 @@ public class Hawk {
         if (value == null) {
           unsetMetamodel();
         } else {
-          setMetamodel((String)value);
+          setMetamodel((List<String>)value);
         }
         break;
 
@@ -10569,12 +10586,12 @@ public class Hawk {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof unregisterMetamodel_args)
-        return this.equals((unregisterMetamodel_args)that);
+      if (that instanceof unregisterMetamodels_args)
+        return this.equals((unregisterMetamodels_args)that);
       return false;
     }
 
-    public boolean equals(unregisterMetamodel_args that) {
+    public boolean equals(unregisterMetamodels_args that) {
       if (that == null)
         return false;
 
@@ -10617,7 +10634,7 @@ public class Hawk {
     }
 
     @Override
-    public int compareTo(unregisterMetamodel_args other) {
+    public int compareTo(unregisterMetamodels_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -10661,7 +10678,7 @@ public class Hawk {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("unregisterMetamodel_args(");
+      StringBuilder sb = new StringBuilder("unregisterMetamodels_args(");
       boolean first = true;
 
       sb.append("name:");
@@ -10710,15 +10727,15 @@ public class Hawk {
       }
     }
 
-    private static class unregisterMetamodel_argsStandardSchemeFactory implements SchemeFactory {
-      public unregisterMetamodel_argsStandardScheme getScheme() {
-        return new unregisterMetamodel_argsStandardScheme();
+    private static class unregisterMetamodels_argsStandardSchemeFactory implements SchemeFactory {
+      public unregisterMetamodels_argsStandardScheme getScheme() {
+        return new unregisterMetamodels_argsStandardScheme();
       }
     }
 
-    private static class unregisterMetamodel_argsStandardScheme extends StandardScheme<unregisterMetamodel_args> {
+    private static class unregisterMetamodels_argsStandardScheme extends StandardScheme<unregisterMetamodels_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unregisterMetamodel_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, unregisterMetamodels_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -10737,8 +10754,18 @@ public class Hawk {
               }
               break;
             case 2: // METAMODEL
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.metamodel = iprot.readString();
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list152 = iprot.readListBegin();
+                  struct.metamodel = new ArrayList<String>(_list152.size);
+                  String _elem153;
+                  for (int _i154 = 0; _i154 < _list152.size; ++_i154)
+                  {
+                    _elem153 = iprot.readString();
+                    struct.metamodel.add(_elem153);
+                  }
+                  iprot.readListEnd();
+                }
                 struct.setMetamodelIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -10755,7 +10782,7 @@ public class Hawk {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unregisterMetamodel_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, unregisterMetamodels_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -10766,7 +10793,14 @@ public class Hawk {
         }
         if (struct.metamodel != null) {
           oprot.writeFieldBegin(METAMODEL_FIELD_DESC);
-          oprot.writeString(struct.metamodel);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.metamodel.size()));
+            for (String _iter155 : struct.metamodel)
+            {
+              oprot.writeString(_iter155);
+            }
+            oprot.writeListEnd();
+          }
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -10775,43 +10809,58 @@ public class Hawk {
 
     }
 
-    private static class unregisterMetamodel_argsTupleSchemeFactory implements SchemeFactory {
-      public unregisterMetamodel_argsTupleScheme getScheme() {
-        return new unregisterMetamodel_argsTupleScheme();
+    private static class unregisterMetamodels_argsTupleSchemeFactory implements SchemeFactory {
+      public unregisterMetamodels_argsTupleScheme getScheme() {
+        return new unregisterMetamodels_argsTupleScheme();
       }
     }
 
-    private static class unregisterMetamodel_argsTupleScheme extends TupleScheme<unregisterMetamodel_args> {
+    private static class unregisterMetamodels_argsTupleScheme extends TupleScheme<unregisterMetamodels_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodel_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodels_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         oprot.writeString(struct.name);
-        oprot.writeString(struct.metamodel);
+        {
+          oprot.writeI32(struct.metamodel.size());
+          for (String _iter156 : struct.metamodel)
+          {
+            oprot.writeString(_iter156);
+          }
+        }
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodel_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodels_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
-        struct.metamodel = iprot.readString();
+        {
+          org.apache.thrift.protocol.TList _list157 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.metamodel = new ArrayList<String>(_list157.size);
+          String _elem158;
+          for (int _i159 = 0; _i159 < _list157.size; ++_i159)
+          {
+            _elem158 = iprot.readString();
+            struct.metamodel.add(_elem158);
+          }
+        }
         struct.setMetamodelIsSet(true);
       }
     }
 
   }
 
-  public static class unregisterMetamodel_result implements org.apache.thrift.TBase<unregisterMetamodel_result, unregisterMetamodel_result._Fields>, java.io.Serializable, Cloneable, Comparable<unregisterMetamodel_result>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("unregisterMetamodel_result");
+  public static class unregisterMetamodels_result implements org.apache.thrift.TBase<unregisterMetamodels_result, unregisterMetamodels_result._Fields>, java.io.Serializable, Cloneable, Comparable<unregisterMetamodels_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("unregisterMetamodels_result");
 
     private static final org.apache.thrift.protocol.TField ERR1_FIELD_DESC = new org.apache.thrift.protocol.TField("err1", org.apache.thrift.protocol.TType.STRUCT, (short)1);
     private static final org.apache.thrift.protocol.TField ERR2_FIELD_DESC = new org.apache.thrift.protocol.TField("err2", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new unregisterMetamodel_resultStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new unregisterMetamodel_resultTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new unregisterMetamodels_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new unregisterMetamodels_resultTupleSchemeFactory());
     }
 
     public HawkInstanceNotFound err1; // required
@@ -10887,13 +10936,13 @@ public class Hawk {
       tmpMap.put(_Fields.ERR2, new org.apache.thrift.meta_data.FieldMetaData("err2", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unregisterMetamodel_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unregisterMetamodels_result.class, metaDataMap);
     }
 
-    public unregisterMetamodel_result() {
+    public unregisterMetamodels_result() {
     }
 
-    public unregisterMetamodel_result(
+    public unregisterMetamodels_result(
       HawkInstanceNotFound err1,
       HawkInstanceNotRunning err2)
     {
@@ -10905,7 +10954,7 @@ public class Hawk {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public unregisterMetamodel_result(unregisterMetamodel_result other) {
+    public unregisterMetamodels_result(unregisterMetamodels_result other) {
       if (other.isSetErr1()) {
         this.err1 = new HawkInstanceNotFound(other.err1);
       }
@@ -10914,8 +10963,8 @@ public class Hawk {
       }
     }
 
-    public unregisterMetamodel_result deepCopy() {
-      return new unregisterMetamodel_result(this);
+    public unregisterMetamodels_result deepCopy() {
+      return new unregisterMetamodels_result(this);
     }
 
     @Override
@@ -10928,7 +10977,7 @@ public class Hawk {
       return this.err1;
     }
 
-    public unregisterMetamodel_result setErr1(HawkInstanceNotFound err1) {
+    public unregisterMetamodels_result setErr1(HawkInstanceNotFound err1) {
       this.err1 = err1;
       return this;
     }
@@ -10952,7 +11001,7 @@ public class Hawk {
       return this.err2;
     }
 
-    public unregisterMetamodel_result setErr2(HawkInstanceNotRunning err2) {
+    public unregisterMetamodels_result setErr2(HawkInstanceNotRunning err2) {
       this.err2 = err2;
       return this;
     }
@@ -11024,12 +11073,12 @@ public class Hawk {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof unregisterMetamodel_result)
-        return this.equals((unregisterMetamodel_result)that);
+      if (that instanceof unregisterMetamodels_result)
+        return this.equals((unregisterMetamodels_result)that);
       return false;
     }
 
-    public boolean equals(unregisterMetamodel_result that) {
+    public boolean equals(unregisterMetamodels_result that) {
       if (that == null)
         return false;
 
@@ -11072,7 +11121,7 @@ public class Hawk {
     }
 
     @Override
-    public int compareTo(unregisterMetamodel_result other) {
+    public int compareTo(unregisterMetamodels_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -11116,7 +11165,7 @@ public class Hawk {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("unregisterMetamodel_result(");
+      StringBuilder sb = new StringBuilder("unregisterMetamodels_result(");
       boolean first = true;
 
       sb.append("err1:");
@@ -11159,15 +11208,15 @@ public class Hawk {
       }
     }
 
-    private static class unregisterMetamodel_resultStandardSchemeFactory implements SchemeFactory {
-      public unregisterMetamodel_resultStandardScheme getScheme() {
-        return new unregisterMetamodel_resultStandardScheme();
+    private static class unregisterMetamodels_resultStandardSchemeFactory implements SchemeFactory {
+      public unregisterMetamodels_resultStandardScheme getScheme() {
+        return new unregisterMetamodels_resultStandardScheme();
       }
     }
 
-    private static class unregisterMetamodel_resultStandardScheme extends StandardScheme<unregisterMetamodel_result> {
+    private static class unregisterMetamodels_resultStandardScheme extends StandardScheme<unregisterMetamodels_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unregisterMetamodel_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, unregisterMetamodels_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -11206,7 +11255,7 @@ public class Hawk {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unregisterMetamodel_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, unregisterMetamodels_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -11226,16 +11275,16 @@ public class Hawk {
 
     }
 
-    private static class unregisterMetamodel_resultTupleSchemeFactory implements SchemeFactory {
-      public unregisterMetamodel_resultTupleScheme getScheme() {
-        return new unregisterMetamodel_resultTupleScheme();
+    private static class unregisterMetamodels_resultTupleSchemeFactory implements SchemeFactory {
+      public unregisterMetamodels_resultTupleScheme getScheme() {
+        return new unregisterMetamodels_resultTupleScheme();
       }
     }
 
-    private static class unregisterMetamodel_resultTupleScheme extends TupleScheme<unregisterMetamodel_result> {
+    private static class unregisterMetamodels_resultTupleScheme extends TupleScheme<unregisterMetamodels_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodel_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodels_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetErr1()) {
@@ -11254,7 +11303,7 @@ public class Hawk {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodel_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, unregisterMetamodels_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
@@ -12103,13 +12152,13 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list152 = iprot.readListBegin();
-                  struct.success = new ArrayList<String>(_list152.size);
-                  String _elem153;
-                  for (int _i154 = 0; _i154 < _list152.size; ++_i154)
+                  org.apache.thrift.protocol.TList _list160 = iprot.readListBegin();
+                  struct.success = new ArrayList<String>(_list160.size);
+                  String _elem161;
+                  for (int _i162 = 0; _i162 < _list160.size; ++_i162)
                   {
-                    _elem153 = iprot.readString();
-                    struct.success.add(_elem153);
+                    _elem161 = iprot.readString();
+                    struct.success.add(_elem161);
                   }
                   iprot.readListEnd();
                 }
@@ -12155,9 +12204,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.success.size()));
-            for (String _iter155 : struct.success)
+            for (String _iter163 : struct.success)
             {
-              oprot.writeString(_iter155);
+              oprot.writeString(_iter163);
             }
             oprot.writeListEnd();
           }
@@ -12204,9 +12253,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (String _iter156 : struct.success)
+            for (String _iter164 : struct.success)
             {
-              oprot.writeString(_iter156);
+              oprot.writeString(_iter164);
             }
           }
         }
@@ -12224,13 +12273,13 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list157 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.success = new ArrayList<String>(_list157.size);
-            String _elem158;
-            for (int _i159 = 0; _i159 < _list157.size; ++_i159)
+            org.apache.thrift.protocol.TList _list165 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.success = new ArrayList<String>(_list165.size);
+            String _elem166;
+            for (int _i167 = 0; _i167 < _list165.size; ++_i167)
             {
-              _elem158 = iprot.readString();
-              struct.success.add(_elem158);
+              _elem166 = iprot.readString();
+              struct.success.add(_elem166);
             }
           }
           struct.setSuccessIsSet(true);
@@ -12917,13 +12966,13 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list160 = iprot.readListBegin();
-                  struct.success = new ArrayList<String>(_list160.size);
-                  String _elem161;
-                  for (int _i162 = 0; _i162 < _list160.size; ++_i162)
+                  org.apache.thrift.protocol.TList _list168 = iprot.readListBegin();
+                  struct.success = new ArrayList<String>(_list168.size);
+                  String _elem169;
+                  for (int _i170 = 0; _i170 < _list168.size; ++_i170)
                   {
-                    _elem161 = iprot.readString();
-                    struct.success.add(_elem161);
+                    _elem169 = iprot.readString();
+                    struct.success.add(_elem169);
                   }
                   iprot.readListEnd();
                 }
@@ -12951,9 +13000,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.success.size()));
-            for (String _iter163 : struct.success)
+            for (String _iter171 : struct.success)
             {
-              oprot.writeString(_iter163);
+              oprot.writeString(_iter171);
             }
             oprot.writeListEnd();
           }
@@ -12984,9 +13033,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (String _iter164 : struct.success)
+            for (String _iter172 : struct.success)
             {
-              oprot.writeString(_iter164);
+              oprot.writeString(_iter172);
             }
           }
         }
@@ -12998,13 +13047,13 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list165 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.success = new ArrayList<String>(_list165.size);
-            String _elem166;
-            for (int _i167 = 0; _i167 < _list165.size; ++_i167)
+            org.apache.thrift.protocol.TList _list173 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.success = new ArrayList<String>(_list173.size);
+            String _elem174;
+            for (int _i175 = 0; _i175 < _list173.size; ++_i175)
             {
-              _elem166 = iprot.readString();
-              struct.success.add(_elem166);
+              _elem174 = iprot.readString();
+              struct.success.add(_elem174);
             }
           }
           struct.setSuccessIsSet(true);
@@ -14026,13 +14075,13 @@ public class Hawk {
             case 5: // FILE_PATTERNS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list168 = iprot.readListBegin();
-                  struct.filePatterns = new ArrayList<String>(_list168.size);
-                  String _elem169;
-                  for (int _i170 = 0; _i170 < _list168.size; ++_i170)
+                  org.apache.thrift.protocol.TList _list176 = iprot.readListBegin();
+                  struct.filePatterns = new ArrayList<String>(_list176.size);
+                  String _elem177;
+                  for (int _i178 = 0; _i178 < _list176.size; ++_i178)
                   {
-                    _elem169 = iprot.readString();
-                    struct.filePatterns.add(_elem169);
+                    _elem177 = iprot.readString();
+                    struct.filePatterns.add(_elem177);
                   }
                   iprot.readListEnd();
                 }
@@ -14112,9 +14161,9 @@ public class Hawk {
           oprot.writeFieldBegin(FILE_PATTERNS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePatterns.size()));
-            for (String _iter171 : struct.filePatterns)
+            for (String _iter179 : struct.filePatterns)
             {
-              oprot.writeString(_iter171);
+              oprot.writeString(_iter179);
             }
             oprot.writeListEnd();
           }
@@ -14155,9 +14204,9 @@ public class Hawk {
         oprot.writeString(struct.repositoryPattern);
         {
           oprot.writeI32(struct.filePatterns.size());
-          for (String _iter172 : struct.filePatterns)
+          for (String _iter180 : struct.filePatterns)
           {
-            oprot.writeString(_iter172);
+            oprot.writeString(_iter180);
           }
         }
         BitSet optionals = new BitSet();
@@ -14200,13 +14249,13 @@ public class Hawk {
         struct.repositoryPattern = iprot.readString();
         struct.setRepositoryPatternIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list173 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.filePatterns = new ArrayList<String>(_list173.size);
-          String _elem174;
-          for (int _i175 = 0; _i175 < _list173.size; ++_i175)
+          org.apache.thrift.protocol.TList _list181 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePatterns = new ArrayList<String>(_list181.size);
+          String _elem182;
+          for (int _i183 = 0; _i183 < _list181.size; ++_i183)
           {
-            _elem174 = iprot.readString();
-            struct.filePatterns.add(_elem174);
+            _elem182 = iprot.readString();
+            struct.filePatterns.add(_elem182);
           }
         }
         struct.setFilePatternsIsSet(true);
@@ -14958,14 +15007,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list176 = iprot.readListBegin();
-                  struct.success = new ArrayList<QueryResult>(_list176.size);
-                  QueryResult _elem177;
-                  for (int _i178 = 0; _i178 < _list176.size; ++_i178)
+                  org.apache.thrift.protocol.TList _list184 = iprot.readListBegin();
+                  struct.success = new ArrayList<QueryResult>(_list184.size);
+                  QueryResult _elem185;
+                  for (int _i186 = 0; _i186 < _list184.size; ++_i186)
                   {
-                    _elem177 = new QueryResult();
-                    _elem177.read(iprot);
-                    struct.success.add(_elem177);
+                    _elem185 = new QueryResult();
+                    _elem185.read(iprot);
+                    struct.success.add(_elem185);
                   }
                   iprot.readListEnd();
                 }
@@ -15038,9 +15087,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (QueryResult _iter179 : struct.success)
+            for (QueryResult _iter187 : struct.success)
             {
-              _iter179.write(oprot);
+              _iter187.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -15111,9 +15160,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (QueryResult _iter180 : struct.success)
+            for (QueryResult _iter188 : struct.success)
             {
-              _iter180.write(oprot);
+              _iter188.write(oprot);
             }
           }
         }
@@ -15140,14 +15189,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(6);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list181 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<QueryResult>(_list181.size);
-            QueryResult _elem182;
-            for (int _i183 = 0; _i183 < _list181.size; ++_i183)
+            org.apache.thrift.protocol.TList _list189 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<QueryResult>(_list189.size);
+            QueryResult _elem190;
+            for (int _i191 = 0; _i191 < _list189.size; ++_i191)
             {
-              _elem182 = new QueryResult();
-              _elem182.read(iprot);
-              struct.success.add(_elem182);
+              _elem190 = new QueryResult();
+              _elem190.read(iprot);
+              struct.success.add(_elem190);
             }
           }
           struct.setSuccessIsSet(true);
@@ -15755,13 +15804,13 @@ public class Hawk {
             case 2: // IDS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list184 = iprot.readListBegin();
-                  struct.ids = new ArrayList<String>(_list184.size);
-                  String _elem185;
-                  for (int _i186 = 0; _i186 < _list184.size; ++_i186)
+                  org.apache.thrift.protocol.TList _list192 = iprot.readListBegin();
+                  struct.ids = new ArrayList<String>(_list192.size);
+                  String _elem193;
+                  for (int _i194 = 0; _i194 < _list192.size; ++_i194)
                   {
-                    _elem185 = iprot.readString();
-                    struct.ids.add(_elem185);
+                    _elem193 = iprot.readString();
+                    struct.ids.add(_elem193);
                   }
                   iprot.readListEnd();
                 }
@@ -15810,9 +15859,9 @@ public class Hawk {
           oprot.writeFieldBegin(IDS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.ids.size()));
-            for (String _iter187 : struct.ids)
+            for (String _iter195 : struct.ids)
             {
-              oprot.writeString(_iter187);
+              oprot.writeString(_iter195);
             }
             oprot.writeListEnd();
           }
@@ -15844,9 +15893,9 @@ public class Hawk {
         oprot.writeString(struct.name);
         {
           oprot.writeI32(struct.ids.size());
-          for (String _iter188 : struct.ids)
+          for (String _iter196 : struct.ids)
           {
-            oprot.writeString(_iter188);
+            oprot.writeString(_iter196);
           }
         }
         BitSet optionals = new BitSet();
@@ -15871,13 +15920,13 @@ public class Hawk {
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list189 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.ids = new ArrayList<String>(_list189.size);
-          String _elem190;
-          for (int _i191 = 0; _i191 < _list189.size; ++_i191)
+          org.apache.thrift.protocol.TList _list197 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.ids = new ArrayList<String>(_list197.size);
+          String _elem198;
+          for (int _i199 = 0; _i199 < _list197.size; ++_i199)
           {
-            _elem190 = iprot.readString();
-            struct.ids.add(_elem190);
+            _elem198 = iprot.readString();
+            struct.ids.add(_elem198);
           }
         }
         struct.setIdsIsSet(true);
@@ -16375,14 +16424,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list192 = iprot.readListBegin();
-                  struct.success = new ArrayList<ModelElement>(_list192.size);
-                  ModelElement _elem193;
-                  for (int _i194 = 0; _i194 < _list192.size; ++_i194)
+                  org.apache.thrift.protocol.TList _list200 = iprot.readListBegin();
+                  struct.success = new ArrayList<ModelElement>(_list200.size);
+                  ModelElement _elem201;
+                  for (int _i202 = 0; _i202 < _list200.size; ++_i202)
                   {
-                    _elem193 = new ModelElement();
-                    _elem193.read(iprot);
-                    struct.success.add(_elem193);
+                    _elem201 = new ModelElement();
+                    _elem201.read(iprot);
+                    struct.success.add(_elem201);
                   }
                   iprot.readListEnd();
                 }
@@ -16428,9 +16477,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (ModelElement _iter195 : struct.success)
+            for (ModelElement _iter203 : struct.success)
             {
-              _iter195.write(oprot);
+              _iter203.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -16477,9 +16526,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (ModelElement _iter196 : struct.success)
+            for (ModelElement _iter204 : struct.success)
             {
-              _iter196.write(oprot);
+              _iter204.write(oprot);
             }
           }
         }
@@ -16497,14 +16546,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list197 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<ModelElement>(_list197.size);
-            ModelElement _elem198;
-            for (int _i199 = 0; _i199 < _list197.size; ++_i199)
+            org.apache.thrift.protocol.TList _list205 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<ModelElement>(_list205.size);
+            ModelElement _elem206;
+            for (int _i207 = 0; _i207 < _list205.size; ++_i207)
             {
-              _elem198 = new ModelElement();
-              _elem198.read(iprot);
-              struct.success.add(_elem198);
+              _elem206 = new ModelElement();
+              _elem206.read(iprot);
+              struct.success.add(_elem206);
             }
           }
           struct.setSuccessIsSet(true);
@@ -20571,14 +20620,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list200 = iprot.readListBegin();
-                  struct.success = new ArrayList<Repository>(_list200.size);
-                  Repository _elem201;
-                  for (int _i202 = 0; _i202 < _list200.size; ++_i202)
+                  org.apache.thrift.protocol.TList _list208 = iprot.readListBegin();
+                  struct.success = new ArrayList<Repository>(_list208.size);
+                  Repository _elem209;
+                  for (int _i210 = 0; _i210 < _list208.size; ++_i210)
                   {
-                    _elem201 = new Repository();
-                    _elem201.read(iprot);
-                    struct.success.add(_elem201);
+                    _elem209 = new Repository();
+                    _elem209.read(iprot);
+                    struct.success.add(_elem209);
                   }
                   iprot.readListEnd();
                 }
@@ -20624,9 +20673,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Repository _iter203 : struct.success)
+            for (Repository _iter211 : struct.success)
             {
-              _iter203.write(oprot);
+              _iter211.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -20673,9 +20722,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Repository _iter204 : struct.success)
+            for (Repository _iter212 : struct.success)
             {
-              _iter204.write(oprot);
+              _iter212.write(oprot);
             }
           }
         }
@@ -20693,14 +20742,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list205 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Repository>(_list205.size);
-            Repository _elem206;
-            for (int _i207 = 0; _i207 < _list205.size; ++_i207)
+            org.apache.thrift.protocol.TList _list213 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Repository>(_list213.size);
+            Repository _elem214;
+            for (int _i215 = 0; _i215 < _list213.size; ++_i215)
             {
-              _elem206 = new Repository();
-              _elem206.read(iprot);
-              struct.success.add(_elem206);
+              _elem214 = new Repository();
+              _elem214.read(iprot);
+              struct.success.add(_elem214);
             }
           }
           struct.setSuccessIsSet(true);
@@ -21281,13 +21330,13 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list208 = iprot.readListBegin();
-                  struct.success = new ArrayList<String>(_list208.size);
-                  String _elem209;
-                  for (int _i210 = 0; _i210 < _list208.size; ++_i210)
+                  org.apache.thrift.protocol.TList _list216 = iprot.readListBegin();
+                  struct.success = new ArrayList<String>(_list216.size);
+                  String _elem217;
+                  for (int _i218 = 0; _i218 < _list216.size; ++_i218)
                   {
-                    _elem209 = iprot.readString();
-                    struct.success.add(_elem209);
+                    _elem217 = iprot.readString();
+                    struct.success.add(_elem217);
                   }
                   iprot.readListEnd();
                 }
@@ -21315,9 +21364,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.success.size()));
-            for (String _iter211 : struct.success)
+            for (String _iter219 : struct.success)
             {
-              oprot.writeString(_iter211);
+              oprot.writeString(_iter219);
             }
             oprot.writeListEnd();
           }
@@ -21348,9 +21397,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (String _iter212 : struct.success)
+            for (String _iter220 : struct.success)
             {
-              oprot.writeString(_iter212);
+              oprot.writeString(_iter220);
             }
           }
         }
@@ -21362,13 +21411,13 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list213 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.success = new ArrayList<String>(_list213.size);
-            String _elem214;
-            for (int _i215 = 0; _i215 < _list213.size; ++_i215)
+            org.apache.thrift.protocol.TList _list221 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.success = new ArrayList<String>(_list221.size);
+            String _elem222;
+            for (int _i223 = 0; _i223 < _list221.size; ++_i223)
             {
-              _elem214 = iprot.readString();
-              struct.success.add(_elem214);
+              _elem222 = iprot.readString();
+              struct.success.add(_elem222);
             }
           }
           struct.setSuccessIsSet(true);
@@ -21889,13 +21938,13 @@ public class Hawk {
             case 2: // REPOSITORY
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list216 = iprot.readListBegin();
-                  struct.repository = new ArrayList<String>(_list216.size);
-                  String _elem217;
-                  for (int _i218 = 0; _i218 < _list216.size; ++_i218)
+                  org.apache.thrift.protocol.TList _list224 = iprot.readListBegin();
+                  struct.repository = new ArrayList<String>(_list224.size);
+                  String _elem225;
+                  for (int _i226 = 0; _i226 < _list224.size; ++_i226)
                   {
-                    _elem217 = iprot.readString();
-                    struct.repository.add(_elem217);
+                    _elem225 = iprot.readString();
+                    struct.repository.add(_elem225);
                   }
                   iprot.readListEnd();
                 }
@@ -21907,13 +21956,13 @@ public class Hawk {
             case 3: // FILE_PATTERNS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list219 = iprot.readListBegin();
-                  struct.filePatterns = new ArrayList<String>(_list219.size);
-                  String _elem220;
-                  for (int _i221 = 0; _i221 < _list219.size; ++_i221)
+                  org.apache.thrift.protocol.TList _list227 = iprot.readListBegin();
+                  struct.filePatterns = new ArrayList<String>(_list227.size);
+                  String _elem228;
+                  for (int _i229 = 0; _i229 < _list227.size; ++_i229)
                   {
-                    _elem220 = iprot.readString();
-                    struct.filePatterns.add(_elem220);
+                    _elem228 = iprot.readString();
+                    struct.filePatterns.add(_elem228);
                   }
                   iprot.readListEnd();
                 }
@@ -21946,9 +21995,9 @@ public class Hawk {
           oprot.writeFieldBegin(REPOSITORY_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.repository.size()));
-            for (String _iter222 : struct.repository)
+            for (String _iter230 : struct.repository)
             {
-              oprot.writeString(_iter222);
+              oprot.writeString(_iter230);
             }
             oprot.writeListEnd();
           }
@@ -21958,9 +22007,9 @@ public class Hawk {
           oprot.writeFieldBegin(FILE_PATTERNS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePatterns.size()));
-            for (String _iter223 : struct.filePatterns)
+            for (String _iter231 : struct.filePatterns)
             {
-              oprot.writeString(_iter223);
+              oprot.writeString(_iter231);
             }
             oprot.writeListEnd();
           }
@@ -21986,16 +22035,16 @@ public class Hawk {
         oprot.writeString(struct.name);
         {
           oprot.writeI32(struct.repository.size());
-          for (String _iter224 : struct.repository)
+          for (String _iter232 : struct.repository)
           {
-            oprot.writeString(_iter224);
+            oprot.writeString(_iter232);
           }
         }
         {
           oprot.writeI32(struct.filePatterns.size());
-          for (String _iter225 : struct.filePatterns)
+          for (String _iter233 : struct.filePatterns)
           {
-            oprot.writeString(_iter225);
+            oprot.writeString(_iter233);
           }
         }
       }
@@ -22006,24 +22055,24 @@ public class Hawk {
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list226 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.repository = new ArrayList<String>(_list226.size);
-          String _elem227;
-          for (int _i228 = 0; _i228 < _list226.size; ++_i228)
+          org.apache.thrift.protocol.TList _list234 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.repository = new ArrayList<String>(_list234.size);
+          String _elem235;
+          for (int _i236 = 0; _i236 < _list234.size; ++_i236)
           {
-            _elem227 = iprot.readString();
-            struct.repository.add(_elem227);
+            _elem235 = iprot.readString();
+            struct.repository.add(_elem235);
           }
         }
         struct.setRepositoryIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list229 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.filePatterns = new ArrayList<String>(_list229.size);
-          String _elem230;
-          for (int _i231 = 0; _i231 < _list229.size; ++_i231)
+          org.apache.thrift.protocol.TList _list237 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePatterns = new ArrayList<String>(_list237.size);
+          String _elem238;
+          for (int _i239 = 0; _i239 < _list237.size; ++_i239)
           {
-            _elem230 = iprot.readString();
-            struct.filePatterns.add(_elem230);
+            _elem238 = iprot.readString();
+            struct.filePatterns.add(_elem238);
           }
         }
         struct.setFilePatternsIsSet(true);
@@ -22509,13 +22558,13 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list232 = iprot.readListBegin();
-                  struct.success = new ArrayList<String>(_list232.size);
-                  String _elem233;
-                  for (int _i234 = 0; _i234 < _list232.size; ++_i234)
+                  org.apache.thrift.protocol.TList _list240 = iprot.readListBegin();
+                  struct.success = new ArrayList<String>(_list240.size);
+                  String _elem241;
+                  for (int _i242 = 0; _i242 < _list240.size; ++_i242)
                   {
-                    _elem233 = iprot.readString();
-                    struct.success.add(_elem233);
+                    _elem241 = iprot.readString();
+                    struct.success.add(_elem241);
                   }
                   iprot.readListEnd();
                 }
@@ -22561,9 +22610,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.success.size()));
-            for (String _iter235 : struct.success)
+            for (String _iter243 : struct.success)
             {
-              oprot.writeString(_iter235);
+              oprot.writeString(_iter243);
             }
             oprot.writeListEnd();
           }
@@ -22610,9 +22659,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (String _iter236 : struct.success)
+            for (String _iter244 : struct.success)
             {
-              oprot.writeString(_iter236);
+              oprot.writeString(_iter244);
             }
           }
         }
@@ -22630,13 +22679,13 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list237 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.success = new ArrayList<String>(_list237.size);
-            String _elem238;
-            for (int _i239 = 0; _i239 < _list237.size; ++_i239)
+            org.apache.thrift.protocol.TList _list245 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.success = new ArrayList<String>(_list245.size);
+            String _elem246;
+            for (int _i247 = 0; _i247 < _list245.size; ++_i247)
             {
-              _elem238 = iprot.readString();
-              struct.success.add(_elem238);
+              _elem246 = iprot.readString();
+              struct.success.add(_elem246);
             }
           }
           struct.setSuccessIsSet(true);
@@ -26584,14 +26633,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list240 = iprot.readListBegin();
-                  struct.success = new ArrayList<DerivedAttributeSpec>(_list240.size);
-                  DerivedAttributeSpec _elem241;
-                  for (int _i242 = 0; _i242 < _list240.size; ++_i242)
+                  org.apache.thrift.protocol.TList _list248 = iprot.readListBegin();
+                  struct.success = new ArrayList<DerivedAttributeSpec>(_list248.size);
+                  DerivedAttributeSpec _elem249;
+                  for (int _i250 = 0; _i250 < _list248.size; ++_i250)
                   {
-                    _elem241 = new DerivedAttributeSpec();
-                    _elem241.read(iprot);
-                    struct.success.add(_elem241);
+                    _elem249 = new DerivedAttributeSpec();
+                    _elem249.read(iprot);
+                    struct.success.add(_elem249);
                   }
                   iprot.readListEnd();
                 }
@@ -26637,9 +26686,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (DerivedAttributeSpec _iter243 : struct.success)
+            for (DerivedAttributeSpec _iter251 : struct.success)
             {
-              _iter243.write(oprot);
+              _iter251.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -26686,9 +26735,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (DerivedAttributeSpec _iter244 : struct.success)
+            for (DerivedAttributeSpec _iter252 : struct.success)
             {
-              _iter244.write(oprot);
+              _iter252.write(oprot);
             }
           }
         }
@@ -26706,14 +26755,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list245 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<DerivedAttributeSpec>(_list245.size);
-            DerivedAttributeSpec _elem246;
-            for (int _i247 = 0; _i247 < _list245.size; ++_i247)
+            org.apache.thrift.protocol.TList _list253 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<DerivedAttributeSpec>(_list253.size);
+            DerivedAttributeSpec _elem254;
+            for (int _i255 = 0; _i255 < _list253.size; ++_i255)
             {
-              _elem246 = new DerivedAttributeSpec();
-              _elem246.read(iprot);
-              struct.success.add(_elem246);
+              _elem254 = new DerivedAttributeSpec();
+              _elem254.read(iprot);
+              struct.success.add(_elem254);
             }
           }
           struct.setSuccessIsSet(true);
@@ -29534,14 +29583,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list248 = iprot.readListBegin();
-                  struct.success = new ArrayList<IndexedAttributeSpec>(_list248.size);
-                  IndexedAttributeSpec _elem249;
-                  for (int _i250 = 0; _i250 < _list248.size; ++_i250)
+                  org.apache.thrift.protocol.TList _list256 = iprot.readListBegin();
+                  struct.success = new ArrayList<IndexedAttributeSpec>(_list256.size);
+                  IndexedAttributeSpec _elem257;
+                  for (int _i258 = 0; _i258 < _list256.size; ++_i258)
                   {
-                    _elem249 = new IndexedAttributeSpec();
-                    _elem249.read(iprot);
-                    struct.success.add(_elem249);
+                    _elem257 = new IndexedAttributeSpec();
+                    _elem257.read(iprot);
+                    struct.success.add(_elem257);
                   }
                   iprot.readListEnd();
                 }
@@ -29587,9 +29636,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (IndexedAttributeSpec _iter251 : struct.success)
+            for (IndexedAttributeSpec _iter259 : struct.success)
             {
-              _iter251.write(oprot);
+              _iter259.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -29636,9 +29685,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (IndexedAttributeSpec _iter252 : struct.success)
+            for (IndexedAttributeSpec _iter260 : struct.success)
             {
-              _iter252.write(oprot);
+              _iter260.write(oprot);
             }
           }
         }
@@ -29656,14 +29705,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list253 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<IndexedAttributeSpec>(_list253.size);
-            IndexedAttributeSpec _elem254;
-            for (int _i255 = 0; _i255 < _list253.size; ++_i255)
+            org.apache.thrift.protocol.TList _list261 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<IndexedAttributeSpec>(_list261.size);
+            IndexedAttributeSpec _elem262;
+            for (int _i263 = 0; _i263 < _list261.size; ++_i263)
             {
-              _elem254 = new IndexedAttributeSpec();
-              _elem254.read(iprot);
-              struct.success.add(_elem254);
+              _elem262 = new IndexedAttributeSpec();
+              _elem262.read(iprot);
+              struct.success.add(_elem262);
             }
           }
           struct.setSuccessIsSet(true);
@@ -30438,13 +30487,13 @@ public class Hawk {
             case 2: // REPOSITORY_URI
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list256 = iprot.readListBegin();
-                  struct.repositoryUri = new ArrayList<String>(_list256.size);
-                  String _elem257;
-                  for (int _i258 = 0; _i258 < _list256.size; ++_i258)
+                  org.apache.thrift.protocol.TList _list264 = iprot.readListBegin();
+                  struct.repositoryUri = new ArrayList<String>(_list264.size);
+                  String _elem265;
+                  for (int _i266 = 0; _i266 < _list264.size; ++_i266)
                   {
-                    _elem257 = iprot.readString();
-                    struct.repositoryUri.add(_elem257);
+                    _elem265 = iprot.readString();
+                    struct.repositoryUri.add(_elem265);
                   }
                   iprot.readListEnd();
                 }
@@ -30456,13 +30505,13 @@ public class Hawk {
             case 3: // FILE_PATH
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list259 = iprot.readListBegin();
-                  struct.filePath = new ArrayList<String>(_list259.size);
-                  String _elem260;
-                  for (int _i261 = 0; _i261 < _list259.size; ++_i261)
+                  org.apache.thrift.protocol.TList _list267 = iprot.readListBegin();
+                  struct.filePath = new ArrayList<String>(_list267.size);
+                  String _elem268;
+                  for (int _i269 = 0; _i269 < _list267.size; ++_i269)
                   {
-                    _elem260 = iprot.readString();
-                    struct.filePath.add(_elem260);
+                    _elem268 = iprot.readString();
+                    struct.filePath.add(_elem268);
                   }
                   iprot.readListEnd();
                 }
@@ -30519,9 +30568,9 @@ public class Hawk {
           oprot.writeFieldBegin(REPOSITORY_URI_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.repositoryUri.size()));
-            for (String _iter262 : struct.repositoryUri)
+            for (String _iter270 : struct.repositoryUri)
             {
-              oprot.writeString(_iter262);
+              oprot.writeString(_iter270);
             }
             oprot.writeListEnd();
           }
@@ -30531,9 +30580,9 @@ public class Hawk {
           oprot.writeFieldBegin(FILE_PATH_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePath.size()));
-            for (String _iter263 : struct.filePath)
+            for (String _iter271 : struct.filePath)
             {
-              oprot.writeString(_iter263);
+              oprot.writeString(_iter271);
             }
             oprot.writeListEnd();
           }
@@ -30568,16 +30617,16 @@ public class Hawk {
         oprot.writeString(struct.name);
         {
           oprot.writeI32(struct.repositoryUri.size());
-          for (String _iter264 : struct.repositoryUri)
+          for (String _iter272 : struct.repositoryUri)
           {
-            oprot.writeString(_iter264);
+            oprot.writeString(_iter272);
           }
         }
         {
           oprot.writeI32(struct.filePath.size());
-          for (String _iter265 : struct.filePath)
+          for (String _iter273 : struct.filePath)
           {
-            oprot.writeString(_iter265);
+            oprot.writeString(_iter273);
           }
         }
         BitSet optionals = new BitSet();
@@ -30608,24 +30657,24 @@ public class Hawk {
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list266 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.repositoryUri = new ArrayList<String>(_list266.size);
-          String _elem267;
-          for (int _i268 = 0; _i268 < _list266.size; ++_i268)
+          org.apache.thrift.protocol.TList _list274 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.repositoryUri = new ArrayList<String>(_list274.size);
+          String _elem275;
+          for (int _i276 = 0; _i276 < _list274.size; ++_i276)
           {
-            _elem267 = iprot.readString();
-            struct.repositoryUri.add(_elem267);
+            _elem275 = iprot.readString();
+            struct.repositoryUri.add(_elem275);
           }
         }
         struct.setRepositoryUriIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list269 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.filePath = new ArrayList<String>(_list269.size);
-          String _elem270;
-          for (int _i271 = 0; _i271 < _list269.size; ++_i271)
+          org.apache.thrift.protocol.TList _list277 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePath = new ArrayList<String>(_list277.size);
+          String _elem278;
+          for (int _i279 = 0; _i279 < _list277.size; ++_i279)
           {
-            _elem270 = iprot.readString();
-            struct.filePath.add(_elem270);
+            _elem278 = iprot.readString();
+            struct.filePath.add(_elem278);
           }
         }
         struct.setFilePathIsSet(true);
@@ -31127,14 +31176,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list272 = iprot.readListBegin();
-                  struct.success = new ArrayList<ModelElement>(_list272.size);
-                  ModelElement _elem273;
-                  for (int _i274 = 0; _i274 < _list272.size; ++_i274)
+                  org.apache.thrift.protocol.TList _list280 = iprot.readListBegin();
+                  struct.success = new ArrayList<ModelElement>(_list280.size);
+                  ModelElement _elem281;
+                  for (int _i282 = 0; _i282 < _list280.size; ++_i282)
                   {
-                    _elem273 = new ModelElement();
-                    _elem273.read(iprot);
-                    struct.success.add(_elem273);
+                    _elem281 = new ModelElement();
+                    _elem281.read(iprot);
+                    struct.success.add(_elem281);
                   }
                   iprot.readListEnd();
                 }
@@ -31180,9 +31229,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (ModelElement _iter275 : struct.success)
+            for (ModelElement _iter283 : struct.success)
             {
-              _iter275.write(oprot);
+              _iter283.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -31229,9 +31278,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (ModelElement _iter276 : struct.success)
+            for (ModelElement _iter284 : struct.success)
             {
-              _iter276.write(oprot);
+              _iter284.write(oprot);
             }
           }
         }
@@ -31249,14 +31298,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list277 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<ModelElement>(_list277.size);
-            ModelElement _elem278;
-            for (int _i279 = 0; _i279 < _list277.size; ++_i279)
+            org.apache.thrift.protocol.TList _list285 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<ModelElement>(_list285.size);
+            ModelElement _elem286;
+            for (int _i287 = 0; _i287 < _list285.size; ++_i287)
             {
-              _elem278 = new ModelElement();
-              _elem278.read(iprot);
-              struct.success.add(_elem278);
+              _elem286 = new ModelElement();
+              _elem286.read(iprot);
+              struct.success.add(_elem286);
             }
           }
           struct.setSuccessIsSet(true);
@@ -31951,13 +32000,13 @@ public class Hawk {
             case 2: // REPOSITORY_URI
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list280 = iprot.readListBegin();
-                  struct.repositoryUri = new ArrayList<String>(_list280.size);
-                  String _elem281;
-                  for (int _i282 = 0; _i282 < _list280.size; ++_i282)
+                  org.apache.thrift.protocol.TList _list288 = iprot.readListBegin();
+                  struct.repositoryUri = new ArrayList<String>(_list288.size);
+                  String _elem289;
+                  for (int _i290 = 0; _i290 < _list288.size; ++_i290)
                   {
-                    _elem281 = iprot.readString();
-                    struct.repositoryUri.add(_elem281);
+                    _elem289 = iprot.readString();
+                    struct.repositoryUri.add(_elem289);
                   }
                   iprot.readListEnd();
                 }
@@ -31969,13 +32018,13 @@ public class Hawk {
             case 3: // FILE_PATH
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list283 = iprot.readListBegin();
-                  struct.filePath = new ArrayList<String>(_list283.size);
-                  String _elem284;
-                  for (int _i285 = 0; _i285 < _list283.size; ++_i285)
+                  org.apache.thrift.protocol.TList _list291 = iprot.readListBegin();
+                  struct.filePath = new ArrayList<String>(_list291.size);
+                  String _elem292;
+                  for (int _i293 = 0; _i293 < _list291.size; ++_i293)
                   {
-                    _elem284 = iprot.readString();
-                    struct.filePath.add(_elem284);
+                    _elem292 = iprot.readString();
+                    struct.filePath.add(_elem292);
                   }
                   iprot.readListEnd();
                 }
@@ -32024,9 +32073,9 @@ public class Hawk {
           oprot.writeFieldBegin(REPOSITORY_URI_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.repositoryUri.size()));
-            for (String _iter286 : struct.repositoryUri)
+            for (String _iter294 : struct.repositoryUri)
             {
-              oprot.writeString(_iter286);
+              oprot.writeString(_iter294);
             }
             oprot.writeListEnd();
           }
@@ -32036,9 +32085,9 @@ public class Hawk {
           oprot.writeFieldBegin(FILE_PATH_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePath.size()));
-            for (String _iter287 : struct.filePath)
+            for (String _iter295 : struct.filePath)
             {
-              oprot.writeString(_iter287);
+              oprot.writeString(_iter295);
             }
             oprot.writeListEnd();
           }
@@ -32070,16 +32119,16 @@ public class Hawk {
         oprot.writeString(struct.name);
         {
           oprot.writeI32(struct.repositoryUri.size());
-          for (String _iter288 : struct.repositoryUri)
+          for (String _iter296 : struct.repositoryUri)
           {
-            oprot.writeString(_iter288);
+            oprot.writeString(_iter296);
           }
         }
         {
           oprot.writeI32(struct.filePath.size());
-          for (String _iter289 : struct.filePath)
+          for (String _iter297 : struct.filePath)
           {
-            oprot.writeString(_iter289);
+            oprot.writeString(_iter297);
           }
         }
         BitSet optionals = new BitSet();
@@ -32104,24 +32153,24 @@ public class Hawk {
         struct.name = iprot.readString();
         struct.setNameIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list290 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.repositoryUri = new ArrayList<String>(_list290.size);
-          String _elem291;
-          for (int _i292 = 0; _i292 < _list290.size; ++_i292)
+          org.apache.thrift.protocol.TList _list298 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.repositoryUri = new ArrayList<String>(_list298.size);
+          String _elem299;
+          for (int _i300 = 0; _i300 < _list298.size; ++_i300)
           {
-            _elem291 = iprot.readString();
-            struct.repositoryUri.add(_elem291);
+            _elem299 = iprot.readString();
+            struct.repositoryUri.add(_elem299);
           }
         }
         struct.setRepositoryUriIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list293 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.filePath = new ArrayList<String>(_list293.size);
-          String _elem294;
-          for (int _i295 = 0; _i295 < _list293.size; ++_i295)
+          org.apache.thrift.protocol.TList _list301 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePath = new ArrayList<String>(_list301.size);
+          String _elem302;
+          for (int _i303 = 0; _i303 < _list301.size; ++_i303)
           {
-            _elem294 = iprot.readString();
-            struct.filePath.add(_elem294);
+            _elem302 = iprot.readString();
+            struct.filePath.add(_elem302);
           }
         }
         struct.setFilePathIsSet(true);
@@ -32455,14 +32504,14 @@ public class Hawk {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list296 = iprot.readListBegin();
-                  struct.success = new ArrayList<ModelElement>(_list296.size);
-                  ModelElement _elem297;
-                  for (int _i298 = 0; _i298 < _list296.size; ++_i298)
+                  org.apache.thrift.protocol.TList _list304 = iprot.readListBegin();
+                  struct.success = new ArrayList<ModelElement>(_list304.size);
+                  ModelElement _elem305;
+                  for (int _i306 = 0; _i306 < _list304.size; ++_i306)
                   {
-                    _elem297 = new ModelElement();
-                    _elem297.read(iprot);
-                    struct.success.add(_elem297);
+                    _elem305 = new ModelElement();
+                    _elem305.read(iprot);
+                    struct.success.add(_elem305);
                   }
                   iprot.readListEnd();
                 }
@@ -32490,9 +32539,9 @@ public class Hawk {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (ModelElement _iter299 : struct.success)
+            for (ModelElement _iter307 : struct.success)
             {
-              _iter299.write(oprot);
+              _iter307.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -32523,9 +32572,9 @@ public class Hawk {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (ModelElement _iter300 : struct.success)
+            for (ModelElement _iter308 : struct.success)
             {
-              _iter300.write(oprot);
+              _iter308.write(oprot);
             }
           }
         }
@@ -32537,14 +32586,14 @@ public class Hawk {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list301 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<ModelElement>(_list301.size);
-            ModelElement _elem302;
-            for (int _i303 = 0; _i303 < _list301.size; ++_i303)
+            org.apache.thrift.protocol.TList _list309 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<ModelElement>(_list309.size);
+            ModelElement _elem310;
+            for (int _i311 = 0; _i311 < _list309.size; ++_i311)
             {
-              _elem302 = new ModelElement();
-              _elem302.read(iprot);
-              struct.success.add(_elem302);
+              _elem310 = new ModelElement();
+              _elem310.read(iprot);
+              struct.success.add(_elem310);
             }
           }
           struct.setSuccessIsSet(true);
@@ -33242,13 +33291,13 @@ public class Hawk {
             case 3: // FILE_PATH
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list304 = iprot.readListBegin();
-                  struct.filePath = new ArrayList<String>(_list304.size);
-                  String _elem305;
-                  for (int _i306 = 0; _i306 < _list304.size; ++_i306)
+                  org.apache.thrift.protocol.TList _list312 = iprot.readListBegin();
+                  struct.filePath = new ArrayList<String>(_list312.size);
+                  String _elem313;
+                  for (int _i314 = 0; _i314 < _list312.size; ++_i314)
                   {
-                    _elem305 = iprot.readString();
-                    struct.filePath.add(_elem305);
+                    _elem313 = iprot.readString();
+                    struct.filePath.add(_elem313);
                   }
                   iprot.readListEnd();
                 }
@@ -33302,9 +33351,9 @@ public class Hawk {
           oprot.writeFieldBegin(FILE_PATH_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.filePath.size()));
-            for (String _iter307 : struct.filePath)
+            for (String _iter315 : struct.filePath)
             {
-              oprot.writeString(_iter307);
+              oprot.writeString(_iter315);
             }
             oprot.writeListEnd();
           }
@@ -33341,9 +33390,9 @@ public class Hawk {
         oprot.writeString(struct.repositoryUri);
         {
           oprot.writeI32(struct.filePath.size());
-          for (String _iter308 : struct.filePath)
+          for (String _iter316 : struct.filePath)
           {
-            oprot.writeString(_iter308);
+            oprot.writeString(_iter316);
           }
         }
         oprot.writeString(struct.clientID);
@@ -33358,13 +33407,13 @@ public class Hawk {
         struct.repositoryUri = iprot.readString();
         struct.setRepositoryUriIsSet(true);
         {
-          org.apache.thrift.protocol.TList _list309 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.filePath = new ArrayList<String>(_list309.size);
-          String _elem310;
-          for (int _i311 = 0; _i311 < _list309.size; ++_i311)
+          org.apache.thrift.protocol.TList _list317 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.filePath = new ArrayList<String>(_list317.size);
+          String _elem318;
+          for (int _i319 = 0; _i319 < _list317.size; ++_i319)
           {
-            _elem310 = iprot.readString();
-            struct.filePath.add(_elem310);
+            _elem318 = iprot.readString();
+            struct.filePath.add(_elem318);
           }
         }
         struct.setFilePathIsSet(true);

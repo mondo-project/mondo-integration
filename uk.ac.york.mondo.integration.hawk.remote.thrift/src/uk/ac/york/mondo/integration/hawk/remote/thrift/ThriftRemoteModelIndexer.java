@@ -46,7 +46,6 @@ import org.hawk.core.query.IAccessListener;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
-import org.hawk.core.runtime.ModelIndexerImpl;
 import org.hawk.core.runtime.util.SecurityManager;
 import org.hawk.core.util.HawkProperties;
 
@@ -430,21 +429,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void removeMetamodel(File[] metamodel) throws Exception {
-		/*
-		 * TODO ask Kostas - why does this take a File and not a metamodel URI?
-		 * Hawk copies metamodels to its own storage, so this doesn't make
-		 * sense.
-		 */
-		console.printerrln("WARN: removing metamodels is not supported yet in " + this.getClass().getName());
-	}
-
-	@Override
-	public void removeMetamodel(File metamodel) throws Exception {
-		removeMetamodel(new File[] { metamodel });
-	}
-
-	@Override
 	public IAbstractConsole getConsole() {
 		return console;
 	}
@@ -677,6 +661,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void setSyncMetricsEnabled(Boolean enable) {
 		// do nothing
+	}
+
+	@Override
+	public void removeMetamodels(String[] metamodelURIs) throws Exception {
+		client.unregisterMetamodels(name, Arrays.asList(metamodelURIs));
 	}
 
 }

@@ -156,11 +156,9 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void unregisterMetamodel(String name, String metamodel) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
-		//final HModel model = getRunningHawkByName(name);
-
-		// TODO Unregister metamodel not implemented by Hawk yet
-		throw new TException(new UnsupportedOperationException());
+	public void unregisterMetamodels(String name, List<String> metamodels) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final HModel model = getRunningHawkByName(name);
+		model.removeMetamodels(metamodels.toArray(new String[metamodels.size()]));
 	}
 
 	@Override
