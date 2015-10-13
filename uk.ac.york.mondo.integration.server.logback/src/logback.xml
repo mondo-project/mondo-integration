@@ -17,6 +17,10 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 
+	<logger name="org.apache.shiro" level="error" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
 	<root level="debug">
 		<appender-ref ref="STDOUT" />
 	</root>
