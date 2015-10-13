@@ -30,6 +30,7 @@ import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
+import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
 
 public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 
@@ -44,13 +45,13 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	 * Creates a resource as a subordinate of another. Used to indicate the
 	 * repository URL and file of an {@link EObject}.
 	 */
-	public HawkFileResourceImpl(URI uri, HawkResource mainResource) {
+	public HawkFileResourceImpl(final URI uri, final HawkResource mainResource) {
 		super(uri);
 		this.mainResource = mainResource;
 	}
 
 	@Override
-	public boolean hasChildren(EObject o) {
+	public boolean hasChildren(final EObject o) {
 		if (mainResource != null) {
 			return mainResource.hasChildren(o);
 		} else {
@@ -59,41 +60,46 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
+	public Map<EObject, Object> fetchValuesByEStructuralFeature(final EStructuralFeature feature)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		return mainResource.fetchValuesByEStructuralFeature(feature);
 	}
 
 	@Override
-	public EList<EObject> fetchNodes(EClass eClass)
+	public EList<EObject> fetchNodes(final EClass eClass)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		return mainResource.fetchNodes(eClass);
 	}
 
 	@Override
-	public List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
+	public List<Object> fetchValuesByEClassifier(final EClassifier dataType) throws HawkInstanceNotFound,
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
 		return mainResource.fetchValuesByEClassifier(dataType);
 	}
 
 	@Override
-	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
+	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(final EClassifier dataType) throws HawkInstanceNotFound,
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		return mainResource.fetchTypesWithEClassifier(dataType);
 	}
 
 	@Override
-	public boolean isModelUpdateInProgress() {
-		return mainResource.isModelUpdateInProgress();
-	}
-
-	@Override
-	public boolean addSyncEndListener(Runnable r) {
+	public boolean addSyncEndListener(final Runnable r) {
 		return mainResource.addSyncEndListener(r);
 	}
 
 	@Override
-	public boolean removeSyncEndListener(Runnable r) {
+	public boolean removeSyncEndListener(final Runnable r) {
 		return mainResource.removeSyncEndListener(r);
+	}
+
+	@Override
+	public boolean addChangeListener(final IHawkResourceChangeListener l) {
+		return mainResource.addChangeListener(l);
+	}
+
+	@Override
+	public boolean removeChangeListener(final IHawkResourceChangeListener l) {
+		return mainResource.removeChangeListener(l);
 	}
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.thrift.TException;
-import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -49,15 +48,12 @@ public interface HawkResource extends Resource {
 	Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(EClassifier dataType) throws HawkInstanceNotFound,
 			HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException;
 
-	/**
-	 * Returns <code>true</code> if a remote update is being processed.
-	 * This is useful mostly for {@link Adapter} instances that only want
-	 * to process notification during those moments.
-	 */
-	boolean isModelUpdateInProgress();
-
 	boolean addSyncEndListener(Runnable r);
 
 	boolean removeSyncEndListener(Runnable r);
+
+	boolean addChangeListener(IHawkResourceChangeListener l);
+
+	boolean removeChangeListener(IHawkResourceChangeListener l);
 
 }
