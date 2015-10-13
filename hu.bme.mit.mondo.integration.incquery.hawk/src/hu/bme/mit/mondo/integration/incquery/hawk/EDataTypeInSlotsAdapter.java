@@ -1,5 +1,6 @@
 package hu.bme.mit.mondo.integration.incquery.hawk;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
@@ -14,6 +15,7 @@ import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
 
 class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListener, IHawkResourceChangeListener {
 
+	private static final Logger LOGGER = Logger.getLogger(EDataTypeInSlotsAdapter.class);
 	private final InstanceCounter counter = new InstanceCounter();
 	private final Object seedValue;
 	private final EDataType filterDataType;
@@ -22,6 +24,9 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
 		super(listener, seedValue);
 		this.seedValue = seedValue;
 		this.filterDataType = filterDataType;
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Listening on instances of data type " + filterDataType);
+		}
 	}
 
 	@Override
@@ -31,6 +36,9 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
     		if (seedValue != null && !seedValue.equals(instance)) return;
 			listener.update(new EDataTypeInSlotsKey(type), 
     				new FlatTuple(instance), true);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Notified of new instance of data type " + type + ": " + instance);
+			}
 		}
 	}
 
@@ -41,6 +49,9 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
     		if (seedValue != null && !seedValue.equals(instance)) return;
     		listener.update(new EDataTypeInSlotsKey(type), 
     				new FlatTuple(instance), false);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Notified of deletion of instance of data type " + type + ": " + instance);
+			}
 		}
 	}
 
@@ -78,7 +89,7 @@ class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListene
 	@Override
 	public void dataTypeInserted(final EClassifier eType, final Object newValue) {
 		if (filterDataType == eType) {
-			 dataTypeInstanceInserted(filterDataType, newValue, counter.remove(newValue));
+			 dataTypeInstanceInserted(filterDataType, newValue, counter.add(newValue));
 		}
 	}
 

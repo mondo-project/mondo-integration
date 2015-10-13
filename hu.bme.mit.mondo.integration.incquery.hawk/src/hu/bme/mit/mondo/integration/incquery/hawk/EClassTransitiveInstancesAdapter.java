@@ -1,5 +1,6 @@
 package hu.bme.mit.mondo.integration.incquery.hawk;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -12,6 +13,8 @@ import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
 
 class EClassTransitiveInstancesAdapter extends ListenerAdapter implements InstanceListener, IHawkResourceChangeListener {
+
+	private static final Logger LOGGER = Logger.getLogger(EClassTransitiveInstancesAdapter.class);
 	private final Object seedInstance;
 	private final EClass filterClass;
 
@@ -19,6 +22,9 @@ class EClassTransitiveInstancesAdapter extends ListenerAdapter implements Instan
 		super(listener, seedInstance);
 		this.seedInstance = seedInstance;
 		this.filterClass = filterClass;
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Listening on instances of class " + filterClass);
+		}
 	}
 
 	@Override
@@ -27,6 +33,9 @@ class EClassTransitiveInstancesAdapter extends ListenerAdapter implements Instan
 			if (seedInstance != null && !seedInstance.equals(instance))
 				return;
 			listener.update(new EClassTransitiveInstancesKey(clazz), new FlatTuple(instance), true);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Notified of new instance of type " + filterClass + ": " + instance);
+			}
 		}
 	}
 
@@ -36,6 +45,9 @@ class EClassTransitiveInstancesAdapter extends ListenerAdapter implements Instan
 			if (seedInstance != null && !seedInstance.equals(instance))
 				return;
 			listener.update(new EClassTransitiveInstancesKey(clazz), new FlatTuple(instance), false);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Notified of deleted instance of type " + filterClass + ": " + instance);
+			}
 		}
 	}
 

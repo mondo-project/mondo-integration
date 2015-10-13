@@ -1,5 +1,6 @@
 package hu.bme.mit.mondo.integration.incquery.hawk;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -15,6 +16,7 @@ class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements F
 	private final Object seedHost;
 	private final Object seedValue;
 	private final EStructuralFeature filterFeature;
+	private static final Logger LOGGER = Logger.getLogger(EStructuralFeatureInstancesKeyAdapter.class);
 
 	public EStructuralFeatureInstancesKeyAdapter(final IQueryRuntimeContextListener listener, final EStructuralFeature filterSF, final Object seedHost,
 			final Object seedValue) {
@@ -22,6 +24,9 @@ class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements F
 		this.filterFeature = filterSF;
 		this.seedHost = seedHost;
 		this.seedValue = seedValue;
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Listening on values of structural feature " + filterFeature.getEContainingClass().getName() + "." + filterFeature.getName());
+		}
 	}
 
 	@Override
@@ -32,7 +37,11 @@ class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements F
 			return;
 		if (seedValue != null && !seedValue.equals(value))
 			return;
+
 		listener.update(new EStructuralFeatureInstancesKey(feature), new FlatTuple(host, value), true);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Notified of feature insertion: feature " + feature.getEContainingClass().getName() + "." + feature.getName() + " in " + host + ": new value " + value);
+		}
 	}
 
 	@Override
@@ -43,7 +52,11 @@ class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements F
 			return;
 		if (seedValue != null && !seedValue.equals(value))
 			return;
+
 		listener.update(new EStructuralFeatureInstancesKey(feature), new FlatTuple(host, value), false);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Notified of feature deletion: feature " + feature.getEContainingClass().getName() + "." + feature.getName() + " in " + host + ": old value " + value);
+		}
 	}
 
 	@Override

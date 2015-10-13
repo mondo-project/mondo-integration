@@ -322,9 +322,15 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			final EStructuralFeature feature = ((EStructuralFeatureInstancesKey) key).getEmfKey();
 			final Object seedHost = seed.get(0);
 			final Object seedValue = seed.get(1);
-			final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
+
+			try {
+				hawkResource.fetchNodes(feature.getEContainingClass());
+				final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
 					listener, feature, seedHost, seedValue);
-			hawkResource.addChangeListener(incqAdapter);
+				hawkResource.addChangeListener(incqAdapter);
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
 		} else {
 			illegalInputKey(key);
 		}
