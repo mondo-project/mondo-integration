@@ -193,7 +193,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				}
 
 				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
-					lazyResolver.removeFromLazyReferences(source, ref, target != null ? target : ev.targetId);
+					if (!lazyResolver.removeFromLazyReferences(source, ref, ev.targetId) && target != null) {
+						lazyResolver.removeFromLazyReferences(source, ref, target);
+					}
 					if (target != null) {
 						featureDeleted(source, ref, target);
 					}
@@ -400,66 +402,6 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				}
 			}
 		}
-
-		private void notifyAttributeUnset(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {
-			if (oldValue instanceof Iterable) {
-				for (final Object o : (Iterable<?>)oldValue) {
-					dataTypeDeleted(eAttr.getEType(), o);
-					featureDeleted(eob, eAttr, o);
-				}
-			} else {
-				dataTypeDeleted(eAttr.getEType(), oldValue);
-				featureDeleted(eob, eAttr, oldValue);
-			}
-		}
-
-		private void notifyAttributeSet(final EObject eob, final EStructuralFeature eAttr, final Object newValue) {
-			if (newValue instanceof Iterable) {
-				for (final Object o : (Iterable<?>)newValue) {
-					dataTypeInserted(eAttr.getEType(), o);
-					featureInserted(eob, eAttr, o);
-				}
-			} else {
-				dataTypeInserted(eAttr.getEType(), newValue);
-				featureInserted(eob, eAttr, newValue);
-			}
-		}
-
-		private void featureInserted(final EObject source, final EStructuralFeature eAttr, final Object o) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.featureInserted(source, eAttr, o);
-			}
-		}
-
-		private void featureDeleted(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.featureDeleted(eob, eAttr, oldValue);
-			}
-		}
-
-		private void instanceDeleted(final EObject eob, final EClass eClass) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.instanceDeleted(eClass, eob);
-			}
-		}
-
-		private void instanceInserted(final EObject eob, final EClass eClass) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.instanceInserted(eClass, eob);
-			}
-		}
-
-		private void dataTypeDeleted(final EClassifier eType, final Object oldValue) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.dataTypeDeleted(eType, oldValue);
-			}
-		}
-
-		private void dataTypeInserted(final EClassifier eType, final Object newValue) {
-			for (final IHawkResourceChangeListener l : changeListeners) {
-				l.dataTypeInserted(eType, newValue);
-			}
-		}
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkResourceImpl.class);
@@ -560,7 +502,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			if (r.isContainment()) {
 				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)o, r)) {
 					// we assume that pending references always have at least one ID
-					return true;
+					return lazyResolver.hasChildren((InternalEObject)o, r);
 				}
 				final Object v = o.eGet(r);
 				if (r.isMany() && !((Collection<EObject>)v).isEmpty() || !r.isMany() && v != null) {
@@ -769,6 +711,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	public Map<EObject, Object> fetchValuesByEStructuralFeature(final EStructuralFeature feature) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		final EClass featureEClass = feature.getEContainingClass();
 		final EList<EObject> eobs = fetchNodes(featureEClass);
+		LOGGER.debug("Fetched {} nodes of class {}", eobs.size(), featureEClass.getName());
 
 		final Map<EObject, Object> values = new IdentityHashMap<>();
 		for (final EObject eob : eobs) {
@@ -1171,6 +1114,66 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	@Override
 	protected void doSave(final OutputStream outputStream, final Map<?, ?> options) throws IOException {
 		throw new UnsupportedOperationException("Remote views are read-only");
+	}
+
+	private void notifyAttributeUnset(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {
+		if (oldValue instanceof Iterable) {
+			for (final Object o : (Iterable<?>)oldValue) {
+				dataTypeDeleted(eAttr.getEType(), o);
+				featureDeleted(eob, eAttr, o);
+			}
+		} else {
+			dataTypeDeleted(eAttr.getEType(), oldValue);
+			featureDeleted(eob, eAttr, oldValue);
+		}
+	}
+
+	private void notifyAttributeSet(final EObject eob, final EStructuralFeature eAttr, final Object newValue) {
+		if (newValue instanceof Iterable) {
+			for (final Object o : (Iterable<?>)newValue) {
+				dataTypeInserted(eAttr.getEType(), o);
+				featureInserted(eob, eAttr, o);
+			}
+		} else {
+			dataTypeInserted(eAttr.getEType(), newValue);
+			featureInserted(eob, eAttr, newValue);
+		}
+	}
+
+	private void featureInserted(final EObject source, final EStructuralFeature eAttr, final Object o) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.featureInserted(source, eAttr, o);
+		}
+	}
+
+	private void featureDeleted(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.featureDeleted(eob, eAttr, oldValue);
+		}
+	}
+
+	private void instanceDeleted(final EObject eob, final EClass eClass) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.instanceDeleted(eClass, eob);
+		}
+	}
+
+	private void instanceInserted(final EObject eob, final EClass eClass) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.instanceInserted(eClass, eob);
+		}
+	}
+
+	private void dataTypeDeleted(final EClassifier eType, final Object oldValue) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.dataTypeDeleted(eType, oldValue);
+		}
+	}
+
+	private void dataTypeInserted(final EClassifier eType, final Object newValue) {
+		for (final IHawkResourceChangeListener l : changeListeners) {
+			l.dataTypeInserted(eType, newValue);
+		}
 	}
 
 }

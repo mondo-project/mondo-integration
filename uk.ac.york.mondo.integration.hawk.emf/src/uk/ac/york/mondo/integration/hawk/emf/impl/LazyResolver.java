@@ -112,18 +112,21 @@ class LazyResolver {
 			pendingRefs.put(sourceObj, allPending);
 		}
 		allPending.put(feature, value);
+		//LOGGER.debug("Set lazy references of feature {} in #{}: {}", feature.getName(), sourceObj, value);
 	}
 
-	public void addToLazyReferences(EObject sourceObj, EReference feature, Object value) {
+	public boolean addToLazyReferences(EObject sourceObj, EReference feature, Object value) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		EList<Object> pending = allPending.get(feature);
-		pending.add(value);
+		//LOGGER.debug("Added {} to lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
+		return pending.add(value);
 	}
 
-	public void removeFromLazyReferences(EObject sourceObj, EReference feature, Object value) {
+	public boolean removeFromLazyReferences(EObject sourceObj, EReference feature, Object value) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		EList<Object> pending = allPending.get(feature);
-		pending.remove(value);
+		//LOGGER.debug("Removed {} from lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
+		return pending.remove(value);
 	}
 
 	/**
@@ -181,5 +184,13 @@ class LazyResolver {
 				target.add((String)elem);
 			}
 		}
+	}
+
+	public boolean hasChildren(InternalEObject o, EReference r) {
+		assert isPending(o, r) : "Callers to hasChildren should always check first with isPending";
+
+		Map<EReference, EList<Object>> allPending = pendingRefs.get(o);
+		EList<Object> pending = allPending.get(r);
+		return !pending.isEmpty();
 	}
 }
