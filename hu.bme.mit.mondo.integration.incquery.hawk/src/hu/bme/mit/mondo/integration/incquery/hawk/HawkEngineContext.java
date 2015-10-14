@@ -50,7 +50,7 @@ public class HawkEngineContext implements IEngineContext {
 		}
 		
 		if (hawkQueryRuntimeContext == null) {
-			hawkQueryRuntimeContext = new HawkQueryRuntimeContext<>(hawkResource, logger);
+			hawkQueryRuntimeContext = new HawkQueryRuntimeContext<>(hawkResource, logger, hawkScope);
 			initializer.initializeWith(hawkQueryRuntimeContext);
 		}
 	}
