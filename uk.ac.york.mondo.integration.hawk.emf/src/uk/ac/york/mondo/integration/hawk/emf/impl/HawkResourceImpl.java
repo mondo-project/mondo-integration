@@ -307,6 +307,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 				if (eAttr != null) {
 					eob.eUnset(eAttr);
+					if (!changeListeners.isEmpty() && eAttr.getDefaultValue() != null) {
+						notifyAttributeSet(eob, eAttr, eAttr.getDefaultValue());
+					}
 				}
 			}
 		}
