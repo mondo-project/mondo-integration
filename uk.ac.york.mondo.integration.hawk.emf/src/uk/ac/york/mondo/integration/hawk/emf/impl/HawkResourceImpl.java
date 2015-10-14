@@ -261,14 +261,16 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		@SuppressWarnings("unchecked")
 		private void handle(final HawkModelElementRemovalEvent ev) {
 			final EObject eob = nodeIdToEObjectMap.remove(ev.id);
-			if (eob != null && eob.eResource() != null) {
+			if (eob != null) {
 				synchronized (classToEObjectsMap) {
 					final EList<EObject> instances = classToEObjectsMap.get(eob.eClass());
 					if (instances != null) {
 						instances.remove(eob);
 					}
 				}
-				eob.eResource().getContents().remove(eob);
+				if (eob.eResource() != null) {
+					eob.eResource().getContents().remove(eob);
+				}
 
 				final EObject container = eob.eContainer();
 				if (container != null) {
