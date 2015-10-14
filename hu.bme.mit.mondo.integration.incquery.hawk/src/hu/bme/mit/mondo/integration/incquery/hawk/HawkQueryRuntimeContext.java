@@ -122,9 +122,9 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			throw new RuntimeException(e);
 		}
 
-		// System.out.println("countTuples: " + clean(key.toString()) + ", " + seed);
-		// System.out.println(result);
-		// System.out.println();
+		System.out.println("countTuples: " + clean(key.toString()) + ", " + seed);
+		System.out.println(result);
+		System.out.println();
 
 		return result;
 	}
@@ -202,9 +202,14 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			throw new RuntimeException(e);
 		}
 
-		// System.out.println("enumerateTuples: " + clean(key.toString()) + ", " + seed);
+		System.out.println("enumerateTuples: " + clean(key.toString()) + ", " + seed);
 		// System.out.println(clean(result.toString()));
-		// System.out.println();
+		int n = 0;
+		for (final Tuple tuple : result) {
+			n++;
+		}
+		System.out.println(n);
+		System.out.println();
 
 		return result;
 	}
@@ -258,9 +263,9 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			throw new RuntimeException(e);
 		}
 
-		// System.out.println("enumerateValues: " + clean(key.toString()) + ", " + seed);
-		// System.out.println(clean(result.toString()));
-		// System.out.println();
+		System.out.println("enumerateValues: " + clean(key.toString()) + ", " + seed);
+		System.out.println(clean(result.toString()));
+		System.out.println();
 
 		return result;
 	}
@@ -326,7 +331,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			try {
 				hawkResource.fetchNodes(feature.getEContainingClass());
 				final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
-					listener, feature, seedHost, seedValue);
+						listener, feature, seedHost, seedValue);
 				hawkResource.addChangeListener(incqAdapter);
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
@@ -337,15 +342,16 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 	}
 
 	@Override
-	public void removeUpdateListener(final IInputKey key, final Tuple seed, final IQueryRuntimeContextListener listener) {
+	public void removeUpdateListener(final IInputKey key, final Tuple seed,
+			final IQueryRuntimeContextListener listener) {
 		if (key instanceof JavaTransitiveInstancesKey)
 			return;
 
 		if (key instanceof EClassTransitiveInstancesKey) {
 			final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 			final Object seedInstance = seed.get(0);
-			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener,
-					eClass, seedInstance);
+			final EClassTransitiveInstancesAdapter incqAdapter = new EClassTransitiveInstancesAdapter(listener, eClass,
+					seedInstance);
 			hawkResource.removeChangeListener(incqAdapter);
 		} else if (key instanceof EDataTypeInSlotsKey) {
 			final EDataType dataType = ((EDataTypeInSlotsKey) key).getEmfKey();
