@@ -105,10 +105,7 @@ class LazyResolver {
 	 *            Mixed list of {@link String}s (from ID-based references) or
 	 *            {@link EObject}s (from position-based references).
 	 */
-	public void addLazyReferences(EObject sourceObj, EReference feature, EList<Object> value) {
-		// ignore empty lists
-		if (value.isEmpty()) return;
-
+	public void markLazyReferences(EObject sourceObj, EReference feature, EList<Object> value) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		if (allPending == null) {
 			allPending = new IdentityHashMap<>();
@@ -117,11 +114,23 @@ class LazyResolver {
 		allPending.put(feature, value);
 	}
 
+	public void addToLazyReferences(EObject sourceObj, EReference feature, Object value) {
+		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
+		EList<Object> pending = allPending.get(feature);
+		pending.add(value);
+	}
+
+	public void removeFromLazyReferences(EObject sourceObj, EReference feature, Object value) {
+		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
+		EList<Object> pending = allPending.get(feature);
+		pending.remove(value);
+	}
+
 	/**
 	 * Marks a certain {@link EObject} so its attributes will be fetched on
 	 * demand.
 	 */
-	public void addLazyAttributes(String id, EObject eObject) {
+	public void markLazyAttributes(String id, EObject eObject) {
 		pendingAttrs.put(eObject, id);
 	}
 

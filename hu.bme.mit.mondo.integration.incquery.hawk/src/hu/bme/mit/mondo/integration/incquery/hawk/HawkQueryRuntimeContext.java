@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.incquery.runtime.emf.EMFQueryRuntimeContext;
+import org.eclipse.incquery.runtime.emf.EMFScope;
 import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
 import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey;
@@ -42,8 +43,8 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 	private final HawkResource hawkResource;
 
-	public HawkQueryRuntimeContext(final HawkResource hawkResource, final Logger logger) {
-		super(null, logger);
+	public HawkQueryRuntimeContext(final HawkResource hawkResource, final Logger logger, final EMFScope scope) {
+		super(null, logger, scope);
 		this.hawkResource = hawkResource;
 	}
 

@@ -185,26 +185,35 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		private void handle(final HawkReferenceRemovalEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
-			if (source != null && target != null) {
+			if (source != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-				if (!ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+				if (!ref.isChangeable()) {
 					// we don't want to invoke eGet on unchangeable or pending references/attributes
 					return;
 				}
-				if (!ref.getEType().isInstance(target)) {
-					throw new IllegalArgumentException(
+
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
+					lazyResolver.removeFromLazyReferences(source, ref, target != null ? target : ev.targetId);
+					if (target != null) {
+						featureDeleted(source, ref, target);
+					}
+				}
+				else if (target != null) {
+					if (!ref.getEType().isInstance(target)) {
+						throw new IllegalArgumentException(
 							String.format("The target node %s is a %s, not an instance of %s", ev.targetId,
 									target.eClass().getName(), ref.getEType().getName()));
-				}
+					}
 
-				if (ref.isMany()) {
-					final Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
-					objs.remove(target);
-				} else {
-					source.eUnset(ref);
-				}
+					if (ref.isMany()) {
+						final Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
+						objs.remove(target);
+					} else {
+						source.eUnset(ref);
+					}
 
-				featureDeleted(source, ref, target);
+					featureDeleted(source, ref, target);
+				}
 			}
 		}
 
@@ -212,35 +221,40 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		private void handle(final HawkReferenceAdditionEvent ev) {
 			final EObject source = nodeIdToEObjectMap.get(ev.sourceId);
 			final EObject target = nodeIdToEObjectMap.get(ev.targetId);
-			if (source != null && target != null) {
+			if (source != null) {
 				final EReference ref = (EReference)source.eClass().getEStructuralFeature(ev.refName);
-				if (ref == null || !ref.isChangeable() || lazyResolver != null && lazyResolver.isPending((InternalEObject)source, ref)) {
-					// we don't want to invoke eGet on unchangeable or pending references/attributes.
-					// also, ref may be null if the node ID has been reused for a different type of node
-					// since we received that message.
+				if (!ref.isChangeable()) {
+					// we don't want to invoke eGet on unchangeable references/attributes.
 					return;
 				}
-				if (!ref.getEType().isInstance(target)) {
-					throw new IllegalArgumentException(
-							String.format("The target node %s is a %s, not an instance of %s", ev.targetId,
-									target.eClass().getName(), ref.getEType().getName()));
-				}
 
-				if (ref.isMany()) {
-					final Collection<EObject> objs = (Collection<EObject>)source.eGet(ref);
-					objs.add(target);
-				} else {
-					source.eSet(ref, target);
-				}
+				if (lazyResolver != null && lazyResolver.isPending((InternalEObject) source, ref)) {
+					lazyResolver.addToLazyReferences(source, ref, target != null ? target : ev.targetId);
+					if (target != null) {
+						featureInserted(source, ref, target);
+					}
+				} else if (target != null) {
+					if (!ref.getEType().isInstance(target)) {
+						throw new IllegalArgumentException(
+								String.format("The target node %s is a %s, not an instance of %s", ev.targetId,
+										target.eClass().getName(), ref.getEType().getName()));
+					}
 
-				if (ref.isContainer()) {
-					source.eResource().getContents().remove(source);
-				}
-				else if (ref.isContainment()) {
-					target.eResource().getContents().remove(target);
-				}
+					if (ref.isMany()) {
+						final Collection<EObject> objs = (Collection<EObject>) source.eGet(ref);
+						objs.add(target);
+					} else {
+						source.eSet(ref, target);
+					}
 
-				featureInserted(source, ref, target);
+					if (ref.isContainer()) {
+						source.eResource().getContents().remove(source);
+					} else if (ref.isContainment()) {
+						target.eResource().getContents().remove(target);
+					}
+
+					featureInserted(source, ref, target);
+				}
 			}
 		}
 
@@ -845,7 +859,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				SlotDecodingUtils.setFromSlot(factory, eClass, obj, s);
 			}
 		} else if (!mode.isGreedyAttributes()) {
-			getLazyResolver().addLazyAttributes(me.id, obj);
+			getLazyResolver().markLazyAttributes(me.id, obj);
 		}
 
 		return obj;
@@ -1027,7 +1041,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			} else if (!greedyElements) {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
-				getLazyResolver().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().markLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else if (s.isSetIds()) {
@@ -1046,7 +1060,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				eSetValues = null;
 				final EList<Object> lazyIds = new BasicEList<>();
 				lazyIds.addAll(s.ids);
-				getLazyResolver().addLazyReferences(sourceObj, feature, lazyIds);
+				getLazyResolver().markLazyReferences(sourceObj, feature, lazyIds);
 			}
 		}
 		else if (s.isSetPosition()) {
@@ -1083,7 +1097,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			if (allFetched) {
 				eSetValues = value;
 			} else {
-				getLazyResolver().addLazyReferences(sourceObj, feature, value);
+				getLazyResolver().markLazyReferences(sourceObj, feature, value);
 			}
 		}
 		else {
