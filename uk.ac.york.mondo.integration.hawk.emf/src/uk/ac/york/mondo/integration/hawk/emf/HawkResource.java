@@ -39,7 +39,7 @@ public interface HawkResource extends Resource {
 	Map<EObject, Object> fetchValuesByEStructuralFeature(EStructuralFeature feature)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException;
 
-	EList<EObject> fetchNodes(EClass eClass)
+	EList<EObject> fetchNodes(EClass eClass, boolean includeAttributes)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException;
 
 	List<Object> fetchValuesByEClassifier(EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning,

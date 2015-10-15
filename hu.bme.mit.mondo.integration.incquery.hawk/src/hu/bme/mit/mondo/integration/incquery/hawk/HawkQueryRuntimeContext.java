@@ -81,7 +81,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 				final Object seedInstance = getFromSeed(seed, 0);
 
-				final EList<EObject> instances = hawkResource.fetchNodes(eClass);
+				final EList<EObject> instances = hawkResource.fetchNodes(eClass, false);
 				if (seedInstance == null) { // unseeded
 					result = instances.size();
 				} else { // fully seeded
@@ -139,7 +139,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				final EClass eClass = ((EClassTransitiveInstancesKey) key).getEmfKey();
 				final Object seedInstance = getFromSeed(seed, 0);
 
-				final EList<EObject> instances = hawkResource.fetchNodes(eClass);
+				final EList<EObject> instances = hawkResource.fetchNodes(eClass, false);
 				if (seedInstance == null) { // unseeded
 					result = Iterables.transform(instances, wrapUnary);
 				} else { // fully seeded
@@ -226,7 +226,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 				final Object seedInstance = getFromSeed(seed, 0);
 				if (seedInstance == null) { // unseeded
-					result = hawkResource.fetchNodes(eClass);
+					result = hawkResource.fetchNodes(eClass, false);
 				} else {
 					// must be unseeded, this is enumerateValues after all!
 					illegalEnumerateValues(seed);
@@ -305,7 +305,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				for (final Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
 					final EClass eClass = entry.getKey();
 					final List<EAttribute> eAttrs = entry.getValue();
-					for (final EObject eob : hawkResource.fetchNodes(eClass)) {
+					for (final EObject eob : hawkResource.fetchNodes(eClass, true)) {
 						for (final EAttribute attr : eAttrs) {
 							final Object value = eob.eGet(attr);
 							if (value instanceof Iterable) {
@@ -330,7 +330,6 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			final Object seedValue = seed.get(1);
 
 			try {
-				hawkResource.fetchNodes(feature.getEContainingClass());
 				final EStructuralFeatureInstancesKeyAdapter incqAdapter = new EStructuralFeatureInstancesKeyAdapter(
 						listener, feature, seedHost, seedValue);
 				hawkResource.addChangeListener(incqAdapter);

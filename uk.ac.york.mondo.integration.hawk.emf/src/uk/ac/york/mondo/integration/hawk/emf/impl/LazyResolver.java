@@ -11,7 +11,7 @@
 package uk.ac.york.mondo.integration.hawk.emf.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,6 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ class LazyResolver {
 	 * the actual call to {@link EObject#eGet(EStructuralFeature)} will retrieve
 	 * the appropriate value.
 	 */
-	public void resolve(InternalEObject object, EStructuralFeature feature) {
+	public void resolve(EObject object, EStructuralFeature feature) {
 		try {
 			if (feature instanceof EReference) {
 				Map<EReference, EList<Object>> pending = pendingRefs.get(object);
@@ -70,7 +69,9 @@ class LazyResolver {
 			else if (feature instanceof EAttribute) {
 				String pendingId = pendingAttrs.remove(object);
 				if (pendingId != null) {
-					resource.fetchAttributes(object, Arrays.asList(pendingId));
+					final Map<String, EObject> objects = new HashMap<>();
+					objects.put(pendingId, object);
+					resource.fetchAttributes(objects);
 				}
 			}
 		} catch (Exception e) {
@@ -82,7 +83,7 @@ class LazyResolver {
 	 * Returns <code>true</code> if the fetch for feature is pending,
 	 * <code>false</code> otherwise.
 	 */
-	public boolean isPending(InternalEObject object, EStructuralFeature feature) {
+	public boolean isPending(EObject object, EStructuralFeature feature) {
 		if (feature instanceof EReference) {
 			Map<EReference, EList<Object>> pending = pendingRefs.get(object);
 			if (pending != null) {
@@ -112,20 +113,20 @@ class LazyResolver {
 			pendingRefs.put(sourceObj, allPending);
 		}
 		allPending.put(feature, value);
-		//LOGGER.debug("Set lazy references of feature {} in #{}: {}", feature.getName(), sourceObj, value);
+		LOGGER.debug("Set lazy references of feature {} in #{}: {}", feature.getName(), sourceObj, value);
 	}
 
 	public boolean addToLazyReferences(EObject sourceObj, EReference feature, Object value) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		EList<Object> pending = allPending.get(feature);
-		//LOGGER.debug("Added {} to lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
+		LOGGER.debug("Added {} to lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
 		return pending.add(value);
 	}
 
 	public boolean removeFromLazyReferences(EObject sourceObj, EReference feature, Object value) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(sourceObj);
 		EList<Object> pending = allPending.get(feature);
-		//LOGGER.debug("Removed {} from lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
+		LOGGER.debug("Removed {} from lazy references of feature {} in #{}: {}", value, feature.getName(), sourceObj, pending);
 		return pending.remove(value);
 	}
 
@@ -137,7 +138,7 @@ class LazyResolver {
 		pendingAttrs.put(eObject, id);
 	}
 
-	private void resolvePendingReference(InternalEObject object, EReference feature, Map<EReference, EList<Object>> pending, EList<Object> ids) throws Exception {
+	private void resolvePendingReference(EObject object, EReference feature, Map<EReference, EList<Object>> pending, EList<Object> ids) throws Exception {
 			final LoadingMode loadingMode = resource.getDescriptor().getLoadingMode();
 			if (loadingMode.isGreedyReferences()) {
 				// The loading mode says we should prefetch all referenced nodes
@@ -158,7 +159,7 @@ class LazyResolver {
 			}
 	}
 
-	private EList<Object> resolveReference(InternalEObject source, EReference feature, EList<Object> targets) throws Exception {
+	private EList<Object> resolveReference(EObject source, EReference feature, EList<Object> targets) throws Exception {
 		final List<String> ids = new ArrayList<>();
 		addAllStrings(targets, ids);
 		final EList<EObject> resolved = resource.fetchNodes(ids);
@@ -169,7 +170,12 @@ class LazyResolver {
 		for (int iElem = 0; iElem < targets.size(); iElem++) {
 			final Object elem = targets.get(iElem);
 			if (elem instanceof String) {
-				result.add(resolved.get(iResolved++));
+				final EObject eob = resolved.get(iResolved++);
+				if (eob == null) {
+					LOGGER.warn("Failed to resolve lazy reference to node {}: deleted without notification?", elem);
+				} else {
+					result.add(eob);
+				}
 			} else {
 				result.add(elem);
 			}
@@ -186,11 +192,16 @@ class LazyResolver {
 		}
 	}
 
-	public boolean hasChildren(InternalEObject o, EReference r) {
-		assert isPending(o, r) : "Callers to hasChildren should always check first with isPending";
-
+	/**
+	 * Returns a list of {@link String} identifiers and {@link EObject}s if the
+	 * referencde <code>r</code> is pending for the object <code>o</code>, or
+	 * <code>null</code> otherwise.
+	 */
+	public EList<Object> getPending(EObject o, EReference r) {
 		Map<EReference, EList<Object>> allPending = pendingRefs.get(o);
-		EList<Object> pending = allPending.get(r);
-		return !pending.isEmpty();
+		if (allPending != null) {
+			return allPending.get(r);
+		}
+		return null;
 	}
 }

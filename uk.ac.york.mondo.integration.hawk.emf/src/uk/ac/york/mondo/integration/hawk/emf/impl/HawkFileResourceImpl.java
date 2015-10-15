@@ -66,9 +66,9 @@ public class HawkFileResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public EList<EObject> fetchNodes(final EClass eClass)
+	public EList<EObject> fetchNodes(final EClass eClass, boolean includeAttributes)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
-		return mainResource.fetchNodes(eClass);
+		return mainResource.fetchNodes(eClass, includeAttributes);
 	}
 
 	@Override
