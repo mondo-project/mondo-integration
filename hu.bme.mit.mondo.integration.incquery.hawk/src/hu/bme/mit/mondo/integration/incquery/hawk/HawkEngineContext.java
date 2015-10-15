@@ -21,22 +21,22 @@ public class HawkEngineContext implements IEngineContext {
 	protected Logger logger;
 	protected Client client;
 
-	public HawkEngineContext(HawkScope hawkScope, IncQueryEngine engine, Logger logger, Client client) {
+	public HawkEngineContext(final HawkScope hawkScope, final IncQueryEngine engine, final Logger logger, final Client client) {
 		this.hawkScope = hawkScope;
 		this.client = client;
 	}
 
 	@Override
-	public void initializeBackends(IQueryBackendInitializer initializer) throws IncQueryException {
+	public void initializeBackends(final IQueryBackendInitializer initializer) throws IncQueryException {
 		HawkResource hawkResource = null; 
-		outer: for (Notifier notifier : hawkScope.getScopeRoots()) {
+		outer: for (final Notifier notifier : hawkScope.getScopeRoots()) {
 			if (notifier instanceof HawkResource) {
 				hawkResource = (HawkResource) notifier;
 				break;
 			}
 			
 			if (notifier instanceof ResourceSet) {
-				for (Resource resource : ((ResourceSet) notifier).getResources()) {
+				for (final Resource resource : ((ResourceSet) notifier).getResources()) {
 					if (resource instanceof HawkResource) {
 						hawkResource = (HawkResource) resource;
 						break outer;
@@ -45,12 +45,12 @@ public class HawkEngineContext implements IEngineContext {
 			}
 		}
 		if (hawkResource == null) {
-			String msg = "Could not find a HawkResource in the HawkScope.";
+			final String msg = "Could not find a HawkResource in the HawkScope.";
 			throw new IncQueryException(msg, msg);
 		}
 		
 		if (hawkQueryRuntimeContext == null) {
-			hawkQueryRuntimeContext = new HawkQueryRuntimeContext<>(hawkResource, logger, hawkScope);
+			hawkQueryRuntimeContext = new HawkQueryRuntimeContext<>(hawkResource, logger);
 			initializer.initializeWith(hawkQueryRuntimeContext);
 		}
 	}
