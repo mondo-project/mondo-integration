@@ -682,7 +682,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final EList<EObject> finalList = new BasicEList<EObject>(ids.size());
 		for (final String id : ids) {
 			final EObject eObject = nodeIdToEObjectMap.get(id);
-			finalList.add(eObject);
+			if (eObject != null) {
+				finalList.add(eObject);
+			}
 		}
 		return finalList;
 	}

@@ -3,7 +3,6 @@
 
 <product name="Server Product" id="uk.ac.york.mondo.integration.server.product.product" application="uk.ac.york.mondo.integration.server.product.serverapp" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -24,7 +23,6 @@
 
    <windowImages/>
 
-
    <launcher name="mondo-server">
       <solaris/>
       <win useIco="false">
@@ -32,14 +30,12 @@
       </win>
    </launcher>
 
-
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
       <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
-
 
    <plugins>
    </plugins>
@@ -61,6 +57,7 @@
       <feature id="org.hawk.bpmn.feature"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.deps.feature"/>
+      <feature id="org.hawk.emfresource.feature"/>
    </features>
 
    <configurations>
