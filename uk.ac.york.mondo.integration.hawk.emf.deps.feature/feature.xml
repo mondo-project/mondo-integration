@@ -20,6 +20,7 @@
    <requires>
       <import plugin="org.apache.thrift" version="0.9.2" match="greaterOrEqual"/>
       <import plugin="org.slf4j.api" version="1.7.2" match="greaterOrEqual"/>
+      <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi" version="3.7.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.common" version="3.6.100" match="compatible"/>
       <import plugin="org.eclipse.core.jobs" version="3.2.0" match="compatible"/>
@@ -31,7 +32,13 @@
       <import plugin="org.eclipse.equinox.preferences" version="3.2.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.registry" version="3.2.0" match="compatible"/>
       <import plugin="org.eclipse.equinox.common" version="3.2.0" match="compatible"/>
-      <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.emf.ecore" version="2.10.2" match="greaterOrEqual"/>
+      <import plugin="org.hawk.core" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.hawk.graph" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.google.guava"/>
+      <import plugin="org.eclipse.core.runtime" version="3.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources" version="3.7.101" match="greaterOrEqual"/>
+      <import plugin="org.hawk.core.dependencies" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -141,6 +148,47 @@
 
    <plugin
          id="org.apache.commons.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.hawk.emfresource"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.hawk.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.hawk.graph"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.hawk.core.dependencies"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.guava"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.core.resources"
          download-size="0"
          install-size="0"
          version="0.0.0"

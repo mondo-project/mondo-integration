@@ -49,15 +49,19 @@ for f in $DEST/org/eclipse/core/runtime/3.*/runtime-3.*.pom; do
     pom_replace_version "$f" "org.eclipse.equinox" "app" "[1.0.0,2.0.0)"
 done
 
-for f in $(find $DEST/uk/ac/york/mondo/integration -name "*.pom") $(find $DEST/org/hawk -name "*.pom"); do
+for f in $(find $DEST/uk/ac/york/mondo/integration -name "*.pom") $(find $DEST/org/hawk -name "*.pom") $(find $DEST/hu/bme/mit -name "*.pom"); do
     pom_replace_version "$f" "org.slf4j" "api" "[1.7.0,2.0.0)"
+    pom_replace_version "$f" "org.eclipse.core" "resources" "[3.7,4.0)"
     pom_replace_version "$f" "org.eclipse.equinox" "ds" "[1.4,2.0)"
     pom_replace_version "$f" "org.eclipse.emf" "ecore" "[2.10.0,3.0.0)"
+    pom_replace_version "$f" "com.google" "guava" "[15.0.0,16.0.0)"
 
     pom_replace_version "$f" "uk.ac.york.mondo.integration" "api" "$LATEST_API_VERSION"
     pom_replace_version "$f" "uk.ac.york.mondo.integration" "artemis" "$LATEST_ARTEMIS_VERSION"
 
     pom_replace_version "$f" "org.hawk" "core" "$LATEST_HAWK_VERSION"
+    pom_replace_version "$f" "org.hawk" "graph" "$LATEST_HAWK_VERSION"
+    pom_replace_version "$f" "org.hawk" "emfresource" "$LATEST_HAWK_VERSION"
     pom_replace_version "$f" "org.hawk.core" "dependencies" "$LATEST_HAWK_VERSION"
 done
 

@@ -30,6 +30,8 @@
       <import plugin="org.apache.httpcomponents.httpclient" version="4.3.6" match="greaterOrEqual"/>
       <import plugin="org.apache.httpcomponents.httpcore" version="4.3.3" match="greaterOrEqual"/>
       <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.hawk.emfresource" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.google.guava" version="15.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

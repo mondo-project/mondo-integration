@@ -9,7 +9,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <mondo.version>1.0.0-201510051218</mondo.version>
+    <mondo.version>1.0.0-201510211847</mondo.version>
   </properties>
 
   <dependencies>
