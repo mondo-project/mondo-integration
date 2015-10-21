@@ -31,7 +31,6 @@ import org.hawk.core.IModelIndexer;
 import org.hawk.core.VcsChangeType;
 import org.hawk.core.VcsCommit;
 import org.hawk.core.VcsCommitItem;
-import org.hawk.core.VcsRepository;
 import org.hawk.core.VcsRepositoryDelta;
 import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphNode;
@@ -346,8 +345,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private boolean isAcceptedByFilter(VcsCommitItem s) {
 		final VcsCommit commit = s.getCommit();
 		final VcsRepositoryDelta delta = commit.getDelta();
-		final VcsRepository repository = delta.getRepository();
-		final String repositoryURL = repository.getUrl();
+		final String repositoryURL = delta.getManager().getLocation();
 		return repositoryURIPattern.matcher(repositoryURL).matches()
 				&& filePathPattern.matcher(s.getPath()).matches();
 	}
@@ -355,7 +353,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private CommitItem mapToThrift(VcsCommitItem s) {
 		final VcsCommit commit = s.getCommit();
 
-		final String repoURL = commit.getDelta().getRepository().getUrl();
+		final String repoURL = commit.getDelta().getManager().getLocation();
 		final String revision = commit.getRevision();
 		final String path = s.getPath();
 		final CommitItemChangeType changeType = mapToThrift(s.getChangeType());

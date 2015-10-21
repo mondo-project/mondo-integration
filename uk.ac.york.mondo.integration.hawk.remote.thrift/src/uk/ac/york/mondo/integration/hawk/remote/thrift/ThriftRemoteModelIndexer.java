@@ -37,7 +37,6 @@ import org.hawk.core.IModelResourceFactory;
 import org.hawk.core.IModelUpdater;
 import org.hawk.core.IVcsManager;
 import org.hawk.core.VcsCommitItem;
-import org.hawk.core.VcsRepository;
 import org.hawk.core.VcsRepositoryDelta;
 import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphDatabase;
@@ -190,31 +189,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public String getCurrentRevision(VcsRepository repository)
-				throws Exception {
-			return null;
-		}
-
-		@Override
-		public String getFirstRevision(VcsRepository repository)
-				throws Exception {
-			return null;
-		}
-
-		@Override
-		public VcsRepositoryDelta getDelta(VcsRepository repository,
-				String startRevision) throws Exception {
-			return null;
-		}
-
-		@Override
-		public VcsRepositoryDelta getDelta(VcsRepository repository,
-				String startRevision, String endRevision)
-				throws Exception {
-			return null;
-		}
-
-		@Override
 		public void importFiles(String path, File temp) {
 			// nothing to do
 		}
@@ -222,12 +196,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public boolean isActive() {
 			return true;
-		}
-
-		@Override
-		public void run(String vcsloc, String un, String pw,
-				IAbstractConsole c) throws Exception {
-			// nothing to do
 		}
 
 		@Override
@@ -320,6 +288,26 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			} catch (TException e) {
 				console.printerrln(e);
 			}
+		}
+
+		@Override
+		public String getFirstRevision() throws Exception {
+			return null;
+		}
+
+		@Override
+		public VcsRepositoryDelta getDelta(String startRevision, String endRevision) throws Exception {
+			return null;
+		}
+
+		@Override
+		public void run(String vcsloc, String un, String pw, IAbstractConsole c, IModelIndexer indexer) throws Exception {
+			// nothing to do
+		}
+
+		@Override
+		public Set<String> getPrefixesToBeStripped() {
+			return Collections.emptySet();
 		}
 	}
 

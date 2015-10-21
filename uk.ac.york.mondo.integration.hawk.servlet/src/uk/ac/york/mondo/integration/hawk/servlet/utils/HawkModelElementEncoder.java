@@ -331,17 +331,17 @@ public class HawkModelElementEncoder {
 	 * Returns <code>true</code> if the model element has already been encoded before.
 	 */
 	public boolean isEncoded(ModelElementNode meNode) {
-		return isEncoded(meNode.getId());
+		return isEncoded(meNode.getNodeId());
 	}
 
 	private ModelElement encodeInternal(ModelElementNode meNode) throws Exception {
-		final ModelElement existing = nodeIdToElement.get(meNode.getId());
+		final ModelElement existing = nodeIdToElement.get(meNode.getNodeId());
 		if (existing != null) {
 			return existing;
 		}
 
 		final ModelElement me = new ModelElement();
-		me.setId(meNode.getId());
+		me.setId(meNode.getNodeId());
 		me.setTypeName(meNode.getTypeNode().getTypeName());
 		me.setMetamodelUri(meNode.getTypeNode().getMetamodelURI());
 		me.setFile(meNode.getFileNode().getFilePath());
@@ -349,7 +349,7 @@ public class HawkModelElementEncoder {
 
 		// we won't set the ID until someone refers to it, but we
 		// need to keep track of the element for later
-		nodeIdToElement.put(meNode.getId(), me);
+		nodeIdToElement.put(meNode.getNodeId(), me);
 
 		// initially, the model element is not contained in any other
 		rootElements.add(me);
@@ -433,7 +433,7 @@ public class HawkModelElementEncoder {
 	private void addToReferenceIds(Object o, ReferenceSlot s) throws Exception {
 		final String referencedId = o.toString();
 		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
-		s.addToIds(meNode.getId());
+		s.addToIds(meNode.getNodeId());
 	}
 
 	public static AttributeSlot encodeAttributeSlot(final String name, Object rawValue) {

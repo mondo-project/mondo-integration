@@ -160,6 +160,17 @@ public class HawkExeedCustomizer implements IExeedCustomizer {
 	}
 
 	@Override
+	public Collection<IAction> generateCreateSiblingActions(Collection<?> descriptors, ISelection selection) {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public Collection<IAction> generateCustomizerActions(ISelection selection) {
+		// TODO Expose efficient Hawk-specific operations
+		return Collections.emptySet();
+	}
+
+	@Override
 	public boolean isEnabledFor(Resource r) {
 		return r instanceof HawkResource;
 	}
