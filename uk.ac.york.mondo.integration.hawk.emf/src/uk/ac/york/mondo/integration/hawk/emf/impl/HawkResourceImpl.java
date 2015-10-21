@@ -45,18 +45,23 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.impl.DynamicEObjectImpl;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.hawk.emfresource.HawkResource;
+import org.hawk.emfresource.HawkResourceChangeListener;
+import org.hawk.emfresource.impl.HawkFileResourceImpl;
+import org.hawk.emfresource.util.LazyEObjectFactory;
+import org.hawk.emfresource.util.LazyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.cglib.proxy.CallbackHelper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.proxy.NoOp;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.FailedQuery;
@@ -88,8 +93,6 @@ import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
-import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
-import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
 
 /**
  * EMF driver that reads a remote model from a Hawk index. This is the main resource
@@ -192,14 +195,14 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				}
 
 				if (lazyResolver != null && lazyResolver.isPending((EObject)source, ref)) {
-					if (!lazyResolver.removeFromLazyReferences(source, ref, ev.targetId) && target != null) {
-						lazyResolver.removeFromLazyReferences(source, ref, target);
+					if (!lazyResolver.removeFromLazyReference(source, ref, ev.targetId) && target != null) {
+						lazyResolver.removeFromLazyReference(source, ref, target);
 					}
 					if (target != null) {
 						featureDeleted(source, ref, target);
 					} else if (!changeListeners.isEmpty()) {
 						try {
-							EList<EObject> resolved = fetchNodes(Arrays.asList(ev.targetId));
+							EList<EObject> resolved = fetchNodes(Arrays.asList(ev.targetId), false);
 							if (resolved.isEmpty()) {
 								LOGGER.warn("Could not notify listeners about deleted reference from {} to {}", ev.sourceId, ev.targetId);
 							} else {
@@ -249,7 +252,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					// have yet.
 					final BasicEList<Object> newList = new BasicEList<>();
 					newList.add(ev.targetId);
-					getLazyResolver().markLazyReferences(source, ref, newList);
+					getLazyResolver().putLazyReference(source, ref, newList);
 				} else {
 					try {
 						handleNonlazyReferenceAddition(ev, source, target, ref);
@@ -269,7 +272,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 			// We need the target object *now*, even if we don't have it yet.
 			if (target == null) {
-				EList<EObject> lResolved = fetchNodes(Arrays.asList(ev.targetId));
+				EList<EObject> lResolved = fetchNodes(Arrays.asList(ev.targetId), false);
 				if (lResolved.isEmpty()) {
 					LOGGER.warn("Target not found for non-lazy reference {} from node {} to node {}", ref,
 							ev.sourceId, ev.targetId);
@@ -305,19 +308,19 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				final EObject target, final EReference ref) {
 			if (target != null) {
 				// We already have the target, so might as well add it now.
-				lazyResolver.addToLazyReferences(source, ref, target);
+				lazyResolver.addToLazyReference(source, ref, target);
 				featureInserted(source, ref, target);
 			} else if (!changeListeners.isEmpty()) {
 				// We don't have the target, but we have someone listening, so we must resolve the ID *now* so we
 				// can notify them with the right EObject.
 				try {
-					EList<EObject> resolved = fetchNodes(Arrays.asList(ev.targetId));
+					EList<EObject> resolved = fetchNodes(Arrays.asList(ev.targetId), false);
 					if (resolved.isEmpty()) {
-						lazyResolver.addToLazyReferences(source, ref, ev.targetId);
+						lazyResolver.addToLazyReference(source, ref, ev.targetId);
 						LOGGER.warn("Target node does not exist: could not notify listeners about inserted reference from {} to {}", ev.sourceId, ev.targetId);
 					} else {
 						final EObject firstResolved = resolved.get(0);
-						lazyResolver.addToLazyReferences(source, ref, firstResolved);
+						lazyResolver.addToLazyReference(source, ref, firstResolved);
 						featureInserted(source, ref, firstResolved);
 					}
 				} catch (TException | IOException e) {
@@ -325,7 +328,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				}
 			} else {
 				// We don't have the target and nobody is listening: just note it for our lazy references.
-				lazyResolver.addToLazyReferences(source, ref, ev.targetId);
+				lazyResolver.addToLazyReference(source, ref, ev.targetId);
 			}
 		}
 
@@ -491,7 +494,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return eClass;
 	}
 
-	private final Map<String, EObject> nodeIdToEObjectMap = new HashMap<>();
+	private final BiMap<String, EObject> nodeIdToEObjectMap = HashBiMap.create();
 	private final Map<String, Resource> resources = new HashMap<>();
 	private HawkModelDescriptor descriptor;
 	private Client client;
@@ -502,22 +505,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	/** Resolves lazy references and attributes. */
 	private LazyResolver lazyResolver;
 
-	/** Map from classes to factories of instances instrumented by CGLIB for lazy loading. */
-	private Map<Class<?>, net.sf.cglib.proxy.Factory> factories = null;
-
 	/** Interceptor to be reused by all CGLIB {@link Enhancer}s in lazy loading modes. */
-	private final MethodInterceptor methodInterceptor = new MethodInterceptor() {
-		@Override
-		public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
-			// We need to serialize modifications from lazy loading + change notifications,
-			// for consistency and for the ability to signal if an EMF notification comes
-			// from lazy loading or not.
-			synchronized(nodeIdToEObjectMap) {
-				getLazyResolver().resolve((EObject)o, (EStructuralFeature)args[0]);
-			}
-			return proxy.invokeSuper(o, args);
-		}
-	};
+	private LazyEObjectFactory eobFactory;
 
 	/**
 	 * Cache from class to its instances. New entries are added upon calls to
@@ -530,7 +519,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	private final Set<Runnable> syncEndListeners = new HashSet<>();
 
 	/** Collection of change listeners (mostly for the IncQuery integration). */
-	private final Set<IHawkResourceChangeListener> changeListeners = new HashSet<>();
+	private final Set<HawkResourceChangeListener> changeListeners = new HashSet<>();
 
 	public HawkResourceImpl() {}
 
@@ -666,7 +655,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		}
 	}
 
-	public EList<EObject> fetchNodes(final List<String> ids)
+	@Override
+	public EList<EObject> fetchNodes(final List<String> ids, boolean mustFetchAttributes)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning,
 			TException, IOException {
 		// Filter the objects that need to be retrieved
@@ -681,7 +671,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		if (!toBeFetched.isEmpty()) {
 			final List<ModelElement> elems = client.resolveProxies(
 					descriptor.getHawkInstance(), toBeFetched,
-					descriptor.getLoadingMode().isGreedyAttributes(),
+					descriptor.getLoadingMode().isGreedyAttributes() || mustFetchAttributes,
 					true);
 			final TreeLoadingState state = new TreeLoadingState();
 			createEObjectTree(elems, state);
@@ -723,20 +713,20 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		for (final QueryResult qr : typeInstanceIDs) {
 			ids.add(qr.getVModelElement().getId());
 		}
-		final EList<EObject> fetched = fetchNodes(ids);
+		final EList<EObject> fetched = fetchNodes(ids, false);
 		return fetched;
 	}
 
 	@Override
 	public List<Object> fetchValuesByEClassifier(final EClassifier dataType) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException, IOException {
-		final Map<EClass, List<EAttribute>> candidateTypes = fetchTypesWithEClassifier(dataType);
+		final Map<EClass, List<EStructuralFeature>> candidateTypes = fetchTypesWithEClassifier(dataType);
 
 		final List<Object> values = new ArrayList<>();
-		for (final Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
+		for (final Entry<EClass, List<EStructuralFeature>> entry : candidateTypes.entrySet()) {
 			final EClass eClass = entry.getKey();
-			final List<EAttribute> attrsWithType = entry.getValue();
+			final List<EStructuralFeature> featureWithType = entry.getValue();
 			for (final EObject eob : fetchNodes(eClass, true)) {
-				for (final EAttribute attr : attrsWithType) {
+				for (final EStructuralFeature attr : featureWithType) {
 					final Object o = eob.eGet(attr);
 					if (o != null) {
 						values.add(o);
@@ -749,7 +739,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public Map<EClass, List<EAttribute>> fetchTypesWithEClassifier(final EClassifier dataType)
+	public Map<EClass, List<EStructuralFeature>> fetchTypesWithEClassifier(final EClassifier dataType)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		// TODO: add "getExistingTypes" to Hawk API instead of this EOL query?
 		final List<QueryResult> typesWithInstances = client.query(descriptor.getHawkInstance(),
@@ -757,13 +747,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				EOL_QUERY_LANG,
 				descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true, false);
 
-		final Map<EClass, List<EAttribute>> candidateTypes = new IdentityHashMap<EClass, List<EAttribute>>();
+		final Map<EClass, List<EStructuralFeature>> candidateTypes = new IdentityHashMap<EClass, List<EStructuralFeature>>();
 		for (final QueryResult qr : typesWithInstances) {
 			final ModelElementType type = qr.getVModelElementType();
 			final EClass eClass = getEClass(type.metamodelUri, type.typeName, getResourceSet().getPackageRegistry());
 
-			final List<EAttribute> attrsWithType = new ArrayList<>();
-			for (final EAttribute attr : eClass.getEAllAttributes()) {
+			final List<EStructuralFeature> attrsWithType = new ArrayList<>();
+			for (final EStructuralFeature attr : eClass.getEAllAttributes()) {
 				if (attr.getEType() == dataType) {
 					attrsWithType.add(attr);
 				}
@@ -795,7 +785,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					}
 				}
 			}
-			fetchNodes(allPending);
+			fetchNodes(allPending, false);
 		}
 
 		final Map<EObject, Object> values = new IdentityHashMap<>();
@@ -838,12 +828,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public boolean addChangeListener(final IHawkResourceChangeListener l) {
+	public boolean addChangeListener(final HawkResourceChangeListener l) {
 		return changeListeners.add(l);
 	}
 
 	@Override
-	public boolean removeChangeListener(final IHawkResourceChangeListener l) {
+	public boolean removeChangeListener(final HawkResourceChangeListener l) {
 		return changeListeners.remove(l);
 	}
 
@@ -885,7 +875,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				SlotDecodingUtils.setFromSlot(factory, eClass, obj, s);
 			}
 		} else if (!descriptor.getLoadingMode().isGreedyAttributes()) {
-			getLazyResolver().markLazyAttributes(me.id, obj);
+			getLazyResolver().putLazyAttributes(me.id, obj);
 		}
 
 		return obj;
@@ -896,7 +886,21 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final EFactory factory = packageRegistry.getEFactory(eClass.getEPackage().getNsURI());
 		final EObject obj = factory.create(eClass);
 		if (isLazyLoading()) {
-			return createLazyLoadingInstance(eClass, obj.getClass());
+			if (eobFactory == null) {
+				eobFactory = new LazyEObjectFactory(getResourceSet().getPackageRegistry(), new MethodInterceptor() {
+					@Override
+					public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
+						// We need to serialize modifications from lazy loading + change notifications,
+						// for consistency and for the ability to signal if an EMF notification comes
+						// from lazy loading or not.
+						synchronized(nodeIdToEObjectMap) {
+							getLazyResolver().resolve((EObject)o, (EStructuralFeature)args[0]);
+						}
+						return proxy.invokeSuper(o, args);
+					}
+				});
+			}
+			return eobFactory.createInstance(eClass);
 		} else {
 			return obj;
 		}
@@ -905,70 +909,6 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	public boolean isLazyLoading() {
 		final LoadingMode mode = descriptor.getLoadingMode();
 		return !mode.isGreedyAttributes() || !mode.isGreedyElements();
-	}
-
-	private EObject createLazyLoadingInstance(final EClass eClass, final Class<?> klass) {
-		/*
-		 * We need to create a proxy to intercept eGet calls for lazy loading,
-		 * but we need to use a subclass of the *real* implementation, or we'll
-		 * have all kinds of issues with static metamodels (e.g. not using
-		 * DynamicEObjectImpl).
-		 */
-		if (factories == null) {
-			factories = new HashMap<>();
-		}
-
-		final net.sf.cglib.proxy.Factory factory = factories.get(klass);
-		EObject o;
-		if (factory == null) {
-			
-			final Enhancer enh = new Enhancer();
-			final CallbackHelper helper = new CallbackHelper(klass, new Class[0]) {
-				@Override
-				protected Object getCallback(final Method m) {
-					if ("eGet".equals(m.getName())
-							&& m.getParameterTypes().length > 0
-							&& EStructuralFeature.class.isAssignableFrom(m.getParameterTypes()[0])) {
-						return methodInterceptor;
-					} else {
-						return NoOp.INSTANCE;
-					}
-				}
-			};
-			enh.setSuperclass(klass);
-
-			/*
-			 * We need both classloaders: the classloader of the class to be
-			 * enhanced, and the classloader of this plugin (which includes
-			 * CGLIB). We want the CGLIB classes to always resolve to the same
-			 * Class objects, so this plugin's classloader *has* to go first.
-			 */
-			enh.setClassLoader(new BridgeClassLoader(
-				this.getClass().getClassLoader(),
-				klass.getClassLoader()));
-
-			/*
-			 * The objects created by the Enhancer implicitly implement the
-			 * CGLIB Factory interface as well. According to CGLIB, going
-			 * through the Factory is faster than recreating or reusing the
-			 * Enhancer.
-			 */
-			enh.setCallbackFilter(helper);
-			enh.setCallbacks(helper.getCallbacks());
-			o = (EObject)enh.create();
-			factories.put(klass, (net.sf.cglib.proxy.Factory)o);
-		} else {
-			o = (EObject) factory.newInstance(factory.getCallbacks());
-		}
-
-		/*
-		 * A newly created and instrumented DynamicEObjectImpl won't have the
-		 * eClass set. We need to redo that here.
-		 */
-		if (o instanceof DynamicEObjectImpl) {
-			((DynamicEObjectImpl)o).eSetClass(eClass);
-		}
-		return o;
 	}
 
 	private List<EObject> createEObjectTree(final List<ModelElement> elems, final TreeLoadingState state) throws IOException {
@@ -1083,7 +1023,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			} else if (!greedyElements) {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
-				getLazyResolver().markLazyReferences(sourceObj, feature, value);
+				getLazyResolver().putLazyReference(sourceObj, feature, value);
 			}
 		}
 		else if (s.isSetIds()) {
@@ -1102,7 +1042,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				eSetValues = null;
 				final EList<Object> lazyIds = new BasicEList<>();
 				lazyIds.addAll(s.ids);
-				getLazyResolver().markLazyReferences(sourceObj, feature, lazyIds);
+				getLazyResolver().putLazyReference(sourceObj, feature, lazyIds);
 			}
 		}
 		else if (s.isSetPosition()) {
@@ -1139,7 +1079,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			if (allFetched) {
 				eSetValues = value;
 			} else {
-				getLazyResolver().markLazyReferences(sourceObj, feature, value);
+				getLazyResolver().putLazyReference(sourceObj, feature, value);
 			}
 		}
 		else {
@@ -1238,39 +1178,84 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	private void featureInserted(final EObject source, final EStructuralFeature eAttr, final Object o) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.featureInserted(source, eAttr, o);
 		}
 	}
 
 	private void featureDeleted(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.featureDeleted(eob, eAttr, oldValue);
 		}
 	}
 
 	private void instanceDeleted(final EObject eob, final EClass eClass) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.instanceDeleted(eClass, eob);
 		}
 	}
 
 	private void instanceInserted(final EObject eob, final EClass eClass) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.instanceInserted(eClass, eob);
 		}
 	}
 
 	private void dataTypeDeleted(final EClassifier eType, final Object oldValue) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.dataTypeDeleted(eType, oldValue);
 		}
 	}
 
 	private void dataTypeInserted(final EClassifier eType, final Object newValue) {
-		for (final IHawkResourceChangeListener l : changeListeners) {
+		for (final HawkResourceChangeListener l : changeListeners) {
 			l.dataTypeInserted(eType, newValue);
 		}
+	}
+
+	@Override
+	public EObject fetchNode(HawkResource containerResource, String uriFragment, boolean mustFetchAttributes) throws Exception {
+		// TODO We need to extend the Thrift API to support this, and it'd be an inefficient operation right now.
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public EObject fetchNode(String id, boolean mustFetchAttributes) throws Exception {
+		EList<EObject> resolved = fetchNodes(Arrays.asList(id), mustFetchAttributes);
+		if (resolved.isEmpty()) {
+			return null;
+		} else {
+			return resolved.get(0);
+		}
+	}
+
+	@Override
+	public String getEObjectNodeID(EObject obj) {
+		return nodeIdToEObjectMap.inverse().get(obj);
+	}
+
+	@Override
+	public List<String> getRegisteredMetamodels() throws Exception {
+		return client.listMetamodels(descriptor.getHawkInstance());
+	}
+
+	@Override
+	public List<String> getRegisteredTypes(String metamodelURI) throws Exception {
+		 List<QueryResult> queryResults = client.query(
+			descriptor.getHawkInstance(),
+			"return Model.metamodels.selectOne(p|p.uri='%s').types.name;",
+			EOL_QUERY_LANG,
+			descriptor.getHawkRepository(),
+			Arrays.asList(descriptor.getHawkFilePatterns()),
+			false, false, false, false);
+
+		 final List<String> types = new ArrayList<>();
+		 for (QueryResult qr : queryResults) {
+			 if (qr.isSetVString()) {
+				 types.add(qr.getVString());
+			 }
+		 }
+		return types;
 	}
 
 }

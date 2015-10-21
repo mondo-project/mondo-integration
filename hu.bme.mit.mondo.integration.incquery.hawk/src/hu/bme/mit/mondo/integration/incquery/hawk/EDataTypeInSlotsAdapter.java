@@ -10,10 +10,9 @@ import org.eclipse.incquery.runtime.base.api.DataTypeListener;
 import org.eclipse.incquery.runtime.emf.types.EDataTypeInSlotsKey;
 import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListener;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
+import org.hawk.emfresource.HawkResourceChangeListener;
 
-import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
-
-class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListener, IHawkResourceChangeListener {
+class EDataTypeInSlotsAdapter extends ListenerAdapter implements DataTypeListener, HawkResourceChangeListener {
 
 	private static final Logger LOGGER = Logger.getLogger(EDataTypeInSlotsAdapter.class);
 	private final InstanceCounter counter = new InstanceCounter();

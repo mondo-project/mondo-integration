@@ -45,8 +45,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
-
-import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
+import org.hawk.emfresource.HawkResource;
 
 public class HawkExeedCustomizer implements IExeedCustomizer {
 

@@ -8,9 +8,9 @@ import org.eclipse.incquery.runtime.api.IncQueryEngine;
 import org.eclipse.incquery.runtime.api.scope.IBaseIndex;
 import org.eclipse.incquery.runtime.api.scope.IEngineContext;
 import org.eclipse.incquery.runtime.exception.IncQueryException;
+import org.hawk.emfresource.HawkResource;
 
 import uk.ac.york.mondo.integration.api.Hawk.Client;
-import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkEngineContext implements IEngineContext {
 

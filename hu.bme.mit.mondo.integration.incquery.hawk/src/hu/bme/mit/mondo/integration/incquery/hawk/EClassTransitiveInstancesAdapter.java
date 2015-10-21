@@ -9,10 +9,9 @@ import org.eclipse.incquery.runtime.base.api.InstanceListener;
 import org.eclipse.incquery.runtime.emf.types.EClassTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListener;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
+import org.hawk.emfresource.HawkResourceChangeListener;
 
-import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
-
-class EClassTransitiveInstancesAdapter extends ListenerAdapter implements InstanceListener, IHawkResourceChangeListener {
+class EClassTransitiveInstancesAdapter extends ListenerAdapter implements InstanceListener, HawkResourceChangeListener {
 
 	private static final Logger LOGGER = Logger.getLogger(EClassTransitiveInstancesAdapter.class);
 	private final Object seedInstance;

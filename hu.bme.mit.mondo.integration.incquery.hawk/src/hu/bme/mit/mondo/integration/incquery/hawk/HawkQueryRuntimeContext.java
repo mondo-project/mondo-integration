@@ -1,6 +1,5 @@
 package hu.bme.mit.mondo.integration.incquery.hawk;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +10,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -27,11 +24,10 @@ import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListene
 import org.eclipse.incquery.runtime.matchers.context.common.JavaTransitiveInstancesKey;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
 import org.eclipse.incquery.runtime.matchers.tuple.Tuple;
+import org.hawk.emfresource.HawkResource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-
-import uk.ac.york.mondo.integration.hawk.emf.HawkResource;
 
 public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
@@ -118,7 +114,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			} else {
 				illegalInputKey(key);
 			}
-		} catch (TException | IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
@@ -198,7 +194,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			} else {
 				illegalInputKey(key);
 			}
-		} catch (TException | IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
@@ -259,7 +255,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 			} else {
 				illegalInputKey(key);
 			}
-		} catch (TException | IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
@@ -298,14 +294,14 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 
 			try {
 				final InstanceCounter occurrences = incqAdapter.getCounter();
-				final Map<EClass, List<EAttribute>> candidateTypes = hawkResource.fetchTypesWithEClassifier(dataType);
+				final Map<EClass, List<EStructuralFeature>> candidateTypes = hawkResource.fetchTypesWithEClassifier(dataType);
 
 				// Instrument existing instances of the candidate EClasses
-				for (final Entry<EClass, List<EAttribute>> entry : candidateTypes.entrySet()) {
+				for (final Entry<EClass, List<EStructuralFeature>> entry : candidateTypes.entrySet()) {
 					final EClass eClass = entry.getKey();
-					final List<EAttribute> eAttrs = entry.getValue();
+					final List<EStructuralFeature> eAttrs = entry.getValue();
 					for (final EObject eob : hawkResource.fetchNodes(eClass, true)) {
-						for (final EAttribute attr : eAttrs) {
+						for (final EStructuralFeature attr : eAttrs) {
 							final Object value = eob.eGet(attr);
 							if (value instanceof Iterable) {
 								for (final Object o : (Iterable<?>) value) {
@@ -319,7 +315,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 				}
 
 				hawkResource.addChangeListener(incqAdapter);
-			} catch (TException | IOException e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 

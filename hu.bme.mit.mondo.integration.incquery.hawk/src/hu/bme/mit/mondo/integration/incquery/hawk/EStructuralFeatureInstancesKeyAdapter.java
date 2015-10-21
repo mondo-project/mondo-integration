@@ -9,10 +9,9 @@ import org.eclipse.incquery.runtime.base.api.FeatureListener;
 import org.eclipse.incquery.runtime.emf.types.EStructuralFeatureInstancesKey;
 import org.eclipse.incquery.runtime.matchers.context.IQueryRuntimeContextListener;
 import org.eclipse.incquery.runtime.matchers.tuple.FlatTuple;
+import org.hawk.emfresource.HawkResourceChangeListener;
 
-import uk.ac.york.mondo.integration.hawk.emf.IHawkResourceChangeListener;
-
-class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements FeatureListener, IHawkResourceChangeListener {
+class EStructuralFeatureInstancesKeyAdapter extends ListenerAdapter implements FeatureListener, HawkResourceChangeListener {
 	private final Object seedHost;
 	private final Object seedValue;
 	private final EStructuralFeature filterFeature;
