@@ -11,7 +11,7 @@
       </programArgs>
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
 -Dosgi.noShutdown=true -Xmx2048m -Xms2048m
--Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer
+-Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
       </vmArgs>
       <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
       </vmArgsLin>
@@ -41,10 +41,11 @@
    </plugins>
 
    <features>
-      <feature id="uk.ac.york.mondo.integration.hawk.servlet.feature" version="1.0.0.qualifier"/>
-      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature" version="0.0.0.qualifier"/>
-      <feature id="uk.ac.york.mondo.integration.server.feature" version="1.0.0.qualifier"/>
-      <feature id="uk.ac.york.mondo.integration.server.deps.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.servlet.feature"/>
+      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature"/>
+      <feature id="uk.ac.york.mondo.integration.server.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
+      <feature id="uk.ac.york.mondo.integration.api.feature"/>
       <feature id="org.hawk.neo4jv2.feature"/>
       <feature id="org.hawk.localfolder.feature"/>
       <feature id="org.hawk.emf.feature"/>
@@ -55,9 +56,41 @@
       <feature id="org.hawk.core.feature"/>
       <feature id="org.hawk.osgiserver.feature"/>
       <feature id="org.hawk.bpmn.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.deps.feature"/>
       <feature id="org.hawk.emfresource.feature"/>
+      <feature id="org.tmatesoft.svnkit"/>
+      <feature id="org.eclipse.core.runtime.feature"/>
+      <feature id="org.eclipse.equinox.core.feature"/>
+      <feature id="org.eclipse.emf.ecore"/>
+      <feature id="org.eclipse.equinox.server.core"/>
+      <feature id="org.eclipse.equinox.server.jetty"/>
+      <feature id="org.eclipse.gef"/>
+      <feature id="org.eclipse.draw2d"/>
+      <feature id="org.eclipse.xsd"/>
+      <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.emf.edit"/>
+      <feature id="org.eclipse.emf.validation"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+      <feature id="org.eclipse.ecf.core.ssl.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature"/>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.ecf.core.feature"/>
+      <feature id="org.eclipse.equinox.p2.rcp.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.feature"/>
+      <feature id="org.eclipse.e4.rcp"/>
+      <feature id="org.eclipse.emf.mapping"/>
+      <feature id="org.eclipse.emf.ecore.edit"/>
+      <feature id="org.eclipse.epsilon.core.feature"/>
+      <feature id="org.eclipse.epsilon.core.dependencies.feature"/>
+      <feature id="org.eclipse.bpmn2"/>
+      <feature id="org.eclipse.emf.mapping.ecore"/>
+      <feature id="org.eclipse.emf.edit.ui"/>
+      <feature id="org.eclipse.emf.common.ui"/>
+      <feature id="org.eclipse.equinox.core.sdk"/>
    </features>
 
    <configurations>
