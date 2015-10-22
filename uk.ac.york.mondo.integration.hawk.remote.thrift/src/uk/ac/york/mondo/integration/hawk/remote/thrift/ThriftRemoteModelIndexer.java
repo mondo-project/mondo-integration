@@ -46,6 +46,8 @@ import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.util.HawkProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -63,6 +65,8 @@ import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 
 public class ThriftRemoteModelIndexer implements IModelIndexer {
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(ThriftRemoteModelIndexer.class);
 
 	private final class RemoteQueryEngine implements IQueryEngine {
 		private final String language;
@@ -175,9 +179,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	/**
 	 * Dummy implementation of {@link IVcsManager} that only provides the
-	 * location and type and sends credential changes to the remote instance.
-	 * Only useful for the GUI when querying a remote Hawk instance using the
-	 * Thrift API.
+	 * location and type and sends credential changes to the remote instance
+	 * (does not retrieve remote username/password for security reasons). Only
+	 * useful for the GUI when querying a remote Hawk instance using the Thrift
+	 * API.
 	 */
 	private final class DummyVcsManager implements IVcsManager {
 		private final String location, type;
@@ -256,7 +261,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 		@Override
 		public boolean isAuthSupported() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -272,9 +277,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public void setCredentials(String username, String password) {
 			try {
+				// Update both our local and remote copies of the credentials
+				getCredentialsStore().put(location,
+						new ICredentialsStore.Credentials(username, password));
 				client.updateRepositoryCredentials(
 					name, location, new Credentials(username, password));
-			} catch (TException e) {
+			} catch (Exception e) {
 				console.printerrln(e);
 			}
 		}
@@ -290,13 +298,39 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void run(String vcsloc, String un, String pw, IConsole c, IModelIndexer indexer) throws Exception {
+		public void run(String vcsloc, IConsole c, IModelIndexer indexer) throws Exception {
 			// nothing to do
 		}
 
 		@Override
 		public Set<String> getPrefixesToBeStripped() {
 			return Collections.emptySet();
+		}
+
+		@Override
+		public String getUsername() {
+			try {
+				org.hawk.core.ICredentialsStore.Credentials credentials = getCredentialsStore().get(location);
+				if (credentials != null) {
+					return credentials.getUsername();
+				}
+			} catch (Exception e) {
+				LOGGER.error("Could not retrieve username from credentials store", e);
+			}
+			return null;
+		}
+
+		@Override
+		public String getPassword() {
+			try {
+				org.hawk.core.ICredentialsStore.Credentials credentials = getCredentialsStore().get(location);
+				if (credentials != null) {
+					return credentials.getPassword();
+				}
+			} catch (Exception e) {
+				LOGGER.error("Could not retrieve password from credentials store", e);
+			}
+			return null;
 		}
 	}
 

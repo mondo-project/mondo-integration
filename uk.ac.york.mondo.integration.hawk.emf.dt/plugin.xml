@@ -30,12 +30,8 @@
    <extension
          point="org.eclipse.epsilon.dt.exeed.customizer">
       <customizer
-            customizerClass="uk.ac.york.mondo.integration.hawk.emf.dt.viewer.HawkExeedCustomizer"
+            customizerClass="org.hawk.ui.emfresource.exeed.HawkResourceExeedCustomizer"
             resourceClass="uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl">
-      </customizer>
-      <customizer
-            customizerClass="uk.ac.york.mondo.integration.hawk.emf.dt.viewer.HawkExeedCustomizer"
-            resourceClass="uk.ac.york.mondo.integration.hawk.emf.impl.HawkFileResourceImpl">
       </customizer>
    </extension>
 

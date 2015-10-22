@@ -9,4 +9,5 @@ Require-Bundle: org.hawk.core;bundle-version="1.0.0",
  uk.ac.york.mondo.integration.api;bundle-version="1.0.0",
  org.apache.thrift;bundle-version="0.9.2",
  org.hawk.core.dependencies,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ org.slf4j.api;bundle-version="1.7.2"

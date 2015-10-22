@@ -546,6 +546,11 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		}
 	}
 
+	@Override
+	public void save(Map<?, ?> options) throws IOException {
+		doSave(null, null);
+	}
+
 	public HawkModelDescriptor getDescriptor() {
 		return descriptor;
 	}
@@ -1152,7 +1157,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	@Override
 	protected void doSave(final OutputStream outputStream, final Map<?, ?> options) throws IOException {
-		throw new UnsupportedOperationException("Remote views are read-only");
+		LOGGER.warn("Hawk views are read-only: ignoring request to save");
 	}
 
 	private void notifyAttributeUnset(final EObject eob, final EStructuralFeature eAttr, final Object oldValue) {

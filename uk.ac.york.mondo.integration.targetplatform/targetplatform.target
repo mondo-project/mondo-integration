@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="132">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="133">
 <locations>
 <location path="${resource_loc:/uk.ac.york.mondo.integration.targetplatform/bundles}" type="Directory"/>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -87,60 +87,47 @@
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.epsilon.emc.spreadsheets.excel.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.ifc.feature.source.feature.group" version="1.0.0.201510211253"/>
+<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201510221435"/>
 <unit id="org.eclipse.epsilon.hutn.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201510211253"/>
+<unit id="org.eclipse.epsilon.emc.spreadsheets.excel.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.eclipse.epsilon.emc.spreadsheets.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.concordance.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201510211253"/>
+<unit id="org.eclipse.epsilon.emc.graphml.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.eclipse.epsilon.emc.spreadsheets.google.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201510221435"/>
 <unit id="org.eclipse.epsilon.emc.spreadsheets.google.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.uml.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.epsilon.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.eugenia.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.emc.spreadsheets.google.dt.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="net.java.dev.jna.feature.group" version="4.1.0.v06022015_1911"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.core.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.emfresource.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.eunit.dt.emf.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.uml.dt.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.emc.spreadsheets.excel.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.emc.spreadsheets.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.emc.graphml.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.emf.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.core.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.eclipse.epsilon.emc.spreadsheets.google.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.localfolder.feature.source.feature.group" version="1.0.0.201510211253"/>
 <unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
+<unit id="org.eclipse.epsilon.eugenia.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.emc.spreadsheets.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.ui.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.svn.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.modelio.feature.source.feature.group" version="1.0.0.201510211253"/>
+<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201510211253"/>
 <unit id="org.eclipse.epsilon.evl.emf.validation.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.neo4jv2.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.bpmn.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.osgiserver.feature.source.feature.group" version="1.0.0.201510211253"/>
+<unit id="org.eclipse.epsilon.emc.spreadsheets.google.dt.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="net.java.dev.jna.feature.group" version="4.1.0.v06022015_1911"/>
+<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.eclipse.epsilon.core.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.emf.dt.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.concordance.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.emc.spreadsheets.excel.dt.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.eclipse.epsilon.eunit.dt.emf.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.ewl.gmf.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.hawk.workspace.feature.source.feature.group" version="1.0.0.201510211253"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201510211253"/>
 <unit id="org.eclipse.epsilon.ewl.emf.feature.feature.group" version="1.3.0.201510201717"/>
-<unit id="org.eclipse.epsilon.hutn.dt.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201510221435"/>
+<unit id="org.eclipse.epsilon.uml.dt.feature.feature.group" version="1.3.0.201510201717"/>
 <unit id="org.eclipse.epsilon.hutn.dependencies.feature.feature.group" version="1.3.0.201510201717"/>
+<unit id="org.eclipse.epsilon.hutn.dt.feature.feature.group" version="1.3.0.201510201717"/>
 <repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk/"/>
 </location>
 </locations>
