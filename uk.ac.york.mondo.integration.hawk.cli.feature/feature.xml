@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.york.mondo.integration.clients.cli.feature"
-      label="MONDO CLI Client Feature"
+      id="uk.ac.york.mondo.integration.hawk.cli.feature"
+      label="Hawk CLI Feature"
       version="1.0.0.qualifier"
       provider-name="University of York">
 
@@ -18,7 +18,7 @@
    </license>
 
    <includes
-         id="org.eclipse.core.runtime.feature"
+         id="uk.ac.york.mondo.integration.api.feature"
          version="0.0.0"/>
 
    <requires>
@@ -34,7 +34,7 @@
    </requires>
 
    <plugin
-         id="uk.ac.york.mondo.integration.clients.cli.product"
+         id="uk.ac.york.mondo.integration.hawk.cli"
          download-size="0"
          install-size="0"
          version="0.0.0"

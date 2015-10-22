@@ -3,7 +3,6 @@
 
 <product name="MONDO CLI Client Product" id="uk.ac.york.mondo.integration.clients.cli.product.product" application="uk.ac.york.mondo.integration.clients.cli.product.app" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -18,7 +17,6 @@
 
    <windowImages/>
 
-
    <launcher name="mondo-cli">
       <solaris/>
       <win useIco="false">
@@ -26,18 +24,19 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
 
    <features>
-      <feature id="uk.ac.york.mondo.integration.clients.cli.feature" version="1.0.0.qualifier"/>
-      <feature id="uk.ac.york.mondo.integration.clients.cli.deps.feature"/>
       <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.clients.cli.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.cli.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.core.runtime.feature"/>
+      <feature id="org.eclipse.equinox.core.feature"/>
+      <feature id="uk.ac.york.mondo.integration.api.feature"/>
    </features>
 
    <configurations>
