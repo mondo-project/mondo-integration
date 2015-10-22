@@ -128,14 +128,13 @@ public class HawkCommandProvider implements CommandProvider {
 		// TODO add extra parameter to pick the backend + listBackends operation
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
-		final String adminPassword = requiredArgument(intp, "adminPassword");
 
 		final String sMinimum = intp.nextArgument();
 		final String sMaximum = intp.nextArgument();
 		final int minimumDelay = sMinimum != null ? Integer.parseInt(sMinimum) : 1000;
 		final int maximumDelay = sMaximum != null ? Integer.parseInt(sMaximum) : 512 * 1000;
 
-		client.createInstance(name, adminPassword, minimumDelay, maximumDelay);
+		client.createInstance(name, minimumDelay, maximumDelay);
 		return String.format("Created instance %s", name);
 	}
 
@@ -157,11 +156,10 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkStartInstance(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
-		final String adminPassword = requiredArgument(intp, "adminPassword");
 
 		final HawkInstance hi = findInstance(name);
 		if (!hi.running) {
-			client.startInstance(name, adminPassword);
+			client.startInstance(name);
 			return String.format("Started instance %s", name);
 		} else {
 			return String.format("Instance %s was already running", name);
@@ -608,7 +606,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
-		sbuf.append("hawkStartInstance <name> <adminPassword> - starts the instance with the provided name\n\t");
+		sbuf.append("hawkStartInstance <name> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n\t");
 		sbuf.append("hawkSyncInstance <name> - forces an immediate sync on the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");

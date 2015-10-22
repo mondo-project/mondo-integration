@@ -9,7 +9,6 @@
 
 Hawk_createInstance_args = function(args) {
   this.name = null;
-  this.adminPassword = null;
   this.minimumDelayMillis = null;
   this.maximumDelayMillis = null;
   if (args) {
@@ -17,11 +16,6 @@ Hawk_createInstance_args = function(args) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
-    }
-    if (args.adminPassword !== undefined && args.adminPassword !== null) {
-      this.adminPassword = args.adminPassword;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field adminPassword is unset!');
     }
     if (args.minimumDelayMillis !== undefined && args.minimumDelayMillis !== null) {
       this.minimumDelayMillis = args.minimumDelayMillis;
@@ -57,20 +51,13 @@ Hawk_createInstance_args.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.adminPassword = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
       if (ftype == Thrift.Type.I32) {
         this.minimumDelayMillis = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 4:
+      case 3:
       if (ftype == Thrift.Type.I32) {
         this.maximumDelayMillis = input.readI32().value;
       } else {
@@ -93,18 +80,13 @@ Hawk_createInstance_args.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.adminPassword !== null && this.adminPassword !== undefined) {
-    output.writeFieldBegin('adminPassword', Thrift.Type.STRING, 2);
-    output.writeString(this.adminPassword);
-    output.writeFieldEnd();
-  }
   if (this.minimumDelayMillis !== null && this.minimumDelayMillis !== undefined) {
-    output.writeFieldBegin('minimumDelayMillis', Thrift.Type.I32, 3);
+    output.writeFieldBegin('minimumDelayMillis', Thrift.Type.I32, 2);
     output.writeI32(this.minimumDelayMillis);
     output.writeFieldEnd();
   }
   if (this.maximumDelayMillis !== null && this.maximumDelayMillis !== undefined) {
-    output.writeFieldBegin('maximumDelayMillis', Thrift.Type.I32, 4);
+    output.writeFieldBegin('maximumDelayMillis', Thrift.Type.I32, 3);
     output.writeI32(this.maximumDelayMillis);
     output.writeFieldEnd();
   }
@@ -360,17 +342,11 @@ Hawk_removeInstance_result.prototype.write = function(output) {
 
 Hawk_startInstance_args = function(args) {
   this.name = null;
-  this.adminPassword = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
-    }
-    if (args.adminPassword !== undefined && args.adminPassword !== null) {
-      this.adminPassword = args.adminPassword;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field adminPassword is unset!');
     }
   }
 };
@@ -395,13 +371,9 @@ Hawk_startInstance_args.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.adminPassword = input.readString().value;
-      } else {
+      case 0:
         input.skip(ftype);
-      }
-      break;
+        break;
       default:
         input.skip(ftype);
     }
@@ -416,11 +388,6 @@ Hawk_startInstance_args.prototype.write = function(output) {
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 1);
     output.writeString(this.name);
-    output.writeFieldEnd();
-  }
-  if (this.adminPassword !== null && this.adminPassword !== undefined) {
-    output.writeFieldBegin('adminPassword', Thrift.Type.STRING, 2);
-    output.writeString(this.adminPassword);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5003,18 +4970,17 @@ HawkClient = function(input, output) {
     this.seqid = 0;
 };
 HawkClient.prototype = {};
-HawkClient.prototype.createInstance = function(name, adminPassword, minimumDelayMillis, maximumDelayMillis, callback) {
-  this.send_createInstance(name, adminPassword, minimumDelayMillis, maximumDelayMillis, callback); 
+HawkClient.prototype.createInstance = function(name, minimumDelayMillis, maximumDelayMillis, callback) {
+  this.send_createInstance(name, minimumDelayMillis, maximumDelayMillis, callback); 
   if (!callback) {
   this.recv_createInstance();
   }
 };
 
-HawkClient.prototype.send_createInstance = function(name, adminPassword, minimumDelayMillis, maximumDelayMillis, callback) {
+HawkClient.prototype.send_createInstance = function(name, minimumDelayMillis, maximumDelayMillis, callback) {
   this.output.writeMessageBegin('createInstance', Thrift.MessageType.CALL, this.seqid);
   var args = new Hawk_createInstance_args();
   args.name = name;
-  args.adminPassword = adminPassword;
   args.minimumDelayMillis = minimumDelayMillis;
   args.maximumDelayMillis = maximumDelayMillis;
   args.write(this.output);
@@ -5149,18 +5115,17 @@ HawkClient.prototype.recv_removeInstance = function() {
   }
   return;
 };
-HawkClient.prototype.startInstance = function(name, adminPassword, callback) {
-  this.send_startInstance(name, adminPassword, callback); 
+HawkClient.prototype.startInstance = function(name, callback) {
+  this.send_startInstance(name, callback); 
   if (!callback) {
   this.recv_startInstance();
   }
 };
 
-HawkClient.prototype.send_startInstance = function(name, adminPassword, callback) {
+HawkClient.prototype.send_startInstance = function(name, callback) {
   this.output.writeMessageBegin('startInstance', Thrift.MessageType.CALL, this.seqid);
   var args = new Hawk_startInstance_args();
   args.name = name;
-  args.adminPassword = adminPassword;
   args.write(this.output);
   this.output.writeMessageEnd();
   if (callback) {

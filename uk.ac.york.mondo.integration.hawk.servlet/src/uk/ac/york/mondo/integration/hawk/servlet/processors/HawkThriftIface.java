@@ -49,6 +49,7 @@ import org.hawk.graph.ModelElementNode;
 import org.hawk.neo4j_v2.Neo4JDatabase;
 import org.hawk.osgiserver.HManager;
 import org.hawk.osgiserver.HModel;
+import org.hawk.osgiserver.SecurePreferencesCredentialsStore;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
@@ -496,13 +497,13 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void createInstance(String name, String adminPassword, int minDelay, int maxDelay) throws TException {
+	public void createInstance(String name, int minDelay, int maxDelay) throws TException {
 		try {
 			final HManager manager = HManager.getInstance();
 			if (manager.getHawkByName(name) == null) {
 				HModel.create(new LocalHawkFactory(), name, storageFolder(name),
 						null, Neo4JDatabase.class.getName(), null,
-						manager, adminPassword.toCharArray(), minDelay, maxDelay);
+						manager, new SecurePreferencesCredentialsStore(), minDelay, maxDelay);
 			}
 		} catch (Exception ex) {
 			throw new TException(ex);
@@ -532,10 +533,10 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void startInstance(String name, String adminPassword) throws HawkInstanceNotFound, TException {
+	public void startInstance(String name) throws HawkInstanceNotFound, TException {
 		final HModel model = getHawkByName(name);
 		if (!model.isRunning()) {
-			model.start(HManager.getInstance(), adminPassword.toCharArray());
+			model.start(HManager.getInstance());
 		}
 	}
 

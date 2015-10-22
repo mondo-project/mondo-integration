@@ -419,9 +419,8 @@ service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name,
-	/* The admin password for encrypting credentials. */ 2: required string adminPassword,
-	/* Minimum delay between periodic synchronization in milliseconds. */ 3: required i32 minimumDelayMillis,
-	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 4: required i32 maximumDelayMillis,
+	/* Minimum delay between periodic synchronization in milliseconds. */ 2: required i32 minimumDelayMillis,
+	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 3: required i32 maximumDelayMillis,
   )
 	
   /* Lists the details of all Hawk instances. Auth needed: Yes */
@@ -439,7 +438,6 @@ service Hawk {
   /* Starts a stopped Hawk instance. Auth needed: Yes */
   void startInstance(
 	/* The name of the Hawk instance to start. */ 1: required string name,
-	/* The admin password for encrypting credentials. */ 2: required string adminPassword,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 

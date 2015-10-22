@@ -86,11 +86,6 @@
           <details key="d" value="The unique name of the new Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="adminPassword" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The admin password for encrypting credentials"/>
-        </eAnnotations>
-      </eParameters>
       <eParameters name="minimumDelayMillis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
         <eAnnotations source="doc">
           <details key="d" value="Minimum delay between periodic synchronization in milliseconds"/>
@@ -124,11 +119,6 @@
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The name of the Hawk instance to start"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="adminPassword" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The admin password for encrypting credentials"/>
         </eAnnotations>
       </eParameters>
     </eOperations>

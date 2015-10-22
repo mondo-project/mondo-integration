@@ -17,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.thrift.TException;
-import org.hawk.core.IAbstractConsole;
+import org.hawk.core.IConsole;
+import org.hawk.core.ICredentialsStore;
 import org.hawk.core.IMetaModelResourceFactory;
 import org.hawk.core.IMetaModelUpdater;
 import org.hawk.core.IModelIndexer;
@@ -45,7 +45,6 @@ import org.hawk.core.query.IAccessListener;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
-import org.hawk.core.runtime.util.SecurityManager;
 import org.hawk.core.util.HawkProperties;
 
 import com.thoughtworks.xstream.XStream;
@@ -209,16 +208,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public String getUsername() {
-			return null;
-		}
-
-		@Override
-		public String getPassword() {
-			return null;
-		}
-
-		@Override
 		public String getType() {
 			return type;
 		}
@@ -301,7 +290,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void run(String vcsloc, String un, String pw, IAbstractConsole c, IModelIndexer indexer) throws Exception {
+		public void run(String vcsloc, String un, String pw, IConsole c, IModelIndexer indexer) throws Exception {
 			// nothing to do
 		}
 
@@ -313,15 +302,16 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	private final String name;
 	private final Client client;
-	private final IAbstractConsole console;
-	private char[] adminPw;
+	private final IConsole console;
 
 	/** Folder containing the Hawk properties.xml file. */
 	private final File parentFolder;
+	private final ICredentialsStore credStore;
 
-	public ThriftRemoteModelIndexer(String name, File parentFolder, Client client, IAbstractConsole console) throws IOException {
+	public ThriftRemoteModelIndexer(String name, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
 		this.name = name;
 		this.client = client;
+		this.credStore = credStore;
 		this.console = console;
 		this.parentFolder = parentFolder;
 
@@ -417,21 +407,24 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public IAbstractConsole getConsole() {
+	public IConsole getConsole() {
 		return console;
 	}
 
 	@Override
 	public void addVCSManager(IVcsManager vcs, boolean persist) {
-		Credentials credentials = null;
-		if (vcs.getUsername() != null || vcs.getPassword() != null) {
-			credentials = new Credentials();
-			credentials.setUsername(vcs.getUsername());
-			credentials.setPassword(vcs.getPassword());
-		}
 		try {
+			org.hawk.core.ICredentialsStore.Credentials storedCredentials = getCredentialsStore().get(vcs.getLocation());
+
+			Credentials credentials = null;
+			if (storedCredentials != null) {
+				credentials = new Credentials();
+				credentials.setUsername(storedCredentials.getUsername());
+				credentials.setPassword(storedCredentials.getPassword());
+			}
+
 			client.addRepository(name, new Repository(vcs.getLocation(), vcs.getType()), credentials);
-		} catch (TException e) {
+		} catch (Exception e) {
 			console.printerrln("Could not add the specified repository");
 			console.printerrln(e);
 		}
@@ -465,9 +458,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void init(int minDelay, int maxDelay) throws Exception {
 		try {
-			client.startInstance(name, new String(adminPw));
+			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
-			client.createInstance(name, new String(adminPw), minDelay, maxDelay);
+			client.createInstance(name, minDelay, maxDelay);
 		}
 	}
 
@@ -605,16 +598,6 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void setAdminPassword(char[] pw) {
-		this.adminPw = pw;
-	}
-
-	@Override
-	public String decrypt(String pw) throws GeneralSecurityException, IOException {
-		return SecurityManager.decrypt(pw, adminPw);
-	}
-
-	@Override
 	public boolean isRunning() {
 		try {
 			for (HawkInstance instance : client.listInstances()) {
@@ -654,6 +637,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void removeMetamodels(String[] metamodelURIs) throws Exception {
 		client.unregisterMetamodels(name, Arrays.asList(metamodelURIs));
+	}
+
+	@Override
+	public ICredentialsStore getCredentialsStore() {
+		return credStore;
 	}
 
 }

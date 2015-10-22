@@ -13,7 +13,8 @@ package uk.ac.york.mondo.integration.hawk.remote.thrift;
 import java.io.File;
 import java.util.List;
 
-import org.hawk.core.IAbstractConsole;
+import org.hawk.core.IConsole;
+import org.hawk.core.ICredentialsStore;
 import org.hawk.core.IHawk;
 import org.hawk.core.IHawkFactory;
 
@@ -25,8 +26,8 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
-	public IHawk create(String name, File parentFolder, String location, IAbstractConsole console) throws Exception {
-		return new ThriftRemoteHawk(name, location, parentFolder, console, ThriftProtocol.guessFromURL(location));
+	public IHawk create(String name, File parentFolder, String location, ICredentialsStore credStore, IConsole console) throws Exception {
+		return new ThriftRemoteHawk(name, location, parentFolder, credStore, console, ThriftProtocol.guessFromURL(location));
 	}
 
 	@Override

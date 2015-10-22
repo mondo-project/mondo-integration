@@ -61,7 +61,6 @@ class Hawk {
 	@doc(d="Creates a new Hawk instance (stopped).")
 	op void createInstance(
 		@doc(d="The unique name of the new Hawk instance") String name,
-		@doc(d="The admin password for encrypting credentials") String adminPassword,
 		@doc(d="Minimum delay between periodic synchronization in milliseconds") int minimumDelayMillis,
 		@doc(d="Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization)") int maximumDelayMillis 
 	);
@@ -76,8 +75,7 @@ class Hawk {
 
 	@doc(d="Starts a stopped Hawk instance")
 	op void startInstance(
-		@doc(d="The name of the Hawk instance to start") String name,
-		@doc(d="The admin password for encrypting credentials") String adminPassword
+		@doc(d="The name of the Hawk instance to start") String name
 	) throws HawkInstanceNotFound;
 
 	@doc(d="Stops a running Hawk instance")
