@@ -60,6 +60,16 @@ Server
 
 The MONDO server product (`uk.ac.york.mondo.integration.server.product`) consists of several servlets that implement the Thrift APIs for the various MONDO components, plus two customizations for the standard OSGi HttpService: `uk.ac.york.mondo.integration.server.logback` binds [SLF4J](http://www.slf4j.org/) to the [Logback](http://logback.qos.ch/) library, and `uk.ac.york.mondo.integration.server.gzip` adds gzip compression to all HTTP responses coming from the server.
 
+When deploying the server in a production environment, it is required to set up a proper encryption password for the secure store. The server will test on startup that the secure store has been set properly: if you get a warning that no password has been set, you will need to revise your setup. For Windows and Mac, the available OS integration should be enough. For Linux environments, two lines have to be added at the beginning of the `mondo-server.ini` file, specifying the path to a password file:
+
+    -eclipse.password
+    /path/to/passwordfile
+
+Creating a password file from 100 bytes of random data can be produced with these commands:
+
+    head -c 100 /dev/random | base64 > /path/to/password
+    chmod 400 /path/to/password
+
 Hawk integration
 ----------------
 
