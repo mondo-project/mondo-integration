@@ -324,7 +324,7 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getRunningHawkByName(name);
 		for (IVcsManager mgr : model.getRunningVCSManagers()) {
 			if (mgr.getLocation().equals(uri)) {
-				mgr.setCredentials(cred.username, cred.password);
+				mgr.setCredentials(cred.username, cred.password, model.getManager().getCredentialsStore());
 				return;
 			}
 		}

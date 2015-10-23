@@ -275,10 +275,10 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void setCredentials(String username, String password) {
+		public void setCredentials(String username, String password, ICredentialsStore credStore) {
 			try {
 				// Update both our local and remote copies of the credentials
-				getCredentialsStore().put(location,
+				credStore.put(location,
 						new ICredentialsStore.Credentials(username, password));
 				client.updateRepositoryCredentials(
 					name, location, new Credentials(username, password));

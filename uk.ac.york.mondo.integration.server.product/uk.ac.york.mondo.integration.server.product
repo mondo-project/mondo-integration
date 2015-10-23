@@ -13,7 +13,7 @@
 -Dosgi.noShutdown=true -Xmx2048m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
       </vmArgs>
-      <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
+      <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules  -Dsvnkit.library.gnome-keyring.enabled=false
       </vmArgsLin>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
       </vmArgsMac>

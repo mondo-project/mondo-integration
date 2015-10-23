@@ -60,7 +60,9 @@ Server
 
 The MONDO server product (`uk.ac.york.mondo.integration.server.product`) consists of several servlets that implement the Thrift APIs for the various MONDO components, plus two customizations for the standard OSGi HttpService: `uk.ac.york.mondo.integration.server.logback` binds [SLF4J](http://www.slf4j.org/) to the [Logback](http://logback.qos.ch/) library, and `uk.ac.york.mondo.integration.server.gzip` adds gzip compression to all HTTP responses coming from the server.
 
-When deploying the server in a production environment, it is required to set up a proper encryption password for the secure store. The server will test on startup that the secure store has been set properly: if you get a warning that encryption is not available, you will need to revise your setup. For Windows and Mac, the available OS integration should be enough. For Linux environments, two lines have to be added at the beginning of the `mondo-server.ini` file, specifying the path to a password file:
+When deploying the server in a production environment, it is important to set up the secure store correctly, as it keeps the usernames and passwords of all the VCS that Hawk indexes. This has two steps:
+* The secure store must be placed in a place no other program will try to access concurrently. This can be done by editing `mondo-server.ini` and adding the two program arguments `-eclipse.keyring /path/to/keyringfile`. That path should be only readable by the user running the server, for added security.
+* An encryption password must be set. For Windows and Mac, the available OS integration should be enough.   For Linux environments, two lines have to be added at the beginning of the `mondo-server.ini` file, specifying the path to a password file:
 
     -eclipse.password
     /path/to/passwordfile
@@ -69,6 +71,8 @@ Creating a password file from 100 bytes of random data can be produced with thes
 
     head -c 100 /dev/random | base64 > /path/to/password
     chmod 400 /path/to/password
+
+The server will test on startup that the secure store has been set properly: if you get a warning that encryption is not available, you will need to revise your setup.
 
 Hawk integration
 ----------------
