@@ -15,14 +15,10 @@
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
-      <category
-            name="Hawk"
-            id="uk.ac.york.mondo.integration.hawk.emf.dt">
-      </category>
       <wizard
             name="Remote Hawk Model Descriptor File"
             icon="icons/hawkmodel.png"
-            category="uk.ac.york.mondo.integration.hawk.emf.dt"
+            category="hawk.ui.plugin"
             class="uk.ac.york.mondo.integration.hawk.emf.dt.wizards.NewRemoteHawkModelDescriptorWizard"
             id="uk.ac.york.mondo.integration.hawk.emf.dt.wizards.NewRemoteHawkModelDescriptorWizard">
       </wizard>
