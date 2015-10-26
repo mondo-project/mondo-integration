@@ -298,7 +298,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void run(String vcsloc, IConsole c, IModelIndexer indexer) throws Exception {
+		public void run(String vcsloc, IModelIndexer indexer) throws Exception {
 			// nothing to do
 		}
 
