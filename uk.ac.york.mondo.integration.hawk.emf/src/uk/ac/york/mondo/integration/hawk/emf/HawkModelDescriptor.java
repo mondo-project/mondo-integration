@@ -142,6 +142,7 @@ public class HawkModelDescriptor {
 	public static final String DEFAULT_INSTANCE = "myhawk";
 	public static final LoadingMode DEFAULT_LOADING_MODE = LoadingMode.GREEDY;
 	public static final boolean DEFAULT_IS_SUBSCRIBED = false;
+	public static final boolean DEFAULT_IS_SPLIT = true;
 	public static final ThriftProtocol DEFAULT_TPROTOCOL = ThriftProtocol.TUPLE;
 	public static final String DEFAULT_CLIENTID = System.getProperty("user.name");
 	public static final SubscriptionDurability DEFAULT_DURABILITY = SubscriptionDurability.DEFAULT;
@@ -163,6 +164,7 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
 	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
 	private static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
+	private static final String PROPERTY_HAWK_SPLIT = "hawk.split";
 
 	private String hawkURL = DEFAULT_URL;
 	private String hawkInstance = DEFAULT_INSTANCE;
@@ -173,6 +175,7 @@ public class HawkModelDescriptor {
 	private LoadingMode loadingMode = DEFAULT_LOADING_MODE;
 	private String hawkQueryLanguage = DEFAULT_QUERY_LANGUAGE;
 	private String hawkQuery = DEFAULT_QUERY;
+	private boolean isSplit = DEFAULT_IS_SPLIT;
 
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
 	private String subscriptionClientID = DEFAULT_CLIENTID;
@@ -280,6 +283,24 @@ public class HawkModelDescriptor {
 		this.subscriptionDurability = subscriptionDurability;
 	}
 
+	/**
+	 * Returns <code>true</code> if the contents of the index should be split by
+	 * indexed file (producing surrogate resources in the resource set), or
+	 * <code>false</code> if everything should be in the original resource.
+	 *
+	 * Normally we want this to be <code>true</code> for editors and validators,
+	 * which may want the original URI of the resource, and <code>false</code>
+	 * for model transformations, which just want the set of all elements. CloudATL
+	 * needs this to be set to <code>false</code>, for instance.
+	 */
+	public boolean isSplit() {
+		return isSplit;
+	}
+
+	public void setSplit(boolean newValue) {
+		isSplit = newValue;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -299,6 +320,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_LOADING_MODE, loadingMode.toString());
 		props.setProperty(PROPERTY_HAWK_QUERY_LANGUAGE, hawkQueryLanguage);
 		props.setProperty(PROPERTY_HAWK_QUERY, hawkQuery);
+		props.setProperty(PROPERTY_HAWK_SPLIT, Boolean.toString(isSplit));
 
 		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
 		props.setProperty(PROPERTY_HAWK_CLIENTID, subscriptionClientID);
@@ -316,6 +338,7 @@ public class HawkModelDescriptor {
 		this.loadingMode = LoadingMode.valueOf(optionalProperty(props, PROPERTY_HAWK_LOADING_MODE, DEFAULT_LOADING_MODE + ""));
 		this.hawkQueryLanguage = optionalProperty(props, PROPERTY_HAWK_QUERY_LANGUAGE, DEFAULT_QUERY_LANGUAGE);
 		this.hawkQuery = optionalProperty(props, PROPERTY_HAWK_QUERY, DEFAULT_QUERY);
+		this.isSplit = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SPLIT, DEFAULT_IS_SPLIT + ""));
 
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
 		this.subscriptionClientID = optionalProperty(props, PROPERTY_HAWK_CLIENTID, DEFAULT_CLIENTID);

@@ -19,7 +19,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
@@ -39,13 +38,14 @@ public class HawkResourceFactoryImpl implements Factory {
 	private static final String URLPARAM_INSTANCE = "instance";
 	private static final String URLPARAM_QUERY = "query";
 	private static final String URLPARAM_QUERY_LANGUAGE = "queryLanguage";
+	private static final String URLPARAM_SPLIT = "split";
 
 	public HawkResourceFactoryImpl() {
 		// TODO get credentials from Eclipse preferences?
 	}
 
 	@Override
-	public Resource createResource(URI uri) {
+	public HawkResourceImpl createResource(URI uri) {
 		if (isHawkURL(uri)) {
 			final HawkModelDescriptor descriptor = parseHawkURL(uri);
 			return new HawkResourceImpl(uri, descriptor);
@@ -79,6 +79,8 @@ public class HawkResourceFactoryImpl implements Factory {
 				d.getHawkQueryLanguage(), HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE, removeDefaultValues);
 		addParameter(params, URLPARAM_QUERY,
 				d.getHawkQuery(), HawkModelDescriptor.DEFAULT_QUERY, removeDefaultValues);
+		addParameter(params, URLPARAM_SPLIT,
+				d.isSplit() + "", HawkModelDescriptor.DEFAULT_IS_SPLIT + "", removeDefaultValues);
 
 		addParameter(params, URLPARAM_SUBSCRIBE,
 				d.isSubscribed() + "", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED + "", removeDefaultValues);
@@ -123,6 +125,8 @@ public class HawkResourceFactoryImpl implements Factory {
 				descriptor.setHawkRepository(v); break;
 			case URLPARAM_LOADING_MODE:
 				descriptor.setLoadingMode(LoadingMode.valueOf(v.toUpperCase())); break;
+			case URLPARAM_SPLIT:
+				descriptor.setSplit(Boolean.valueOf(v)); break;
 			case URLPARAM_SUBSCRIBE:
 				descriptor.setSubscribed(Boolean.valueOf(v)); break;
 			case URLPARAM_DURABILITY:

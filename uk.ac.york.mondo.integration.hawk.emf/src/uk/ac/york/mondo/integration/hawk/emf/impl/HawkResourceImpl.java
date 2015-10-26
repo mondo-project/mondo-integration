@@ -51,6 +51,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.hawk.emfresource.HawkResource;
 import org.hawk.emfresource.HawkResourceChangeListener;
 import org.hawk.emfresource.impl.HawkFileResourceImpl;
+import org.hawk.emfresource.impl.LocalHawkResourceImpl;
 import org.hawk.emfresource.util.LazyEObjectFactory;
 import org.hawk.emfresource.util.LazyResolver;
 import org.slf4j.Logger;
@@ -99,6 +100,8 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  * for the <code>.hawkmodel</code> file: during its loading, it will create several
  * {@link HawkFileResourceImpl} instances that will contain the model elements that
  * belong to each file in the Hawk index.
+ *
+ * TODO: preserve URI fragments (only supported in {@link LocalHawkResourceImpl} at the moment).
  */
 public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
@@ -495,7 +498,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	private final BiMap<String, EObject> nodeIdToEObjectMap = HashBiMap.create();
-	private final Map<String, Resource> resources = new HashMap<>();
+	private final Map<String, HawkFileResourceImpl> resources = new HashMap<>();
 	private HawkModelDescriptor descriptor;
 	private Client client;
 
@@ -527,7 +530,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		// Even if we're not only to load anything from the URI (as we have a descriptor),
 		// we still need it for proxy resolving (hawk+http URLs won't work from CloudATL
 		// otherwise: for some reason, without an URI it cannot find EString, for instance).
-		super(uri);
+		this(uri);
 		this.descriptor = descriptor;
 	}
 
@@ -845,14 +848,19 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	private void addToResource(final String repoURL, final String path, final EObject eob) {
-		final String fullURL = computeFileResourceURL(repoURL, path);
-		synchronized(resources) {
-			Resource resource = resources.get(fullURL);
-			if (resource == null) {
-				resource = getResourceSet().createResource(URI.createURI(fullURL));
-				resources.put(fullURL, resource);
+		if (descriptor.isSplit()) {
+			final String fullURL = computeFileResourceURL(repoURL, path);
+			synchronized (resources) {
+				HawkFileResourceImpl resource = resources.get(fullURL);
+				if (resource == null) {
+					resource = new HawkFileResourceImpl(URI.createURI(fullURL), this);
+					getResourceSet().getResources().add(resource);
+					resources.put(fullURL, resource);
+				}
+				resource.getContents().add(eob);
 			}
-			resource.getContents().add(eob);
+		} else {
+			getContents().add(eob);
 		}
 	}
 
