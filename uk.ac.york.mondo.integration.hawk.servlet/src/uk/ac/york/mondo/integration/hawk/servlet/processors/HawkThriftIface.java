@@ -303,7 +303,9 @@ final class HawkThriftIface implements Hawk.Iface {
 		// TODO Integrate with centralized repositories API
 		final HModel model = getRunningHawkByName(name);
 		try {
-			model.addVCS(repo.uri, repo.type, credentials.username, credentials.password);
+			final String username = credentials != null ? credentials.username : null;
+			final String password = credentials != null ? credentials.password : null;
+			model.addVCS(repo.uri, repo.type, username, password);
 		} catch (NoSuchElementException ex) {
 			throw new UnknownRepositoryType();
 		}
