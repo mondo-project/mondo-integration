@@ -242,6 +242,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 						for (Repository r : repositories) {
 							repos[iRepo++] = r.uri;
 						}
+						Arrays.sort(repos);
 						client.getInputProtocol().getTransport().close();
 
 						final Shell shell = formText.getShell();
@@ -272,14 +273,15 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 					try {
 						Hawk.Client client = APIUtils.connectToHawk(
 								d.getHawkURL(), d.getThriftProtocol());
-						final String[] languages = client.listFiles(
+						final String[] files = client.listFiles(
 								d.getHawkInstance(), Arrays.asList(d.getHawkRepository()),
 								Arrays.asList("*")).toArray(new String[0]);
+						Arrays.sort(files);
 						client.getInputProtocol().getTransport().close();
 
 						final Shell shell = formText.getShell();
 						final ListSelectionDialog dlg = new ListSelectionDialog(
-								shell, languages, new ArrayContentProvider(),
+								shell, files, new ArrayContentProvider(),
 								new LabelProvider(), "Select files (zero files = all files):");
 						dlg.setTitle("File selection");
 						dlg.setInitialSelections(d.getHawkFilePatterns());
@@ -753,6 +755,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	/** The text editor used in page 0. */
 	private TextEditor editor;
 	private DetailsFormPage detailsPage;
+	private IDocumentListener documentListener;
 
 	public HawkMultiPageEditor() {
 		super();
@@ -875,7 +878,9 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			descriptor.save(sW);
 
 			final IDocument doc = getDocument();
+			doc.removeDocumentListener(documentListener);
 			doc.set(sW.toString());
+			doc.addDocumentListener(documentListener);
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
@@ -903,7 +908,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		try {
 			createFormBasedEditorPage();
 			createRawTextEditorPage();
-			getDocument().addDocumentListener(new IDocumentListener() {
+			documentListener = new IDocumentListener() {
 				@Override
 				public void documentAboutToBeChanged(DocumentEvent event) {
 					// ignore
@@ -913,7 +918,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				public void documentChanged(DocumentEvent event) {
 					refreshForm();
 				}
-			});
+			};
+			getDocument().addDocumentListener(documentListener);
 			refreshForm();
 		} catch (Exception ex) {
 			Activator.getDefault().logError(ex);
