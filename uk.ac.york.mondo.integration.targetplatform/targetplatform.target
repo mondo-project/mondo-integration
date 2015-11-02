@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="154">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="155">
 <locations>
 <location path="${resource_loc:/uk.ac.york.mondo.integration.targetplatform/bundles}" type="Directory"/>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -85,8 +85,15 @@
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/milestones/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511021114"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201511021114"/>
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201511021114"/>
+<repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201511020826"/>
 <unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201511020826"/>
+<unit id="com.trilead.ssh2" version="1.0.0.build220_r167_v20150618_1733"/>
 <unit id="org.tmatesoft.sqljet" version="1.1.10.r1317_v20140121_0107"/>
 <unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201511020826"/>
 <unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201510300707"/>
@@ -103,12 +110,6 @@
 <unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201511020826"/>
 <unit id="org.hawk.core.feature.feature.group" version="1.0.0.201511020826"/>
 <repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511021114"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201511021114"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201511021114"/>
-<repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
