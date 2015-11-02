@@ -865,7 +865,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	private String computeFileResourceURL(final String repoURL, final String path) {
-		return "hawkrepo+" + repoURL + (repoURL.endsWith("/") ? "!!/" : "/!!/") + path;
+		final String repoSep = repoURL.endsWith("/") ? "!!" : "/!!";
+		final String pathSep = path.startsWith("/") ? "" : "/";
+		return "hawkrepo+" + repoURL + repoSep + pathSep + path;
 	}
 
 	private EObject createEObject(final ModelElement me) throws IOException {
@@ -909,7 +911,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						// for consistency and for the ability to signal if an EMF notification comes
 						// from lazy loading or not.
 						synchronized(nodeIdToEObjectMap) {
-							getLazyResolver().resolve((EObject)o, (EStructuralFeature)args[0]);
+							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
+							getLazyResolver().resolve((EObject)o, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
 						}
 						return proxy.invokeSuper(o, args);
 					}
