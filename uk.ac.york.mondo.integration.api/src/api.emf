@@ -61,9 +61,13 @@ class Hawk {
 	@doc(d="Creates a new Hawk instance (stopped).")
 	op void createInstance(
 		@doc(d="The unique name of the new Hawk instance") String name,
+		@doc(d="The name of the backend to be used") String backend,
 		@doc(d="Minimum delay between periodic synchronization in milliseconds") int minimumDelayMillis,
 		@doc(d="Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization)") int maximumDelayMillis 
 	);
+
+	@doc(d="Lists the names of the available storage backends")
+	op String[*] listBackends();
 
 	@doc(d="Lists the details of all Hawk instances")
 	op HawkInstance[*] listInstances();

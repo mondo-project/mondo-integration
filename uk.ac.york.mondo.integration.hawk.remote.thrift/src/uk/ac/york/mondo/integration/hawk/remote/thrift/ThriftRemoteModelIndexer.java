@@ -341,6 +341,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	/** Folder containing the Hawk properties.xml file. */
 	private final File parentFolder;
 	private final ICredentialsStore credStore;
+	private String dbType;
 
 	public ThriftRemoteModelIndexer(String name, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
 		this.name = name;
@@ -481,7 +482,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public void setDB(IGraphDatabase db, boolean persist) {
-		console.printerrln("Cannot change the DB in " + this.getClass().getName());
+		setDBType(db.getClass().getCanonicalName());
 	}
 
 	@Override
@@ -494,7 +495,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		try {
 			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
-			client.createInstance(name, minDelay, maxDelay);
+			client.createInstance(name, dbType, minDelay, maxDelay);
 		}
 	}
 
@@ -676,6 +677,14 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public ICredentialsStore getCredentialsStore() {
 		return credStore;
+	}
+
+	public String getDBType() {
+		return dbType;
+	}
+
+	public void setDBType(String dbtype) {
+		this.dbType = dbtype;
 	}
 
 }

@@ -86,6 +86,11 @@
           <details key="d" value="The unique name of the new Hawk instance"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="backend" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the backend to be used"/>
+        </eAnnotations>
+      </eParameters>
       <eParameters name="minimumDelayMillis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
         <eAnnotations source="doc">
           <details key="d" value="Minimum delay between periodic synchronization in milliseconds"/>
@@ -96,6 +101,11 @@
           <details key="d" value="Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization)"/>
         </eAnnotations>
       </eParameters>
+    </eOperations>
+    <eOperations name="listBackends" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Lists the names of the available storage backends"/>
+      </eAnnotations>
     </eOperations>
     <eOperations name="listInstances" upperBound="-1" eType="#//HawkInstance">
       <eAnnotations source="doc">

@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.remote.thrift;
 import java.io.File;
 import java.util.List;
 
+import org.apache.thrift.transport.TTransportException;
 import org.hawk.core.IConsole;
 import org.hawk.core.ICredentialsStore;
 import org.hawk.core.IHawk;
@@ -47,8 +48,7 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
 	public InstanceInfo[] listInstances(String location) throws Exception {
-		ThriftProtocol proto = ThriftProtocol.guessFromURL(location);
-		Hawk.Client client = APIUtils.connectToHawk(location, proto);
+		final Hawk.Client client = getClient(location);
 
 		final List<HawkInstance> instances = client.listInstances();
 		final InstanceInfo[] infos = new InstanceInfo[instances.size()];
@@ -58,6 +58,18 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 		}
 
 		return infos;
+	}
+
+	protected Hawk.Client getClient(String location) throws TTransportException {
+		ThriftProtocol proto = ThriftProtocol.guessFromURL(location);
+		Hawk.Client client = APIUtils.connectToHawk(location, proto);
+		return client;
+	}
+
+	@Override
+	public List<String> listBackends(String location) throws Exception {
+		final Hawk.Client client = getClient(location);
+		return client.listBackends();
 	}
 
 }

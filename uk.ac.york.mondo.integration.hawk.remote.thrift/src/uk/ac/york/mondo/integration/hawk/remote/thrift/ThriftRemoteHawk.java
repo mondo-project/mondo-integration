@@ -26,12 +26,10 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 public class ThriftRemoteHawk implements IHawk {
 
 	private final Client client;
-	private final IConsole console;
 	private ThriftRemoteModelIndexer indexer;
 	private File folder;
 
 	public ThriftRemoteHawk(String name, String location, File parentFolder, ICredentialsStore credStore, IConsole console, ThriftProtocol thriftProtocol) throws TTransportException, IOException {
-		this.console = console;
 		this.client = APIUtils.connectToHawk(location, thriftProtocol);
 		this.folder = parentFolder;
 		this.indexer = new ThriftRemoteModelIndexer(name, parentFolder, client, credStore, console);
@@ -44,14 +42,12 @@ public class ThriftRemoteHawk implements IHawk {
 
 	@Override
 	public String getDbtype() {
-		return null;
+		return indexer.getDBType();
 	}
 
 	@Override
 	public void setDbtype(String dbtype) {
-		console.printerrln(String.format(
-				"WARN: %s does not allow for changing the DB type - ignoring",
-				this.getClass().getName()));
+		indexer.setDBType(dbtype);
 	}
 
 	@Override

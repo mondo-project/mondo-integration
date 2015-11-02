@@ -419,8 +419,13 @@ service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name,
-	/* Minimum delay between periodic synchronization in milliseconds. */ 2: required i32 minimumDelayMillis,
-	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 3: required i32 maximumDelayMillis,
+	/* The name of the backend to be used. */ 2: required string backend,
+	/* Minimum delay between periodic synchronization in milliseconds. */ 3: required i32 minimumDelayMillis,
+	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 4: required i32 maximumDelayMillis,
+  )
+	
+  /* Lists the names of the available storage backends. Auth needed: Yes */
+  list<string> listBackends(
   )
 	
   /* Lists the details of all Hawk instances. Auth needed: Yes */

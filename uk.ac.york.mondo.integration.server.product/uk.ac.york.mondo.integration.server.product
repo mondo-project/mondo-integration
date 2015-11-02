@@ -91,6 +91,7 @@
       <feature id="org.eclipse.emf.edit.ui"/>
       <feature id="org.eclipse.emf.common.ui"/>
       <feature id="org.eclipse.equinox.core.sdk"/>
+      <feature id="org.hawk.orientdb.feature"/>
    </features>
 
    <configurations>

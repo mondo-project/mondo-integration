@@ -128,14 +128,20 @@ public class HawkCommandProvider implements CommandProvider {
 		// TODO add extra parameter to pick the backend + listBackends operation
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
+		final String backend = requiredArgument(intp, "backend");
 
 		final String sMinimum = intp.nextArgument();
 		final String sMaximum = intp.nextArgument();
 		final int minimumDelay = sMinimum != null ? Integer.parseInt(sMinimum) : 1000;
 		final int maximumDelay = sMaximum != null ? Integer.parseInt(sMaximum) : 512 * 1000;
 
-		client.createInstance(name, minimumDelay, maximumDelay);
+		client.createInstance(name, backend, minimumDelay, maximumDelay);
 		return String.format("Created instance %s", name);
+	}
+
+	public Object _hawkListBackends(CommandInterpreter intp) throws Exception {
+		checkConnected();
+		return formatList(client.listBackends());
 	}
 
 	public Object _hawkRemoveInstance(CommandInterpreter intp) throws Exception {
@@ -602,7 +608,8 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
-		sbuf.append("hawkAddInstance <name> <adminPassword> [minDelay] [maxDelay|0] - adds an instance with the provided name (if maxDelay = 0, periodic updates are disabled)\n\t");
+		sbuf.append("hawkAddInstance <name> <backend> [minDelay] [maxDelay|0] - adds an instance with the provided name (if maxDelay = 0, periodic updates are disabled)\n\t");
+		sbuf.append("hawkListBackends - lists the available Hawk backends\n\t");
 		sbuf.append("hawkListInstances - lists the available Hawk instances\n\t");
 		sbuf.append("hawkRemoveInstance <name> - removes an instance with the provided name, if it exists\n\t");
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
