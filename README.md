@@ -104,7 +104,7 @@ CloudATL (also known as ATL/MapReduce) is integrated in a similar way to Hawk. `
 
 ### Setting up a trivial Hadoop cluster for testing
 
-The CloudATL servlet works as a frontend node for a Hadoop cluster, which must have been set up in advance. The `conf` folder of the `.servlet` project provides an example of how the configuration would look like for a trivial one-node cluster. Using [Docker](https://www.docker.com/), it is quite simple to start a one-node pseudo-distributed Hadoop cluster. Install Docker and issue the following command.
+The CloudATL servlet works as a frontend node for a Hadoop cluster, which must have been set up in advance. The `conf` folder of the `.servlet` project provides an example of how the configuration would look like for a trivial one-node cluster. Using [Docker](https://www.docker.com/), it is quite simple to start a one-node pseudo-distributed Hadoop cluster. Install Docker, make sure you have over 10% of free disk space (required by Hadoop to start a node) and issue the following command.
 
     sudo docker run -it bluezio/hadoop-jh /etc/bootstrap.sh -bash
 
