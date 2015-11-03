@@ -10,6 +10,7 @@
  ******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.servlet.artemis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -83,6 +84,21 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	private ClientProducer producer;
 
 	private final Pattern repositoryURIPattern, filePathPattern;
+
+	/**
+	 * Simple interface for objects that when called, create a HawkChangeEvent.
+	 * Used to delay the creation of an Artemis message until we know the real
+	 * ID for that graph node.
+	 */
+	private interface HawkChangeEventFactory {
+		HawkChangeEvent create();
+	}
+
+	/**
+	 * We need to collect events until we complete a transaction, as the graph
+	 * nodes might only have temporary IDs until then.
+	 */
+	private final List<HawkChangeEventFactory> collectedEventFactories = new ArrayList<>();
 
 	// True if the current session was opened from synchronizeStart
 	private boolean isSessionOpenedFromSync = false;
@@ -167,12 +183,16 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 
 	@Override
 	public void changeStart() {
+		collectedEventFactories.clear();
 		openSession();
 	}
 
 	@Override
 	public void changeSuccess() {
 		try {
+			for (HawkChangeEventFactory eventFactory : collectedEventFactories) {
+				sendEvent(eventFactory.create());
+			}
 			session.commit();
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not commit the transaction", e);
@@ -182,6 +202,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 				LOGGER.error("Could not rollback the transaction", e1);
 			}
 		} finally {
+			collectedEventFactories.clear();
 			if (!isSessionOpenedFromSync) {
 				closeSession();
 			}
@@ -196,6 +217,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		} catch (ActiveMQException e) {
 			LOGGER.error("Could not rollback the transaction", e);
 		} finally {
+			collectedEventFactories.clear();
 			if (!isSessionOpenedFromSync) {
 				closeSession();
 			}
@@ -221,7 +243,13 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		ev.setVcsItem(mapToThrift(s));
 		final HawkChangeEvent change = new HawkChangeEvent();
 		change.setFileAddition(ev);
-		sendEvent(change);
+
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				return change;
+			}
+		});
 	}
 
 	@Override
@@ -233,113 +261,145 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 		ev.setVcsItem(mapToThrift(s));
 		final HawkChangeEvent change = new HawkChangeEvent();
 		change.setFileRemoval(ev);
-		sendEvent(change);
+
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				return change;
+			}
+		});
 	}
 
 	@Override
-	public void modelElementAddition(VcsCommitItem s, IHawkObject element,
-			IGraphNode elementNode, boolean isTransient) {
+	public void modelElementAddition(final VcsCommitItem s, final IHawkObject element, final IGraphNode elementNode,
+			boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
 		try {
-			final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
-			ev.setVcsItem(mapToThrift(s));
-			ev.setMetamodelURI(element.getType().getPackageNSURI());
-			ev.setTypeName(element.getType().getName());
-			ev.setId(elementNode.getId().toString());
+			collectedEventFactories.add(new HawkChangeEventFactory() {
+				@Override
+				public HawkChangeEvent create() {
+					final HawkModelElementAdditionEvent ev = new HawkModelElementAdditionEvent();
+					ev.setVcsItem(mapToThrift(s));
+					ev.setMetamodelURI(element.getType().getPackageNSURI());
+					ev.setTypeName(element.getType().getName());
+					ev.setId(elementNode.getId().toString());
 
-			final HawkChangeEvent change = new HawkChangeEvent();
-			change.setModelElementAddition(ev);
-			sendEvent(change);
+					final HawkChangeEvent change = new HawkChangeEvent();
+					change.setModelElementAddition(ev);
+					return change;
+				}
+			});
 		} catch (Exception e) {
 			LOGGER.error("Could not encode a model element", e);
 		}
 	}
 
 	@Override
-	public void modelElementRemoval(VcsCommitItem s, IGraphNode elementNode,
-			boolean isTransient) {
+	public void modelElementRemoval(final VcsCommitItem s, final IGraphNode elementNode, boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
-		final HawkModelElementRemovalEvent ev = new HawkModelElementRemovalEvent();
-		ev.setVcsItem(mapToThrift(s));
-		ev.setId(elementNode.getId().toString());
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				final HawkModelElementRemovalEvent ev = new HawkModelElementRemovalEvent();
+				ev.setVcsItem(mapToThrift(s));
+				ev.setId(elementNode.getId().toString());
 
-		final HawkChangeEvent change = new HawkChangeEvent();
-		change.setModelElementRemoval(ev);
-		sendEvent(change);
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setModelElementRemoval(ev);
+				return change;
+			}
+		});
 	}
 
 	@Override
-	public void modelElementAttributeUpdate(VcsCommitItem s,
-			IHawkObject eObject, String attrName, Object oldValue,
-			Object newValue, IGraphNode elementNode, boolean isTransient) {
+	public void modelElementAttributeUpdate(final VcsCommitItem s, final IHawkObject eObject, final String attrName,
+			final Object oldValue, final Object newValue, final IGraphNode elementNode, boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
-		final HawkAttributeUpdateEvent ev = new HawkAttributeUpdateEvent();
-		ev.setAttribute(attrName);
-		ev.setId(elementNode.getId().toString());
-		ev.setValue(HawkModelElementEncoder.encodeAttributeSlot(attrName,
-				newValue).value);
-		ev.setVcsItem(mapToThrift(s));
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				final HawkAttributeUpdateEvent ev = new HawkAttributeUpdateEvent();
+				ev.setAttribute(attrName);
+				ev.setId(elementNode.getId().toString());
+				ev.setValue(HawkModelElementEncoder.encodeAttributeSlot(attrName, newValue).value);
+				ev.setVcsItem(mapToThrift(s));
 
-		final HawkChangeEvent change = new HawkChangeEvent();
-		change.setModelElementAttributeUpdate(ev);
-		sendEvent(change);
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setModelElementAttributeUpdate(ev);
+				return change;
+			}
+		});
 	}
 
 	@Override
-	public void modelElementAttributeRemoval(VcsCommitItem s,
-			IHawkObject eObject, String attrName, IGraphNode elementNode,
-			boolean isTransient) {
+	public void modelElementAttributeRemoval(final VcsCommitItem s, final IHawkObject eObject, final String attrName,
+			final IGraphNode elementNode, boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
-		final HawkAttributeRemovalEvent ev = new HawkAttributeRemovalEvent();
-		ev.setAttribute(attrName);
-		ev.setId(elementNode.getId().toString());
-		ev.setVcsItem(mapToThrift(s));
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				final HawkAttributeRemovalEvent ev = new HawkAttributeRemovalEvent();
+				ev.setAttribute(attrName);
+				ev.setId(elementNode.getId().toString());
+				ev.setVcsItem(mapToThrift(s));
 
-		final HawkChangeEvent change = new HawkChangeEvent();
-		change.setModelElementAttributeRemoval(ev);
-		sendEvent(change);
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setModelElementAttributeRemoval(ev);
+				return change;
+			}
+		});
 	}
 
 	@Override
-	public void referenceAddition(VcsCommitItem s, IGraphNode source,
-			IGraphNode target, String refName, boolean isTransient) {
+	public void referenceAddition(final VcsCommitItem s, final IGraphNode source, final IGraphNode target,
+			final String refName, boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
-		final HawkReferenceAdditionEvent ev = new HawkReferenceAdditionEvent();
-		ev.setSourceId(source.getId().toString());
-		ev.setTargetId(target.getId().toString());
-		ev.setVcsItem(mapToThrift(s));
-		ev.setRefName(refName);
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				final HawkReferenceAdditionEvent ev = new HawkReferenceAdditionEvent();
+				ev.setSourceId(source.getId().toString());
+				ev.setTargetId(target.getId().toString());
+				ev.setVcsItem(mapToThrift(s));
+				ev.setRefName(refName);
 
-		final HawkChangeEvent change = new HawkChangeEvent();
-		change.setReferenceAddition(ev);
-		sendEvent(change);
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setReferenceAddition(ev);
+				return change;
+			}
+		});
 	}
 
 	@Override
-	public void referenceRemoval(VcsCommitItem s, IGraphNode source,
-			IGraphNode target, String refName, boolean isTransient) {
+	public void referenceRemoval(final VcsCommitItem s, final IGraphNode source, final IGraphNode target,
+			final String refName, boolean isTransient) {
 		if (isTransient || !isAcceptedByFilter(s))
 			return;
 
-		final HawkReferenceRemovalEvent ev = new HawkReferenceRemovalEvent();
-		ev.setSourceId(source.getId().toString());
-		ev.setTargetId(target.getId().toString());
-		ev.setVcsItem(mapToThrift(s));
-		ev.setRefName(refName);
+		collectedEventFactories.add(new HawkChangeEventFactory() {
+			@Override
+			public HawkChangeEvent create() {
+				final HawkReferenceRemovalEvent ev = new HawkReferenceRemovalEvent();
+				ev.setSourceId(source.getId().toString());
+				ev.setTargetId(target.getId().toString());
+				ev.setVcsItem(mapToThrift(s));
+				ev.setRefName(refName);
 
-		final HawkChangeEvent change = new HawkChangeEvent();
-		change.setReferenceRemoval(ev);
-		sendEvent(change);
+				final HawkChangeEvent change = new HawkChangeEvent();
+				change.setReferenceRemoval(ev);
+				return change;
+			}
+		});
 	}
 
 	private boolean isAcceptedByFilter(VcsCommitItem s) {
