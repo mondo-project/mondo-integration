@@ -31,22 +31,6 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="testCredentials" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
-      <eAnnotations source="doc">
-        <details key="d" value="Tests whether the provided credentials are valid"/>
-        <details key="auth" value="false"/>
-      </eAnnotations>
-      <eParameters name="username" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="A user name"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="password" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The password for that user name"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
     <eOperations name="updateProfile" eExceptions="#//UserNotFound">
       <eAnnotations source="doc">
         <details key="d" value="Updates the profile of a platform user"/>

@@ -19,7 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -113,8 +114,15 @@ public class APIUtils {
 	}
 
 	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol) throws TTransportException {
+		return connectTo(clazz, url, thriftProtocol, null, null);
+	}
+
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, String username, String password) throws TTransportException {
 		try {
-			final HttpClient httpClient = APIUtils.createGZipAwareHttpClient();
+			final DefaultHttpClient httpClient = APIUtils.createGZipAwareHttpClient();
+			if (username != null && password != null) {
+				httpClient.getCredentialsProvider().setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(username, password));
+			}
 			final THttpClient transport = new THttpClient(url, httpClient);
 			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
 			return constructor.newInstance(thriftProtocol.getProtocolFactory().getProtocol(transport));
@@ -147,7 +155,7 @@ public class APIUtils {
 	}
 
 	@SuppressWarnings({ "restriction", "deprecation" })
-	private static HttpClient createGZipAwareHttpClient() {
+	private static DefaultHttpClient createGZipAwareHttpClient() {
 		/*
 		 * Apache HttpClient 4.3 and later deprecate DefaultHttpClient in favour
 		 * of HttpClientBuilder, but Hadoop 2.7.x (used by CloudATL) uses Apache

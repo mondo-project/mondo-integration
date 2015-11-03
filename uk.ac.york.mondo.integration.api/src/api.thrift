@@ -388,12 +388,6 @@ service Users {
 	1: UserExists err1 /* The specified username already exists. */ 
 	) 
 	
-  /* Tests whether the provided credentials are valid. Auth needed: No */
-  bool testCredentials(
-	/* A user name. */ 1: required string username,
-	/* The password for that user name. */ 2: required string password,
-  )
-	
   /* Updates the profile of a platform user. Auth needed: Yes */
   void updateProfile(
 	/* The name of the user to update the profile of. */ 1: required string username,

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.cli;
 
+import java.io.Console;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +70,18 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
+		final String username = intp.nextArgument();
+		String password = intp.nextArgument();
+		if (username != null && password == null) {
+			Console console = System.console();
+			if (console == null) {
+				throw new Exception("No console: cannot read password safely");
+			}
+
+			console.writer().print("Password: ");
+			password = String.valueOf(console.readPassword());
+		}
+
 		clientProtocol = ThriftProtocol.guessFromURL(url);
 		if (client != null) {
 			final TTransport transport = client.getInputProtocol().getTransport();
@@ -76,7 +89,7 @@ public class HawkCommandProvider implements CommandProvider {
 			transport.close();
 		}
 
-		client = APIUtils.connectToHawk(url, clientProtocol);
+		client = APIUtils.connectTo(Hawk.Client.class, url, clientProtocol, username, password);
 		Activator.getInstance().addCloseable(client.getInputProtocol().getTransport());
 		currentInstance = null;
 
@@ -605,7 +618,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("---HAWK (commands are case insensitive, <> means required, [] means optional)---\n\t");
 		sbuf.append("hawkHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("hawkConnect <url> - connects to a Thrift endpoint (guesses the protocol from the URL)\n\t");
+		sbuf.append("hawkConnect <url> [username] [password] - connects to a Thrift endpoint (guesses the protocol from the URL)\n\t");
 		sbuf.append("hawkDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Instances--\n\t");
 		sbuf.append("hawkAddInstance <name> <backend> [minDelay] [maxDelay|0] - adds an instance with the provided name (if maxDelay = 0, periodic updates are disabled)\n\t");

@@ -45,25 +45,6 @@ public class UserServlet extends TServlet {
 		}
 
 		@Override
-		public boolean testCredentials(String username, String password) throws TException {
-			final UserStorage storage = Activator.getInstance().getStorage();
-
-			final DB db = storage.getTxMaker().makeTx();
-			try {
-				final BTreeMap<String, User> userMap = storage.getUserMap(db);
-				final User user = userMap.get(username);
-				if (user == null) {
-					return false;
-				}
-
-				final String hashedPass = user.getHashedPassword();
-				return UserStorage.getPasswordService().passwordsMatch(password, hashedPass);
-			} finally {
-				db.close();
-			}
-		}
-
-		@Override
 		public void updateProfile(String username, UserProfile profile) throws UserNotFound, TException {
 			final UserStorage storage = Activator.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();

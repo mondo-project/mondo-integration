@@ -20,12 +20,5 @@
             class="uk.ac.york.mondo.integration.hawk.servlet.servlets.HawkThriftJSONServlet">
       </servlet>
    </extension>
-   <extension
-         point="org.eclipse.equinox.http.registry.filters">
-      <filter
-            alias="/thrift/hawk"
-            class="uk.ac.york.mondo.integration.hawk.filters.HawkAuthFilter">
-      </filter>
-   </extension>
 
 </plugin>

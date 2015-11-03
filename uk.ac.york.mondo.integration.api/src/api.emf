@@ -34,13 +34,6 @@ class Users {
 		@doc(d="The profile of the user") UserProfile profile
 	) throws UserExists;
 
-	// Make auth implicit, depending on whether we have MONDOAuthenticationFailed?
-	@doc(d="Tests whether the provided credentials are valid", auth="false")
-	op boolean testCredentials (
-		@doc(d="A user name") String username,
-		@doc(d="The password for that user name") String password
-	);
-
 	@doc(d="Updates the profile of a platform user")
 	op void updateProfile (
 		@doc(d="The name of the user to update the profile of") String username,

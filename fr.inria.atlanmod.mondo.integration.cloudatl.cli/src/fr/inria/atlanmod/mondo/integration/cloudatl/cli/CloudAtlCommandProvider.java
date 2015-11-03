@@ -10,12 +10,12 @@
  *******************************************************************************/
 package fr.inria.atlanmod.mondo.integration.cloudatl.cli;
 
+import java.io.Console;
 import java.net.ConnectException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.thrift.protocol.TJSONProtocol;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
@@ -38,7 +38,20 @@ public class CloudAtlCommandProvider implements CommandProvider {
 
 	public Object _cloudAtlConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
-		client = APIUtils.connectTo(CloudATL.Client.class, url, ThriftProtocol.JSON);
+
+		final String username = intp.nextArgument();
+		String password = intp.nextArgument();
+		if (username != null && password == null) {
+			Console console = System.console();
+			if (console == null) {
+				throw new Exception("No console: cannot read password safely");
+			}
+
+			console.writer().print("Password: ");
+			password = String.valueOf(console.readPassword());
+		}
+
+		client = APIUtils.connectTo(CloudATL.Client.class, url, ThriftProtocol.JSON, username, password);
 		return null;
 	}
 
@@ -124,7 +137,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 		sbuf.append("---CloudAtl (commands are case insensitive)---\n\t");
 		sbuf.append("cloudAtlHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("cloudAtlConnect <url> - connects to a Thrift endpoint\n\t");
+		sbuf.append("cloudAtlConnect <url> [username] [password] - connects to a Thrift endpoint\n\t");
 		sbuf.append("cloudAtlDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Commands--\n\t");
 		sbuf.append("cloudAtlLaunch <transformation> <source-mm> <target-mm> <input> <output> - launches an ATL transformation (all arguments are hdfs:// or hawk+http:// URLs)\n\t");

@@ -1,4 +1,4 @@
-package uk.ac.york.mondo.integration.hawk.filters;
+package uk.ac.york.mondo.integration.server.users.servlet.filters;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,10 +13,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 @SuppressWarnings("deprecation")
-public class HawkAuthFilter extends IniShiroFilter {
+public class UsersAuthFilter extends IniShiroFilter {
 
-	public HawkAuthFilter() throws URISyntaxException, IOException {
-		final Bundle bundle = FrameworkUtil.getBundle(HawkAuthFilter.class);
+	public UsersAuthFilter() throws URISyntaxException, IOException {
+		final Bundle bundle = FrameworkUtil.getBundle(UsersAuthFilter.class);
 		final File shiroFile = bundle.getDataFile("shiro.ini");
 		if (!shiroFile.exists()) {
 			final URL urlDefaultShiro = bundle.getEntry("resources/shiro.ini.default");

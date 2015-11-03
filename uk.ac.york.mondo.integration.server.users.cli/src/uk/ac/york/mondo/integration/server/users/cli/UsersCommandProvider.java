@@ -24,7 +24,20 @@ public class UsersCommandProvider implements CommandProvider {
 
 	public Object _usersConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
-		client = APIUtils.connectTo(Users.Client.class, url, ThriftProtocol.JSON);
+
+		final String username = intp.nextArgument();
+		String password = intp.nextArgument();
+		if (username != null && password == null) {
+			Console console = System.console();
+			if (console == null) {
+				throw new Exception("No console: cannot read password safely");
+			}
+
+			console.writer().print("Password: ");
+			password = String.valueOf(console.readPassword());
+		}
+
+		client = APIUtils.connectTo(Users.Client.class, url, ThriftProtocol.JSON, username, password);
 		return null;
 	}
 
@@ -116,27 +129,6 @@ public class UsersCommandProvider implements CommandProvider {
 		return "Removed user account " + username;
 	}
 
-	public Object _usersCheck(CommandInterpreter intp) throws Exception {
-		checkConnected();
-		final String username = requiredArgument(intp, "username");
-		String password = intp.nextArgument();
-		if (password == null) {
-			Console console = System.console();
-			if (console == null) {
-				throw new Exception("No console: cannot read password safely");
-			}
-
-			console.writer().print("Password: ");
-			password = String.valueOf(console.readPassword());
-		}
-
-		if (client.testCredentials(username, password)) {
-			return "Passed credentials check";
-		} else {
-			return "Failed credentials check";
-		}
-	}
-
 	/* HELP */
 
 	@Override
@@ -145,7 +137,7 @@ public class UsersCommandProvider implements CommandProvider {
 		sbuf.append("---User management (commands are case insensitive)---\n\t");
 		sbuf.append("usersHelp - lists all the available commands for Hawk\n");
 		sbuf.append("--Connections--\n\t");
-		sbuf.append("usersConnect <url> - connects to a Thrift endpoint\n\t");
+		sbuf.append("usersConnect <url> [username] [password] - connects to a Thrift endpoint\n\t");
 		sbuf.append("usersDisconnect - disconnects from the current Thrift endpoint\n");
 		sbuf.append("--Commands--\n\t");
 		sbuf.append("usersAdd <username> <realname> <isAdmin: true|false> [password] - adds the user to the database\n\t");
