@@ -47,7 +47,7 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="updateUser" eExceptions="#//UserNotFound">
+    <eOperations name="updateProfile" eExceptions="#//UserNotFound">
       <eAnnotations source="doc">
         <details key="d" value="Updates the profile of a platform user"/>
       </eAnnotations>
@@ -59,6 +59,21 @@
       <eParameters name="profile" eType="#//UserProfile">
         <eAnnotations source="doc">
           <details key="d" value="The updated profile of the user"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
+    <eOperations name="updatePassword" eExceptions="#//UserNotFound">
+      <eAnnotations source="doc">
+        <details key="d" value="Updates the password of a platform user"/>
+      </eAnnotations>
+      <eParameters name="username" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the user to update the profile of"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="newPassword" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="New password to be set"/>
         </eAnnotations>
       </eParameters>
     </eOperations>

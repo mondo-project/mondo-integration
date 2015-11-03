@@ -42,9 +42,15 @@ class Users {
 	);
 
 	@doc(d="Updates the profile of a platform user")
-	op void updateUser (
+	op void updateProfile (
 		@doc(d="The name of the user to update the profile of") String username,
 		@doc(d="The updated profile of the user") UserProfile profile
+	) throws UserNotFound;
+
+	@doc(d="Updates the password of a platform user")
+	op void updatePassword (
+		@doc(d="The name of the user to update the profile of") String username,
+		@doc(d="New password to be set") String newPassword
 	) throws UserNotFound;
 
 	@doc(d="Deletes a platform user")

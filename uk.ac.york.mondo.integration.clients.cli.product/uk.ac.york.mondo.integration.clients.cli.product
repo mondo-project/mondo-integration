@@ -37,6 +37,7 @@
       <feature id="org.eclipse.core.runtime.feature"/>
       <feature id="org.eclipse.equinox.core.feature"/>
       <feature id="uk.ac.york.mondo.integration.api.feature"/>
+      <feature id="uk.ac.york.mondo.integration.server.users.cli.feature" version="1.0.0.qualifier"/>
    </features>
 
    <configurations>
@@ -46,6 +47,7 @@
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="uk.ac.york.mondo.integration.hawk.cli" autoStart="true" startLevel="0" />
+      <plugin id="uk.ac.york.mondo.integration.server.users.cli" autoStart="true" startLevel="0" />
    </configurations>
 
 </product>

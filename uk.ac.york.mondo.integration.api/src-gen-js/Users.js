@@ -277,7 +277,7 @@ Users_testCredentials_result.prototype.write = function(output) {
   return;
 };
 
-Users_updateUser_args = function(args) {
+Users_updateProfile_args = function(args) {
   this.username = null;
   this.profile = null;
   if (args) {
@@ -293,8 +293,8 @@ Users_updateUser_args = function(args) {
     }
   }
 };
-Users_updateUser_args.prototype = {};
-Users_updateUser_args.prototype.read = function(input) {
+Users_updateProfile_args.prototype = {};
+Users_updateProfile_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -331,8 +331,8 @@ Users_updateUser_args.prototype.read = function(input) {
   return;
 };
 
-Users_updateUser_args.prototype.write = function(output) {
-  output.writeStructBegin('Users_updateUser_args');
+Users_updateProfile_args.prototype.write = function(output) {
+  output.writeStructBegin('Users_updateProfile_args');
   if (this.username !== null && this.username !== undefined) {
     output.writeFieldBegin('username', Thrift.Type.STRING, 1);
     output.writeString(this.username);
@@ -348,7 +348,7 @@ Users_updateUser_args.prototype.write = function(output) {
   return;
 };
 
-Users_updateUser_result = function(args) {
+Users_updateProfile_result = function(args) {
   this.err1 = null;
   if (args instanceof UserNotFound) {
     this.err1 = args;
@@ -360,8 +360,8 @@ Users_updateUser_result = function(args) {
     }
   }
 };
-Users_updateUser_result.prototype = {};
-Users_updateUser_result.prototype.read = function(input) {
+Users_updateProfile_result.prototype = {};
+Users_updateProfile_result.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -394,8 +394,136 @@ Users_updateUser_result.prototype.read = function(input) {
   return;
 };
 
-Users_updateUser_result.prototype.write = function(output) {
-  output.writeStructBegin('Users_updateUser_result');
+Users_updateProfile_result.prototype.write = function(output) {
+  output.writeStructBegin('Users_updateProfile_result');
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Users_updatePassword_args = function(args) {
+  this.username = null;
+  this.newPassword = null;
+  if (args) {
+    if (args.username !== undefined && args.username !== null) {
+      this.username = args.username;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field username is unset!');
+    }
+    if (args.newPassword !== undefined && args.newPassword !== null) {
+      this.newPassword = args.newPassword;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field newPassword is unset!');
+    }
+  }
+};
+Users_updatePassword_args.prototype = {};
+Users_updatePassword_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.username = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.newPassword = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Users_updatePassword_args.prototype.write = function(output) {
+  output.writeStructBegin('Users_updatePassword_args');
+  if (this.username !== null && this.username !== undefined) {
+    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
+    output.writeString(this.username);
+    output.writeFieldEnd();
+  }
+  if (this.newPassword !== null && this.newPassword !== undefined) {
+    output.writeFieldBegin('newPassword', Thrift.Type.STRING, 2);
+    output.writeString(this.newPassword);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Users_updatePassword_result = function(args) {
+  this.err1 = null;
+  if (args instanceof UserNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args) {
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+  }
+};
+Users_updatePassword_result.prototype = {};
+Users_updatePassword_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new UserNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Users_updatePassword_result.prototype.write = function(output) {
+  output.writeStructBegin('Users_updatePassword_result');
   if (this.err1 !== null && this.err1 !== undefined) {
     output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
     this.err1.write(output);
@@ -626,16 +754,16 @@ UsersClient.prototype.recv_testCredentials = function() {
   }
   throw 'testCredentials failed: unknown result';
 };
-UsersClient.prototype.updateUser = function(username, profile, callback) {
-  this.send_updateUser(username, profile, callback); 
+UsersClient.prototype.updateProfile = function(username, profile, callback) {
+  this.send_updateProfile(username, profile, callback); 
   if (!callback) {
-  this.recv_updateUser();
+  this.recv_updateProfile();
   }
 };
 
-UsersClient.prototype.send_updateUser = function(username, profile, callback) {
-  this.output.writeMessageBegin('updateUser', Thrift.MessageType.CALL, this.seqid);
-  var args = new Users_updateUser_args();
+UsersClient.prototype.send_updateProfile = function(username, profile, callback) {
+  this.output.writeMessageBegin('updateProfile', Thrift.MessageType.CALL, this.seqid);
+  var args = new Users_updateProfile_args();
   args.username = username;
   args.profile = profile;
   args.write(this.output);
@@ -645,7 +773,7 @@ UsersClient.prototype.send_updateUser = function(username, profile, callback) {
     this.output.getTransport().flush(true, function() {
       var result = null;
       try {
-        result = self.recv_updateUser();
+        result = self.recv_updateProfile();
       } catch (e) {
         result = e;
       }
@@ -656,7 +784,7 @@ UsersClient.prototype.send_updateUser = function(username, profile, callback) {
   }
 };
 
-UsersClient.prototype.recv_updateUser = function() {
+UsersClient.prototype.recv_updateProfile = function() {
   var ret = this.input.readMessageBegin();
   var fname = ret.fname;
   var mtype = ret.mtype;
@@ -667,7 +795,57 @@ UsersClient.prototype.recv_updateUser = function() {
     this.input.readMessageEnd();
     throw x;
   }
-  var result = new Users_updateUser_result();
+  var result = new Users_updateProfile_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  return;
+};
+UsersClient.prototype.updatePassword = function(username, newPassword, callback) {
+  this.send_updatePassword(username, newPassword, callback); 
+  if (!callback) {
+  this.recv_updatePassword();
+  }
+};
+
+UsersClient.prototype.send_updatePassword = function(username, newPassword, callback) {
+  this.output.writeMessageBegin('updatePassword', Thrift.MessageType.CALL, this.seqid);
+  var args = new Users_updatePassword_args();
+  args.username = username;
+  args.newPassword = newPassword;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_updatePassword();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+UsersClient.prototype.recv_updatePassword = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new Users_updatePassword_result();
   result.read(this.input);
   this.input.readMessageEnd();
 

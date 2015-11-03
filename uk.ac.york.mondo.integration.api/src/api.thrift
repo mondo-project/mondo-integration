@@ -395,9 +395,18 @@ service Users {
   )
 	
   /* Updates the profile of a platform user. Auth needed: Yes */
-  void updateUser(
+  void updateProfile(
 	/* The name of the user to update the profile of. */ 1: required string username,
 	/* The updated profile of the user. */ 2: required UserProfile profile,
+  )
+  throws (
+	1: UserNotFound err1 /* The specified username does not exist. */ 
+	) 
+	
+  /* Updates the password of a platform user. Auth needed: Yes */
+  void updatePassword(
+	/* The name of the user to update the profile of. */ 1: required string username,
+	/* New password to be set. */ 2: required string newPassword,
   )
   throws (
 	1: UserNotFound err1 /* The specified username does not exist. */ 
