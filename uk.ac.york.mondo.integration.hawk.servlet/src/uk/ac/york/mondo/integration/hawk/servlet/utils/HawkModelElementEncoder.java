@@ -354,9 +354,11 @@ public class HawkModelElementEncoder {
 		// initially, the model element is not contained in any other
 		rootElements.add(me);
 
+		// TODO encode mixed fields
 		final Map<String, Object> attrs = new HashMap<>();
 		final Map<String, Object> refs = new HashMap<>();
-		meNode.getSlotValues(attrs, refs);
+		final Map<String, Object> mixed = new HashMap<>();
+		meNode.getSlotValues(attrs, refs, mixed);
 
 		if (isIncludeAttributes()) {
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
