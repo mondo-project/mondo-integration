@@ -13,12 +13,10 @@
 -Dosgi.noShutdown=true -Xmx2048m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
       </vmArgs>
-      <vmArgsLin>-Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules  -Dsvnkit.library.gnome-keyring.enabled=false
+      <vmArgsLin>-Dsvnkit.library.gnome-keyring.enabled=false
       </vmArgsLin>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Dorg.hawk.modelio.modules.path=/home/antonio/.modelio/3.2/modules
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
-      <vmArgsWin>-Dorg.hawk.modelio.modules.path=C:\Users\wv8596\.modelio\3.2\modules
-      </vmArgsWin>
    </launcherArgs>
 
    <windowImages/>
@@ -103,7 +101,6 @@
       <plugin id="org.eclipse.equinox.http.registry" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <plugin id="org.jolokia.osgi" autoStart="true" startLevel="5" />
       <plugin id="uk.ac.york.mondo.integration.artemis.server" autoStart="true" startLevel="4" />
    </configurations>
 

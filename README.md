@@ -61,7 +61,7 @@ Server
 The MONDO server product (`uk.ac.york.mondo.integration.server.product`) consists of several servlets that implement the Thrift APIs for the various MONDO components, plus two customizations for the standard OSGi HttpService: `uk.ac.york.mondo.integration.server.logback` binds [SLF4J](http://www.slf4j.org/) to the [Logback](http://logback.qos.ch/) library, and `uk.ac.york.mondo.integration.server.gzip` adds gzip compression to all HTTP responses coming from the server.
 
 When deploying the server in a production environment, it is important to set up the secure store correctly, as it keeps the usernames and passwords of all the VCS that Hawk indexes. This has two steps:
-* The secure store must be placed in a place no other program will try to access concurrently. This can be done by editing `mondo-server.ini` and adding the two program arguments `-eclipse.keyring /path/to/keyringfile`. That path should be only readable by the user running the server, for added security.
+* The secure store must be placed in a place no other program will try to access concurrently. This can be done by editing `mondo-server.ini` and adding `-eclipse.keyring <newline> /path/to/keyringfile`. That path should be only readable by the user running the server, for added security.
 * An encryption password must be set. For Windows and Mac, the available OS integration should be enough.   For Linux environments, two lines have to be added at the beginning of the `mondo-server.ini` file, specifying the path to a password file:
 
     -eclipse.password
