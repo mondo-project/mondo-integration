@@ -597,7 +597,7 @@ class SlotMetadata {
 
 @doc(d="Represents a slot that can store the value(s) of an attribute of a model element")
 class AttributeSlot extends Slot {
-	@doc(d="Value of the slot.")
+	@doc(d="Value of the slot (if set).", optional="true")
 	val SlotValue value;
 }
 

@@ -242,7 +242,7 @@ union Value {
 
 struct AttributeSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
-	 /* Value of the slot. */ 2: required SlotValue value,
+	 /* Value of the slot (if set). */ 2: optional SlotValue value,
 }
 
 struct CollaborationQueryInvocationSpecification {

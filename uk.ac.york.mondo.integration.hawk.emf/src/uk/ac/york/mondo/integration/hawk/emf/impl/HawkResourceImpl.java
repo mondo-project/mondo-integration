@@ -408,7 +408,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			final EObject eob = nodeIdToEObjectMap.get(ev.getId());
 			if (eob != null) {
 				final EClass eClass = eob.eClass();
-				final AttributeSlot slot = new AttributeSlot(ev.attribute, ev.value);
+				final AttributeSlot slot = new AttributeSlot(ev.attribute);
+				slot.setValue(ev.value);
 				try {
 					final EStructuralFeature eAttr = eClass.getEStructuralFeature(ev.attribute);
 					if (!changeListeners.isEmpty()) {

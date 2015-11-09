@@ -46,6 +46,9 @@ public final class SlotDecodingUtils {
 		if (!feature.isChangeable() || feature.isDerived() && !(eObject instanceof DynamicEStoreEObjectImpl)) {
 			return null;
 		}
+		if (!slot.isSetValue()) {
+			return null;
+		}
 
 		// isSet=true and many=false means that we should have exactly one value
 		final EClassifier eType = feature.getEType();

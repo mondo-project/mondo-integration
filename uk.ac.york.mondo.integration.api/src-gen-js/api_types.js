@@ -3135,8 +3135,6 @@ AttributeSlot = function(args) {
     }
     if (args.value !== undefined && args.value !== null) {
       this.value = new SlotValue(args.value);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field value is unset!');
     }
   }
 };

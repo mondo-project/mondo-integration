@@ -468,7 +468,12 @@ public class HawkModelElementEncoder {
 					"Unsupported value type '%s'", rawValue.getClass()
 							.getName()));
 		}
-		return new AttributeSlot(name, value);
+
+		final AttributeSlot slot = new AttributeSlot(name);
+		if (value != null) {
+			slot.setValue(value);
+		}
+		return slot;
 	}
 
 	private static void encodeSingleValueAttributeSlot(SlotValue value, final Object rawValue) {
