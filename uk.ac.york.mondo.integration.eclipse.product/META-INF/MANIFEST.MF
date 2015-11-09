@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse Product for MONDO Integrated Platform
+Bundle-SymbolicName: uk.ac.york.mondo.integration.eclipse.product
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: University of York
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
