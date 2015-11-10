@@ -45,6 +45,7 @@
       <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
       <feature id="uk.ac.york.mondo.integration.api.feature"/>
       <feature id="org.hawk.neo4jv2.feature"/>
+      <feature id="org.hawk.orientdb.feature"/>
       <feature id="org.hawk.localfolder.feature"/>
       <feature id="org.hawk.emf.feature"/>
       <feature id="org.hawk.svn.feature"/>
@@ -60,8 +61,6 @@
       <feature id="org.eclipse.emf.ecore"/>
       <feature id="org.eclipse.equinox.server.core"/>
       <feature id="org.eclipse.equinox.server.jetty"/>
-      <feature id="org.eclipse.gef"/>
-      <feature id="org.eclipse.draw2d"/>
       <feature id="org.eclipse.xsd"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.emf.edit"/>
@@ -72,8 +71,6 @@
       <feature id="org.eclipse.equinox.p2.core.feature"/>
       <feature id="org.eclipse.ecf.core.ssl.feature"/>
       <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
-      <feature id="org.eclipse.equinox.p2.user.ui"/>
-      <feature id="org.eclipse.equinox.p2.extras.feature"/>
       <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.ecf.core.feature"/>
       <feature id="org.eclipse.equinox.p2.rcp.feature"/>
@@ -88,7 +85,6 @@
       <feature id="org.eclipse.emf.edit.ui"/>
       <feature id="org.eclipse.emf.common.ui"/>
       <feature id="org.eclipse.equinox.core.sdk"/>
-      <feature id="org.hawk.orientdb.feature"/>
    </features>
 
    <configurations>

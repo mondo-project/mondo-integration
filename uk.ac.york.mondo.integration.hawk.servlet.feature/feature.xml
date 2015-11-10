@@ -38,10 +38,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.hawk.modelio.feature"
-         version="0.0.0"/>
-
-   <includes
          id="org.hawk.neo4jv2.feature"
          version="0.0.0"/>
 
