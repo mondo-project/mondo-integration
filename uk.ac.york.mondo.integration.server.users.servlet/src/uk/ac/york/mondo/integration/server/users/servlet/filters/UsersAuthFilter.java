@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 
 import org.apache.shiro.web.servlet.IniShiroFilter;
@@ -26,7 +27,7 @@ public class UsersAuthFilter extends IniShiroFilter {
 			}
 		}
 
-		setConfigPath(shiroFile.toURI().toString());
+		setConfigPath(URLDecoder.decode(shiroFile.toURI().toASCIIString(), "US-ASCII"));
 	}
 
 }

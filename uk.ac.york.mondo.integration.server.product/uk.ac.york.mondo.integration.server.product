@@ -10,7 +10,7 @@
       <programArgs>-console -consoleLog
       </programArgs>
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
--Dosgi.noShutdown=true -Xmx2048m -Xms2048m
+-Dosgi.noShutdown=true -Xmx4096m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
       </vmArgs>
       <vmArgsLin>-Dsvnkit.library.gnome-keyring.enabled=false
@@ -48,7 +48,6 @@
       <feature id="org.hawk.localfolder.feature"/>
       <feature id="org.hawk.emf.feature"/>
       <feature id="org.hawk.svn.feature"/>
-      <feature id="org.hawk.modelio.feature"/>
       <feature id="org.hawk.ifc.feature"/>
       <feature id="org.hawk.epsilon.feature"/>
       <feature id="org.hawk.core.feature"/>
