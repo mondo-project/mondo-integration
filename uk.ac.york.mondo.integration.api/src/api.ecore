@@ -87,7 +87,7 @@
       </eParameters>
       <eParameters name="backend" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The name of the backend to be used"/>
+          <details key="d" value="The name of the backend to be used, as returned by listBackends()"/>
         </eAnnotations>
       </eParameters>
       <eParameters name="minimumDelayMillis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
@@ -162,7 +162,7 @@
       </eParameters>
       <eParameters name="metamodel" upperBound="-1" eType="#//File">
         <eAnnotations source="doc">
-          <details key="d" value="The metamodels to register.&#xA;&#x9;&#x9;&#x9;More than one metamodel files can be provided in one&#xA;&#x9;&#x9;&#x9;go to accomodate fragmented metamodels."/>
+          <details key="d" value="The metamodels to register.&#xA;&#x9;&#x9;&#x9;More than one metamodel file can be provided in one&#xA;&#x9;&#x9;&#x9;request, to accomodate fragmented metamodels."/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -877,20 +877,56 @@
     <eAnnotations source="doc">
       <details key="d" value="Simplified entry within a commit of a repository."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="path" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//CommitItemChangeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="URL of the repository"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Unique identifier of the revision of the repository."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="path" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Path within the repository, using / as separator."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//CommitItemChangeType">
+      <eAnnotations source="doc">
+        <details key="d" value="Type of change within the commit."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="CommitItemChangeType">
     <eAnnotations source="doc">
       <details key="d" value="Type of change within a commit."/>
     </eAnnotations>
-    <eLiterals name="ADDED"/>
-    <eLiterals name="DELETED" value="1"/>
-    <eLiterals name="UPDATED" value="2"/>
-    <eLiterals name="UNKNOWN" value="3"/>
-    <eLiterals name="REPLACED" value="4"/>
+    <eLiterals name="ADDED">
+      <eAnnotations source="doc">
+        <details key="d" value="File was added."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="DELETED" value="1">
+      <eAnnotations source="doc">
+        <details key="d" value="File was removed."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="UPDATED" value="2">
+      <eAnnotations source="doc">
+        <details key="d" value="File was updated."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="REPLACED" value="3">
+      <eAnnotations source="doc">
+        <details key="d" value="File was removed."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="UNKNOWN" value="4">
+      <eAnnotations source="doc">
+        <details key="d" value="Unknown type of change."/>
+      </eAnnotations>
+    </eLiterals>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkInstanceNotFound">
     <eAnnotations source="doc">
@@ -1196,7 +1232,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OperationModel">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;Operational trace that encodes the operations carried out by the user locally over the models.&#xA;Its internal schema is presented in D4.3 and will be refined in D4.2.&#xA;"/>
+      <details key="d" value="&#xA;Operational trace that encodes the operations carried out by the user locally over the models.&#xA;"/>
     </eAnnotations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CloudATL">
@@ -1226,7 +1262,7 @@
     </eOperations>
     <eOperations name="getJobs" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Lists the ids of the transformation jobs tracked by this server"/>
+        <details key="d" value="Lists the identifiers of the transformation jobs tracked by this server"/>
       </eAnnotations>
     </eOperations>
     <eOperations name="getStatus" eType="#//TransformationStatus" eExceptions="#//TransformationTokenNotFound">
@@ -1425,7 +1461,7 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="mixed" upperBound="-1"
         eType="#//MixedReference" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="Mix of identifier- and position-bsaed references (if there is at least one position and one ID"/>
+        <details key="d" value="Mix of identifier- and position-bsaed references (if there is at least one position and one ID)"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
@@ -1469,9 +1505,17 @@
       <details key="d" value="Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElement" eType="#//ModelElement"
-        containment="true"/>
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Encoded model element."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="vModelElementType" eType="#//ModelElementType"
-        containment="true"/>
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Encoded model element type."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Value">
     <eAnnotations source="thrift">
@@ -1480,13 +1524,41 @@
     <eAnnotations source="doc">
       <details key="d" value="Union type for a single scalar value."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBoolean" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+      <eAnnotations source="doc">
+        <details key="d" value="Boolean (true/false) value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vByte" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EByte">
+      <eAnnotations source="doc">
+        <details key="d" value="8-bit signed integer value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShort" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort">
+      <eAnnotations source="doc">
+        <details key="d" value="16-bit signed integer value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vInteger" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+      <eAnnotations source="doc">
+        <details key="d" value="32-bit signed integer value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLong" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
+      <eAnnotations source="doc">
+        <details key="d" value="64-bit signed integer value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDouble" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble">
+      <eAnnotations source="doc">
+        <details key="d" value="64-bit floating point value."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vString" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Sequence of UTF8 characters."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SlotValue" eSuperTypes="#//Value">
     <eAnnotations source="thrift">
@@ -1495,19 +1567,47 @@
     <eAnnotations source="doc">
       <details key="d" value="Union type for a single scalar value or a homogeneous collection of scalar values."/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBooleans" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+      <eAnnotations source="doc">
+        <details key="d" value="List of true/false values."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vBytes" eType="#//EByteArray">
+      <eAnnotations source="doc">
+        <details key="d" value="List of 8-bit signed integers."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vShorts" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EShort">
+      <eAnnotations source="doc">
+        <details key="d" value="List of 16-bit signed integers."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vIntegers" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt">
+      <eAnnotations source="doc">
+        <details key="d" value="List of 32-bit signed integers."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vLongs" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
+      <eAnnotations source="doc">
+        <details key="d" value="List of 64-bit signed integers."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vDoubles" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble">
+      <eAnnotations source="doc">
+        <details key="d" value="List of 64-bit floating point values."/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="vStrings" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="List of sequences of UTF8 characters."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ModelSpec">
     <eAnnotations source="doc">
@@ -1612,7 +1712,7 @@
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="elapsed" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong">
       <eAnnotations source="doc">
-        <details key="d" value="Time passed since the start of execution"/>
+        <details key="d" value="Time passed since the start of execution, in milliseconds"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="error" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
@@ -1686,14 +1786,16 @@
     <eAnnotations source="doc">
       <details key="d" value="A file to be sent through the network"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" eType="#//EByteArray"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="AuthenticationFailed">
-    <eAnnotations source="doc">
-      <details key="d" value="The client failed to prove its identity in MONDO or did not have the necessary permissions."/>
-      <details key="exception" value="true"/>
-    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Name of the file."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" eType="#//EByteArray">
+      <eAnnotations source="doc">
+        <details key="d" value="Sequence of bytes with the contents of the file."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="UserExists">
     <eAnnotations source="doc">
