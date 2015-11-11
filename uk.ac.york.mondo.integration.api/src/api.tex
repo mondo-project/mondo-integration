@@ -1,0 +1,1606 @@
+% WARNING: This is an auto-generated file. Do not modify manually.
+\makeatletter
+  \newcommand{\camelhyph}[1]{\@fterfirst\c@amelhyph#1\relax }
+  \def\@fterfirst #1#2{#2#1}
+  \def\c@amelhyph #1{%
+   \ifthenelse{\equal{#1}\relax}{}{%  Do nothing if the end has been reached
+     \ifnum`#1<91 \-#1\else#1\fi%     Check whether #1 is an uppercase letter,
+                                %     if so, print \-#1, otherwise #1
+    \expandafter\c@amelhyph%    %     insert \c@amelhyph again.
+}}
+\makeatother
+
+\newcommand{\camelcase}[1]{\camelhyph{#1}\xspace}
+
+\subsection{Services}
+\label{sec:services}
+
+
+The present section lists the services offered by the current version of the
+MONDO platform. For each service, the available operations are presented, along
+with the parameters they take, their return type and the exceptions they may
+throw if they fail.
+
+In addition to their explicitly listed exceptions, operations requiring authentication
+may throw an AuthenticationFailed exception if the user fails to provide valid credentials
+or does not have the required permissions. In its current version, the MONDO platform
+assumes that authenticated users will have the necessary permissions. The deliverable D6.3
+in M24 will include a more fine-grained permissions system which separates authentication and
+authorization.
+
+\subsubsection{Users}
+\label{sec:Users}
+The majority of service operations provided by the MONDO
+		platform require user authentication (indicated in the top-left
+		cell of each operation table) to prevent unaccountable use.
+		As such, the platform needs to provide basic user management service operations
+		for creating, updating and deleting user accounts.
+
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Users.createUser}
+	\label{tab:users-createUser}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{createUser} & void  & Creates a new platform user. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & username & \camelcase{String} & A unique identifier for the user. \\\hline 
+	 & password & \camelcase{String} & The desired password. \\\hline 
+	 & profile & \camelcase{UserProfile} & The profile of the user. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{UserExists} & \multicolumn{2}{p{8.5cm}|}{The specified username already exists.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Users.updateProfile}
+	\label{tab:users-updateProfile}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{updateProfile} & void  & Updates the profile of a platform user. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & username & \camelcase{String} & The name of the user to update the profile of. \\\hline 
+	 & profile & \camelcase{UserProfile} & The updated profile of the user. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{UserNotFound} & \multicolumn{2}{p{8.5cm}|}{The specified username does not exist.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Users.updatePassword}
+	\label{tab:users-updatePassword}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{updatePassword} & void  & Updates the password of a platform user. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & username & \camelcase{String} & The name of the user to update the profile of. \\\hline 
+	 & newPassword & \camelcase{String} & New password to be set. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{UserNotFound} & \multicolumn{2}{p{8.5cm}|}{The specified username does not exist.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Users.deleteUser}
+	\label{tab:users-deleteUser}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{deleteUser} & void  & Deletes a platform user. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & username & \camelcase{String} & The name of the user to delete. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{UserNotFound} & \multicolumn{2}{p{8.5cm}|}{The specified username does not exist.} \\\hline 
+\end{longtable}
+
+\subsubsection{Hawk}
+\label{sec:Hawk}
+The following service operations expose the capabilities of the Hawk heterogeneous model indexing
+framework developed in Work Package 5. The framework is discussed in detail in D5.2 and D5.3.
+
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.createInstance}
+	\label{tab:hawk-createInstance}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{createInstance} & void  & Creates a new Hawk instance (stopped). \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The unique name of the new Hawk instance. \\\hline 
+	 & backend & \camelcase{String} & The name of the backend to be used. \\\hline 
+	 & minimumDelayMillis & \camelcase{int} & Minimum delay between periodic synchronization in milliseconds. \\\hline 
+	 & maximumDelayMillis & \camelcase{int} & Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listBackends}
+	\label{tab:hawk-listBackends}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listBackends} & \camelcase{String[]}  & Lists the names of the available storage backends. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listInstances}
+	\label{tab:hawk-listInstances}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listInstances} & \camelcase{HawkInstance[]}  & Lists the details of all Hawk instances. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.removeInstance}
+	\label{tab:hawk-removeInstance}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{removeInstance} & void  & Removes an existing Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance to remove. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.startInstance}
+	\label{tab:hawk-startInstance}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{startInstance} & void  & Starts a stopped Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance to start. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.stopInstance}
+	\label{tab:hawk-stopInstance}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{stopInstance} & void  & Stops a running Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance to stop. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.syncInstance}
+	\label{tab:hawk-syncInstance}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{syncInstance} & void  & Forces an immediate synchronization on a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance to stop. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.registerMetamodels}
+	\label{tab:hawk-registerMetamodels}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{registerMetamodels} & void  & Registers a set of file-based metamodels with a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & metamodel & \camelcase{File[]} & The metamodels to register.
+	                                    			More than one metamodel files can be provided in one
+	                                    			go to accomodate fragmented metamodels. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{InvalidMetamodel} & \multicolumn{2}{p{8.5cm}|}{The provided metamodel is not valid (e.g. unparsable or inconsistent).} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.unregisterMetamodels}
+	\label{tab:hawk-unregisterMetamodels}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{unregisterMetamodels} & void  & Unregisters a metamodel from a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & metamodel & \camelcase{String[]} & The URIs of the metamodels. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listMetamodels}
+	\label{tab:hawk-listMetamodels}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listMetamodels} & \camelcase{String[]}  & Lists the URIs of the registered metamodels of a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listQueryLanguages}
+	\label{tab:hawk-listQueryLanguages}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listQueryLanguages} & \camelcase{String[]}  & Lists the supported query languages and their status. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.query}
+	\label{tab:hawk-query}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{query} & \camelcase{QueryResult[]}  & Runs a query on a Hawk instance and returns a sequence of scalar values and/or model elements. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & query & \camelcase{String} & The query to be executed. \\\hline 
+	 & language & \camelcase{String} & The name of the query language used (e.g. EOL, OCL). \\\hline 
+	 & repositoryPattern & \camelcase{String} & The repository for the query (or * for all repositories). \\\hline 
+	 & filePatterns & \camelcase{String[]} & The file patterns for the query (e.g. *.uml). \\\hline 
+	 & includeAttributes  (optional)& \camelcase{EBooleanObject} & Whether to include attributes (true) or not (false) in model element results. \\\hline 
+	 & includeReferences  (optional)& \camelcase{EBooleanObject} & Whether to include references (true) or not (false) in model element results. \\\hline 
+	 & includeNodeIDs  (optional)& \camelcase{EBooleanObject} & Whether to include node IDs (true) or not (false) in model element results. \\\hline 
+	 & includeContained  (optional)& \camelcase{EBooleanObject} & Whether to include all the child elements of the model element results (true) or not (false). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+	 & \camelcase{UnknownQueryLanguage} & \multicolumn{2}{p{8.5cm}|}{The specified query language is not supported by the operation.} \\\hline 
+	 & \camelcase{InvalidQuery} & \multicolumn{2}{p{8.5cm}|}{The specified query is not valid.} \\\hline 
+	 & \camelcase{FailedQuery} & \multicolumn{2}{p{8.5cm}|}{The specified query failed to complete its execution.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.resolveProxies}
+	\label{tab:hawk-resolveProxies}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{resolveProxies} & \camelcase{ModelElement[]}  & Returns populated model elements for the provided proxies. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & ids & \camelcase{String[]} & Proxy model element IDs to be resolved. \\\hline 
+	 & includeAttributes  (optional)& \camelcase{EBooleanObject} & Whether to include attributes (true) or not (false). \\\hline 
+	 & includeReferences  (optional)& \camelcase{EBooleanObject} & Whether to include references (true) or not (false). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.addRepository}
+	\label{tab:hawk-addRepository}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{addRepository} & void  & Asks a Hawk instance to start monitoring a repository. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & repo & \camelcase{Repository} & The repository to monitor. \\\hline 
+	 & credentials  (optional)& \camelcase{Credentials} & A valid set of credentials that has read-access to the repository. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+	 & \camelcase{UnknownRepositoryType} & \multicolumn{2}{p{8.5cm}|}{The specified repository type is not supported by the operation.} \\\hline 
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.removeRepository}
+	\label{tab:hawk-removeRepository}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{removeRepository} & void  & Asks a Hawk instance to stop monitoring a repository. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & uri & \camelcase{String} & The URI of the repository to stop monitoring. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.updateRepositoryCredentials}
+	\label{tab:hawk-updateRepositoryCredentials}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{updateRepositoryCredentials} & void  & Changes the credentials used to monitor a repository. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & uri & \camelcase{String} & The URI of the repository to update. \\\hline 
+	 & cred & \camelcase{Credentials} & The new credentials to be used. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listRepositories}
+	\label{tab:hawk-listRepositories}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listRepositories} & \camelcase{Repository[]}  & Lists the repositories monitored by a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listRepositoryTypes}
+	\label{tab:hawk-listRepositoryTypes}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listRepositoryTypes} & \camelcase{String[]}  & Lists the available repository types in this installation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listFiles}
+	\label{tab:hawk-listFiles}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listFiles} & \camelcase{String[]}  & Lists the paths of the files of the indexed repository. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & repository & \camelcase{String[]} & The URI of the indexed repository. \\\hline 
+	 & filePatterns & \camelcase{String[]} & File name patterns to search for (* lists all files). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.configurePolling}
+	\label{tab:hawk-configurePolling}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{configurePolling} & void  & Sets the base polling period and max interval of a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & base & \camelcase{int} & The base polling period (in seconds). \\\hline 
+	 & max & \camelcase{int} & The maximum polling interval (in seconds). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+	 & \camelcase{InvalidPollingConfiguration} & \multicolumn{2}{p{8.5cm}|}{The polling configuration is not valid.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.addDerivedAttribute}
+	\label{tab:hawk-addDerivedAttribute}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{addDerivedAttribute} & void  & Add a new derived attribute to a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & spec & \camelcase{DerivedAttributeSpec} & The details of the new derived attribute. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+	 & \camelcase{InvalidDerivedAttributeSpec} & \multicolumn{2}{p{8.5cm}|}{The derived attribute specification is not valid.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.removeDerivedAttribute}
+	\label{tab:hawk-removeDerivedAttribute}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{removeDerivedAttribute} & void  & Remove a derived attribute from a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & spec & \camelcase{DerivedAttributeSpec} & The details of the derived attribute to be removed.
+	                                             			Only the first three fields of the spec
+	                                             			need to be populated. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listDerivedAttributes}
+	\label{tab:hawk-listDerivedAttributes}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listDerivedAttributes} & \camelcase{DerivedAttributeSpec[]}  & Lists the derived attributes of a Hawk instance. Only the first three fields of the spec are currently populated. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.addIndexedAttribute}
+	\label{tab:hawk-addIndexedAttribute}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{addIndexedAttribute} & void  & Add a new indexed attribute to a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & spec & \camelcase{IndexedAttributeSpec} & The details of the new indexed attribute. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+	 & \camelcase{InvalidIndexedAttributeSpec} & \multicolumn{2}{p{8.5cm}|}{The indexed attribute specification is not valid.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.removeIndexedAttribute}
+	\label{tab:hawk-removeIndexedAttribute}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{removeIndexedAttribute} & void  & Remove a indexed attribute from a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & spec & \camelcase{IndexedAttributeSpec} & The details of the indexed attribute to be removed. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listIndexedAttributes}
+	\label{tab:hawk-listIndexedAttributes}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listIndexedAttributes} & \camelcase{IndexedAttributeSpec[]}  & Lists the indexed attributes of a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.getModel}
+	\label{tab:hawk-getModel}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{getModel} & \camelcase{ModelElement[]}  & Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & repositoryUri & \camelcase{String[]} & The URI of the repository in which the model is contained. \\\hline 
+	 & filePath & \camelcase{String[]} & The pattern(s) for the model file(s) in the repository. \\\hline 
+	 & includeAttributes  (optional)& \camelcase{EBooleanObject} & Whether to include attributes (true) or not (false). \\\hline 
+	 & includeReferences  (optional)& \camelcase{EBooleanObject} & Whether to include references (true) or not (false). \\\hline 
+	 & includeNodeIDs  (optional)& \camelcase{EBooleanObject} & Whether to include node IDs (true) or not (false). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.getRootElements}
+	\label{tab:hawk-getRootElements}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{getRootElements} & \camelcase{ModelElement[]}  & Returns the root objects of one or more models indexed in a Hawk instance. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & repositoryUri & \camelcase{String[]} & The URI of the repository in which the model is contained. \\\hline 
+	 & filePath & \camelcase{String[]} & The pattern(s) for the model file(s) in the repository. \\\hline 
+	 & includeAttributes  (optional)& \camelcase{EBooleanObject} & Whether to include attributes (true) or not (false). \\\hline 
+	 & includeReferences  (optional)& \camelcase{EBooleanObject} & Whether to include references (true) or not (false). \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.watchModelChanges}
+	\label{tab:hawk-watchModelChanges}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{watchModelChanges} & \camelcase{Subscription}  & Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & name & \camelcase{String} & The name of the Hawk instance. \\\hline 
+	 & repositoryUri & \camelcase{String} & The URI of the repository in which the model is contained. \\\hline 
+	 & filePath & \camelcase{String[]} & The pattern(s) for the model file(s) in the repository. \\\hline 
+	 & clientID & \camelcase{String} & Unique client ID (used as suffix for the queue name). \\\hline 
+	 & durableEvents & \camelcase{SubscriptionDurability} & Durability of the subscription. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+
+\subsubsection{OfflineCollaboration}
+\label{sec:OfflineCollaboration}
+The following service operations expose the capabilities of the offline collaboration framework
+developed in Work Package 4. The framework is discussed in detail in D4.3.
+
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.checkout}
+	\label{tab:offlineCollaboration-checkout}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{checkout} & \camelcase{CollaborationResource[]}  & Performs the checkout operation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & resources & \camelcase{CollaborationResourceReference[]} & The references to the required resources. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.commit}
+	\label{tab:offlineCollaboration-commit}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{commit} & void  & Performs the commit operation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & resources & \camelcase{CollaborationResourceReference[]} & The references to the required resources. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
+	 & \camelcase{CollaborationResourceLocked} & \multicolumn{2}{p{8.5cm}|}{The resource is currently locked for collaboration.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.pull}
+	\label{tab:offlineCollaboration-pull}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{pull} & \camelcase{CollaborationResource[]}  & Performs the pull operation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & resources & \camelcase{CollaborationResourceReference[]} & The references to the required resources. \\\hline 
+	 & operationModel & \camelcase{OperationModel} & The operations executed on the client. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
+	 & \camelcase{MergeRequired} & \multicolumn{2}{p{8.5cm}|}{The operation requires a merge before it can be retried.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.publishLockDefinition}
+	\label{tab:offlineCollaboration-publishLockDefinition}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{publishLockDefinition} & void  & Publishes a lock definition. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & specification & \camelcase{CollaborationLockQuerySpec} & The lock query specification. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.unpublishLockDefinition}
+	\label{tab:offlineCollaboration-unpublishLockDefinition}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{unpublishLockDefinition} & void  & Unpublish a lock definition. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & specification & \camelcase{CollaborationLockQuerySpec} & The lock query specification. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
+	 & \camelcase{CollaborationLockQueryNotFound} & \multicolumn{2}{p{8.5cm}|}{No matching lock exists.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.lock}
+	\label{tab:offlineCollaboration-lock}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{lock} & void  & Locks the pattern with the given bindings. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & specification & \camelcase{CollaborationQueryInvocationSpecification} & The lock specification with pattern and its bindings. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
+	 & \camelcase{CollaborationResourceLocked} & \multicolumn{2}{p{8.5cm}|}{The resource is currently locked for collaboration.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.unlock}
+	\label{tab:offlineCollaboration-unlock}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{unlock} & void  & Unlocks the pattern with the given bindings. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
+	 & specification & \camelcase{CollaborationQueryInvocationSpecification} & The lock specification with pattern and its bindings. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
+	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
+	 & \camelcase{CollaborationLockQueryNotFound} & \multicolumn{2}{p{8.5cm}|}{No matching lock exists.} \\\hline 
+\end{longtable}
+
+\subsubsection{CloudATL}
+\label{sec:CloudATL}
+The following service operations expose the capabilities of the cloud-enabled
+version of the ATL transformation language which is currently under development and
+will be presented in M24 in D3.3.
+
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation CloudATL.launch}
+	\label{tab:cloudATL-launch}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{launch} & \camelcase{String}  & Invokes a cloud-based transformation in a batch non-blocking mode.
+	                                                                			Returns a token that can be used to check the status of the transformation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & transformation & \camelcase{String} & The ATL source-code of the transformation. \\\hline 
+	 & source & \camelcase{ModelSpec} & The input models of the transformation. \\\hline 
+	 & target & \camelcase{ModelSpec} & The target models of the transformation. \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{InvalidTransformation} & \multicolumn{2}{p{8.5cm}|}{The transformation is not valid: it is unparsable or inconsistent.} \\\hline 
+	 & \camelcase{InvalidModelSpec} & \multicolumn{2}{p{8.5cm}|}{The model specification is not valid: the model or the metamodels are inaccessible or invalid.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation CloudATL.getJobs}
+	\label{tab:cloudATL-getJobs}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{getJobs} & \camelcase{String[]}  & Lists the ids of the transformation jobs tracked by this server. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation CloudATL.getStatus}
+	\label{tab:cloudATL-getStatus}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{getStatus} & \camelcase{TransformationStatus}  & Returns the status of a previously invoked transformation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & token & \camelcase{String} & A valid token returned by a previous call to launch(). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{TransformationTokenNotFound} & \multicolumn{2}{p{8.5cm}|}{The specified transformation token does not exist within the invokved MONDO instance.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation CloudATL.kill}
+	\label{tab:cloudATL-kill}\\
+	\hline%
+	Auth: Yes & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{kill} & void  & Kills a previously invoked transformation. \\\hline
+	\textbf{Parameter}s & & & \\\hline
+	 & token & \camelcase{String} & A valid token returned by a previous call to launch(). \\\hline 
+	\textbf{Exception}s & & & \\\hline
+	 & \camelcase{TransformationTokenNotFound} & \multicolumn{2}{p{8.5cm}|}{The specified transformation token does not exist within the invokved MONDO instance.} \\\hline 
+\end{longtable}
+
+
+\subsection{Entities}
+\label{sec:entities}
+\subsubsection{AttributeSlot}
+
+Represents a slot that can store the value(s) of an attribute of a model element.
+
+\emph{Inherits from}: Slot.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity AttributeSlot}
+	\label{tab:attributeSlot}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  name (\nohyphens{inherited}) & \camelcase{String} & The name of the model element property the value of which is stored in this slot. \\\hline
+		  value & \camelcase{SlotValue} (optional) & Value of the slot (if set). \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElement} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationGitResourceReference}
+
+Reference to a resource in a Git repository.
+
+\emph{Inherits from}: CollaborationResourceReference.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationGitResourceReference}
+	\label{tab:collaborationGitResourceReference}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  branch & \camelcase{String} & The name of the Git branch to which new commits should be pushed. \\\hline
+		  commit & \camelcase{String} & The SHA1 identifier of the commit with the resource. \\\hline
+		  repositoryUri (\nohyphens{inherited}) & \camelcase{String} & The URI of the repository containing the resource. \\\hline
+   
+\end{longtable}
+
+\subsubsection{CollaborationLockQuerySpec}
+
+Specification of a lock on a set of model elements, without bindings.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationLockQuerySpec}
+	\label{tab:collaborationLockQuerySpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  patternFQN & \camelcase{String} & Fully qualified name of the pre-existing query. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationQueryBinding}
+
+Name/value binding used within a lock pattern.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationQueryBinding}
+	\label{tab:collaborationQueryBinding}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  name & \camelcase{String} & Name of the query parameter being bound. \\\hline
+		  value & \camelcase{String} & Value to be bound to the query parameter. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CollaborationQueryInvocationSpecification} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationQueryInvocationSpecification}
+
+Specification of a lock on a set of model elements, with bindings.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationQueryInvocationSpecification}
+	\label{tab:collaborationQueryInvocationSpecification}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  bindings & \camelcase{CollaborationQueryBinding[]} & Name/value bindings to be provided to the query. \\\hline
+		  patternFQN & \camelcase{String} & Fully qualified name of the pre-existing query. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationResource}
+
+Contents of a resource in the collaboration API.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationResource}
+	\label{tab:collaborationResource}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  file & \camelcase{File} & File with the contents of the resource. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.pull} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationResourceReference}
+
+Base entity for resource references in the collaboration API.
+
+\emph{Inherited by}: CollaborationGitResourceReference, CollaborationSvnResourceReference.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationResourceReference}
+	\label{tab:collaborationResourceReference}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  repositoryUri & \camelcase{String} & The URI of the repository containing the resource. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, CollaborationResourceNotFound, CollaborationResourceLocked} \\\hline
+\end{longtable}
+
+\subsubsection{CollaborationSvnResourceReference}
+
+Reference to a resource in a SVN repository.
+
+\emph{Inherits from}: CollaborationResourceReference.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CollaborationSvnResourceReference}
+	\label{tab:collaborationSvnResourceReference}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  filePath & \camelcase{String} & The path to the resource within the SVN repository. \\\hline
+		  repositoryUri (\nohyphens{inherited}) & \camelcase{String} & The URI of the repository containing the resource. \\\hline
+		  revision & \camelcase{String} & The revision number containing the resource. \\\hline
+   
+\end{longtable}
+
+\subsubsection{CommitItem}
+
+Simplified entry within a commit of a repository.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity CommitItem}
+	\label{tab:commitItem}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  path & \camelcase{String} &  \\\hline
+		  repoURL & \camelcase{String} &  \\\hline
+		  revision & \camelcase{String} &  \\\hline
+		  type & \camelcase{CommitItemChangeType} &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkModelElementAdditionEvent, HawkModelElementRemovalEvent, HawkAttributeUpdateEvent, HawkAttributeRemovalEvent, HawkReferenceAdditionEvent, HawkReferenceRemovalEvent, HawkFileAdditionEvent, HawkFileRemovalEvent} \\\hline
+\end{longtable}
+
+\subsubsection{ContainerSlot}
+
+Represents a slot that can store other model elements within a model element.
+
+\emph{Inherits from}: Slot.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity ContainerSlot}
+	\label{tab:containerSlot}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  elements & \camelcase{ModelElement[]} & Contained elements for this slot. \\\hline
+		  name (\nohyphens{inherited}) & \camelcase{String} & The name of the model element property the value of which is stored in this slot. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElement} \\\hline
+\end{longtable}
+
+\subsubsection{Credentials}
+
+Credentials of the client in the target VCS.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity Credentials}
+	\label{tab:credentials}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  password & \camelcase{String} & Password for logging into the VCS. \\\hline
+		  username & \camelcase{String} & Username for logging into the VCS. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, Hawk.updateRepositoryCredentials, OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
+
+\subsubsection{DerivedAttributeSpec}
+
+Used to configure Hawk's derived attributes (discussed in D5.3).
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity DerivedAttributeSpec}
+	\label{tab:derivedAttributeSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attributeName & \camelcase{String} & The name of the derived attribute. \\\hline
+		  attributeType & \camelcase{String} (optional) & The (primitive) type of the derived attribute. \\\hline
+		  derivationLanguage & \camelcase{String} (optional) & The language used to express the derivation logic. \\\hline
+		  derivationLogic & \camelcase{String} (optional) & An executable expression of the derivation logic in the language above. \\\hline
+		  isMany & \camelcase{boolean} (optional) & The multiplicity of the derived attribute. \\\hline
+		  isOrdered & \camelcase{boolean} (optional) & A flag specifying whether the order of the values of the derived attribute is significant (only makes sense when isMany=true). \\\hline
+		  isUnique & \camelcase{boolean} (optional) & A flag specifying whether the the values of the derived attribute are unique (only makes sense when isMany=true). \\\hline
+		  metamodelUri & \camelcase{String} & The URI of the metamodel to which the derived attribute belongs. \\\hline
+		  typeName & \camelcase{String} & The name of the type to which the derived attribute belongs. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes} \\\hline
+\end{longtable}
+
+\subsubsection{File}
+
+A file to be sent through the network.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity File}
+	\label{tab:file}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  contents & \camelcase{EByteArray} &  \\\hline
+		  name & \camelcase{String} &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.registerMetamodels, CollaborationResource} \\\hline
+\end{longtable}
+
+\subsubsection{HawkAttributeRemovalEvent}
+
+Serialized form of an attribute removal event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkAttributeRemovalEvent}
+	\label{tab:hawkAttributeRemovalEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attribute & \camelcase{String} & Name of the attribute that was removed. \\\hline
+		  id & \camelcase{String} & Identifier of the model element that was changed. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkAttributeUpdateEvent}
+
+Serialized form of an attribute update event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkAttributeUpdateEvent}
+	\label{tab:hawkAttributeUpdateEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attribute & \camelcase{String} & Name of the attribute that was changed. \\\hline
+		  id & \camelcase{String} & Identifier of the model element that was changed. \\\hline
+		  value & \camelcase{SlotValue} & New value for the attribute. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkChangeEvent}
+
+Serialized form of a change in the indexed models of a Hawk instance.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkChangeEvent}
+	\label{tab:hawkChangeEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  fileAddition & \camelcase{HawkFileAdditionEvent} & A file was added. \\\hline
+		  fileRemoval & \camelcase{HawkFileRemovalEvent} & A file was removed. \\\hline
+		  modelElementAddition & \camelcase{HawkModelElementAdditionEvent} & A model element was added. \\\hline
+		  modelElementAttributeRemoval & \camelcase{HawkAttributeRemovalEvent} & An attribute was removed. \\\hline
+		  modelElementAttributeUpdate & \camelcase{HawkAttributeUpdateEvent} & An attribute was updated. \\\hline
+		  modelElementRemoval & \camelcase{HawkModelElementRemovalEvent} & A model element was removed. \\\hline
+		  referenceAddition & \camelcase{HawkReferenceAdditionEvent} & A reference was added. \\\hline
+		  referenceRemoval & \camelcase{HawkReferenceRemovalEvent} & A reference was removed. \\\hline
+		  syncEnd & \camelcase{HawkSynchronizationEndEvent} & Synchronization ended. \\\hline
+		  syncStart & \camelcase{HawkSynchronizationStartEvent} & Synchronization started. \\\hline
+   
+\end{longtable}
+
+\subsubsection{HawkFileAdditionEvent}
+
+Serialized form of a file addition event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkFileAdditionEvent}
+	\label{tab:hawkFileAdditionEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  vcsItem & \camelcase{CommitItem} & Reference to file that was added, including VCS metadata. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkFileRemovalEvent}
+
+A file was removed.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkFileRemovalEvent}
+	\label{tab:hawkFileRemovalEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  vcsItem & \camelcase{CommitItem} & Reference to file that was removed, including VCS metadata. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkInstance}
+
+Status of a Hawk instance.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkInstance}
+	\label{tab:hawkInstance}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  name & \camelcase{String} & The name of the instance. \\\hline
+		  running & \camelcase{boolean} & Whether the instance is running or not. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.listInstances} \\\hline
+\end{longtable}
+
+\subsubsection{HawkModelElementAdditionEvent}
+
+Serialized form of a model element addition event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkModelElementAdditionEvent}
+	\label{tab:hawkModelElementAdditionEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  id & \camelcase{String} & Identifier of the model element that was added. \\\hline
+		  metamodelURI & \camelcase{String} & Metamodel URI of the type of the model element. \\\hline
+		  typeName & \camelcase{String} & Name of the type of the model element. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkModelElementRemovalEvent}
+
+Serialized form of a model element removal event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkModelElementRemovalEvent}
+	\label{tab:hawkModelElementRemovalEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  id & \camelcase{String} & Identifier of the model element that was removed. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkReferenceAdditionEvent}
+
+Serialized form of a reference addition event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkReferenceAdditionEvent}
+	\label{tab:hawkReferenceAdditionEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  refName & \camelcase{String} & Name of the reference that was added. \\\hline
+		  sourceId & \camelcase{String} & Identifier of the source model element. \\\hline
+		  targetId & \camelcase{String} & Identifier of the target model element. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkReferenceRemovalEvent}
+
+Serialized form of a reference removal event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkReferenceRemovalEvent}
+	\label{tab:hawkReferenceRemovalEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  refName & \camelcase{String} & Name of the reference that was removed. \\\hline
+		  sourceId & \camelcase{String} & Identifier of the source model element. \\\hline
+		  targetId & \camelcase{String} & Identifier of the target model element. \\\hline
+		  vcsItem & \camelcase{CommitItem} & Entry within the commit that produced the changes. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkSynchronizationEndEvent}
+
+Serialized form of a sync end event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkSynchronizationEndEvent}
+	\label{tab:hawkSynchronizationEndEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  timestampNanos & \camelcase{long} & Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{HawkSynchronizationStartEvent}
+
+Serialized form of a sync start event.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity HawkSynchronizationStartEvent}
+	\label{tab:hawkSynchronizationStartEvent}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  timestampNanos & \camelcase{long} & Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkChangeEvent} \\\hline
+\end{longtable}
+
+\subsubsection{IndexedAttributeSpec}
+
+Used to configure Hawk's indexed attributes (discussed in D5.3).
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity IndexedAttributeSpec}
+	\label{tab:indexedAttributeSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attributeName & \camelcase{String} & The name of the indexed attribute. \\\hline
+		  metamodelUri & \camelcase{String} & The URI of the metamodel to which the indexed attribute belongs. \\\hline
+		  typeName & \camelcase{String} & The name of the type to which the indexed attribute belongs. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes} \\\hline
+\end{longtable}
+
+\subsubsection{MixedReference}
+
+Represents a reference to a model element: it can be an identifier or a position.
+Only used when the same ReferenceSlot has both identifier-based and position-based references.
+This may be the case if we are retrieving a subset of the model which has references
+between its elements and with elements outside the subset at the same time.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity MixedReference}
+	\label{tab:mixedReference}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  id & \camelcase{String} & Identifier-based reference to a model element. \\\hline
+		  position & \camelcase{int} & Position-based reference to a model element. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ReferenceSlot} \\\hline
+\end{longtable}
+
+\subsubsection{ModelElement}
+
+Represents a model element.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity ModelElement}
+	\label{tab:modelElement}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attributes & \camelcase{AttributeSlot[]} (optional) & Slots holding the values of the model element's attributes, if any have been set. \\\hline
+		  containers & \camelcase{ContainerSlot[]} (optional) & Slots holding contained model elements, if any have been set. \\\hline
+		  file & \camelcase{String} (optional) & Name of the file to which the element belongs (not set if equal to that of the previous model element). \\\hline
+		  id & \camelcase{String} (optional) & Unique ID of the model element (not set if using position-based references). \\\hline
+		  metamodelUri & \camelcase{String} (optional) & URI of the metamodel to which the type of the element belongs (not set if equal to that of the previous model element). \\\hline
+		  references & \camelcase{ReferenceSlot[]} (optional) & Slots holding the values of the model element's references, if any have been set. \\\hline
+		  repositoryURL & \camelcase{String} (optional) & URI of the repository to which the element belongs (not set if equal to that of the previous model element). \\\hline
+		  typeName & \camelcase{String} (optional) & Name of the type that the model element is an instance of (not set if equal to that of the previous model element). \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.resolveProxies, Hawk.getModel, Hawk.getRootElements, ContainerSlot, QueryResult} \\\hline
+\end{longtable}
+
+\subsubsection{ModelElementType}
+
+Represents a type of model element.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity ModelElementType}
+	\label{tab:modelElementType}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  attributes & \camelcase{SlotMetadata[]} & Metadata for the attribute slots. \\\hline
+		  id & \camelcase{String} & Unique ID of the model element type. \\\hline
+		  metamodelUri & \camelcase{String} & URI of the metamodel to which the type belongs. \\\hline
+		  references & \camelcase{SlotMetadata[]} & Metadata for the reference slots. \\\hline
+		  typeName & \camelcase{String} & Name of the type. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} QueryResult} \\\hline
+\end{longtable}
+
+\subsubsection{ModelSpec}
+
+Captures information about source/target models of ATL transformations.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity ModelSpec}
+	\label{tab:modelSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  metamodelUris & \camelcase{String[]} & The URIs of the metamodels to which elements of the model conform. \\\hline
+		  uri & \camelcase{String} & The URI from which the model will be loaded or to which it will be persisted. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch, InvalidModelSpec} \\\hline
+\end{longtable}
+
+\subsubsection{OperationModel}
+
+Operational trace that encodes the operations carried out by the user locally over the models.
+Its internal schema is presented in D4.3 and will be refined in D4.2.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity OperationModel}
+	\label{tab:operationModel}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.pull} \\\hline
+\end{longtable}
+
+\subsubsection{QueryResult}
+
+Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.
+
+\emph{Inherits from}: Value.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity QueryResult}
+	\label{tab:queryResult}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  vBoolean (\nohyphens{inherited}) & \camelcase{boolean} &  \\\hline
+		  vByte (\nohyphens{inherited}) & \camelcase{EByte} &  \\\hline
+		  vDouble (\nohyphens{inherited}) & \camelcase{EDouble} &  \\\hline
+		  vInteger (\nohyphens{inherited}) & \camelcase{int} &  \\\hline
+		  vLong (\nohyphens{inherited}) & \camelcase{long} &  \\\hline
+		  vModelElement & \camelcase{ModelElement} &  \\\hline
+		  vModelElementType & \camelcase{ModelElementType} &  \\\hline
+		  vShort (\nohyphens{inherited}) & \camelcase{EShort} &  \\\hline
+		  vString (\nohyphens{inherited}) & \camelcase{String} &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query} \\\hline
+\end{longtable}
+
+\subsubsection{ReferenceSlot}
+
+Represents a slot that can store the value(s) of a reference  of a model element.
+References can be expressed as positions within a result tree (using pre-order traversal)
+or IDs. id, ids, position, positions and mixed are all mutually exclusive. At least one position
+or one ID must be given.
+
+\emph{Inherits from}: Slot.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity ReferenceSlot}
+	\label{tab:referenceSlot}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  id & \camelcase{String} (optional) & Unique identifier of the referenced element (if there is only one ID based reference in this slot). \\\hline
+		  ids & \camelcase{String[]} (optional) & Unique identifiers of the referenced elements (if more than one). \\\hline
+		  mixed & \camelcase{MixedReference[]} (optional) & Mix of identifier- and position-bsaed references (if there is at least one position and one ID. \\\hline
+		  name (\nohyphens{inherited}) & \camelcase{String} & The name of the model element property the value of which is stored in this slot. \\\hline
+		  position & \camelcase{int} (optional) & Position of the referenced element (if there is only one position-based reference in this slot). \\\hline
+		  positions & \camelcase{int[]} (optional) & Positions of the referenced elements (if more than one). \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElement} \\\hline
+\end{longtable}
+
+\subsubsection{Repository}
+
+Entity that represents a model repository.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity Repository}
+	\label{tab:repository}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  type & \camelcase{String} & The type of repository. \\\hline
+		  uri & \camelcase{String} & The URI to the repository. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, Hawk.listRepositories} \\\hline
+\end{longtable}
+
+\subsubsection{Slot}
+
+Represents a slot that can store the value(s) of a property of a model element.
+
+\emph{Inherited by}: AttributeSlot, ReferenceSlot, ContainerSlot.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity Slot}
+	\label{tab:slot}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  name & \camelcase{String} & The name of the model element property the value of which is stored in this slot. \\\hline
+   
+\end{longtable}
+
+\subsubsection{SlotMetadata}
+
+Represents the metadata of a slot in a model element type.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity SlotMetadata}
+	\label{tab:slotMetadata}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  isMany & \camelcase{boolean} & True if this slot holds a collection of values instead of a single value. \\\hline
+		  isOrdered & \camelcase{boolean} & True if the values in this slot are ordered. \\\hline
+		  isUnique & \camelcase{boolean} & True if the value of this slot must be unique within its containing model. \\\hline
+		  name & \camelcase{String} & The name of the model element property that is stored in this slot. \\\hline
+		  type & \camelcase{String} & The type of the values in this slot. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElementType} \\\hline
+\end{longtable}
+
+\subsubsection{SlotValue}
+
+Union type for a single scalar value or a homogeneous collection of scalar values.
+
+\emph{Inherits from}: Value.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity SlotValue}
+	\label{tab:slotValue}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  vBoolean (\nohyphens{inherited}) & \camelcase{boolean} &  \\\hline
+		  vBooleans & \camelcase{boolean[]} &  \\\hline
+		  vByte (\nohyphens{inherited}) & \camelcase{EByte} &  \\\hline
+		  vBytes & \camelcase{EByteArray} &  \\\hline
+		  vDouble (\nohyphens{inherited}) & \camelcase{EDouble} &  \\\hline
+		  vDoubles & \camelcase{EDouble[]} &  \\\hline
+		  vInteger (\nohyphens{inherited}) & \camelcase{int} &  \\\hline
+		  vIntegers & \camelcase{int[]} &  \\\hline
+		  vLong (\nohyphens{inherited}) & \camelcase{long} &  \\\hline
+		  vLongs & \camelcase{long[]} &  \\\hline
+		  vShort (\nohyphens{inherited}) & \camelcase{EShort} &  \\\hline
+		  vShorts & \camelcase{EShort[]} &  \\\hline
+		  vString (\nohyphens{inherited}) & \camelcase{String} &  \\\hline
+		  vStrings & \camelcase{String[]} &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkAttributeUpdateEvent, AttributeSlot} \\\hline
+\end{longtable}
+
+\subsubsection{Subscription}
+
+Details about a subscription to a topic queue.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity Subscription}
+	\label{tab:subscription}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  host & \camelcase{String} & Host name of the message queue server. \\\hline
+		  port & \camelcase{int} & Port in which the message queue server is listening. \\\hline
+		  queueAddress & \camelcase{String} & Address of the topic queue. \\\hline
+		  queueName & \camelcase{String} & Name of the topic queue. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.watchModelChanges} \\\hline
+\end{longtable}
+
+\subsubsection{TransformationStatus}
+
+Used to report the status of a long-running transformation by CloudATL.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity TransformationStatus}
+	\label{tab:transformationStatus}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  elapsed & \camelcase{long} & Time passed since the start of execution. \\\hline
+		  error & \camelcase{String} & Description of the error that caused the transformation to fail. \\\hline
+		  state & \camelcase{TransformationState} & State of the tranformation. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.getStatus} \\\hline
+\end{longtable}
+
+\subsubsection{UserProfile}
+
+Minimal details about registered users.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity UserProfile}
+	\label{tab:userProfile}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  admin & \camelcase{boolean} & Whether the user has admin rights (i.e. so that they can create new users, change the status of admin users etc). \\\hline
+		  realName & \camelcase{String} & The real name of the user. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Users.createUser, Users.updateProfile} \\\hline
+\end{longtable}
+
+\subsubsection{Value}
+
+Union type for a single scalar value.
+
+\emph{Inherited by}: QueryResult, SlotValue.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Entity Value}
+	\label{tab:value}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  vBoolean & \camelcase{boolean} &  \\\hline
+		  vByte & \camelcase{EByte} &  \\\hline
+		  vDouble & \camelcase{EDouble} &  \\\hline
+		  vInteger & \camelcase{int} &  \\\hline
+		  vLong & \camelcase{long} &  \\\hline
+		  vShort & \camelcase{EShort} &  \\\hline
+		  vString & \camelcase{String} &  \\\hline
+   
+\end{longtable}
+
+
+
+\subsection{Enumerations}
+\label{sec:enumerations}
+\subsubsection{CommitItemChangeType}
+
+\begin{longtable} {|p{4cm}|p{10.5cm}|}
+	\caption{Enumeration CommitItemChangeType}
+	\label{tab:commitItemChangeType}\\
+	\hline%
+	\textbf{Name} & \textbf{Documentation} \\\hline 
+		ADDED &  \\\hline 
+		DELETED &  \\\hline 
+		REPLACED &  \\\hline 
+		UNKNOWN &  \\\hline 
+		UPDATED &  \\\hline 
+	\multicolumn{2}{|p{.95\linewidth}|}{\textbf{Used in:} CommitItem} \\\hline
+\end{longtable}
+
+\subsubsection{SubscriptionDurability}
+
+\begin{longtable} {|p{4cm}|p{10.5cm}|}
+	\caption{Enumeration SubscriptionDurability}
+	\label{tab:subscriptionDurability}\\
+	\hline%
+	\textbf{Name} & \textbf{Documentation} \\\hline 
+		DEFAULT & Subscription survives client disconnections but not server restarts. \\\hline 
+		DURABLE & Subscription survives client disconnections and server restarts. \\\hline 
+		TEMPORARY & Subscription removed after disconnecting. \\\hline 
+	\multicolumn{2}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.watchModelChanges} \\\hline
+\end{longtable}
+
+\subsubsection{TransformationState}
+
+\begin{longtable} {|p{4cm}|p{10.5cm}|}
+	\caption{Enumeration TransformationState}
+	\label{tab:transformationState}\\
+	\hline%
+	\textbf{Name} & \textbf{Documentation} \\\hline 
+		FAILED & The transformation has failed. \\\hline 
+		KILLED & The transformation was interrupted by a user (i.e. killed). \\\hline 
+		PREP & The transformation is in preparation. \\\hline 
+		RUNNING & The transformation is running. \\\hline 
+		SUCCEEDED & The transformation has completed successfully. \\\hline 
+	\multicolumn{2}{|p{.95\linewidth}|}{\textbf{Used in:} TransformationStatus} \\\hline
+\end{longtable}
+
+\subsection{Exceptions}
+\label{sec:exceptions}
+\subsubsection{AuthenticationFailed}
+The client failed to prove its identity in MONDO or did not have the necessary permissions.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception AuthenticationFailed}
+	\label{tab:authenticationFailed}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   
+\end{longtable}
+\subsubsection{CollaborationLockQueryNotFound}
+No matching lock exists.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception CollaborationLockQueryNotFound}
+	\label{tab:collaborationLockQueryNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
+\subsubsection{CollaborationResourceLocked}
+The resource is currently locked for collaboration.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception CollaborationResourceLocked}
+	\label{tab:collaborationResourceLocked}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  resourceReference & \camelcase{CollaborationResourceReference} & Reference to the locked resource. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.commit, OfflineCollaboration.lock} \\\hline
+\end{longtable}
+\subsubsection{CollaborationResourceNotFound}
+The resource does not exist in the VCS.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception CollaborationResourceNotFound}
+	\label{tab:collaborationResourceNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  resourceReference & \camelcase{CollaborationResourceReference} & Reference to the missing resource. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull} \\\hline
+\end{longtable}
+\subsubsection{FailedQuery}
+The specified query failed to complete its execution.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception FailedQuery}
+	\label{tab:failedQuery}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the query failing to complete its execution. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query} \\\hline
+\end{longtable}
+\subsubsection{HawkInstanceNotFound}
+No Hawk instance exists with that name.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception HawkInstanceNotFound}
+	\label{tab:hawkInstanceNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.removeInstance, Hawk.startInstance, Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchModelChanges} \\\hline
+\end{longtable}
+\subsubsection{HawkInstanceNotRunning}
+The selected Hawk instance is not running.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception HawkInstanceNotRunning}
+	\label{tab:hawkInstanceNotRunning}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchModelChanges} \\\hline
+\end{longtable}
+\subsubsection{InvalidCollaborationLockQuerySpec}
+The lock query specification is not valid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidCollaborationLockQuerySpec}
+	\label{tab:invalidCollaborationLockQuerySpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
+\subsubsection{InvalidDerivedAttributeSpec}
+The derived attribute specification is not valid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidDerivedAttributeSpec}
+	\label{tab:invalidDerivedAttributeSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the spec not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addDerivedAttribute} \\\hline
+\end{longtable}
+\subsubsection{InvalidIndexedAttributeSpec}
+The indexed attribute specification is not valid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidIndexedAttributeSpec}
+	\label{tab:invalidIndexedAttributeSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the spec not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addIndexedAttribute} \\\hline
+\end{longtable}
+\subsubsection{InvalidMetamodel}
+The provided metamodel is not valid (e.g. unparsable or inconsistent).
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidMetamodel}
+	\label{tab:invalidMetamodel}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the metamodel not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.registerMetamodels} \\\hline
+\end{longtable}
+\subsubsection{InvalidModelSpec}
+The model specification is not valid: the model or the metamodels are inaccessible or invalid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidModelSpec}
+	\label{tab:invalidModelSpec}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the spec not being valid. \\\hline
+		  spec & \camelcase{ModelSpec} & A copy of the invalid model specification. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch} \\\hline
+\end{longtable}
+\subsubsection{InvalidPollingConfiguration}
+The polling configuration is not valid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidPollingConfiguration}
+	\label{tab:invalidPollingConfiguration}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the spec not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.configurePolling} \\\hline
+\end{longtable}
+\subsubsection{InvalidQuery}
+The specified query is not valid.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidQuery}
+	\label{tab:invalidQuery}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  reason & \camelcase{String} & Reason for the query not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query} \\\hline
+\end{longtable}
+\subsubsection{InvalidTransformation}
+The transformation is not valid: it is unparsable or inconsistent.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception InvalidTransformation}
+	\label{tab:invalidTransformation}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  location & \camelcase{String} & Location of the problem, if applicable. Usually a combination of line and column numbers. \\\hline
+		  reason & \camelcase{String} & Reason for the transformation not being valid. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch} \\\hline
+\end{longtable}
+\subsubsection{MergeRequired}
+The operation requires a merge before it can be retried.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception MergeRequired}
+	\label{tab:mergeRequired}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.pull} \\\hline
+\end{longtable}
+\subsubsection{TransformationTokenNotFound}
+The specified transformation token does not exist within the invokved MONDO instance.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception TransformationTokenNotFound}
+	\label{tab:transformationTokenNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  token & \camelcase{String} & Transformation token which was not found within the invoked MONDO instance. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.getStatus, CloudATL.kill} \\\hline
+\end{longtable}
+\subsubsection{UnknownQueryLanguage}
+The specified query language is not supported by the operation.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception UnknownQueryLanguage}
+	\label{tab:unknownQueryLanguage}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query} \\\hline
+\end{longtable}
+\subsubsection{UnknownRepositoryType}
+The specified repository type is not supported by the operation.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception UnknownRepositoryType}
+	\label{tab:unknownRepositoryType}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository} \\\hline
+\end{longtable}
+\subsubsection{UserExists}
+The specified username already exists.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception UserExists}
+	\label{tab:userExists}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Users.createUser} \\\hline
+\end{longtable}
+\subsubsection{UserNotFound}
+The specified username does not exist.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception UserNotFound}
+	\label{tab:userNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Users.updateProfile, Users.updatePassword, Users.deleteUser} \\\hline
+\end{longtable}
+\subsubsection{VCSAuthenticationFailed}
+The client failed to prove its identity in the VCS.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception VCSAuthenticationFailed}
+	\label{tab:vCSAuthenticationFailed}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
+\subsubsection{VCSAuthorizationFailed}
+The client does not have the required permissions in the VCS to perform the operation.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception VCSAuthorizationFailed}
+	\label{tab:vCSAuthorizationFailed}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+\end{longtable}
