@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="%productName" uid="uk.ac.york.mondo.integration.eclipse.nogpl.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="eclipse_lg.png"/>
+      <text>
+         %productBlurb
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-console
+      </programArgs>
+      <vmArgs>-Xmx2048m -Dorg.eclipse.update.reconcile=false
+      </vmArgs>
+      <vmArgsLin>-Dsvnkit.library.gnome-keyring.enabled=false
+      </vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="eclipse16.png" i32="eclipse32.png" i48="eclipse48.png"/>
+
+   <splash
+      startupProgressRect="2,290,448,10"
+      startupMessageRect="7,265,320,20"
+      startupForegroundColor="9c9696" />
+   <launcher name="mondo-eclipse">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
+      <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
+      <solaris include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
+      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
+   </vm>
+
+   <plugins>
+      <plugin id="com.ibm.icu"/>
+      <plugin id="javax.annotation"/>
+      <plugin id="javax.inject"/>
+      <plugin id="javax.xml"/>
+      <plugin id="org.apache.batik.css"/>
+      <plugin id="org.apache.batik.util"/>
+      <plugin id="org.apache.batik.util.gui"/>
+      <plugin id="org.eclipse.core.commands"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.databinding"/>
+      <plugin id="org.eclipse.core.databinding.observable"/>
+      <plugin id="org.eclipse.core.databinding.property"/>
+      <plugin id="org.eclipse.core.expressions"/>
+      <plugin id="org.eclipse.core.filesystem"/>
+      <plugin id="org.eclipse.core.filesystem.java7" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.e4.core.commands"/>
+      <plugin id="org.eclipse.e4.core.contexts"/>
+      <plugin id="org.eclipse.e4.core.di"/>
+      <plugin id="org.eclipse.e4.core.di.extensions"/>
+      <plugin id="org.eclipse.e4.core.services"/>
+      <plugin id="org.eclipse.e4.ui.bindings"/>
+      <plugin id="org.eclipse.e4.ui.css.core"/>
+      <plugin id="org.eclipse.e4.ui.css.swt"/>
+      <plugin id="org.eclipse.e4.ui.css.swt.theme"/>
+      <plugin id="org.eclipse.e4.ui.di"/>
+      <plugin id="org.eclipse.e4.ui.model.workbench"/>
+      <plugin id="org.eclipse.e4.ui.services"/>
+      <plugin id="org.eclipse.e4.ui.widgets"/>
+      <plugin id="org.eclipse.e4.ui.workbench"/>
+      <plugin id="org.eclipse.e4.ui.workbench.addons.swt"/>
+      <plugin id="org.eclipse.e4.ui.workbench.renderers.swt"/>
+      <plugin id="org.eclipse.e4.ui.workbench.swt"/>
+      <plugin id="org.eclipse.e4.ui.workbench3"/>
+      <plugin id="org.eclipse.emf.common"/>
+      <plugin id="org.eclipse.emf.ecore"/>
+      <plugin id="org.eclipse.emf.ecore.change"/>
+      <plugin id="org.eclipse.emf.ecore.xmi"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.bidi"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.ds"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.region" fragment="true"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.transforms.hook" fragment="true"/>
+      <plugin id="org.eclipse.equinox.util"/>
+      <plugin id="org.eclipse.equinox.weaving.hook" fragment="true"/>
+      <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.jface"/>
+      <plugin id="org.eclipse.jface.databinding"/>
+      <plugin id="org.eclipse.jface.text"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.platform"/>
+      <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.text"/>
+      <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.forms"/>
+      <plugin id="org.eclipse.ui.ide"/>
+      <plugin id="org.eclipse.ui.intro"/>
+      <plugin id="org.eclipse.ui.workbench"/>
+      <plugin id="org.w3c.css.sac"/>
+      <plugin id="org.w3c.dom.events"/>
+      <plugin id="org.w3c.dom.smil"/>
+      <plugin id="org.w3c.dom.svg"/>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.rcp" version="4.4.2.v20150204-1700"/>
+      <feature id="org.eclipse.emf.ecore"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.e4.rcp"/>
+      <feature id="org.eclipse.platform" version="4.4.2.v20150204-1700"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.feature"/>
+      <feature id="org.eclipse.help"/>
+      <feature id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature"/>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+      <feature id="org.eclipse.ecf.core.feature"/>
+      <feature id="org.eclipse.equinox.p2.rcp.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.feature"/>
+      <feature id="org.eclipse.ecf.core.ssl.feature"/>
+      <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
+      <feature id="org.hawk.bpmn.feature"/>
+      <feature id="org.hawk.core.feature"/>
+      <feature id="org.hawk.emf.feature"/>
+      <feature id="org.hawk.emfresource.feature"/>
+      <feature id="org.hawk.epsilon.feature"/>
+      <feature id="org.hawk.localfolder.feature"/>
+      <feature id="org.hawk.orientdb.feature"/>
+      <feature id="org.hawk.osgiserver.feature"/>
+      <feature id="org.hawk.svn.feature"/>
+      <feature id="org.hawk.ui.feature"/>
+      <feature id="org.hawk.workspace.feature"/>
+      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.clients.cli.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.cli.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.server.users.cli.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.incquery.databinding.runtime.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.databinding.runtime.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.generic.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.runtime.generic.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.sdk.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.sdk.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.validation.runtime.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.validation.runtime.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.validation.tooling.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.validation.tooling.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.viewers.runtime.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.viewers.runtime.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature.source" version="1.1.0.201510231636"/>
+      <feature id="org.eclipse.xtext.runtime" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.sdk" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.ui" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.xbase" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.xbase.lib" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.xtext.ui" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.emf.codegen" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.codegen.ecore" version="2.10.2.v20150123-0452"/>
+      <feature id="org.eclipse.emf.codegen.ecore.ui" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.codegen.ui" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.common.ui" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.converter" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.databinding" version="1.4.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.databinding.edit" version="1.4.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.ecore.edit" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.ecore.editor" version="2.10.1.v20150123-0452"/>
+      <feature id="org.eclipse.emf.edit" version="2.10.1.v20150123-0452"/>
+      <feature id="org.eclipse.emf.edit.ui" version="2.10.2.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping.ecore" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping.ecore.editor" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping.ui" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mwe.core" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe.core.source" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe.doc" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe.sdk" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe.ui" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe.ui.source" version="1.3.20.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe2.language.sdk" version="2.9.0.v201509290840"/>
+      <feature id="org.eclipse.emf.mwe2.language.sdk.source" version="2.9.0.v201509290840"/>
+      <feature id="org.eclipse.emf.mwe2.runtime.sdk" version="2.9.0.v201509290600"/>
+      <feature id="org.eclipse.emf.mwe2.runtime.sdk.source" version="2.9.0.v201509290600"/>
+      <feature id="org.eclipse.emf.transaction" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.transaction.doc" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.transaction.sdk" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.transaction.source" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.validation" version="1.8.0.201405281429"/>
+      <feature id="org.eclipse.emf.validation.doc" version="1.8.0.201405281429"/>
+      <feature id="org.eclipse.emf.validation.sdk" version="1.8.0.201405281429"/>
+      <feature id="org.eclipse.emf.validation.source" version="1.8.0.201405281429"/>
+      <feature id="org.eclipse.emf.workspace" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.workspace.doc" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.emf.workspace.source" version="1.8.0.201405281451"/>
+      <feature id="org.eclipse.xsd.mapping" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.xsd.mapping.editor" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.xsd.mapping.editor.source" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.xsd.mapping.source" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.jdt" version="3.10.1.v20150204-1700"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.api.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.dt.feature" version="1.0.0.qualifier"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.draw2d" version="3.9.101.201408150207"/>
+      <feature id="org.eclipse.core.runtime.feature"/>
+      <feature id="org.eclipse.xtext.examples"/>
+      <feature id="org.eclipse.xtext.docs"/>
+      <feature id="org.eclipse.equinox.core.feature"/>
+      <feature id="org.eclipse.gef" version="3.9.101.201408150207"/>
+      <feature id="org.eclipse.bpmn2" version="1.0.0.201412192138"/>
+      <feature id="org.eclipse.emf" version="2.10.2.v20150123-0452"/>
+      <feature id="org.eclipse.epsilon.core.dependencies.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.core.dt.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.core.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.emf.dt.dependencies.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.emf.dt.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.emf.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.xpand" version="2.2.0.v201509290912"/>
+      <feature id="org.eclipse.xsd" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.xtend" version="2.2.0.v201509290912"/>
+      <feature id="org.eclipse.xtend.dependencies" version="2.2.0.v201509290912"/>
+      <feature id="org.eclipse.pde" version="3.10.1.v20150204-1700"/>
+      <feature id="org.eclipse.xsd.edit" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.xsd.editor" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.validation.ocl"/>
+      <feature id="org.eclipse.xtend.typesystem.emf"/>
+      <feature id="org.eclipse.ocl" version="3.4.2.v20140725-2242"/>
+      <feature id="org.eclipse.xtend.ui" version="2.2.0.v201509290912"/>
+      <feature id="org.tmatesoft.svnkit"/>
+      <feature id="com.google.guava.source.feature" version="1.0.0.qualifier"/>
+      <feature id="org.apache.commons.lang.source.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.xtend.sdk" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.emf.codegen.ecore.source" version="2.10.2.v20150123-0452"/>
+      <feature id="org.eclipse.emf.codegen.ecore.ui.source" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.converter.source" version="2.10.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.ecore.edit.source" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.ecore.editor.source" version="2.10.1.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping.ecore.editor.source" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.mapping.ecore.source" version="2.8.0.v20150123-0452"/>
+      <feature id="org.eclipse.emf.source" version="2.10.2.v20150123-0452"/>
+      <feature id="org.eclipse.xsd.ecore.converter.source" version="2.9.0.v20150123-0452"/>
+      <feature id="org.eclipse.xtext.runtime.source" version="2.9.0.v201510020259"/>
+      <feature id="org.eclipse.xtext.ui.source" version="2.9.0.v201510020259"/>
+      <feature id="javax.inject.source.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.equinox.core.sdk" version="3.10.2.v20150203-1939"/>
+      <feature id="org.eclipse.emf.databinding.source"/>
+      <feature id="org.eclipse.xtext.xtext.ui.source"/>
+      <feature id="org.eclipse.emf.mapping.source"/>
+      <feature id="org.eclipse.xtext.xbase.source"/>
+      <feature id="org.eclipse.emf.common.ui.source"/>
+      <feature id="org.eclipse.emf.databinding.edit.source"/>
+      <feature id="org.eclipse.emf.codegen.ui.source"/>
+      <feature id="org.eclipse.emf.edit.source"/>
+      <feature id="org.eclipse.xtext.xbase.lib.source"/>
+      <feature id="org.eclipse.xtext.examples.source"/>
+      <feature id="org.eclipse.emf.codegen.source"/>
+      <feature id="org.eclipse.emf.validation.ocl.source"/>
+      <feature id="org.eclipse.emf.edit.ui.source"/>
+      <feature id="org.eclipse.emf.mapping.ui.source"/>
+      <feature id="org.eclipse.emf.query.sdk"/>
+   </features>
+
+   <configurations>
+      <plugin id="fr.inria.atlanmod.mondo.integration.cloudatl.cli" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="uk.ac.york.mondo.integration.hawk.cli" autoStart="true" startLevel="0" />
+      <plugin id="uk.ac.york.mondo.integration.server.users.cli" autoStart="true" startLevel="0" />
+   </configurations>
+
+   <repositories>
+      <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
+   </repositories>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>
