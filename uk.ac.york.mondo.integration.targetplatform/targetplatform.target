@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="173">
+<?pde version="3.8"?><target name="MONDO Integration Target Platform" sequenceNumber="174">
 <locations>
 <location path="${resource_loc:/uk.ac.york.mondo.integration.targetplatform/bundles}" type="Directory"/>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -101,12 +101,6 @@
 <repository location="http://download.eclipse.org/releases/luna/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511091416"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201511091416"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201511091416"/>
-<repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201511101804"/>
 <unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201511040832"/>
 <unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201511101804"/>
@@ -124,6 +118,12 @@
 <unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201511101804"/>
 <unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201511101804"/>
 <repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201511101836"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201511101836"/>
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511101836"/>
+<repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
