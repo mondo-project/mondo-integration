@@ -131,7 +131,7 @@ The CloudATL servlet needs to have up-to-date builds of ATL/MapReduce and the Ha
 4. Go to the Git perspective with "Window > Perspective > Open Perspective > Other... > Git".
 5. Clone the `integrate-hawk-emf` `https://github.com/bluezio/ATL_MR` Git repository and import its projects. This can be done by copying the URL into the clipboard, right-clicking on the "Git Repositories" view and selecting "Paste Repository Path or URI". Make sure to check the "Import all existing Eclipse projects" box on the last step of the wizard.
 6. Clone the `https://github.com/atlanmod/org.eclipse.atl.atlMR.git` repository, but do *not* import all projects. Instead, uncheck the box, let the clone finish and right click on the "plugins" folder within "Working Directory", selecting the "Import Projects..." menu entry.
-7. Close all projects except for `atl-mr` and open `org.eclipse.m2m.atl.emftvm`, letting it open any referenced projects.
+7. Close all projects except for `atl-mr` and open `org.eclipse.m2m.atl.emftvm` and `org.eclipse.m2m.atl.emftvm.trace`, without letting it open any referenced projects.
 8. Right-click on `atl-mr` in the "Package Explorer" view and select "Export... > Ant Buildfiles".
 9. Right-click on the generated `build.xml` file in the "Package Explorer" view and select "Run As > Ant Build...". Select the `dist-emftvm` configuration, and make sure in the "JRE" tab that it runs in the same JRE as the workspace.
 10. Refresh the `atl-mr` project by right clicking on it in the "Package Explorer" view and selecting "Refresh".

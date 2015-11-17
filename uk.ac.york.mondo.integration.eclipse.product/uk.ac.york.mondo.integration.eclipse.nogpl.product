@@ -230,20 +230,19 @@
       <feature id="uk.ac.york.mondo.integration.api.feature" version="1.0.0.qualifier"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.dt.feature" version="1.0.0.qualifier"/>
       <feature id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature" version="1.0.0.qualifier"/>
-      <feature id="org.eclipse.draw2d" version="3.9.101.201408150207"/>
       <feature id="org.eclipse.core.runtime.feature"/>
       <feature id="org.eclipse.xtext.examples"/>
       <feature id="org.eclipse.xtext.docs"/>
       <feature id="org.eclipse.equinox.core.feature"/>
-      <feature id="org.eclipse.gef" version="3.9.101.201408150207"/>
+      <feature id="org.eclipse.gef"/>
       <feature id="org.eclipse.bpmn2" version="1.0.0.201412192138"/>
       <feature id="org.eclipse.emf" version="2.10.2.v20150123-0452"/>
-      <feature id="org.eclipse.epsilon.core.dependencies.feature" version="1.3.0.201511040832"/>
-      <feature id="org.eclipse.epsilon.core.dt.feature" version="1.3.0.201511040832"/>
-      <feature id="org.eclipse.epsilon.core.feature" version="1.3.0.201511040832"/>
-      <feature id="org.eclipse.epsilon.emf.dt.dependencies.feature" version="1.3.0.201511040832"/>
-      <feature id="org.eclipse.epsilon.emf.dt.feature" version="1.3.0.201511040832"/>
-      <feature id="org.eclipse.epsilon.emf.feature" version="1.3.0.201511040832"/>
+      <feature id="org.eclipse.epsilon.core.dependencies.feature"/>
+      <feature id="org.eclipse.epsilon.core.dt.feature"/>
+      <feature id="org.eclipse.epsilon.core.feature"/>
+      <feature id="org.eclipse.epsilon.emf.dt.dependencies.feature"/>
+      <feature id="org.eclipse.epsilon.emf.dt.feature"/>
+      <feature id="org.eclipse.epsilon.emf.feature"/>
       <feature id="org.eclipse.xpand" version="2.2.0.v201509290912"/>
       <feature id="org.eclipse.xsd" version="2.10.0.v20150123-0452"/>
       <feature id="org.eclipse.xtend" version="2.2.0.v201509290912"/>
@@ -287,6 +286,23 @@
       <feature id="org.eclipse.emf.edit.ui.source"/>
       <feature id="org.eclipse.emf.mapping.ui.source"/>
       <feature id="org.eclipse.emf.query.sdk"/>
+      <feature id="org.emf.splitter.feature" version="0.1.0.201511171258"/>
+      <feature id="org.mondo.editor.feature" version="0.3.8"/>
+      <feature id="org.eclipse.graphiti.feature" version="0.12.1.v20150916-0905"/>
+      <feature id="org.eclipse.gmf"/>
+      <feature id="org.eclipse.emf.query.ocl.source"/>
+      <feature id="org.eclipse.emf.query"/>
+      <feature id="org.eclipse.emf.query.source"/>
+      <feature id="org.eclipse.gmf.runtime.thirdparty"/>
+      <feature id="org.eclipse.emf.query.doc"/>
+      <feature id="org.eclipse.draw2d"/>
+      <feature id="org.eclipse.emf.query.ocl"/>
+      <feature id="org.eclipse.gmf.runtime.notation"/>
+      <feature id="org.eclipse.acceleo" version="3.5.1.201409021433"/>
+      <feature id="org.eclipse.sirius.runtime" version="3.1.2.201511030845"/>
+      <feature id="org.eclipse.sirius.runtime.ide.ui" version="3.1.2.201511030845"/>
+      <feature id="org.eclipse.m2m.atl" version="3.5.0.v201405260755"/>
+      <feature id="org.eclipse.m2m.atl.profiler" version="3.5.0.v201405260755"/>
    </features>
 
    <configurations>
@@ -302,6 +318,8 @@
    </configurations>
 
    <repositories>
+      <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
+      <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
       <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
    </repositories>
 
