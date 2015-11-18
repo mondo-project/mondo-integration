@@ -39,7 +39,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 	private final HawkResource hawkResource;
 
 	public HawkQueryRuntimeContext(final HawkResource hawkResource, final Logger logger) {
-		super(null, logger);
+		super(null, logger, null);
 		this.hawkResource = hawkResource;
 	}
 
@@ -139,7 +139,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 					result = Iterables.transform(instances, wrapUnary);
 				} else { // fully seeded
 					if (instances.contains(seedInstance)) {
-						result = Arrays.asList(new FlatTuple(seedInstance));
+						result = Arrays.asList((Tuple) new FlatTuple(seedInstance));
 					}
 				}
 			} else if (key instanceof EDataTypeInSlotsKey) {
@@ -151,7 +151,7 @@ public class HawkQueryRuntimeContext<E> extends EMFQueryRuntimeContext {
 					result = Iterables.transform(values, wrapUnary);
 				} else { // fully seeded
 					if (values.contains(seedInstance)) {
-						result = Arrays.asList(new FlatTuple(seedInstance));
+						result = Arrays.asList((Tuple) new FlatTuple(seedInstance));
 					}
 				}
 			} else if (key instanceof EStructuralFeatureInstancesKey) {

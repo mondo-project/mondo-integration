@@ -20,10 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.equinox.http.jetty.JettyCustomizer;
-import org.eclipse.jetty.http.gzip.AbstractCompressedStream;
-import org.eclipse.jetty.http.gzip.CompressedResponseWrapper;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.GzipHandler;
+import org.eclipse.jetty.servlets.gzip.AbstractCompressedStream;
+import org.eclipse.jetty.servlets.gzip.CompressedResponseWrapper;
+import org.eclipse.jetty.servlets.gzip.GzipHandler;
 
 public class Customizer extends JettyCustomizer {
 
@@ -41,7 +41,7 @@ public class Customizer extends JettyCustomizer {
 			return new CompressedResponseWrapper(request,response)
 		    {
 		        {
-		            super.setMimeTypes(getMimeTypes());
+		            super.setMimeTypes(getMimeTypes(), _excludeMimeTypes);
 		            super.setBufferSize(getBufferSize());
 		            super.setMinCompressSize(getMinGzipSize());
 		        }
