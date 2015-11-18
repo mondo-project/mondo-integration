@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="245">
+<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="259">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.aspectj.weaver.source" version="1.7.3.20130613144500-a"/>
-<unit id="org.aspectj.weaver" version="1.7.3.20130613144500-a"/>
-<unit id="org.aspectj.runtime.source" version="1.7.3.20130613144500-a"/>
-<unit id="org.jolokia.osgi" version="1.3.1"/>
-<unit id="org.apache.thrift" version="0.9.3"/>
-<unit id="org.aspectj.runtime" version="1.7.3.20130613144500-a"/>
-<repository location="http://mondo-project.github.io/mondo-integration/thirdparty-nonp2/"/>
+<unit id="org.eclipse.team.svn.feature.group" version="3.0.1.I20150722-1700"/>
+<repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511101836"/>
@@ -304,6 +299,12 @@
 <repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.emf.compare.source.feature.group" version="3.2.0.201511010417"/>
+<unit id="org.eclipse.emf.compare.ide.ui.source.feature.group" version="3.2.0.201511010417"/>
+<unit id="org.eclipse.emf.compare.rcp.ui.source.feature.group" version="3.2.0.201511010417"/>
+<repository location="http://download.eclipse.org/modeling/emf/compare/updates/milestones/3.2/S201511010417/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.xtend.feature.group" version="2.2.0.v201509290912"/>
 <unit id="org.eclipse.xtend.gwt.feature.group" version="2.9.0.v201511170433"/>
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.9.0.v201511100512"/>
@@ -346,9 +347,13 @@
 <repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.emf.compare.ide.ui.source.feature.group" version="3.2.0.201511010417"/>
-<unit id="org.eclipse.emf.compare.source.feature.group" version="3.2.0.201511010417"/>
-<repository location="http://download.eclipse.org/modeling/emf/compare/updates/milestones/3.2/S201511010417/"/>
+<unit id="org.eclipse.gef4.geometry.feature.group" version="0.1.0.201406280202"/>
+<unit id="org.eclipse.gef4.zest.sdk.feature.group" version="0.1.0.201406280202"/>
+<repository location="http://download.eclipse.org/incquery/updates-extra/integration/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.viatra.modelobfuscator.feature.feature.group" version="0.7.0.201407161550"/>
+<repository location="http://download.eclipse.org/viatra2/modelobfuscator/updates/integration/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
