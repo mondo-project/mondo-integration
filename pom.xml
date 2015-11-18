@@ -24,6 +24,7 @@
     <module>uk.ac.york.mondo.integration.api.feature</module>
     <module>uk.ac.york.mondo.integration.artemis</module>
     <module>uk.ac.york.mondo.integration.clients.cli.feature</module>
+    <module>uk.ac.york.mondo.integration.clients.cli.application</module>
     <module>uk.ac.york.mondo.integration.clients.cli.product</module>
     <module>uk.ac.york.mondo.integration.eclipse.product</module>
     <module>uk.ac.york.mondo.integration.hawk.cli</module>
@@ -47,6 +48,26 @@
   </modules>
 
   <build>
+    <!-- 'install' and 'deploy' are not useful for this Tycho build,
+         and install gives problems in Ubuntu encrypted home dirs
+         (eCryptFS) due to the long filenames they generate: disable
+         them. -->
+    <pluginManagement>
+      <plugins>
+	<plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.3.1</version>
+          <executions>
+            <execution>
+              <id>default-install</id>
+              <phase>none</phase>
+            </execution>
+          </executions>
+	</plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
 	<groupId>org.eclipse.tycho</groupId>

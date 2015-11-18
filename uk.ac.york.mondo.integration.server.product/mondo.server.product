@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Server Product" id="uk.ac.york.mondo.integration.server.product.nogplserver" application="uk.ac.york.mondo.integration.server.product.serverapp" useFeatures="true" includeLaunchers="true">
+<product name="Server Product" uid="uk.ac.york.mondo.integration.server.product.product" id="uk.ac.york.mondo.integration.server.product.product" application="uk.ac.york.mondo.integration.server.product.serverapp" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -44,10 +44,12 @@
       <feature id="uk.ac.york.mondo.integration.server.feature"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
       <feature id="uk.ac.york.mondo.integration.api.feature"/>
+      <feature id="org.hawk.neo4jv2.feature"/>
       <feature id="org.hawk.orientdb.feature"/>
       <feature id="org.hawk.localfolder.feature"/>
       <feature id="org.hawk.emf.feature"/>
       <feature id="org.hawk.svn.feature"/>
+      <feature id="org.hawk.ifc.feature"/>
       <feature id="org.hawk.epsilon.feature"/>
       <feature id="org.hawk.core.feature"/>
       <feature id="org.hawk.osgiserver.feature"/>
@@ -78,11 +80,11 @@
       <feature id="org.eclipse.emf.ecore.edit"/>
       <feature id="org.eclipse.epsilon.core.feature"/>
       <feature id="org.eclipse.epsilon.core.dependencies.feature"/>
-      <feature id="org.eclipse.bpmn2"/>
       <feature id="org.eclipse.emf.mapping.ecore"/>
       <feature id="org.eclipse.emf.edit.ui"/>
       <feature id="org.eclipse.emf.common.ui"/>
       <feature id="org.eclipse.equinox.core.sdk"/>
+      <feature id="org.eclipse.bpmn2.feature"/>
    </features>
 
    <configurations>

@@ -17,10 +17,6 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="org.eclipse.core.runtime.feature"
-         version="0.0.0"/>
-
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.equinox.console"/>
@@ -34,7 +30,7 @@
    </requires>
 
    <plugin
-         id="uk.ac.york.mondo.integration.clients.cli.product"
+         id="uk.ac.york.mondo.integration.clients.cli.application"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.clients.cli.product;
+package uk.ac.york.mondo.integration.clients.cli.application;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
