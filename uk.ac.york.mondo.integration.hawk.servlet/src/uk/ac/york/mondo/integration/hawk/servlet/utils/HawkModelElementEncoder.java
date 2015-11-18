@@ -398,13 +398,13 @@ public class HawkModelElementEncoder {
 		final Object value = slotEntry.getValue();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
-				final ModelElementNode meNode = graph.getModelElementNodeById((long)o);
+				final ModelElementNode meNode = graph.getModelElementNodeById(o);
 				final ModelElement me = encodeInternal(meNode);
 				s.addToElements(me);
 				rootElements.remove(me);
 			}
 		} else {
-			final ModelElementNode meNode = graph.getModelElementNodeById((long)value);
+			final ModelElementNode meNode = graph.getModelElementNodeById(value);
 			final ModelElement me = encodeInternal(meNode);
 			s.addToElements(me);
 			rootElements.remove(me);
