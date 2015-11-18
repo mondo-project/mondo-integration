@@ -219,14 +219,42 @@ requires.54.name = uk.ac.york.mondo.integration.server.users.cli.feature.feature
 requires.54.range = [1.0.0,2.0.0)
 
 requires.55.namespace = org.eclipse.equinox.p2.iu
-requires.55.name = org.hawk.neo4jv2.feature.feature.group
+requires.55.name = ReactiveATLFeature.feature.group
 requires.55.range = [1.0.0,2.0.0)
 
 requires.56.namespace = org.eclipse.equinox.p2.iu
-requires.56.name = org.hawk.ifc.feature.feature.group
-requires.56.range = [1.0.0,2.0.0)
+requires.56.name = org.eclipse.viatra.cep.feature.feature.group
+requires.56.range = [0.8.0,2.0.0)
 
 requires.57.namespace = org.eclipse.equinox.p2.iu
-requires.57.name = org.hawk.modelio.feature.feature.group
-requires.57.range = [1.0.0,2.0.0)
+requires.57.name = org.eclipse.viatra.dse.feature.feature.group
+requires.57.range = [0.8.0,2.0.0)
+
+requires.58.namespace = org.eclipse.equinox.p2.iu
+requires.58.name = org.eclipse.viatra.dse.merge.feature.feature.group
+requires.58.range = [1.0.0,2.0.0)
+
+requires.59.namespace = org.eclipse.equinox.p2.iu
+requires.59.name = org.eclipse.viatra.emf.mwe2integration.feature.feature.group
+requires.59.range = [0.8.0,2.0.0)
+
+requires.60.namespace = org.eclipse.equinox.p2.iu
+requires.60.name = org.eclipse.viatra.emf.runtime.feature.feature.group
+requires.60.range = [0.8.0,2.0.0)
+
+requires.61.namespace = org.eclipse.equinox.p2.iu
+requires.61.name = org.eclipse.viatra.modelobfuscator.feature.feature.group
+requires.61.range = [0.7.0,2.0.0)
+
+requires.62.namespace = org.eclipse.equinox.p2.iu
+requires.62.name = org.hawk.neo4jv2.feature.feature.group
+requires.62.range = [1.0.0,2.0.0)
+
+requires.63.namespace = org.eclipse.equinox.p2.iu
+requires.63.name = org.hawk.ifc.feature.feature.group
+requires.63.range = [1.0.0,2.0.0)
+
+requires.64.namespace = org.eclipse.equinox.p2.iu
+requires.64.name = org.hawk.modelio.feature.feature.group
+requires.64.range = [1.0.0,2.0.0)
 

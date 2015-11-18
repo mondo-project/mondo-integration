@@ -289,9 +289,22 @@
       <feature id="org.eclipse.acceleo"/>
       <feature id="org.eclipse.sirius.runtime"/>
       <feature id="org.eclipse.sirius.runtime.ide.ui"/>
-      <feature id="org.eclipse.m2m.atl"/>
-      <feature id="org.eclipse.m2m.atl.profiler"/>
       <feature id="org.eclipse.bpmn2.feature"/>
+      <feature id="ReactiveATLFeature"/>
+      <feature id="org.eclipse.emf.compare"/>
+      <feature id="org.eclipse.emf.compare.ide.ui"/>
+      <feature id="org.eclipse.emf.compare.rcp.ui"/>
+      <feature id="org.eclipse.viatra.cep.feature"/>
+      <feature id="org.eclipse.viatra.dse.feature"/>
+      <feature id="org.eclipse.viatra.dse.merge.feature"/>
+      <feature id="org.eclipse.viatra.emf.mwe2integration.feature"/>
+      <feature id="org.eclipse.viatra.emf.runtime.feature"/>
+      <feature id="org.eclipse.viatra.modelobfuscator.feature"/>
+      <feature id="org.eclipse.team.svn"/>
+      <feature id="org.eclipse.gef4.zest"/>
+      <feature id="org.eclipse.gef4.geometry"/>
+      <feature id="org.eclipse.gef4.zest.sdk"/>
+      <feature id="org.eclipse.platform.source"/>
    </features>
 
    <configurations>

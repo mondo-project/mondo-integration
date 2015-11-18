@@ -58,6 +58,14 @@ ENTRIES_NOGPL = (
     ('uk.ac.york.mondo.integration.hawk.emf.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.hawk.remote.thrift.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.server.users.cli.feature.feature.group', '[1.0.0,2.0.0)'),
+
+    ('ReactiveATLFeature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.eclipse.viatra.cep.feature.feature.group', '[0.8.0,2.0.0)'),
+    ('org.eclipse.viatra.dse.feature.feature.group', '[0.8.0,2.0.0)'),
+    ('org.eclipse.viatra.dse.merge.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.eclipse.viatra.emf.mwe2integration.feature.feature.group', '[0.8.0,2.0.0)'),
+    ('org.eclipse.viatra.emf.runtime.feature.feature.group', '[0.8.0,2.0.0)'),
+    ('org.eclipse.viatra.modelobfuscator.feature.feature.group', '[0.7.0,2.0.0)'),
 )
 
 ENTRIES_GPL = (
