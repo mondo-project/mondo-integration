@@ -13,7 +13,7 @@
 <unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201511101836"/>
 <unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201511101836"/>
 <unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201511101836"/>
-<repository location="http://localhost:8080/"/>
+<repository location="http://localhost:8000/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.gef.all.feature.group" version="3.11.0.201511090303"/>
