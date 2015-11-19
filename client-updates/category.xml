@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/uk.ac.york.mondo.integration.clients.cli.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.clients.cli.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.emf.dt.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.emf.dt.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.emf.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.emf.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.remote.thrift.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <feature url="features/fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature_0.0.0.qualifier.jar" id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" version="0.0.0.qualifier">
+      <category name="cloudatl"/>
+   </feature>
+   <feature url="features/hu.bme.mit.mondo.integration.incquery.hawk.feature_1.0.0.qualifier.jar" id="hu.bme.mit.mondo.integration.incquery.hawk.feature" version="1.0.0.qualifier">
+      <category name="incquery"/>
+   </feature>
+   <feature url="features/uk.ac.york.mondo.integration.api.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.api.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
+   <category-def name="hawk" label="Hawk"/>
+   <category-def name="cloudatl" label="CloudATL"/>
+   <category-def name="incquery" label="IncQuery"/>
+</site>
