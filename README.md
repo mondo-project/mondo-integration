@@ -6,11 +6,14 @@ Integrates the components developed within the [EU MONDO project](http://www.mon
 Overall structure and dependencies
 ----------------------------------
 
-The main artefact developed within this project is `uk.ac.york.mondo.integration.server.product`, an Eclipse product for a [Jetty](http://www.eclipse.org/jetty/) application server that hosts the integrated MONDO components and provides [Apache Thrift](https://thrift.apache.org/)-based APIs to access them remotely. Clients targeting this API are included in the `uk.ac.york.mondo.integration.updatesite` Eclipse P2 update site (GUI-based clients and OSGi console extensions) and `uk.ac.york.mondo.integration.clients.cli.product` Eclipse product (command-line client).
+The main artefacts developed within this project are:
+
+* `uk.ac.york.mondo.integration.server.product`, an Eclipse product for a [Jetty](http://www.eclipse.org/jetty/) application server that hosts the integrated MONDO components and provides [Apache Thrift](https://thrift.apache.org/)-based APIs to access them remotely. Clients targeting this API are included in the `uk.ac.york.mondo.integration.updatesite` Eclipse P2 update site (GUI-based clients and OSGi console extensions) and `uk.ac.york.mondo.integration.clients.cli.product` Eclipse product (command-line client).
+* `uk.ac.york.mondo.integration.eclipse.product`, an Eclipse product with a custom Mars SR.1 distribution that includes all the Eclipse-based tools in the MONDO project.
 
 The project has the following external dependencies:
 
-* Most of the OSGi-ready dependencies come from the `uk.ac.york.mondo.integration.targetplatform` target platform definition. Due to conflicting licenses, developers are expected to build the [Hawk](https://github.com/kb634/mondo-hawk) update site on their own and edit the target platform to refer to their locally built archive. Please refer to [mondo-hawk/README.md](https://github.com/kb634/mondo-hawk/blob/master/README.md) for instructions.
+* Most of the OSGi-ready dependencies come from the `uk.ac.york.mondo.integration.targetplatform` target platform definition. Due to conflicting licenses, developers are expected to build the [Hawk GPL](https://github.com/kb634/mondo-hawk) update site on their own and edit the target platform to refer to their locally built archive. Please refer to [mondo-hawk/README.md](https://github.com/kb634/mondo-hawk/blob/master/README.md) for instructions. The Hawk GPL update site must be served through a local web server on port 8080: in most UNIX environments, changing to its directory and running `python -m SimpleHTTPServer 8080` should be enough.
 * The `atl-mr` Eclipse project of the [bluezio/integrate-hawk-emf](https://github.com/bluezio/ATL_MR) branch of the [ATL/MapReduce](https://github.com/atlanmod/atl_mr) project.
 * Some of the plugins in the [org.eclipse.atl.atlMR](https://github.com/atlanmod/org.eclipse.atl.atlMR) project (see the CloudATL section for details).
 * The [Apache Artemis](https://activemq.apache.org/artemis/) core client and server libraries. These are listed in `uk.ac.york.mondo.integration.artemis/ivy.xml`, so they are easy to download using [IvyDE](https://ant.apache.org/ivy/ivyde/).
@@ -20,7 +23,7 @@ Compiled versions of the remote client components are available as an Eclipse up
 Getting started
 ---------------
 
-We recommend to use Eclipse Modeling (Luna or later). 
+We recommend using Eclipse Modeling (Luna or later).
 
 * Go to the [MONDO updates](http://mondo-project.github.io/mondo-updates/) site and install the fix for SNI updates.
 * Import all `uk.ac.york.mondo.integration.*` projects from this repository.
@@ -36,13 +39,7 @@ The dependencies for the project using Artemis are located in `uk.ac.york.mondo.
     ant -Dnative-package-type=jar -lib /usr/share/java/ivy.jar -f uk.ac.york.mondo.integration.artemis/fetch-deps.xml
     ```
 
-You may have to the Ant job _run it twice_ in order to succeed.
-
-### Hawk
-
-The Hawk update site mentioned in the MONDO target platform by default is only accessible to MONDO members. The mentioned web server requires Server Name Identification, which does not work properly in Eclipse Mars (see [this bug report](https://bugs.eclipse.org/bugs/show_bug.cgi?id=478655)). An update site with a fixed version of `ecf.provider.filetransfer.httpclient4` for Eclipse Luna/Mars is available [here](http://mondo-project.github.io/mondo-updates/).
-
-Non-MONDO developers will need to replace it with their own copy of the Hawk update site following [these instructions](https://github.com/kb634/mondo-hawk/blob/master/README.md#running-from-source). Once built, add it to the target platform definition: **Add...** | **Software Site** | **Add...** | **Archive** and install all components.
+You may have to run the Ant job _twice_ in order to succeed.
 
 ### Setting the target platform
 
