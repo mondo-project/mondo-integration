@@ -320,9 +320,16 @@
    </configurations>
 
    <repositories>
+      <repository location="http://download.eclipse.org/releases/mars/" enabled="true" />
+      <repository location="http://antoniogarmendia.github.io/EMF-Splitter/update-site/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-collaboration/update/" enabled="true" />
+      <repository location="http://jdelara.github.io/DSL-tao/update-site/" enabled="true" />
+      <repository location="http://download.eclipse.org/viatra2/emf/updates/integration" enabled="true" />
       <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
-      <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
-      <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-dse-merge/update/" enabled="true" />
+      <repository location="http://download.eclipse.org/viatra2/modelobfuscator/updates/integration/" enabled="true" />
+      <repository location="http://atlanmod.github.io/org.eclipse.atl.reactive/UpdateSite/" enabled="true" />
    </repositories>
 
    <preferencesInfo>

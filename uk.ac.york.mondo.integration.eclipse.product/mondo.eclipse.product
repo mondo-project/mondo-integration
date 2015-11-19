@@ -44,6 +44,7 @@
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
+
    <plugins>
       <plugin id="com.ibm.icu"/>
       <plugin id="javax.annotation"/>
@@ -314,7 +315,17 @@
    </configurations>
 
    <repositories>
+      <repository location="http://download.eclipse.org/releases/mars/" enabled="true" />
+      <repository location="http://antoniogarmendia.github.io/EMF-Splitter/update-site/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-collaboration/update/" enabled="true" />
+      <repository location="http://jdelara.github.io/DSL-tao/update-site/" enabled="true" />
+      <repository location="http://download.eclipse.org/viatra2/emf/updates/integration" enabled="true" />
       <repository location="http://mondo-project.github.io/mondo-hawk/updates/" enabled="true" />
+      <repository location="http://mondo.inf.mit.bme.hu/web/mondo-dse-merge/update/" enabled="true" />
+      <repository location="http://download.eclipse.org/viatra2/modelobfuscator/updates/integration/" enabled="true" />
+      <repository location="http://atlanmod.github.io/org.eclipse.atl.reactive/UpdateSite/" enabled="true" />
+      <repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl/" enabled="true" />
    </repositories>
 
    <preferencesInfo>
