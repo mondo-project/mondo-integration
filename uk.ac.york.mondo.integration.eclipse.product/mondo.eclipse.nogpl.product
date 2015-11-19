@@ -330,6 +330,7 @@
       <repository location="http://mondo.inf.mit.bme.hu/web/mondo-dse-merge/update/" enabled="true" />
       <repository location="http://download.eclipse.org/viatra2/modelobfuscator/updates/integration/" enabled="true" />
       <repository location="http://atlanmod.github.io/org.eclipse.atl.reactive/UpdateSite/" enabled="true" />
+      <repository location="http://mondo-project.github.io/mondo-integration/client-updates/" enabled="true" />
    </repositories>
 
    <preferencesInfo>
