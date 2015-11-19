@@ -583,7 +583,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	private static String fileToString(File queryFile) throws IOException, FileNotFoundException {
 		final StringBuffer sbuf = new StringBuffer();
 		try (BufferedReader reader = new BufferedReader(new FileReader(queryFile))) {
-			sbuf.append(reader.readLine());
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sbuf.append(line);
+				sbuf.append('\n');
+			}
 		}
 		final String query = sbuf.toString();
 		return query;
