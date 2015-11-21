@@ -66,6 +66,13 @@ ENTRIES_NOGPL = (
     ('org.eclipse.viatra.emf.mwe2integration.feature.feature.group', '[0.8.0,2.0.0)'),
     ('org.eclipse.viatra.emf.runtime.feature.feature.group', '[0.8.0,2.0.0)'),
     ('org.eclipse.viatra.modelobfuscator.feature.feature.group', '[0.7.0,2.0.0)'),
+
+    ('org.mondo.collaboration.security.macl.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.mondo.collaboration.security.mpbl.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.mondo.wt.cstudy.editor.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.mondo.wt.cstudy.merge.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.mondo.wt.cstudy.model.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('es.ikerlan.wt.demo.feature.feature.group', '[1.0.0,2.0.0)'),
 )
 
 ENTRIES_GPL = (

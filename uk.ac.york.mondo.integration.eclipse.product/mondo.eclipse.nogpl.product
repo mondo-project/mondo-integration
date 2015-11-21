@@ -305,6 +305,12 @@
       <feature id="org.eclipse.gef4.geometry"/>
       <feature id="org.eclipse.gef4.zest.sdk"/>
       <feature id="org.eclipse.platform.source"/>
+      <feature id="org.mondo.collaboration.security.macl.feature"/>
+      <feature id="org.mondo.collaboration.security.mpbl.feature"/>
+      <feature id="org.mondo.wt.cstudy.editor.feature"/>
+      <feature id="org.mondo.wt.cstudy.merge.feature"/>
+      <feature id="org.mondo.wt.cstudy.model.feature"/>
+      <feature id="es.ikerlan.wt.demo.feature"/>
    </features>
 
    <configurations>

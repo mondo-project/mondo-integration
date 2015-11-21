@@ -246,3 +246,27 @@ requires.61.namespace = org.eclipse.equinox.p2.iu
 requires.61.name = org.eclipse.viatra.modelobfuscator.feature.feature.group
 requires.61.range = [0.7.0,2.0.0)
 
+requires.62.namespace = org.eclipse.equinox.p2.iu
+requires.62.name = org.mondo.collaboration.security.macl.feature.feature.group
+requires.62.range = [1.0.0,2.0.0)
+
+requires.63.namespace = org.eclipse.equinox.p2.iu
+requires.63.name = org.mondo.collaboration.security.mpbl.feature.feature.group
+requires.63.range = [1.0.0,2.0.0)
+
+requires.64.namespace = org.eclipse.equinox.p2.iu
+requires.64.name = org.mondo.wt.cstudy.editor.feature.feature.group
+requires.64.range = [1.0.0,2.0.0)
+
+requires.65.namespace = org.eclipse.equinox.p2.iu
+requires.65.name = org.mondo.wt.cstudy.merge.feature.feature.group
+requires.65.range = [1.0.0,2.0.0)
+
+requires.66.namespace = org.eclipse.equinox.p2.iu
+requires.66.name = org.mondo.wt.cstudy.model.feature.feature.group
+requires.66.range = [1.0.0,2.0.0)
+
+requires.67.namespace = org.eclipse.equinox.p2.iu
+requires.67.name = es.ikerlan.wt.demo.feature.feature.group
+requires.67.range = [1.0.0,2.0.0)
+
