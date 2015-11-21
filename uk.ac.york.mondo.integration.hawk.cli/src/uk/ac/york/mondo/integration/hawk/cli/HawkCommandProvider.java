@@ -38,6 +38,7 @@ import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
 import uk.ac.york.mondo.integration.api.ReferenceSlot;
@@ -129,7 +130,7 @@ public class HawkCommandProvider implements CommandProvider {
 			StringBuffer sbuf = new StringBuffer();
 			for (HawkInstance i : instances) {
 				sbuf.append(String.format("%s (%s%s)\n", i.name,
-					i.running ? "running" : "stopped",
+					i.state.toString(),
 					i.name.equals(currentInstance) ? ", selected": ""
 				));
 			}
@@ -177,7 +178,7 @@ public class HawkCommandProvider implements CommandProvider {
 		final String name = requiredArgument(intp, "name");
 
 		final HawkInstance hi = findInstance(name);
-		if (!hi.running) {
+		if (hi.state == HawkState.STOPPED) {
 			client.startInstance(name);
 			return String.format("Started instance %s", name);
 		} else {
@@ -189,7 +190,7 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		final HawkInstance hi = findInstance(name);
-		if (hi.running) {
+		if (hi.state != HawkState.STOPPED) {
 			client.stopInstance(name);
 			return String.format("Stopped instance %s", name);
 		} else {
@@ -201,7 +202,7 @@ public class HawkCommandProvider implements CommandProvider {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
 		final HawkInstance hi = findInstance(name);
-		if (hi.running) {
+		if (hi.state != HawkState.STOPPED) {
 			client.syncInstance(name);
 			return String.format("Requested immediate sync on instance %s", currentInstance);
 		} else {

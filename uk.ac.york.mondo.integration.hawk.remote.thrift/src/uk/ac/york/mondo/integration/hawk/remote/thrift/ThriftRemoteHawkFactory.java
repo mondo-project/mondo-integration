@@ -18,6 +18,8 @@ import org.hawk.core.IConsole;
 import org.hawk.core.ICredentialsStore;
 import org.hawk.core.IHawk;
 import org.hawk.core.IHawkFactory;
+import org.hawk.core.IStateListener;
+import org.hawk.core.IStateListener.HawkState;
 
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
@@ -54,7 +56,20 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 		final InstanceInfo[] infos = new InstanceInfo[instances.size()];
 		for (int iInfo = 0; iInfo < instances.size(); ++iInfo) {
 			HawkInstance instance = instances.get(iInfo);
-			infos[iInfo] = new InstanceInfo(instance.name, null, instance.running);
+
+			IStateListener.HawkState hawkState = HawkState.STOPPED;
+			switch (instance.state) {
+			case RUNNING:
+				hawkState = HawkState.RUNNING;
+				break;
+			case STOPPED:
+				hawkState = HawkState.STOPPED;
+				break;
+			case UPDATING:
+				hawkState = HawkState.UPDATING;
+				break;
+			}
+			infos[iInfo] = new InstanceInfo(instance.name, null, hawkState);
 		}
 
 		return infos;

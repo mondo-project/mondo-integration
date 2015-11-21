@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,6 +63,7 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
+import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidDerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidIndexedAttributeSpec;
@@ -81,6 +83,7 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 import uk.ac.york.mondo.integration.artemis.server.Server;
 import uk.ac.york.mondo.integration.hawk.servlet.Activator;
 import uk.ac.york.mondo.integration.hawk.servlet.artemis.ArtemisProducerGraphChangeListener;
+import uk.ac.york.mondo.integration.hawk.servlet.artemis.ArtemisProducerStateListener;
 import uk.ac.york.mondo.integration.hawk.servlet.servlets.HawkThriftTupleServlet;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementEncoder;
 import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncoder;
@@ -89,6 +92,10 @@ import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncod
  * Entry point to the Hawk model indexers, implementing a Thrift-based API.
  */
 final class HawkThriftIface implements Hawk.Iface {
+
+	public static String getStateQueueName(final HModel model) {
+		return "hawkstate." + model.getName();
+	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkThriftIface.class); 
 
@@ -522,7 +529,8 @@ final class HawkThriftIface implements Hawk.Iface {
 		for (HModel m : HManager.getInstance().getHawks()) {
 			final HawkInstance instance = new HawkInstance();
 			instance.name = m.getName();
-			instance.running = m.isRunning();
+			instance.state = ArtemisProducerStateListener.mapHawkStateToThrift(m.getStatus());
+			instance.message = m.getInfo();
 			instances.add(instance);
 		}
 		return instances;
@@ -543,6 +551,12 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getHawkByName(name);
 		if (!model.isRunning()) {
 			model.start(HManager.getInstance());
+			try {
+				final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
+				model.getIndexer().addStateListener(stateListener);
+			} catch (Exception e) {
+				LOGGER.error("Could not add the state listener", e);
+			}
 		}
 	}
 
@@ -551,6 +565,12 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getHawkByName(name);
 		if (model.isRunning()) {
 			model.stop(ShutdownRequestType.ALWAYS);
+			try {
+				final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
+				model.getIndexer().removeStateListener(stateListener);
+			} catch (Exception e) {
+				LOGGER.error("Could not remove the state listener", e);
+			}
 		}
 	}
 
@@ -572,6 +592,21 @@ final class HawkThriftIface implements Hawk.Iface {
 			createQueue(queueAddress, queueName, durability);
 
 			model.addGraphChangeListener(listener);
+			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName);
+		} catch (Exception e) {
+			LOGGER.error("Could not register the new listener", e);
+			throw new TException(e);
+		}
+	}
+
+	@Override
+	public Subscription watchStateChanges(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final HModel model = getHawkByName(name);
+		try {
+			// We do not create the queue itself, as it's going to be a temporary one (and only clients can do that).
+			// All we do is provide the connection details to the queue.
+			final String queueAddress = getStateQueueName(model);
+			final String queueName = queueAddress + "." + UUID.randomUUID();
 			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName);
 		} catch (Exception e) {
 			LOGGER.error("Could not register the new listener", e);

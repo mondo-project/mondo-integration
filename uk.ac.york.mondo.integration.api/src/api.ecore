@@ -558,6 +558,17 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="watchStateChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+      <eAnnotations source="doc">
+        <details key="d" value="Returns subscription details to a queue of HawkStateEvents with notifications about changes in the indexer's state"/>
+        <details key="queueOf" value="HawkStateEvent"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
     <eOperations name="watchModelChanges" eType="#//Subscription" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models."/>
@@ -602,6 +613,37 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The type of repository"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HawkState">
+    <eAnnotations source="doc">
+      <details key="d" value="One of the states that a Hawk instance can be in."/>
+    </eAnnotations>
+    <eLiterals name="RUNNING"/>
+    <eLiterals name="UPDATING" value="1"/>
+    <eLiterals name="STOPPED" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkStateEvent">
+    <eAnnotations source="doc">
+      <details key="d" value="Serialized form of a change in the state of a Hawk instance"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//ELong"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Timestamp for this state change"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="state" eType="#//HawkState"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="State of the Hawk instance"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="message" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Short message about the current status of the server"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
@@ -1760,9 +1802,14 @@
         <details key="d" value="The name of the instance"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="running" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="state" eType="#//HawkState">
       <eAnnotations source="doc">
-        <details key="d" value="Whether the instance is running or not"/>
+        <details key="d" value="Current state of the instance"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="message" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Last info message from the instance"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

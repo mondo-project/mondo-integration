@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TProtocol;
 import org.hawk.core.IConsole;
 import org.hawk.core.ICredentialsStore;
 import org.hawk.core.IMetaModelResourceFactory;
@@ -35,6 +38,7 @@ import org.hawk.core.IMetaModelUpdater;
 import org.hawk.core.IModelIndexer;
 import org.hawk.core.IModelResourceFactory;
 import org.hawk.core.IModelUpdater;
+import org.hawk.core.IStateListener;
 import org.hawk.core.IVcsManager;
 import org.hawk.core.VcsCommitItem;
 import org.hawk.core.VcsRepositoryDelta;
@@ -45,6 +49,7 @@ import org.hawk.core.query.IAccessListener;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
+import org.hawk.core.runtime.CompositeStateListener;
 import org.hawk.core.util.HawkProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,15 +63,77 @@ import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkState;
+import uk.ac.york.mondo.integration.api.HawkStateEvent;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidQuery;
 import uk.ac.york.mondo.integration.api.Repository;
+import uk.ac.york.mondo.integration.api.Subscription;
+import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
+import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
+import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
 
 public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(ThriftRemoteModelIndexer.class);
+
+	private final class StatePropagationConsumer implements MessageHandler {
+		private long currentTimestamp = 0;
+		private HawkState currentState;
+		private String currentInfo;
+
+		public StatePropagationConsumer(HawkState state, String info) {
+			this.currentState = state;
+			this.currentInfo = info;
+			fireState();
+			fireInfo();
+		}
+
+		@Override
+		public void onMessage(ClientMessage message) {
+			final TProtocol proto = ThriftProtocol.JSON.getProtocolFactory().getProtocol(new ActiveMQBufferTransport(message.getBodyBuffer()));
+			final HawkStateEvent change = new HawkStateEvent();
+			try {
+				change.read(proto);
+				if (message.getTimestamp() < currentTimestamp) {
+					return;
+				}
+				currentTimestamp = message.getTimestamp();
+
+				if (change.getState() != currentState) {
+					currentState = change.getState();
+					fireState();
+				}
+				if (!change.getMessage().equals(currentInfo)) {
+					currentInfo = change.getMessage();
+					fireInfo();
+				}
+			} catch (Exception ex) {
+				Activator.logError(ex);
+			}
+		}
+
+		protected void fireInfo() {
+			getCompositeStateListener().info(currentInfo);
+		}
+
+		protected void fireState() {
+			switch (currentState) {
+			case RUNNING:
+				stateListener.state(IStateListener.HawkState.RUNNING);
+				break;
+			case STOPPED:
+				stateListener.state(IStateListener.HawkState.STOPPED);
+				break;
+			case UPDATING:
+				stateListener.state(IStateListener.HawkState.UPDATING);
+				break;
+			}
+		}
+	}
 
 	private final class RemoteQueryEngine implements IQueryEngine {
 		private final String language;
@@ -343,6 +410,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	private final ICredentialsStore credStore;
 	private String dbType;
 
+	private CompositeStateListener stateListener = new CompositeStateListener();
+	private Consumer consumer;
+
 	public ThriftRemoteModelIndexer(String name, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
 		this.name = name;
 		this.client = client;
@@ -351,6 +421,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		this.parentFolder = parentFolder;
 
 		createDummyProperties(parentFolder);
+
+		// We subscribe to changes in the state of this indexer until it is deleted.
+		connectToArtemis();
 	}
 
 	private void createDummyProperties(File parentFolder) throws IOException {
@@ -389,6 +462,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	@Override
 	public void delete() throws Exception {
 		client.removeInstance(name);
+		consumer.closeSession();
 	}
 
 	@Override
@@ -496,6 +570,29 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
 			client.createInstance(name, dbType, minDelay, maxDelay);
+		}
+	}
+
+	protected void connectToArtemis() {
+		if (consumer != null) {
+			return;
+		}
+		try {
+			HawkState currentState = HawkState.RUNNING;
+			String currentInfo = "";
+			for (HawkInstance instance : client.listInstances()) {
+				if (name.equals(instance.getName())) {
+					currentState = instance.getState();
+					currentInfo = instance.getMessage();
+				}
+			}
+
+			Subscription subState = client.watchStateChanges(name);
+			consumer = APIUtils.connectToArtemis(subState, SubscriptionDurability.TEMPORARY);
+			consumer.openSession();
+			consumer.processChangesAsync(new StatePropagationConsumer(currentState, currentInfo));
+		} catch (Exception e) {
+			Activator.logError(e);
 		}
 	}
 
@@ -641,7 +738,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		try {
 			for (HawkInstance instance : client.listInstances()) {
 				if (instance.name.equals(name)) {
-					return instance.running;
+					return instance.state != HawkState.STOPPED;
 				}
 			}
 		} catch (TException e) {
@@ -691,4 +788,23 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		this.dbType = dbtype;
 	}
 
+	@Override
+	public boolean addStateListener(IStateListener l) {
+		return stateListener.add(l);
+	}
+
+	@Override
+	public boolean removeStateListener(IStateListener l) {
+		return stateListener.remove(l);
+	}
+
+	@Override
+	public IStateListener getCompositeStateListener() {
+		return stateListener;
+	}
+
+	@Override
+	public String getDerivedAttributeExecutionEngine() {
+		return null;
+	}
 }

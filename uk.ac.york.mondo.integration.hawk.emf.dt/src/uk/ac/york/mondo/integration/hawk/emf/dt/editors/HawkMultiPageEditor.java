@@ -69,6 +69,7 @@ import org.eclipse.ui.part.FileEditorInput;
 
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.Repository;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
@@ -169,7 +170,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 							public Image getImage(Object o) {
 								if (o instanceof HawkInstance) {
 									final HawkInstance hi = (HawkInstance) o;
-									return Activator.getImageDescriptor(hi.running
+									return Activator.getImageDescriptor(hi.state != HawkState.STOPPED
 										? "/icons/nav_go.gif" : "/icons/nav_stop.gif")
 										.createImage();
 								}

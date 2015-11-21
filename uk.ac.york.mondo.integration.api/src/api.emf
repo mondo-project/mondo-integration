@@ -233,6 +233,11 @@ class Hawk {
 		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
 	);
 
+	@doc(d="Returns subscription details to a queue of HawkStateEvents with notifications about changes in the indexer's state", queueOf="HawkStateEvent")
+	op Subscription watchStateChanges(
+		@doc(d="The name of the Hawk instance") String name
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
 	@doc(d="Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models.", queueOf="HawkChangeEvent")
 	op Subscription watchModelChanges(
 		@doc(d="The name of the Hawk instance") String name,
@@ -247,6 +252,20 @@ class Hawk {
 class Repository {
 	@doc(d="The URI to the repository") attr String uri;
 	@doc(d="The type of repository") attr String type;
+}
+
+@doc(d="One of the states that a Hawk instance can be in.")
+enum HawkState {
+	RUNNING;
+	UPDATING;
+	STOPPED;
+}
+
+@doc(d="Serialized form of a change in the state of a Hawk instance")
+class HawkStateEvent {
+	@doc(d="Timestamp for this state change") val long timestamp;
+	@doc(d="State of the Hawk instance") val HawkState state;
+	@doc(d="Short message about the current status of the server") val String message;
 }
 
 @doc(d="Serialized form of a change in the indexed models of a Hawk instance")
@@ -742,8 +761,10 @@ enum TransformationState {
 class HawkInstance {
 	@doc(d="The name of the instance")
 	attr String name;
-	@doc(d="Whether the instance is running or not")
-	attr boolean running;
+	@doc(d="Current state of the instance")
+	attr HawkState state;
+	@doc(d="Last info message from the instance")
+	attr String message;
 }
 
 @doc(d="Minimal details about registered users")

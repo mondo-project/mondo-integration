@@ -5,9 +5,13 @@ Bundle-SymbolicName: uk.ac.york.mondo.integration.hawk.remote.thrift;singleton:=
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of York
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.hawk.core;bundle-version="1.0.0",
+Require-Bundle: org.hawk.core,
  uk.ac.york.mondo.integration.api;bundle-version="1.0.0",
- org.apache.thrift;bundle-version="0.9.2",
+ org.apache.thrift;bundle-version="0.9.3",
  org.hawk.core.dependencies,
  org.eclipse.osgi,
- org.slf4j.api;bundle-version="1.7.2"
+ org.slf4j.api;bundle-version="1.7.2",
+ org.eclipse.core.runtime,
+ uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: uk.ac.york.mondo.integration.hawk.remote.thrift.Activator

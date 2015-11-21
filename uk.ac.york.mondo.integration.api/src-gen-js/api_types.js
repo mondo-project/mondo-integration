@@ -12,6 +12,11 @@ CommitItemChangeType = {
   'UNKNOWN' : 3,
   'UPDATED' : 4
 };
+HawkState = {
+  'RUNNING' : 0,
+  'STOPPED' : 1,
+  'UPDATING' : 2
+};
 SubscriptionDurability = {
   'DEFAULT' : 0,
   'DURABLE' : 1,
@@ -24,35 +29,6 @@ TransformationState = {
   'RUNNING' : 3,
   'SUCCEEDED' : 4
 };
-AuthenticationFailed = function(args) {
-};
-Thrift.inherits(AuthenticationFailed, Thrift.TException);
-AuthenticationFailed.prototype.name = 'AuthenticationFailed';
-AuthenticationFailed.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-AuthenticationFailed.prototype.write = function(output) {
-  output.writeStructBegin('AuthenticationFailed');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 CollaborationGitResourceReference = function(args) {
   this.repositoryUri = null;
   this.branch = null;
@@ -926,17 +902,23 @@ File.prototype.write = function(output) {
 
 HawkInstance = function(args) {
   this.name = null;
-  this.running = null;
+  this.state = null;
+  this.message = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
     }
-    if (args.running !== undefined && args.running !== null) {
-      this.running = args.running;
+    if (args.state !== undefined && args.state !== null) {
+      this.state = args.state;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field running is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field state is unset!');
+    }
+    if (args.message !== undefined && args.message !== null) {
+      this.message = args.message;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field message is unset!');
     }
   }
 };
@@ -962,8 +944,15 @@ HawkInstance.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.BOOL) {
-        this.running = input.readBool().value;
+      if (ftype == Thrift.Type.I32) {
+        this.state = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.message = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -984,9 +973,14 @@ HawkInstance.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.running !== null && this.running !== undefined) {
-    output.writeFieldBegin('running', Thrift.Type.BOOL, 2);
-    output.writeBool(this.running);
+  if (this.state !== null && this.state !== undefined) {
+    output.writeFieldBegin('state', Thrift.Type.I32, 2);
+    output.writeI32(this.state);
+    output.writeFieldEnd();
+  }
+  if (this.message !== null && this.message !== undefined) {
+    output.writeFieldBegin('message', Thrift.Type.STRING, 3);
+    output.writeString(this.message);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1047,6 +1041,94 @@ HawkInstanceNotRunning.prototype.read = function(input) {
 
 HawkInstanceNotRunning.prototype.write = function(output) {
   output.writeStructBegin('HawkInstanceNotRunning');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+HawkStateEvent = function(args) {
+  this.timestamp = null;
+  this.state = null;
+  this.message = null;
+  if (args) {
+    if (args.timestamp !== undefined && args.timestamp !== null) {
+      this.timestamp = args.timestamp;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field timestamp is unset!');
+    }
+    if (args.state !== undefined && args.state !== null) {
+      this.state = args.state;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field state is unset!');
+    }
+    if (args.message !== undefined && args.message !== null) {
+      this.message = args.message;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field message is unset!');
+    }
+  }
+};
+HawkStateEvent.prototype = {};
+HawkStateEvent.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.timestamp = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I32) {
+        this.state = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.message = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HawkStateEvent.prototype.write = function(output) {
+  output.writeStructBegin('HawkStateEvent');
+  if (this.timestamp !== null && this.timestamp !== undefined) {
+    output.writeFieldBegin('timestamp', Thrift.Type.I64, 1);
+    output.writeI64(this.timestamp);
+    output.writeFieldEnd();
+  }
+  if (this.state !== null && this.state !== undefined) {
+    output.writeFieldBegin('state', Thrift.Type.I32, 2);
+    output.writeI32(this.state);
+    output.writeFieldEnd();
+  }
+  if (this.message !== null && this.message !== undefined) {
+    output.writeFieldBegin('message', Thrift.Type.STRING, 3);
+    output.writeString(this.message);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -2095,26 +2177,26 @@ SlotMetadata.prototype.write = function(output) {
 };
 
 SlotValue = function(args) {
-  this.vByte = null;
   this.vBoolean = null;
+  this.vByte = null;
   this.vShort = null;
   this.vInteger = null;
   this.vLong = null;
   this.vDouble = null;
   this.vString = null;
-  this.vBytes = null;
   this.vBooleans = null;
+  this.vBytes = null;
   this.vShorts = null;
   this.vIntegers = null;
   this.vLongs = null;
   this.vDoubles = null;
   this.vStrings = null;
   if (args) {
-    if (args.vByte !== undefined && args.vByte !== null) {
-      this.vByte = args.vByte;
-    }
     if (args.vBoolean !== undefined && args.vBoolean !== null) {
       this.vBoolean = args.vBoolean;
+    }
+    if (args.vByte !== undefined && args.vByte !== null) {
+      this.vByte = args.vByte;
     }
     if (args.vShort !== undefined && args.vShort !== null) {
       this.vShort = args.vShort;
@@ -2131,11 +2213,11 @@ SlotValue = function(args) {
     if (args.vString !== undefined && args.vString !== null) {
       this.vString = args.vString;
     }
-    if (args.vBytes !== undefined && args.vBytes !== null) {
-      this.vBytes = args.vBytes;
-    }
     if (args.vBooleans !== undefined && args.vBooleans !== null) {
       this.vBooleans = Thrift.copyList(args.vBooleans, [null]);
+    }
+    if (args.vBytes !== undefined && args.vBytes !== null) {
+      this.vBytes = args.vBytes;
     }
     if (args.vShorts !== undefined && args.vShorts !== null) {
       this.vShorts = Thrift.copyList(args.vShorts, [null]);
@@ -2169,15 +2251,15 @@ SlotValue.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.BYTE) {
-        this.vByte = input.readByte().value;
+      if (ftype == Thrift.Type.BOOL) {
+        this.vBoolean = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.BOOL) {
-        this.vBoolean = input.readBool().value;
+      if (ftype == Thrift.Type.BYTE) {
+        this.vByte = input.readByte().value;
       } else {
         input.skip(ftype);
       }
@@ -2218,13 +2300,6 @@ SlotValue.prototype.read = function(input) {
       }
       break;
       case 8:
-      if (ftype == Thrift.Type.STRING) {
-        this.vBytes = input.readBinary().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 9:
       if (ftype == Thrift.Type.LIST) {
         var _size8 = 0;
         var _rtmp312;
@@ -2240,6 +2315,13 @@ SlotValue.prototype.read = function(input) {
           this.vBooleans.push(elem14);
         }
         input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 9:
+      if (ftype == Thrift.Type.STRING) {
+        this.vBytes = input.readBinary().value;
       } else {
         input.skip(ftype);
       }
@@ -2355,14 +2437,14 @@ SlotValue.prototype.read = function(input) {
 
 SlotValue.prototype.write = function(output) {
   output.writeStructBegin('SlotValue');
-  if (this.vByte !== null && this.vByte !== undefined) {
-    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 1);
-    output.writeByte(this.vByte);
+  if (this.vBoolean !== null && this.vBoolean !== undefined) {
+    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 1);
+    output.writeBool(this.vBoolean);
     output.writeFieldEnd();
   }
-  if (this.vBoolean !== null && this.vBoolean !== undefined) {
-    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 2);
-    output.writeBool(this.vBoolean);
+  if (this.vByte !== null && this.vByte !== undefined) {
+    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 2);
+    output.writeByte(this.vByte);
     output.writeFieldEnd();
   }
   if (this.vShort !== null && this.vShort !== undefined) {
@@ -2390,13 +2472,8 @@ SlotValue.prototype.write = function(output) {
     output.writeString(this.vString);
     output.writeFieldEnd();
   }
-  if (this.vBytes !== null && this.vBytes !== undefined) {
-    output.writeFieldBegin('vBytes', Thrift.Type.STRING, 8);
-    output.writeBinary(this.vBytes);
-    output.writeFieldEnd();
-  }
   if (this.vBooleans !== null && this.vBooleans !== undefined) {
-    output.writeFieldBegin('vBooleans', Thrift.Type.LIST, 9);
+    output.writeFieldBegin('vBooleans', Thrift.Type.LIST, 8);
     output.writeListBegin(Thrift.Type.BOOL, this.vBooleans.length);
     for (var iter50 in this.vBooleans)
     {
@@ -2407,6 +2484,11 @@ SlotValue.prototype.write = function(output) {
       }
     }
     output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  if (this.vBytes !== null && this.vBytes !== undefined) {
+    output.writeFieldBegin('vBytes', Thrift.Type.STRING, 9);
+    output.writeBinary(this.vBytes);
     output.writeFieldEnd();
   }
   if (this.vShorts !== null && this.vShorts !== undefined) {
@@ -2979,19 +3061,19 @@ VCSAuthorizationFailed.prototype.write = function(output) {
 };
 
 Value = function(args) {
-  this.vByte = null;
   this.vBoolean = null;
+  this.vByte = null;
   this.vShort = null;
   this.vInteger = null;
   this.vLong = null;
   this.vDouble = null;
   this.vString = null;
   if (args) {
-    if (args.vByte !== undefined && args.vByte !== null) {
-      this.vByte = args.vByte;
-    }
     if (args.vBoolean !== undefined && args.vBoolean !== null) {
       this.vBoolean = args.vBoolean;
+    }
+    if (args.vByte !== undefined && args.vByte !== null) {
+      this.vByte = args.vByte;
     }
     if (args.vShort !== undefined && args.vShort !== null) {
       this.vShort = args.vShort;
@@ -3025,15 +3107,15 @@ Value.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.BYTE) {
-        this.vByte = input.readByte().value;
+      if (ftype == Thrift.Type.BOOL) {
+        this.vBoolean = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.BOOL) {
-        this.vBoolean = input.readBool().value;
+      if (ftype == Thrift.Type.BYTE) {
+        this.vByte = input.readByte().value;
       } else {
         input.skip(ftype);
       }
@@ -3084,14 +3166,14 @@ Value.prototype.read = function(input) {
 
 Value.prototype.write = function(output) {
   output.writeStructBegin('Value');
-  if (this.vByte !== null && this.vByte !== undefined) {
-    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 1);
-    output.writeByte(this.vByte);
+  if (this.vBoolean !== null && this.vBoolean !== undefined) {
+    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 1);
+    output.writeBool(this.vBoolean);
     output.writeFieldEnd();
   }
-  if (this.vBoolean !== null && this.vBoolean !== undefined) {
-    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 2);
-    output.writeBool(this.vBoolean);
+  if (this.vByte !== null && this.vByte !== undefined) {
+    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 2);
+    output.writeByte(this.vByte);
     output.writeFieldEnd();
   }
   if (this.vShort !== null && this.vShort !== undefined) {
@@ -5127,8 +5209,8 @@ ContainerSlot.prototype.write = function(output) {
 };
 
 QueryResult = function(args) {
-  this.vByte = null;
   this.vBoolean = null;
+  this.vByte = null;
   this.vShort = null;
   this.vInteger = null;
   this.vLong = null;
@@ -5137,11 +5219,11 @@ QueryResult = function(args) {
   this.vModelElement = null;
   this.vModelElementType = null;
   if (args) {
-    if (args.vByte !== undefined && args.vByte !== null) {
-      this.vByte = args.vByte;
-    }
     if (args.vBoolean !== undefined && args.vBoolean !== null) {
       this.vBoolean = args.vBoolean;
+    }
+    if (args.vByte !== undefined && args.vByte !== null) {
+      this.vByte = args.vByte;
     }
     if (args.vShort !== undefined && args.vShort !== null) {
       this.vShort = args.vShort;
@@ -5181,15 +5263,15 @@ QueryResult.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.BYTE) {
-        this.vByte = input.readByte().value;
+      if (ftype == Thrift.Type.BOOL) {
+        this.vBoolean = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.BOOL) {
-        this.vBoolean = input.readBool().value;
+      if (ftype == Thrift.Type.BYTE) {
+        this.vByte = input.readByte().value;
       } else {
         input.skip(ftype);
       }
@@ -5256,14 +5338,14 @@ QueryResult.prototype.read = function(input) {
 
 QueryResult.prototype.write = function(output) {
   output.writeStructBegin('QueryResult');
-  if (this.vByte !== null && this.vByte !== undefined) {
-    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 1);
-    output.writeByte(this.vByte);
+  if (this.vBoolean !== null && this.vBoolean !== undefined) {
+    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 1);
+    output.writeBool(this.vBoolean);
     output.writeFieldEnd();
   }
-  if (this.vBoolean !== null && this.vBoolean !== undefined) {
-    output.writeFieldBegin('vBoolean', Thrift.Type.BOOL, 2);
-    output.writeBool(this.vBoolean);
+  if (this.vByte !== null && this.vByte !== undefined) {
+    output.writeFieldBegin('vByte', Thrift.Type.BYTE, 2);
+    output.writeByte(this.vByte);
     output.writeFieldEnd();
   }
   if (this.vShort !== null && this.vShort !== undefined) {

@@ -36,15 +36,15 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked"})
 public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fields> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("SlotValue");
-  private static final org.apache.thrift.protocol.TField V_BYTE_FIELD_DESC = new org.apache.thrift.protocol.TField("vByte", org.apache.thrift.protocol.TType.BYTE, (short)1);
-  private static final org.apache.thrift.protocol.TField V_BOOLEAN_FIELD_DESC = new org.apache.thrift.protocol.TField("vBoolean", org.apache.thrift.protocol.TType.BOOL, (short)2);
+  private static final org.apache.thrift.protocol.TField V_BOOLEAN_FIELD_DESC = new org.apache.thrift.protocol.TField("vBoolean", org.apache.thrift.protocol.TType.BOOL, (short)1);
+  private static final org.apache.thrift.protocol.TField V_BYTE_FIELD_DESC = new org.apache.thrift.protocol.TField("vByte", org.apache.thrift.protocol.TType.BYTE, (short)2);
   private static final org.apache.thrift.protocol.TField V_SHORT_FIELD_DESC = new org.apache.thrift.protocol.TField("vShort", org.apache.thrift.protocol.TType.I16, (short)3);
   private static final org.apache.thrift.protocol.TField V_INTEGER_FIELD_DESC = new org.apache.thrift.protocol.TField("vInteger", org.apache.thrift.protocol.TType.I32, (short)4);
   private static final org.apache.thrift.protocol.TField V_LONG_FIELD_DESC = new org.apache.thrift.protocol.TField("vLong", org.apache.thrift.protocol.TType.I64, (short)5);
   private static final org.apache.thrift.protocol.TField V_DOUBLE_FIELD_DESC = new org.apache.thrift.protocol.TField("vDouble", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
   private static final org.apache.thrift.protocol.TField V_STRING_FIELD_DESC = new org.apache.thrift.protocol.TField("vString", org.apache.thrift.protocol.TType.STRING, (short)7);
-  private static final org.apache.thrift.protocol.TField V_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("vBytes", org.apache.thrift.protocol.TType.STRING, (short)8);
-  private static final org.apache.thrift.protocol.TField V_BOOLEANS_FIELD_DESC = new org.apache.thrift.protocol.TField("vBooleans", org.apache.thrift.protocol.TType.LIST, (short)9);
+  private static final org.apache.thrift.protocol.TField V_BOOLEANS_FIELD_DESC = new org.apache.thrift.protocol.TField("vBooleans", org.apache.thrift.protocol.TType.LIST, (short)8);
+  private static final org.apache.thrift.protocol.TField V_BYTES_FIELD_DESC = new org.apache.thrift.protocol.TField("vBytes", org.apache.thrift.protocol.TType.STRING, (short)9);
   private static final org.apache.thrift.protocol.TField V_SHORTS_FIELD_DESC = new org.apache.thrift.protocol.TField("vShorts", org.apache.thrift.protocol.TType.LIST, (short)10);
   private static final org.apache.thrift.protocol.TField V_INTEGERS_FIELD_DESC = new org.apache.thrift.protocol.TField("vIntegers", org.apache.thrift.protocol.TType.LIST, (short)11);
   private static final org.apache.thrift.protocol.TField V_LONGS_FIELD_DESC = new org.apache.thrift.protocol.TField("vLongs", org.apache.thrift.protocol.TType.LIST, (short)12);
@@ -53,15 +53,15 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    V_BYTE((short)1, "vByte"),
-    V_BOOLEAN((short)2, "vBoolean"),
+    V_BOOLEAN((short)1, "vBoolean"),
+    V_BYTE((short)2, "vByte"),
     V_SHORT((short)3, "vShort"),
     V_INTEGER((short)4, "vInteger"),
     V_LONG((short)5, "vLong"),
     V_DOUBLE((short)6, "vDouble"),
     V_STRING((short)7, "vString"),
-    V_BYTES((short)8, "vBytes"),
-    V_BOOLEANS((short)9, "vBooleans"),
+    V_BOOLEANS((short)8, "vBooleans"),
+    V_BYTES((short)9, "vBytes"),
     V_SHORTS((short)10, "vShorts"),
     V_INTEGERS((short)11, "vIntegers"),
     V_LONGS((short)12, "vLongs"),
@@ -81,10 +81,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // V_BYTE
-          return V_BYTE;
-        case 2: // V_BOOLEAN
+        case 1: // V_BOOLEAN
           return V_BOOLEAN;
+        case 2: // V_BYTE
+          return V_BYTE;
         case 3: // V_SHORT
           return V_SHORT;
         case 4: // V_INTEGER
@@ -95,10 +95,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
           return V_DOUBLE;
         case 7: // V_STRING
           return V_STRING;
-        case 8: // V_BYTES
-          return V_BYTES;
-        case 9: // V_BOOLEANS
+        case 8: // V_BOOLEANS
           return V_BOOLEANS;
+        case 9: // V_BYTES
+          return V_BYTES;
         case 10: // V_SHORTS
           return V_SHORTS;
         case 11: // V_INTEGERS
@@ -151,10 +151,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.V_BYTE, new org.apache.thrift.meta_data.FieldMetaData("vByte", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
     tmpMap.put(_Fields.V_BOOLEAN, new org.apache.thrift.meta_data.FieldMetaData("vBoolean", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.V_BYTE, new org.apache.thrift.meta_data.FieldMetaData("vByte", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
     tmpMap.put(_Fields.V_SHORT, new org.apache.thrift.meta_data.FieldMetaData("vShort", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.V_INTEGER, new org.apache.thrift.meta_data.FieldMetaData("vInteger", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -165,11 +165,11 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
     tmpMap.put(_Fields.V_STRING, new org.apache.thrift.meta_data.FieldMetaData("vString", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.V_BYTES, new org.apache.thrift.meta_data.FieldMetaData("vBytes", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.V_BOOLEANS, new org.apache.thrift.meta_data.FieldMetaData("vBooleans", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL))));
+    tmpMap.put(_Fields.V_BYTES, new org.apache.thrift.meta_data.FieldMetaData("vBytes", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.V_SHORTS, new org.apache.thrift.meta_data.FieldMetaData("vShorts", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16))));
@@ -204,15 +204,15 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     return new SlotValue(this);
   }
 
-  public static SlotValue vByte(byte value) {
-    SlotValue x = new SlotValue();
-    x.setVByte(value);
-    return x;
-  }
-
   public static SlotValue vBoolean(boolean value) {
     SlotValue x = new SlotValue();
     x.setVBoolean(value);
+    return x;
+  }
+
+  public static SlotValue vByte(byte value) {
+    SlotValue x = new SlotValue();
+    x.setVByte(value);
     return x;
   }
 
@@ -246,6 +246,12 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     return x;
   }
 
+  public static SlotValue vBooleans(List<Boolean> value) {
+    SlotValue x = new SlotValue();
+    x.setVBooleans(value);
+    return x;
+  }
+
   public static SlotValue vBytes(ByteBuffer value) {
     SlotValue x = new SlotValue();
     x.setVBytes(value);
@@ -255,12 +261,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   public static SlotValue vBytes(byte[] value) {
     SlotValue x = new SlotValue();
     x.setVBytes(ByteBuffer.wrap(Arrays.copyOf(value, value.length)));
-    return x;
-  }
-
-  public static SlotValue vBooleans(List<Boolean> value) {
-    SlotValue x = new SlotValue();
-    x.setVBooleans(value);
     return x;
   }
 
@@ -298,16 +298,16 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   @Override
   protected void checkType(_Fields setField, Object value) throws ClassCastException {
     switch (setField) {
-      case V_BYTE:
-        if (value instanceof Byte) {
-          break;
-        }
-        throw new ClassCastException("Was expecting value of type Byte for field 'vByte', but got " + value.getClass().getSimpleName());
       case V_BOOLEAN:
         if (value instanceof Boolean) {
           break;
         }
         throw new ClassCastException("Was expecting value of type Boolean for field 'vBoolean', but got " + value.getClass().getSimpleName());
+      case V_BYTE:
+        if (value instanceof Byte) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type Byte for field 'vByte', but got " + value.getClass().getSimpleName());
       case V_SHORT:
         if (value instanceof Short) {
           break;
@@ -333,16 +333,16 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
           break;
         }
         throw new ClassCastException("Was expecting value of type String for field 'vString', but got " + value.getClass().getSimpleName());
-      case V_BYTES:
-        if (value instanceof ByteBuffer) {
-          break;
-        }
-        throw new ClassCastException("Was expecting value of type ByteBuffer for field 'vBytes', but got " + value.getClass().getSimpleName());
       case V_BOOLEANS:
         if (value instanceof List) {
           break;
         }
         throw new ClassCastException("Was expecting value of type List<Boolean> for field 'vBooleans', but got " + value.getClass().getSimpleName());
+      case V_BYTES:
+        if (value instanceof ByteBuffer) {
+          break;
+        }
+        throw new ClassCastException("Was expecting value of type ByteBuffer for field 'vBytes', but got " + value.getClass().getSimpleName());
       case V_SHORTS:
         if (value instanceof List) {
           break;
@@ -378,20 +378,20 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     _Fields setField = _Fields.findByThriftId(field.id);
     if (setField != null) {
       switch (setField) {
-        case V_BYTE:
-          if (field.type == V_BYTE_FIELD_DESC.type) {
-            Byte vByte;
-            vByte = iprot.readByte();
-            return vByte;
-          } else {
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
-            return null;
-          }
         case V_BOOLEAN:
           if (field.type == V_BOOLEAN_FIELD_DESC.type) {
             Boolean vBoolean;
             vBoolean = iprot.readBool();
             return vBoolean;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_BYTE:
+          if (field.type == V_BYTE_FIELD_DESC.type) {
+            Byte vByte;
+            vByte = iprot.readByte();
+            return vByte;
           } else {
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
@@ -441,15 +441,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
           }
-        case V_BYTES:
-          if (field.type == V_BYTES_FIELD_DESC.type) {
-            ByteBuffer vBytes;
-            vBytes = iprot.readBinary();
-            return vBytes;
-          } else {
-            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
-            return null;
-          }
         case V_BOOLEANS:
           if (field.type == V_BOOLEANS_FIELD_DESC.type) {
             List<Boolean> vBooleans;
@@ -465,6 +456,15 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
               iprot.readListEnd();
             }
             return vBooleans;
+          } else {
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            return null;
+          }
+        case V_BYTES:
+          if (field.type == V_BYTES_FIELD_DESC.type) {
+            ByteBuffer vBytes;
+            vBytes = iprot.readBinary();
+            return vBytes;
           } else {
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             return null;
@@ -576,13 +576,13 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   @Override
   protected void standardSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
-      case V_BYTE:
-        Byte vByte = (Byte)value_;
-        oprot.writeByte(vByte);
-        return;
       case V_BOOLEAN:
         Boolean vBoolean = (Boolean)value_;
         oprot.writeBool(vBoolean);
+        return;
+      case V_BYTE:
+        Byte vByte = (Byte)value_;
+        oprot.writeByte(vByte);
         return;
       case V_SHORT:
         Short vShort = (Short)value_;
@@ -604,10 +604,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
         String vString = (String)value_;
         oprot.writeString(vString);
         return;
-      case V_BYTES:
-        ByteBuffer vBytes = (ByteBuffer)value_;
-        oprot.writeBinary(vBytes);
-        return;
       case V_BOOLEANS:
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
@@ -618,6 +614,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
           }
           oprot.writeListEnd();
         }
+        return;
+      case V_BYTES:
+        ByteBuffer vBytes = (ByteBuffer)value_;
+        oprot.writeBinary(vBytes);
         return;
       case V_SHORTS:
         List<Short> vShorts = (List<Short>)value_;
@@ -684,14 +684,14 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     _Fields setField = _Fields.findByThriftId(fieldID);
     if (setField != null) {
       switch (setField) {
-        case V_BYTE:
-          Byte vByte;
-          vByte = iprot.readByte();
-          return vByte;
         case V_BOOLEAN:
           Boolean vBoolean;
           vBoolean = iprot.readBool();
           return vBoolean;
+        case V_BYTE:
+          Byte vByte;
+          vByte = iprot.readByte();
+          return vByte;
         case V_SHORT:
           Short vShort;
           vShort = iprot.readI16();
@@ -712,10 +712,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
           String vString;
           vString = iprot.readString();
           return vString;
-        case V_BYTES:
-          ByteBuffer vBytes;
-          vBytes = iprot.readBinary();
-          return vBytes;
         case V_BOOLEANS:
           List<Boolean> vBooleans;
           {
@@ -730,6 +726,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
             iprot.readListEnd();
           }
           return vBooleans;
+        case V_BYTES:
+          ByteBuffer vBytes;
+          vBytes = iprot.readBinary();
+          return vBytes;
         case V_SHORTS:
           List<Short> vShorts;
           {
@@ -811,13 +811,13 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   @Override
   protected void tupleSchemeWriteValue(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     switch (setField_) {
-      case V_BYTE:
-        Byte vByte = (Byte)value_;
-        oprot.writeByte(vByte);
-        return;
       case V_BOOLEAN:
         Boolean vBoolean = (Boolean)value_;
         oprot.writeBool(vBoolean);
+        return;
+      case V_BYTE:
+        Byte vByte = (Byte)value_;
+        oprot.writeByte(vByte);
         return;
       case V_SHORT:
         Short vShort = (Short)value_;
@@ -839,10 +839,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
         String vString = (String)value_;
         oprot.writeString(vString);
         return;
-      case V_BYTES:
-        ByteBuffer vBytes = (ByteBuffer)value_;
-        oprot.writeBinary(vBytes);
-        return;
       case V_BOOLEANS:
         List<Boolean> vBooleans = (List<Boolean>)value_;
         {
@@ -853,6 +849,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
           }
           oprot.writeListEnd();
         }
+        return;
+      case V_BYTES:
+        ByteBuffer vBytes = (ByteBuffer)value_;
+        oprot.writeBinary(vBytes);
         return;
       case V_SHORTS:
         List<Short> vShorts = (List<Short>)value_;
@@ -917,10 +917,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   @Override
   protected org.apache.thrift.protocol.TField getFieldDesc(_Fields setField) {
     switch (setField) {
-      case V_BYTE:
-        return V_BYTE_FIELD_DESC;
       case V_BOOLEAN:
         return V_BOOLEAN_FIELD_DESC;
+      case V_BYTE:
+        return V_BYTE_FIELD_DESC;
       case V_SHORT:
         return V_SHORT_FIELD_DESC;
       case V_INTEGER:
@@ -931,10 +931,10 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
         return V_DOUBLE_FIELD_DESC;
       case V_STRING:
         return V_STRING_FIELD_DESC;
-      case V_BYTES:
-        return V_BYTES_FIELD_DESC;
       case V_BOOLEANS:
         return V_BOOLEANS_FIELD_DESC;
+      case V_BYTES:
+        return V_BYTES_FIELD_DESC;
       case V_SHORTS:
         return V_SHORTS_FIELD_DESC;
       case V_INTEGERS:
@@ -965,19 +965,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   }
 
 
-  public byte getVByte() {
-    if (getSetField() == _Fields.V_BYTE) {
-      return (Byte)getFieldValue();
-    } else {
-      throw new RuntimeException("Cannot get field 'vByte' because union is currently set to " + getFieldDesc(getSetField()).name);
-    }
-  }
-
-  public void setVByte(byte value) {
-    setField_ = _Fields.V_BYTE;
-    value_ = value;
-  }
-
   public boolean getVBoolean() {
     if (getSetField() == _Fields.V_BOOLEAN) {
       return (Boolean)getFieldValue();
@@ -988,6 +975,19 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
 
   public void setVBoolean(boolean value) {
     setField_ = _Fields.V_BOOLEAN;
+    value_ = value;
+  }
+
+  public byte getVByte() {
+    if (getSetField() == _Fields.V_BYTE) {
+      return (Byte)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vByte' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVByte(byte value) {
+    setField_ = _Fields.V_BYTE;
     value_ = value;
   }
 
@@ -1057,6 +1057,20 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     value_ = value;
   }
 
+  public List<Boolean> getVBooleans() {
+    if (getSetField() == _Fields.V_BOOLEANS) {
+      return (List<Boolean>)getFieldValue();
+    } else {
+      throw new RuntimeException("Cannot get field 'vBooleans' because union is currently set to " + getFieldDesc(getSetField()).name);
+    }
+  }
+
+  public void setVBooleans(List<Boolean> value) {
+    if (value == null) throw new NullPointerException();
+    setField_ = _Fields.V_BOOLEANS;
+    value_ = value;
+  }
+
   public byte[] getVBytes() {
     setVBytes(org.apache.thrift.TBaseHelper.rightSize(bufferForVBytes()));
     ByteBuffer b = bufferForVBytes();
@@ -1078,20 +1092,6 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   public void setVBytes(ByteBuffer value) {
     if (value == null) throw new NullPointerException();
     setField_ = _Fields.V_BYTES;
-    value_ = value;
-  }
-
-  public List<Boolean> getVBooleans() {
-    if (getSetField() == _Fields.V_BOOLEANS) {
-      return (List<Boolean>)getFieldValue();
-    } else {
-      throw new RuntimeException("Cannot get field 'vBooleans' because union is currently set to " + getFieldDesc(getSetField()).name);
-    }
-  }
-
-  public void setVBooleans(List<Boolean> value) {
-    if (value == null) throw new NullPointerException();
-    setField_ = _Fields.V_BOOLEANS;
     value_ = value;
   }
 
@@ -1165,13 +1165,13 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
     value_ = value;
   }
 
-  public boolean isSetVByte() {
-    return setField_ == _Fields.V_BYTE;
+  public boolean isSetVBoolean() {
+    return setField_ == _Fields.V_BOOLEAN;
   }
 
 
-  public boolean isSetVBoolean() {
-    return setField_ == _Fields.V_BOOLEAN;
+  public boolean isSetVByte() {
+    return setField_ == _Fields.V_BYTE;
   }
 
 
@@ -1200,13 +1200,13 @@ public class SlotValue extends org.apache.thrift.TUnion<SlotValue, SlotValue._Fi
   }
 
 
-  public boolean isSetVBytes() {
-    return setField_ == _Fields.V_BYTES;
+  public boolean isSetVBooleans() {
+    return setField_ == _Fields.V_BOOLEANS;
   }
 
 
-  public boolean isSetVBooleans() {
-    return setField_ == _Fields.V_BOOLEANS;
+  public boolean isSetVBytes() {
+    return setField_ == _Fields.V_BYTES;
   }
 
 

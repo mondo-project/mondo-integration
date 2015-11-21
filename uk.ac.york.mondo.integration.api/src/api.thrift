@@ -1,11 +1,17 @@
 namespace java uk.ac.york.mondo.integration.api
 
 enum CommitItemChangeType {
-		/*  */ ADDED 
-		/*  */ DELETED 
-		/*  */ REPLACED 
-		/*  */ UNKNOWN 
-		/*  */ UPDATED 
+		/* File was added. */ ADDED 
+		/* File was removed. */ DELETED 
+		/* File was removed. */ REPLACED 
+		/* Unknown type of change. */ UNKNOWN 
+		/* File was updated. */ UPDATED 
+}
+
+enum HawkState {
+		/*  */ RUNNING 
+		/*  */ STOPPED 
+		/*  */ UPDATING 
 }
 
 enum SubscriptionDurability {
@@ -22,9 +28,6 @@ enum TransformationState {
 		/* The transformation has completed successfully. */ SUCCEEDED 
 }
 
-
-exception AuthenticationFailed {
-}
 
 struct CollaborationGitResourceReference {
 	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
@@ -55,10 +58,10 @@ struct CollaborationSvnResourceReference {
 }
 
 struct CommitItem {
-	 /*  */ 1: required string repoURL,
-	 /*  */ 2: required string revision,
-	 /*  */ 3: required string path,
-	 /*  */ 4: required CommitItemChangeType type,
+	 /* URL of the repository. */ 1: required string repoURL,
+	 /* Unique identifier of the revision of the repository. */ 2: required string revision,
+	 /* Path within the repository, using / as separator. */ 3: required string path,
+	 /* Type of change within the commit. */ 4: required CommitItemChangeType type,
 }
 
 struct Credentials {
@@ -83,19 +86,26 @@ exception FailedQuery {
 }
 
 struct File {
-	 /*  */ 1: required string name,
-	 /*  */ 2: required binary contents,
+	 /* Name of the file. */ 1: required string name,
+	 /* Sequence of bytes with the contents of the file. */ 2: required binary contents,
 }
 
 struct HawkInstance {
 	 /* The name of the instance. */ 1: required string name,
-	 /* Whether the instance is running or not. */ 2: required bool running,
+	 /* Current state of the instance. */ 2: required HawkState state,
+	 /* Last info message from the instance. */ 3: required string message,
 }
 
 exception HawkInstanceNotFound {
 }
 
 exception HawkInstanceNotRunning {
+}
+
+struct HawkStateEvent {
+	 /* Timestamp for this state change. */ 1: required i64 timestamp,
+	 /* State of the Hawk instance. */ 2: required HawkState state,
+	 /* Short message about the current status of the server. */ 3: required string message,
 }
 
 struct HawkSynchronizationEndEvent {
@@ -174,20 +184,20 @@ struct SlotMetadata {
 }
 
 union SlotValue {
-	 /*  */ 1: optional byte vByte,
-	 /*  */ 2: optional bool vBoolean,
-	 /*  */ 3: optional i16 vShort,
-	 /*  */ 4: optional i32 vInteger,
-	 /*  */ 5: optional i64 vLong,
-	 /*  */ 6: optional double vDouble,
-	 /*  */ 7: optional string vString,
-	 /*  */ 8: optional binary vBytes,
-	 /*  */ 9: optional list<bool> vBooleans,
-	 /*  */ 10: optional list<i16> vShorts,
-	 /*  */ 11: optional list<i32> vIntegers,
-	 /*  */ 12: optional list<i64> vLongs,
-	 /*  */ 13: optional list<double> vDoubles,
-	 /*  */ 14: optional list<string> vStrings,
+	 /* Boolean (true/false) value. */ 1: optional bool vBoolean,
+	 /* 8-bit signed integer value. */ 2: optional byte vByte,
+	 /* 16-bit signed integer value. */ 3: optional i16 vShort,
+	 /* 32-bit signed integer value. */ 4: optional i32 vInteger,
+	 /* 64-bit signed integer value. */ 5: optional i64 vLong,
+	 /* 64-bit floating point value. */ 6: optional double vDouble,
+	 /* Sequence of UTF8 characters. */ 7: optional string vString,
+	 /* List of true/false values. */ 8: optional list<bool> vBooleans,
+	 /* List of 8-bit signed integers. */ 9: optional binary vBytes,
+	 /* List of 16-bit signed integers. */ 10: optional list<i16> vShorts,
+	 /* List of 32-bit signed integers. */ 11: optional list<i32> vIntegers,
+	 /* List of 64-bit signed integers. */ 12: optional list<i64> vLongs,
+	 /* List of 64-bit floating point values. */ 13: optional list<double> vDoubles,
+	 /* List of sequences of UTF8 characters. */ 14: optional list<string> vStrings,
 }
 
 struct Subscription {
@@ -199,7 +209,7 @@ struct Subscription {
 
 struct TransformationStatus {
 	 /* State of the tranformation. */ 1: required TransformationState state,
-	 /* Time passed since the start of execution. */ 2: required i64 elapsed,
+	 /* Time passed since the start of execution, in milliseconds. */ 2: required i64 elapsed,
 	 /* Description of the error that caused the transformation to fail. */ 3: required string error,
 }
 
@@ -231,13 +241,13 @@ exception VCSAuthorizationFailed {
 }
 
 union Value {
-	 /*  */ 1: optional byte vByte,
-	 /*  */ 2: optional bool vBoolean,
-	 /*  */ 3: optional i16 vShort,
-	 /*  */ 4: optional i32 vInteger,
-	 /*  */ 5: optional i64 vLong,
-	 /*  */ 6: optional double vDouble,
-	 /*  */ 7: optional string vString,
+	 /* Boolean (true/false) value. */ 1: optional bool vBoolean,
+	 /* 8-bit signed integer value. */ 2: optional byte vByte,
+	 /* 16-bit signed integer value. */ 3: optional i16 vShort,
+	 /* 32-bit signed integer value. */ 4: optional i32 vInteger,
+	 /* 64-bit signed integer value. */ 5: optional i64 vLong,
+	 /* 64-bit floating point value. */ 6: optional double vDouble,
+	 /* Sequence of UTF8 characters. */ 7: optional string vString,
 }
 
 struct AttributeSlot {
@@ -328,7 +338,7 @@ struct ReferenceSlot {
 	 /* Positions of the referenced elements (if more than one). */ 3: optional list<i32> positions,
 	 /* Unique identifier of the referenced element (if there is only one ID based reference in this slot). */ 4: optional string id,
 	 /* Unique identifiers of the referenced elements (if more than one). */ 5: optional list<string> ids,
-	 /* Mix of identifier- and position-bsaed references (if there is at least one position and one ID. */ 6: optional list<MixedReference> mixed,
+	 /* Mix of identifier- and position-bsaed references (if there is at least one position and one ID). */ 6: optional list<MixedReference> mixed,
 }
 
 union HawkChangeEvent {
@@ -361,15 +371,15 @@ struct ContainerSlot {
 }
 
 union QueryResult {
-	 /*  */ 1: optional byte vByte,
-	 /*  */ 2: optional bool vBoolean,
-	 /*  */ 3: optional i16 vShort,
-	 /*  */ 4: optional i32 vInteger,
-	 /*  */ 5: optional i64 vLong,
-	 /*  */ 6: optional double vDouble,
-	 /*  */ 7: optional string vString,
-	 /*  */ 8: optional ModelElement vModelElement,
-	 /*  */ 9: optional ModelElementType vModelElementType,
+	 /* Boolean (true/false) value. */ 1: optional bool vBoolean,
+	 /* 8-bit signed integer value. */ 2: optional byte vByte,
+	 /* 16-bit signed integer value. */ 3: optional i16 vShort,
+	 /* 32-bit signed integer value. */ 4: optional i32 vInteger,
+	 /* 64-bit signed integer value. */ 5: optional i64 vLong,
+	 /* 64-bit floating point value. */ 6: optional double vDouble,
+	 /* Sequence of UTF8 characters. */ 7: optional string vString,
+	 /* Encoded model element. */ 8: optional ModelElement vModelElement,
+	 /* Encoded model element type. */ 9: optional ModelElementType vModelElementType,
 }
 
 /* The majority of service operations provided by the MONDO
@@ -422,7 +432,7 @@ service Hawk {
   /* Creates a new Hawk instance (stopped). Auth needed: Yes */
   void createInstance(
 	/* The unique name of the new Hawk instance. */ 1: required string name,
-	/* The name of the backend to be used. */ 2: required string backend,
+	/* The name of the backend to be used, as returned by listBackends(). */ 2: required string backend,
 	/* Minimum delay between periodic synchronization in milliseconds. */ 3: required i32 minimumDelayMillis,
 	/* Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). */ 4: required i32 maximumDelayMillis,
   )
@@ -473,8 +483,8 @@ service Hawk {
   void registerMetamodels(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The metamodels to register.
-	   			More than one metamodel files can be provided in one
-	   			go to accomodate fragmented metamodels. */ 2: required list<File> metamodel,
+	   			More than one metamodel file can be provided in one
+	   			request, to accomodate fragmented metamodels. */ 2: required list<File> metamodel,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -693,6 +703,15 @@ service Hawk {
 	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
   )
 	
+  /* Returns subscription details to a queue of HawkStateEvents with notifications about changes in the indexer's state. Auth needed: Yes */
+  Subscription watchStateChanges(
+	/* The name of the Hawk instance. */ 1: required string name,
+  )
+  throws (
+	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
+	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
+	) 
+	
   /* Returns subscription details to a queue of HawkChangeEvents with notifications about changes to a set of indexed models. Auth needed: Yes */
   Subscription watchModelChanges(
 	/* The name of the Hawk instance. */ 1: required string name,
@@ -812,7 +831,7 @@ service CloudATL {
 	2: InvalidModelSpec err2 /* The model specification is not valid: the model or the metamodels are inaccessible or invalid. */ 
 	) 
 	
-  /* Lists the ids of the transformation jobs tracked by this server. Auth needed: Yes */
+  /* Lists the identifiers of the transformation jobs tracked by this server. Auth needed: Yes */
   list<string> getJobs(
   )
 	
