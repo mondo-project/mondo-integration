@@ -422,7 +422,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 		createDummyProperties(parentFolder);
 
-		// We subscribe to changes in the state of this indexer until it is deleted.
+		/*
+		 * We subscribe to changes in the state of this indexer until it is
+		 * deleted, if it exists already. If it doesn't exist yet, we'll try
+		 * again after init invokes createInstance.
+		 */
 		connectToArtemis();
 	}
 
@@ -570,6 +574,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
 			client.createInstance(name, dbType, minDelay, maxDelay);
+			connectToArtemis();
 		}
 	}
 
@@ -591,6 +596,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			consumer = APIUtils.connectToArtemis(subState, SubscriptionDurability.TEMPORARY);
 			consumer.openSession();
 			consumer.processChangesAsync(new StatePropagationConsumer(currentState, currentInfo));
+		} catch (HawkInstanceNotFound nf) {
+			/*
+			 * Not found yet: this is probably because of a call from the
+			 * constructor right before invoking init. This is normal: we
+			 * will simply try again once init has invoked createInstance.
+			 */
 		} catch (Exception e) {
 			Activator.logError(e);
 		}

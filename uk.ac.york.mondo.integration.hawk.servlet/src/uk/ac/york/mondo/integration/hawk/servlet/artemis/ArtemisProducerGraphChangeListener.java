@@ -454,7 +454,7 @@ public class ArtemisProducerGraphChangeListener implements IGraphChangeListener 
 	}
 
 	private void openSession() {
-		if (session == null) {
+		if (session == null || session.isClosed()) {
 			try {
 				this.session = sessionFactory.createSession(false, false, false);
 				this.producer = session.createProducer(queueAddress);

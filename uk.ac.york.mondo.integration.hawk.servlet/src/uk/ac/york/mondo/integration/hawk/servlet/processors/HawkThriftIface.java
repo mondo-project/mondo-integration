@@ -63,7 +63,6 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
-import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidDerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidIndexedAttributeSpec;
@@ -509,9 +508,10 @@ final class HawkThriftIface implements Hawk.Iface {
 		try {
 			final HManager manager = HManager.getInstance();
 			if (manager.getHawkByName(name) == null) {
-				HModel.create(new LocalHawkFactory(), name, storageFolder(name),
+				HModel model = HModel.create(new LocalHawkFactory(), name, storageFolder(name),
 						null, backend, null,
 						manager, new SecurePreferencesCredentialsStore(), minDelay, maxDelay);
+				addStateListener(model);
 			}
 		} catch (Exception ex) {
 			throw new TException(ex);
@@ -541,6 +541,7 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getHawkByName(name);
 		try {
 			HManager.getInstance().delete(model, true);
+			removeStateListener(model);
 		} catch (BackingStoreException e) {
 			throw new TException(e.getMessage(), e);
 		}
@@ -551,12 +552,7 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getHawkByName(name);
 		if (!model.isRunning()) {
 			model.start(HManager.getInstance());
-			try {
-				final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
-				model.getIndexer().addStateListener(stateListener);
-			} catch (Exception e) {
-				LOGGER.error("Could not add the state listener", e);
-			}
+			addStateListener(model);
 		}
 	}
 
@@ -565,12 +561,25 @@ final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getHawkByName(name);
 		if (model.isRunning()) {
 			model.stop(ShutdownRequestType.ALWAYS);
-			try {
-				final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
-				model.getIndexer().removeStateListener(stateListener);
-			} catch (Exception e) {
-				LOGGER.error("Could not remove the state listener", e);
-			}
+			removeStateListener(model);
+		}
+	}
+
+	protected void addStateListener(final HModel model) {
+		try {
+			final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
+			model.getIndexer().addStateListener(stateListener);
+		} catch (Exception e) {
+			LOGGER.error("Could not add the state listener", e);
+		}
+	}
+
+	protected void removeStateListener(final HModel model) {
+		try {
+			final ArtemisProducerStateListener stateListener = new ArtemisProducerStateListener(model, getStateQueueName(model));
+			model.getIndexer().removeStateListener(stateListener);
+		} catch (Exception e) {
+			LOGGER.error("Could not remove the state listener", e);
 		}
 	}
 

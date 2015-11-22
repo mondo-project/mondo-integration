@@ -101,7 +101,7 @@ public class ArtemisProducerStateListener implements IStateListener {
 	}
 
 	private void openSession() {
-		if (session == null) {
+		if (session == null || session.isClosed()) {
 			try {
 				this.session = sessionFactory.createSession();
 				this.producer = session.createProducer(queueAddress);

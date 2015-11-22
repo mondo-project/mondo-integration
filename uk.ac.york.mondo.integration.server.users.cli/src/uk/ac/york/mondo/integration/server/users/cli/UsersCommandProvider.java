@@ -135,7 +135,7 @@ public class UsersCommandProvider implements CommandProvider {
 	public String getHelp() {
 		StringBuffer sbuf = new StringBuffer();
 		sbuf.append("---User management (commands are case insensitive)---\n\t");
-		sbuf.append("usersHelp - lists all the available commands for Hawk\n");
+		sbuf.append("usersHelp - lists all the available commands for Users\n");
 		sbuf.append("--Connections--\n\t");
 		sbuf.append("usersConnect <url> [username] [password] - connects to a Thrift endpoint\n\t");
 		sbuf.append("usersDisconnect - disconnects from the current Thrift endpoint\n");
@@ -143,7 +143,7 @@ public class UsersCommandProvider implements CommandProvider {
 		sbuf.append("usersAdd <username> <realname> <isAdmin: true|false> [password] - adds the user to the database\n\t");
 		sbuf.append("usersUpdateProfile <username> <realname> <isAdmin: true|false> - changes the personal information of a user\n\t");
 		sbuf.append("usersUpdatePassword <username> [password] - changes the password of a user\n\t");
-		sbuf.append("usersRemove <username> - removes an user\n\t");
+		sbuf.append("usersRemove <username> - removes a user\n\t");
 		sbuf.append("usersCheck <username> [password] - validates credentials\n");
 		return sbuf.toString();
 	}
