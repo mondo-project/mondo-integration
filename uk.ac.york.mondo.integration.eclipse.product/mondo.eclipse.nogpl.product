@@ -311,6 +311,9 @@
       <feature id="org.mondo.wt.cstudy.merge.feature"/>
       <feature id="org.mondo.wt.cstudy.model.feature"/>
       <feature id="es.ikerlan.wt.demo.feature"/>
+      <feature id="org.eclipse.sirius.aql"/>
+      <feature id="org.eclipse.sirius.runtime.aql"/>
+      <feature id="org.eclipse.acceleo.query"/>
    </features>
 
    <configurations>
