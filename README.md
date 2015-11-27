@@ -52,12 +52,17 @@ The Thrift APIs are defined in `uk.ac.york.mondo.integration.api`, particularly 
 
 The same `.api` project also provides some utility methods and classes in its `api.utils` package, which is not manually generated. It is recommended to use `APIUtils` to connect to the Thrift APIs instead of using the Thrift classes directly.
 
+Eclipse workbench
+------
+
+The MONDO Eclipse workbench product (`uk.ac.york.mondo.integration.eclipse.product`) runs on Mars SR.1, which has some graphics corruption issues in some GNU/Linux distributions. GNU/Linux users are recommended to use the provided `run-eclipse.sh` script, which sets up the environment variable appropriately to avoid these issues.
+
 Server
 ------
 
 The MONDO server product (`uk.ac.york.mondo.integration.server.product`) consists of several servlets that implement the Thrift APIs for the various MONDO components, plus two customizations for the standard OSGi HttpService: `uk.ac.york.mondo.integration.server.logback` binds [SLF4J](http://www.slf4j.org/) to the [Logback](http://logback.qos.ch/) library, and `uk.ac.york.mondo.integration.server.gzip` adds gzip compression to all HTTP responses coming from the server.
 
-When deploying the server in a production environment, it is important to set up the secure store correctly, as it keeps the usernames and passwords of all the VCS that Hawk indexes. This has two steps:
+When deploying the server in a production environment, it is important to set up the secure store correctly, as it keeps the usernames and passwords of all the VCS that Hawk indexes. This has two steps (in Linux, they are automated when using the provided `run-server.sh` script):
 * The secure store must be placed in a place no other program will try to access concurrently. This can be done by editing `mondo-server.ini` and adding `-eclipse.keyring <newline> /path/to/keyringfile`. That path should be only readable by the user running the server, for added security.
 * An encryption password must be set. For Windows and Mac, the available OS integration should be enough.   For Linux environments, two lines have to be added at the beginning of the `mondo-server.ini` file, specifying the path to a password file:
 
