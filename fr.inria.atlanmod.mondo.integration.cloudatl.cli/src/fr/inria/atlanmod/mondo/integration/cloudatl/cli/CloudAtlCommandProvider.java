@@ -135,7 +135,7 @@ public class CloudAtlCommandProvider implements CommandProvider {
 	public String getHelp() {
 		StringBuffer sbuf = new StringBuffer();
 		sbuf.append("---CloudAtl (commands are case insensitive)---\n\t");
-		sbuf.append("cloudAtlHelp - lists all the available commands for Hawk\n");
+		sbuf.append("cloudAtlHelp - lists all the available commands for CloudATL\n");
 		sbuf.append("--Connections--\n\t");
 		sbuf.append("cloudAtlConnect <url> [username] [password] - connects to a Thrift endpoint\n\t");
 		sbuf.append("cloudAtlDisconnect - disconnects from the current Thrift endpoint\n");
