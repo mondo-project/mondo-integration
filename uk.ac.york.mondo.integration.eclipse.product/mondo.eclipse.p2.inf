@@ -267,18 +267,14 @@ requires.66.name = org.mondo.wt.cstudy.model.feature.feature.group
 requires.66.range = [1.0.0,2.0.0)
 
 requires.67.namespace = org.eclipse.equinox.p2.iu
-requires.67.name = es.ikerlan.wt.demo.feature.feature.group
+requires.67.name = org.hawk.neo4jv2.feature.feature.group
 requires.67.range = [1.0.0,2.0.0)
 
 requires.68.namespace = org.eclipse.equinox.p2.iu
-requires.68.name = org.hawk.neo4jv2.feature.feature.group
+requires.68.name = org.hawk.ifc.feature.feature.group
 requires.68.range = [1.0.0,2.0.0)
 
 requires.69.namespace = org.eclipse.equinox.p2.iu
-requires.69.name = org.hawk.ifc.feature.feature.group
+requires.69.name = org.hawk.modelio.feature.feature.group
 requires.69.range = [1.0.0,2.0.0)
-
-requires.70.namespace = org.eclipse.equinox.p2.iu
-requires.70.name = org.hawk.modelio.feature.feature.group
-requires.70.range = [1.0.0,2.0.0)
 

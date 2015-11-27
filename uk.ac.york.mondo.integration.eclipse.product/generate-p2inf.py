@@ -72,7 +72,7 @@ ENTRIES_NOGPL = (
     ('org.mondo.wt.cstudy.editor.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.mondo.wt.cstudy.merge.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.mondo.wt.cstudy.model.feature.feature.group', '[1.0.0,2.0.0)'),
-    ('es.ikerlan.wt.demo.feature.feature.group', '[1.0.0,2.0.0)'),
+    # ('es.ikerlan.wt.demo.feature.feature.group', '[1.0.0,2.0.0)'),
 )
 
 ENTRIES_GPL = (

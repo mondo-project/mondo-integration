@@ -26,6 +26,7 @@
     <module>uk.ac.york.mondo.integration.clients.cli.feature</module>
     <module>uk.ac.york.mondo.integration.clients.cli.application</module>
     <module>uk.ac.york.mondo.integration.clients.cli.product</module>
+    <module>uk.ac.york.mondo.integration.eclipse.feature</module>
     <module>uk.ac.york.mondo.integration.eclipse.product</module>
     <module>uk.ac.york.mondo.integration.hawk.cli</module>
     <module>uk.ac.york.mondo.integration.hawk.cli.feature</module>

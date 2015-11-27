@@ -266,7 +266,3 @@ requires.66.namespace = org.eclipse.equinox.p2.iu
 requires.66.name = org.mondo.wt.cstudy.model.feature.feature.group
 requires.66.range = [1.0.0,2.0.0)
 
-requires.67.namespace = org.eclipse.equinox.p2.iu
-requires.67.name = es.ikerlan.wt.demo.feature.feature.group
-requires.67.range = [1.0.0,2.0.0)
-

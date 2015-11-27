@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-console
+      <programArgs>
       </programArgs>
       <vmArgs>-Xmx2048m -Dorg.eclipse.update.reconcile=false
       </vmArgs>
@@ -310,10 +310,11 @@
       <feature id="org.mondo.wt.cstudy.editor.feature"/>
       <feature id="org.mondo.wt.cstudy.merge.feature"/>
       <feature id="org.mondo.wt.cstudy.model.feature"/>
-      <feature id="es.ikerlan.wt.demo.feature"/>
+      <!-- <feature id="es.ikerlan.wt.demo.feature"/> -->
       <feature id="org.eclipse.sirius.aql"/>
       <feature id="org.eclipse.sirius.runtime.aql"/>
       <feature id="org.eclipse.acceleo.query"/>
+      <feature id="uk.ac.york.mondo.integration.eclipse.feature"/>
    </features>
 
    <configurations>
