@@ -85,7 +85,6 @@ public class Server {
 		// Set up the default address settings:
 		//   - activate paging when we hit 100MB for a single address
 		//   - redeliver after 2 seconds with 1.5x multiplier (up to 30s)
-		//   - expire messages after 1 minute
 		final AddressSettings defaultAddressSettings = new AddressSettings();
 		defaultAddressSettings.setMaxSizeBytes(100_000_000);
 		defaultAddressSettings.setRedeliveryDelay(2_000);
