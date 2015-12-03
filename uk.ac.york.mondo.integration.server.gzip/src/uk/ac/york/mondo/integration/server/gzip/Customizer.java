@@ -11,7 +11,9 @@
 package uk.ac.york.mondo.integration.server.gzip;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
@@ -60,6 +62,13 @@ public class Customizer extends JettyCustomizer {
 		        }
 		    };
 		}
+
+		@Override
+		public Set<String> getMimeTypes() {
+			// MIME types to be compressed
+			return Collections.singleton("application/x-thrift");
+		}
+
 	}
 
 	@Override
