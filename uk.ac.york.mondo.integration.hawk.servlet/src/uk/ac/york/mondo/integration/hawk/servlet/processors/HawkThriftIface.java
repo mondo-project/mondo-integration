@@ -186,18 +186,17 @@ final class HawkThriftIface implements Hawk.Iface {
 			FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		try {
-			model.setDefaultNamespaces(opts.getDefaultNamespaces());
+			final Map<String, String> context = new HashMap<>();
+			if (opts.isSetDefaultNamespaces()) {
+				context.put(IQueryEngine.PROPERTY_DEFAULTNAMESPACES, opts.getDefaultNamespaces());
+			}
 
 			Object ret;
-			if ("*".equals(opts.getRepositoryPattern()) && Arrays.asList("*").equals(opts.getFilePatterns())) {
-				ret = model.query(query, language);
-			} else {
-				final Map<String, String> context = new HashMap<>();
+			if (!"*".equals(opts.getRepositoryPattern()) || !Arrays.asList("*").equals(opts.getFilePatterns())) {
 				context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, opts.getRepositoryPattern());
 				context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(opts.getFilePatterns(), ","));
-
-				ret = model.contextFullQuery(query, language, context);
 			}
+			ret = model.query(query, language, context);
 
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 			final HawkModelElementEncoder enc = new HawkModelElementEncoder(gw);

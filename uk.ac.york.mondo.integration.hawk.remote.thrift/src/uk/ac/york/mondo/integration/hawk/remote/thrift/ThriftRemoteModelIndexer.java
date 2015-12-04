@@ -156,53 +156,17 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object contextlessQuery(IGraphDatabase g, File query)
-				throws InvalidQueryException, QueryExecutionException {
-			try {
-				return contextlessQuery(g, fileToString(query));
-			} catch (IOException e) {
-				throw new InvalidQueryException(e);
-			}
-		}
-
-		@Override
-		public Object contextlessQuery(IGraphDatabase g, String query)
-				throws InvalidQueryException, QueryExecutionException {
-			try {
-				final HawkQueryOptions opts = new HawkQueryOptions();
-				opts.setDefaultNamespaces(defaultNamespaces);
-				opts.setRepositoryPattern("*");
-				opts.setFilePatterns(Collections.singletonList("*"));
-				opts.setIncludeAttributes(true);
-				opts.setIncludeReferences(true);
-				opts.setIncludeNodeIDs(true);
-				opts.setIncludeContained(false);
-				return client.query(name, query, language, opts);
-			} catch (UnknownQueryLanguage|InvalidQuery ex) {
-				throw new InvalidQueryException(ex);
-			} catch (FailedQuery ex) {
-				throw new QueryExecutionException(ex);
-			} catch (TException e) {
-				console.printerrln("Could not run contextless query");
-				console.printerrln(e);
-				return null;
-			}
-		}
-
-		@Override
-		public Object contextfullQuery(IGraphDatabase g, File query,
-				Map<String, String> context) throws InvalidQueryException,
+		public Object query(IGraphDatabase g, File query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			try {
-				return contextfullQuery(g, fileToString(query), context);
+				return query(g, fileToString(query), context);
 			} catch (IOException e) {
 				throw new InvalidQueryException(e);
 			}
 		}
 
 		@Override
-		public Object contextfullQuery(IGraphDatabase g, String query,
-				Map<String, String> context) throws InvalidQueryException,
+		public Object query(IGraphDatabase g, String query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			String sRepoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
 			if (sRepoScope == null) {
