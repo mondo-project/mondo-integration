@@ -76,6 +76,7 @@ import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
 import uk.ac.york.mondo.integration.api.HawkModelElementAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkModelElementRemovalEvent;
+import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.HawkReferenceAdditionEvent;
 import uk.ac.york.mondo.integration.api.HawkReferenceRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkSynchronizationEndEvent;
@@ -113,14 +114,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	 * tree.
 	 */
 	private final class TreeLoadingState {
+		public String lastTypename, lastMetamodelURI, lastRepository, lastFile;
+
 		// Only for the initial load (allEObjects is cleared afterwards)
-		public String lastTypename, lastMetamodelURI;
 		public final List<EObject> allEObjects = new ArrayList<>();
 
 		// Only until references are filled in
 		public final Map<ModelElement, EObject> meToEObject = new IdentityHashMap<>();
-		public String lastRepository;
-		public String lastFile;
 	}
 
 	private final class HawkResourceMessageHandler implements MessageHandler {
@@ -605,15 +605,18 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			List<ModelElement> elems;
 			final String queryLanguage = descriptor.getHawkQueryLanguage();
 			final String query = descriptor.getHawkQuery();
+
+			final HawkQueryOptions opts = new HawkQueryOptions();
+			opts.setDefaultNamespaces(descriptor.getDefaultNamespaces());
+			opts.setRepositoryPattern(descriptor.getHawkRepository());
+			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+			opts.setIncludeAttributes(mode.isGreedyAttributes());
+			opts.setIncludeReferences(true);
+			opts.setIncludeNodeIDs(!mode.isGreedyAttributes() || descriptor.isSubscribed());
+			opts.setIncludeContained(mode.isGreedyElements());
+
 			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
-				final List<QueryResult> results = client.query(
-						descriptor.getHawkInstance(), query, queryLanguage,
-						descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()),
-						mode.isGreedyAttributes(),
-						true,
-						!mode.isGreedyAttributes() || descriptor.isSubscribed(),
-						mode.isGreedyElements()
-				);
+				List<QueryResult> results = client.query(descriptor.getHawkInstance(), query, queryLanguage, opts);
 				elems = new ArrayList<>();
 				for (final QueryResult result : results) {
 					if (result.isSetVModelElement()) {
@@ -621,16 +624,14 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					}
 				}
 			} else if (mode.isGreedyElements()) {
+				opts.setIncludeAttributes(mode.isGreedyAttributes());
+				opts.setIncludeReferences(true);
+				opts.setIncludeNodeIDs(!mode.isGreedyAttributes() || descriptor.isSubscribed());
+
 				// We need node IDs if attributes are lazy or if we're subscribing to remote changes
-				elems = client.getModel(descriptor.getHawkInstance(),
-					Arrays.asList(descriptor.getHawkRepository()),
-					Arrays.asList(descriptor.getHawkFilePatterns()), mode.isGreedyAttributes(),
-					true, !mode.isGreedyAttributes() || descriptor.isSubscribed());
+				elems = client.getModel(descriptor.getHawkInstance(), opts);
 			} else {
-				elems = client.getRootElements(descriptor.getHawkInstance(),
-						Arrays.asList(descriptor.getHawkRepository()),
-						Arrays.asList(descriptor.getHawkFilePatterns()),
-						mode.isGreedyAttributes(), true);
+				elems = client.getRootElements(descriptor.getHawkInstance(), opts);
 			}
 
 			final TreeLoadingState state = new TreeLoadingState();
@@ -708,23 +709,26 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 
 			// TODO: add "getInstancesOfType" to Hawk API instead of Hawk EOL query?
+			final HawkQueryOptions opts = new HawkQueryOptions();
+			opts.setDefaultNamespaces(eClass.getEPackage().getNsURI());
+			opts.setRepositoryPattern(descriptor.getHawkRepository());
+			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+
 			final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
-					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG,
-					descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()),
-					includeAttributes, false, true, false);
-			final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs);
+					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG, opts);
+			final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs, includeAttributes);
 			classToEObjectsMap.put(eClass, fetched);
 			return fetched;
 		}
 	}
 
-	protected EList<EObject> fetchNodesByQueryResults(final List<QueryResult> typeInstanceIDs)
+	protected EList<EObject> fetchNodesByQueryResults(final List<QueryResult> typeInstanceIDs, boolean includeAttributes)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
 		final List<String> ids = new ArrayList<>();
 		for (final QueryResult qr : typeInstanceIDs) {
 			ids.add(qr.getVModelElement().getId());
 		}
-		final EList<EObject> fetched = fetchNodes(ids, false);
+		final EList<EObject> fetched = fetchNodes(ids, includeAttributes);
 		return fetched;
 	}
 
@@ -753,10 +757,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	public Map<EClass, List<EStructuralFeature>> fetchTypesWithEClassifier(final EClassifier dataType)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery, TException {
 		// TODO: add "getExistingTypes" to Hawk API instead of this EOL query?
+		final HawkQueryOptions opts = new HawkQueryOptions();
+		opts.setRepositoryPattern(descriptor.getHawkRepository());
+		opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
 		final List<QueryResult> typesWithInstances = client.query(descriptor.getHawkInstance(),
 				"return Model.types.select(t|not t.all.isEmpty);",
-				EOL_QUERY_LANG,
-				descriptor.getHawkRepository(), Arrays.asList(descriptor.getHawkFilePatterns()), false, false, true, false);
+				EOL_QUERY_LANG, opts);
 
 		final Map<EClass, List<EStructuralFeature>> candidateTypes = new IdentityHashMap<EClass, List<EStructuralFeature>>();
 		for (final QueryResult qr : typesWithInstances) {
@@ -1260,13 +1266,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	@Override
 	public List<String> getRegisteredTypes(String metamodelURI) throws Exception {
+		HawkQueryOptions opts = new HawkQueryOptions();
+		opts.setRepositoryPattern(descriptor.getHawkRepository());
+		opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
 		 List<QueryResult> queryResults = client.query(
 			descriptor.getHawkInstance(),
 			"return Model.metamodels.selectOne(p|p.uri='%s').types.name;",
-			EOL_QUERY_LANG,
-			descriptor.getHawkRepository(),
-			Arrays.asList(descriptor.getHawkFilePatterns()),
-			false, false, false, false);
+			EOL_QUERY_LANG, opts);
 
 		 final List<String> types = new ArrayList<>();
 		 for (QueryResult qr : queryResults) {

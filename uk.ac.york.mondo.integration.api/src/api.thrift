@@ -102,6 +102,16 @@ exception HawkInstanceNotFound {
 exception HawkInstanceNotRunning {
 }
 
+struct HawkQueryOptions {
+	 /* The repository for the query (or * for all repositories). */ 1: optional string repositoryPattern = "*",
+	 /* The file patterns for the query (e.g. *.uml). */ 2: optional list<string> filePatterns,
+	 /* The default namespaces to be used to resolve ambiguous unqualified types. */ 3: optional string defaultNamespaces,
+	 /* Whether to include attributes (true) or not (false) in model element results. */ 4: optional bool includeAttributes = true,
+	 /* Whether to include references (true) or not (false) in model element results. */ 5: optional bool includeReferences = true,
+	 /* Whether to include node IDs (true) or not (false) in model element results. */ 6: optional bool includeNodeIDs = false,
+	 /* Whether to include all the child elements of the model element results (true) or not (false). */ 7: optional bool includeContained = true,
+}
+
 struct HawkStateEvent {
 	 /* Timestamp for this state change. */ 1: required i64 timestamp,
 	 /* State of the Hawk instance. */ 2: required HawkState state,
@@ -521,12 +531,7 @@ service Hawk {
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The query to be executed. */ 2: required string query,
 	/* The name of the query language used (e.g. EOL, OCL). */ 3: required string language,
-	/* The repository for the query (or * for all repositories). */ 4: required string repositoryPattern,
-	/* The file patterns for the query (e.g. *.uml). */ 5: required list<string> filePatterns,
-	/* Whether to include attributes (true) or not (false) in model element results. */ 6:  bool includeAttributes = true,
-	/* Whether to include references (true) or not (false) in model element results. */ 7:  bool includeReferences = true,
-	/* Whether to include node IDs (true) or not (false) in model element results. */ 8:  bool includeNodeIDs = true,
-	/* Whether to include all the child elements of the model element results (true) or not (false). */ 9:  bool includeContained = true,
+	/* Options for the query. */ 4: required HawkQueryOptions options,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -680,27 +685,20 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
-  /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved. Auth needed: Yes */
+  /* Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved, and contained objects are always sent. Auth needed: Yes */
   list<ModelElement> getModel(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the repository in which the model is contained. */ 2: required list<string> repositoryUri,
-	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
-	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
-	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
-	/* Whether to include node IDs (true) or not (false). */ 6:  bool includeNodeIDs = false,
+	/* Options to limit the contents to be sent. */ 2: required HawkQueryOptions options,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
 	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
-  /* Returns the root objects of one or more models indexed in a Hawk instance. Auth needed: Yes */
+  /* Returns the root objects of one or more models indexed in a Hawk instance. Node IDs are always sent, and contained objects are never sent. Auth needed: Yes */
   list<ModelElement> getRootElements(
 	/* The name of the Hawk instance. */ 1: required string name,
-	/* The URI of the repository in which the model is contained. */ 2: required list<string> repositoryUri,
-	/* The pattern(s) for the model file(s) in the repository. */ 3: required list<string> filePath,
-	/* Whether to include attributes (true) or not (false). */ 4:  bool includeAttributes = true,
-	/* Whether to include references (true) or not (false). */ 5:  bool includeReferences = true,
+	/* Options to limit the contents to be sent. */ 2: required HawkQueryOptions options,
   )
 	
   /* Returns subscription details to a queue of HawkStateEvents with notifications about changes in the indexer's state. Auth needed: Yes */

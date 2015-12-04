@@ -38,6 +38,7 @@ import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkChangeEvent;
 import uk.ac.york.mondo.integration.api.HawkInstance;
+import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.ModelElement;
@@ -60,6 +61,7 @@ public class HawkCommandProvider implements CommandProvider {
 	private Hawk.Client client;
 	private ThriftProtocol clientProtocol;
 	private String currentInstance;
+	private String defaultNamespaces;
 	private Consumer consumer;
 
 	public Object _hawkHelp(CommandInterpreter intp) {
@@ -314,9 +316,34 @@ public class HawkCommandProvider implements CommandProvider {
 		}
 
 		// TODO extend hawkQuery command to provide flags
-		Object ret = client.query(currentInstance, query, language, repo, filePatterns, true, true, true, false);
+		HawkQueryOptions opts = new HawkQueryOptions();
+		opts.setDefaultNamespaces(defaultNamespaces);
+		opts.setFilePatterns(filePatterns);
+		opts.setRepositoryPattern(repo);
+		opts.setIncludeAttributes(true);
+		opts.setIncludeReferences(true);
+		opts.setIncludeNodeIDs(true);
+		opts.setIncludeContained(false);
+		Object ret = client.query(currentInstance, query, language, opts);
 		// TODO do something better than toString here
 		return "Result: " + ret;
+	}
+
+	public Object _hawkSetDefaultNamespaces(CommandInterpreter intp) throws Exception {
+		final StringBuffer sbuf = new StringBuffer();
+		boolean first = false;
+		String arg;
+		while ((arg = intp.nextArgument()) != null) {
+			if (first) {
+				first = false;
+			} else {
+				sbuf.append(',');
+			}
+			sbuf.append(arg);
+		}
+		defaultNamespaces = sbuf.toString();
+
+		return "Changed default namespaces to '" + defaultNamespaces + "'";
 	}
 
 	public Object _hawkGetModel(CommandInterpreter intp) throws Exception {
@@ -583,11 +610,18 @@ public class HawkCommandProvider implements CommandProvider {
 			patterns.add("*");
 		}
 
+		final HawkQueryOptions opts = new HawkQueryOptions();
+		opts.setRepositoryPattern(repo);
+		opts.setFilePatterns(patterns);
+		opts.setIncludeAttributes(true);
+		opts.setIncludeReferences(true);
+
 		List<ModelElement> elems;
 		if (entireModel) {
-			elems = client.getModel(currentInstance, Arrays.asList(repo), patterns, true, true, false);
+			opts.setIncludeNodeIDs(false);
+			elems = client.getModel(currentInstance, opts);
 		} else {
-			elems = client.getRootElements(currentInstance, Arrays.asList(repo), patterns, true, true);
+			elems = client.getRootElements(currentInstance, opts);
 		}
 		return formatModelElements(elems, "");
 	}
@@ -642,6 +676,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkRemoveRepository <url> - removes the repository with the specified URL\n\t");
 		sbuf.append("hawkUpdateRepositoryCredentials <url> <user> <pwd> - changes the user/password used to monitor a repository\n");
 		sbuf.append("--Queries--\n\t");
+		sbuf.append("hawkSetDefaultNamespaces <namespaces...> - changes the default namespaces used to deambiguate type names\n\t");
 		sbuf.append("hawkGetModel <repo> [filepatterns...] - returns all the model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkGetRoots <repo> [filepatterns...] - returns only the root model elements of the specified files within the repo\n\t");
 		sbuf.append("hawkListQueryLanguages - lists all available query languages\n\t");

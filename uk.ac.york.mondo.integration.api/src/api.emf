@@ -7,9 +7,7 @@ throw if they fail.
 In addition to their explicitly listed exceptions, operations requiring authentication
 may throw an AuthenticationFailed exception if the user fails to provide valid credentials
 or does not have the required permissions. In its current version, the MONDO platform
-assumes that authenticated users will have the necessary permissions. The deliverable D6.3
-in M24 will include a more fine-grained permissions system which separates authentication and
-authorization.
+assumes that authenticated users will have the necessary permissions.
 ")
 @thrift(javans="uk.ac.york.mondo.integration.api")
 @namespace(uri="mondo_api", prefix="")
@@ -120,12 +118,7 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="The query to be executed") String query,
 		@doc(d="The name of the query language used (e.g. EOL, OCL)") String language,
-		@doc(d="The repository for the query (or * for all repositories)") String repositoryPattern,
-		@doc(d="The file patterns for the query (e.g. *.uml)") String[*] filePatterns,
-		@doc(d="Whether to include attributes (true) or not (false) in model element results", optional="true", default="true") Boolean includeAttributes,
-		@doc(d="Whether to include references (true) or not (false) in model element results", optional="true", default="true") Boolean includeReferences,
-		@doc(d="Whether to include node IDs (true) or not (false) in model element results", optional="true", default="true") Boolean includeNodeIDs,
-		@doc(d="Whether to include all the child elements of the model element results (true) or not (false)", optional="true", default="true") Boolean includeContained
+		@doc(d="Options for the query") HawkQueryOptions options
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage, InvalidQuery, FailedQuery;
 
 	@doc(d="Returns populated model elements for the provided proxies")
@@ -214,23 +207,16 @@ class Hawk {
 		@doc(d="The name of the Hawk instance") String name
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
-	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved")
+	@doc(d="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved, and contained objects are always sent.")
 	op ModelElement[*] getModel (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
-		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
-		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
-		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences,
-		@doc(d="Whether to include node IDs (true) or not (false)", optional="true", default="false") Boolean includeNodeIDs
+		@doc(d="Options to limit the contents to be sent") HawkQueryOptions options
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
-	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance.")
+	@doc(d="Returns the root objects of one or more models indexed in a Hawk instance. Node IDs are always sent, and contained objects are never sent.")
 	op ModelElement[*] getRootElements (
 		@doc(d="The name of the Hawk instance") String name,
-		@doc(d="The URI of the repository in which the model is contained") String[*] repositoryUri,
-		@doc(d="The pattern(s) for the model file(s) in the repository") String[*] filePath,
-		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
-		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
+		@doc(d="Options to limit the contents to be sent") HawkQueryOptions options
 	);
 
 	@doc(d="Returns subscription details to a queue of HawkStateEvents with notifications about changes in the indexer's state", queueOf="HawkStateEvent")
@@ -246,6 +232,30 @@ class Hawk {
 		@doc(d="Unique client ID (used as suffix for the queue name)") String clientID,
 		@doc(d="Durability of the subscription.") SubscriptionDurability durableEvents
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+}
+
+@doc(d="Options for a Hawk query")
+class HawkQueryOptions {
+  @doc(d="The repository for the query (or * for all repositories)", optional="true", default="*")
+  attr String repositoryPattern;
+
+  @doc(d="The file patterns for the query (e.g. *.uml)", optional="true")
+  attr String[*] filePatterns;
+
+  @doc(d="The default namespaces to be used to resolve ambiguous unqualified types", optional="true", default="")
+  attr String defaultNamespaces;
+
+  @doc(d="Whether to include attributes (true) or not (false) in model element results", optional="true", default="true")
+  attr Boolean includeAttributes;
+
+  @doc(d="Whether to include references (true) or not (false) in model element results", optional="true", default="true")
+  attr Boolean includeReferences;
+
+  @doc(d="Whether to include node IDs (true) or not (false) in model element results", optional="true", default="false")
+  attr Boolean includeNodeIDs;
+
+  @doc(d="Whether to include all the child elements of the model element results (true) or not (false)", optional="true", default="true")
+  attr Boolean includeContained;
 }
 
 @doc(d="Entity that represents a model repository")

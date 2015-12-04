@@ -2,7 +2,7 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="mondo_api" nsURI="mondo_api" nsPrefix="">
   <eAnnotations source="doc">
-    <details key="dServices" value="&#xA;The present section lists the services offered by the current version of the&#xA;MONDO platform. For each service, the available operations are presented, along&#xA;with the parameters they take, their return type and the exceptions they may&#xA;throw if they fail.&#xA;&#xA;In addition to their explicitly listed exceptions, operations requiring authentication&#xA;may throw an AuthenticationFailed exception if the user fails to provide valid credentials&#xA;or does not have the required permissions. In its current version, the MONDO platform&#xA;assumes that authenticated users will have the necessary permissions. The deliverable D6.3&#xA;in M24 will include a more fine-grained permissions system which separates authentication and&#xA;authorization.&#xA;"/>
+    <details key="dServices" value="&#xA;The present section lists the services offered by the current version of the&#xA;MONDO platform. For each service, the available operations are presented, along&#xA;with the parameters they take, their return type and the exceptions they may&#xA;throw if they fail.&#xA;&#xA;In addition to their explicitly listed exceptions, operations requiring authentication&#xA;may throw an AuthenticationFailed exception if the user fails to provide valid credentials&#xA;or does not have the required permissions. In its current version, the MONDO platform&#xA;assumes that authenticated users will have the necessary permissions.&#xA;"/>
   </eAnnotations>
   <eAnnotations source="thrift">
     <details key="javans" value="uk.ac.york.mondo.integration.api"/>
@@ -221,42 +221,9 @@
           <details key="d" value="The name of the query language used (e.g. EOL, OCL)"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repositoryPattern" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="options" eType="#//HawkQueryOptions">
         <eAnnotations source="doc">
-          <details key="d" value="The repository for the query (or * for all repositories)"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="filePatterns" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The file patterns for the query (e.g. *.uml)"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false) in model element results"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include references (true) or not (false) in model element results"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include node IDs (true) or not (false) in model element results"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeContained" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include all the child elements of the model element results (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
+          <details key="d" value="Options for the query"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -485,76 +452,31 @@
     </eOperations>
     <eOperations name="getModel" upperBound="-1" eType="#//ModelElement" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
-        <details key="d" value="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved"/>
+        <details key="d" value="Returns the contents of one or more models indexed in a Hawk instance. Cross-model references are also resolved, and contained objects are always sent."/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repositoryUri" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="options" eType="#//HawkQueryOptions">
         <eAnnotations source="doc">
-          <details key="d" value="The URI of the repository in which the model is contained"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include references (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include node IDs (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="false"/>
+          <details key="d" value="Options to limit the contents to be sent"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
     <eOperations name="getRootElements" upperBound="-1" eType="#//ModelElement">
       <eAnnotations source="doc">
-        <details key="d" value="Returns the root objects of one or more models indexed in a Hawk instance."/>
+        <details key="d" value="Returns the root objects of one or more models indexed in a Hawk instance. Node IDs are always sent, and contained objects are never sent."/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="The name of the Hawk instance"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="repositoryUri" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eParameters name="options" eType="#//HawkQueryOptions">
         <eAnnotations source="doc">
-          <details key="d" value="The URI of the repository in which the model is contained"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="filePath" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="The pattern(s) for the model file(s) in the repository"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include references (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
+          <details key="d" value="Options to limit the contents to be sent"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -600,6 +522,60 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HawkQueryOptions">
+    <eAnnotations source="doc">
+      <details key="d" value="Options for a Hawk query"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repositoryPattern" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The repository for the query (or * for all repositories)"/>
+        <details key="optional" value="true"/>
+        <details key="default" value="*"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filePatterns" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The file patterns for the query (e.g. *.uml)"/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultNamespaces" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="The default namespaces to be used to resolve ambiguous unqualified types"/>
+        <details key="optional" value="true"/>
+        <details key="default" value=""/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eAnnotations source="doc">
+        <details key="d" value="Whether to include attributes (true) or not (false) in model element results"/>
+        <details key="optional" value="true"/>
+        <details key="default" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eAnnotations source="doc">
+        <details key="d" value="Whether to include references (true) or not (false) in model element results"/>
+        <details key="optional" value="true"/>
+        <details key="default" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="includeNodeIDs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eAnnotations source="doc">
+        <details key="d" value="Whether to include node IDs (true) or not (false) in model element results"/>
+        <details key="optional" value="true"/>
+        <details key="default" value="false"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="includeContained" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eAnnotations source="doc">
+        <details key="d" value="Whether to include all the child elements of the model element results (true) or not (false)"/>
+        <details key="optional" value="true"/>
+        <details key="default" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Repository">
     <eAnnotations source="doc">

@@ -63,6 +63,7 @@ import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
+import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.HawkState;
 import uk.ac.york.mondo.integration.api.HawkStateEvent;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
@@ -137,6 +138,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	private final class RemoteQueryEngine implements IQueryEngine {
 		private final String language;
+		private String defaultNamespaces = "";
 
 		private RemoteQueryEngine(String language) {
 			this.language = language;
@@ -167,12 +169,15 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		public Object contextlessQuery(IGraphDatabase g, String query)
 				throws InvalidQueryException, QueryExecutionException {
 			try {
-				final boolean includeAttributes = true;
-				final boolean includeReferences = true;
-				final boolean includeNodeIDs = true;
-				final boolean includeContained = false;
-				return client.query(name, query, language, "*", Arrays.asList("*"),
-						includeAttributes, includeReferences, includeNodeIDs, includeContained);
+				final HawkQueryOptions opts = new HawkQueryOptions();
+				opts.setDefaultNamespaces(defaultNamespaces);
+				opts.setRepositoryPattern("*");
+				opts.setFilePatterns(Collections.singletonList("*"));
+				opts.setIncludeAttributes(true);
+				opts.setIncludeReferences(true);
+				opts.setIncludeNodeIDs(true);
+				opts.setIncludeContained(false);
+				return client.query(name, query, language, opts);
 			} catch (UnknownQueryLanguage|InvalidQuery ex) {
 				throw new InvalidQueryException(ex);
 			} catch (FailedQuery ex) {
@@ -216,13 +221,15 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			}
 
 			try {
-				final boolean includeAttributes = true;
-				final boolean includeReferences = true;
-				final boolean includeNodeIDs = true;
-				final boolean includeContained = false;
-				return client.query(name, query, language, sRepoScope,
-						filePatterns, includeAttributes, includeReferences,
-						includeNodeIDs, includeContained);
+				final HawkQueryOptions opts = new HawkQueryOptions();
+				opts.setDefaultNamespaces(defaultNamespaces);
+				opts.setRepositoryPattern(sRepoScope);
+				opts.setFilePatterns(filePatterns);
+				opts.setIncludeAttributes(true);
+				opts.setIncludeReferences(true);
+				opts.setIncludeNodeIDs(true);
+				opts.setIncludeContained(false);
+				return client.query(name, query, language, opts);
 			} catch (UnknownQueryLanguage|InvalidQuery ex) {
 				throw new InvalidQueryException(ex);
 			} catch (FailedQuery ex) {
@@ -241,6 +248,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			// this dummy query engine does *not* update derived attributes
 			// -- we're just a client.
 			return null;
+		}
+
+		@Override
+		public void setDefaultNamespaces(String defaultNamespaces) {
+			this.defaultNamespaces = defaultNamespaces;
 		}
 	}
 

@@ -63,6 +63,7 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotFound;
 import uk.ac.york.mondo.integration.api.HawkInstanceNotRunning;
+import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.IndexedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidDerivedAttributeSpec;
 import uk.ac.york.mondo.integration.api.InvalidIndexedAttributeSpec;
@@ -180,29 +181,34 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<QueryResult> query(String name, String query, String language,
-			String repo, List<String> filePatterns, boolean includeAttributes,
-			boolean includeReferences, boolean includeNodeIDs, boolean includeContained)
+	public List<QueryResult> query(String name, String query, String language, HawkQueryOptions opts)
 			throws HawkInstanceNotFound, UnknownQueryLanguage, InvalidQuery,
 			FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
-		Map<String, String> context = new HashMap<>();
-		context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, repo);
-		context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(filePatterns, ","));
 		try {
+			final IQueryEngine queryEngine = model.getIndexer().getKnownQueryLanguages().get(language);
+			if (queryEngine == null) {
+				throw new UnknownQueryLanguage();
+			}
+			queryEngine.setDefaultNamespaces(opts.getDefaultNamespaces());
+
 			Object ret;
-			if ("*".equals(repo) && Arrays.asList("*").equals(filePatterns)) {
+			if ("*".equals(opts.getRepositoryPattern()) && Arrays.asList("*").equals(opts.getFilePatterns())) {
 				ret = model.query(query, language);
 			} else {
+				final Map<String, String> context = new HashMap<>();
+				context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, opts.getRepositoryPattern());
+				context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(opts.getFilePatterns(), ","));
+
 				ret = model.contextFullQuery(query, language, context);
 			}
 
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 			final HawkModelElementEncoder enc = new HawkModelElementEncoder(gw);
-			enc.setUseContainment(includeContained);
-			enc.setIncludeNodeIDs(includeNodeIDs);
-			enc.setIncludeAttributes(includeAttributes);
-			enc.setIncludeReferences(includeReferences);
+			enc.setUseContainment(opts.includeContained);
+			enc.setIncludeNodeIDs(opts.includeNodeIDs);
+			enc.setIncludeAttributes(opts.includeAttributes);
+			enc.setIncludeReferences(opts.includeReferences);
 
 			final HawkModelElementTypeEncoder typeEnc = new HawkModelElementTypeEncoder(gw);
 
@@ -211,9 +217,6 @@ final class HawkThriftIface implements Hawk.Iface {
 				addEncodedValue(model, ret, l, enc, typeEnc);
 				return l;
 			}
-		} catch (NoSuchElementException ex) {
-			ex.printStackTrace();
-			throw new UnknownQueryLanguage();
 		} catch (InvalidQueryException ex) {
 			throw new InvalidQuery(ex.getMessage());
 		} catch (QueryExecutionException ex) {
@@ -459,18 +462,17 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<ModelElement> getModel(String name, List<String> repositories, List<String> filePath, boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
-		return collectElements(name, repositories, filePath, CollectElements.ALL, includeAttributes, includeReferences, includeNodeIDs);
+	public List<ModelElement> getModel(String name, HawkQueryOptions opts) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		return collectElements(name, CollectElements.ALL, opts);
 	}
 
 	@Override
-	public List<ModelElement> getRootElements(String name, List<String> repositories, List<String> filePath, boolean includeAttributes, boolean includeReferences) throws TException {
-		return collectElements(name, repositories, filePath, CollectElements.ONLY_ROOTS, includeAttributes, includeReferences, true);
+	public List<ModelElement> getRootElements(String name, HawkQueryOptions opts) throws TException {
+		opts.setIncludeNodeIDs(true);
+		return collectElements(name, CollectElements.ONLY_ROOTS, opts);
 	}
 
-	private List<ModelElement> collectElements(String name,
-			List<String> repositories, List<String> filePath, final CollectElements collectType,
-			boolean includeAttributes, boolean includeReferences, boolean includeNodeIDs)
+	private List<ModelElement> collectElements(String name, final CollectElements collectType, final HawkQueryOptions opts)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getRunningHawkByName(name);
 		final GraphWrapper gw = new GraphWrapper(model.getGraph());
@@ -478,11 +480,11 @@ final class HawkThriftIface implements Hawk.Iface {
 		// TODO filtering by repository
 		try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
 			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
-			encoder.setIncludeAttributes(includeAttributes);
-			encoder.setIncludeReferences(includeReferences);
-			encoder.setIncludeNodeIDs(includeNodeIDs);
-			for (FileNode fileNode : gw.getFileNodes(repositories, filePath)) {
-				LOGGER.info("Retrieving elements from {}", filePath);
+			encoder.setIncludeAttributes(opts.includeAttributes);
+			encoder.setIncludeReferences(opts.includeReferences);
+			encoder.setIncludeNodeIDs(opts.includeNodeIDs);
+			for (FileNode fileNode : gw.getFileNodes(Arrays.asList(opts.getRepositoryPattern()), opts.getFilePatterns())) {
+				LOGGER.info("Retrieving elements from {}", opts.getFilePatterns());
 
 				if (collectType == CollectElements.ALL) {
 					for (ModelElementNode meNode : fileNode.getModelElements()) {

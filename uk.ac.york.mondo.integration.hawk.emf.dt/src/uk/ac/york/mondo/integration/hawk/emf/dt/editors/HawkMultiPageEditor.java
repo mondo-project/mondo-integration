@@ -197,6 +197,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void loadingModeChanged() { refreshRawText(); }
 				@Override protected void queryLanguageChanged() { refreshRawText(); }
 				@Override protected void queryChanged() { refreshRawText(); }
+				@Override protected void defaultNamespacesChanged() { refreshRawText(); }
 				@Override protected void splitChanged() { refreshRawText(); }
 
 				@Override protected void selectQueryLanguage() {
@@ -433,6 +434,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		private final FormComboBoxField fldLoadingMode;
 		private final FormTextField fldQueryLanguage;
 		private final FormTextField fldQuery;
+		private final FormTextField fldDefaultNamespaces;
 		private final FormCheckBoxField fldSplit;
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
@@ -444,6 +446,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    this.fldLoadingMode = new FormComboBoxField(toolkit, cContents, "Loading mode:", HawkModelDescriptor.LoadingMode.strings());
 		    this.fldQueryLanguage = new FormTextField(toolkit, cContents, "<a href=\"selectQueryLanguage\">Query language</a>:", HawkModelDescriptor.DEFAULT_QUERY_LANGUAGE);
 		    this.fldQuery = new FormTextField(toolkit, cContents, "Query:", HawkModelDescriptor.DEFAULT_QUERY);
+		    this.fldDefaultNamespaces = new FormTextField(toolkit, cContents, "Default namespaces:", HawkModelDescriptor.DEFAULT_DEFAULT_NAMESPACES);
 		    this.fldSplit = new FormCheckBoxField(toolkit, cContents, "Split by file:", HawkModelDescriptor.DEFAULT_IS_SPLIT);
 
 		    this.fldRepositoryURL.getText().setToolTipText(
@@ -454,6 +457,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		        "Language in which the query will be written. If empty, the entire model will be retrieved.");
 		    this.fldQuery.getText().setToolTipText(
 		        "Query to be used for the initial contents of the model. If empty, the entire model will be retrieved.");
+		    this.fldDefaultNamespaces.getText().setToolTipText(
+			"Comma-separated list of namespaces used to disambiguate types if multiple matches are found.");
 		    this.fldSplit.getCheck().setToolTipText(
 		    	"If checked, the contents of the index will be split by file, using surrogate resources. Otherwise, the entire contents of the index will be under this resource (needed for CloudATL).");
 
@@ -462,6 +467,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    fldLoadingMode.getCombo().addSelectionListener(this);
 		    fldQueryLanguage.getText().addModifyListener(this);
 		    fldQuery.getText().addModifyListener(this);
+		    fldDefaultNamespaces.getText().addModifyListener(this);
 		    fldSplit.getCheck().addSelectionListener(this);
 
 		    final HyperlinkAdapter hyperlinkListener = new HyperlinkAdapter() {
@@ -509,6 +515,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			return fldSplit.getCheck().getSelection();
 		}
 
+		public String getDefaultNamespaces() {
+			return fldDefaultNamespaces.getText().getText();
+		}
+
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			widgetSelected(e);
@@ -533,6 +543,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				queryLanguageChanged();
 			} else if (e.widget == fldQuery.getText()) {
 				queryChanged();
+			} else if (e.widget == fldDefaultNamespaces.getText()) {
+				defaultNamespacesChanged();
 			}
 		}
 
@@ -560,11 +572,16 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			fldSplit.getCheck().setSelection(isSplit);
 		}
 
+		public void setDefaultNamespaces(String defaultNS) {
+			fldDefaultNamespaces.setTextWithoutListener(defaultNS, this);
+		}
+
 		protected abstract void filePatternsChanged();
 		protected abstract void repositoryURLChanged();
 		protected abstract void loadingModeChanged();
 		protected abstract void queryLanguageChanged();
 		protected abstract void queryChanged();
+		protected abstract void defaultNamespacesChanged();
 		protected abstract void splitChanged();
 
 		protected abstract void selectQueryLanguage();
@@ -863,6 +880,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
 			detailsPage.getContentSection().setQueryLanguage(descriptor.getHawkQueryLanguage());
 			detailsPage.getContentSection().setQuery(descriptor.getHawkQuery());
+			detailsPage.getContentSection().setDefaultNamespaces(descriptor.getDefaultNamespaces());
 			detailsPage.getContentSection().setSplit(descriptor.isSplit());
 			detailsPage.getSubscriptionSection().setSubscribed(descriptor.isSubscribed());
 			detailsPage.getSubscriptionSection().setClientID(descriptor.getSubscriptionClientID());
@@ -900,6 +918,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setSubscriptionDurability(detailsPage.getSubscriptionSection().getDurability());
 		descriptor.setHawkQueryLanguage(detailsPage.getContentSection().getQueryLanguage());
 		descriptor.setHawkQuery(detailsPage.getContentSection().getQuery());
+		descriptor.setDefaultNamespaces(detailsPage.getContentSection().getDefaultNamespaces());
 		descriptor.setSplit(detailsPage.getContentSection().isSplit());
 		return descriptor;
 	}

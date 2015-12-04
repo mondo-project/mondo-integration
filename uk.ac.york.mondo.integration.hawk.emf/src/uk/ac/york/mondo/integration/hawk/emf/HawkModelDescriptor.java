@@ -24,8 +24,8 @@ import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 /**
- * Abstraction over the <code>.hawkmodel</code> file format. The file format is a
- * simple Java properties file, with the following keys:
+ * Abstraction over the <code>.hawkmodel</code> file format. The file format is
+ * a simple Java properties file, with the following keys:
  * </p>
  * <ul>
  * <li>{@link #PROPERTY_HAWK_URL} (required) is the URL to the remote Hawk index
@@ -39,14 +39,17 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
  * <li>{@link #PROPERTY_HAWK_FILES} (optional) is a comma-separated list of file
  * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
  * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
- * <li>{@link #PROPERTY_HAWK_LOADING_MODE} (optional) is a string with one of the
- * values in {@link LoadingMode}, indicating how should the model be lodaded.
- * The default value is {@link #DEFAULT_LOADING_MODE}.</li>
+ * <li>{@link #PROPERTY_HAWK_LOADING_MODE} (optional) is a string with one of
+ * the values in {@link LoadingMode}, indicating how should the model be
+ * lodaded. The default value is {@link #DEFAULT_LOADING_MODE}.</li>
  * <li>{@link #PROPERTY_HAWK_SUBSCRIBE} (optional), indicating if the client
  * should subscribe to changes in the Hawk index for the indicated files and
  * repository. The default value is {@link #DEFAULT_IS_SUBSCRIBED}.</li>
  * <li>{@link #PROPERTY_HAWK_TPROTOCOL} (optional) is one of the values of
  * {@link ThriftProtocol}. By default, it is {@link #DEFAULT_TPROTOCOL}.</li>
+ * <li>{@link #PROPERTY_DEFAULT_NAMESPACES} (optional) is a string with a
+ * comma-separated list of metamodels used to disambiguate type names. By
+ * default, it is {@link #DEFAULT_DEFAULT_NAMESPACES}.</li>
  * </ul>
  */
 public class HawkModelDescriptor {
@@ -146,6 +149,7 @@ public class HawkModelDescriptor {
 	public static final ThriftProtocol DEFAULT_TPROTOCOL = ThriftProtocol.TUPLE;
 	public static final String DEFAULT_CLIENTID = System.getProperty("user.name");
 	public static final SubscriptionDurability DEFAULT_DURABILITY = SubscriptionDurability.DEFAULT;
+	public static final String DEFAULT_DEFAULT_NAMESPACES = "http://buildingsmart.ifc2x3tc1.ecore";
 
 	// Empty strings mean entire model - no actual query performed
 	public static final String DEFAULT_QUERY_LANGUAGE = "";
@@ -160,6 +164,7 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thriftProtocol";
 	private static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
 	private static final String PROPERTY_HAWK_QUERY_LANGUAGE = "hawk.queryLanguage";
+	private static final String PROPERTY_HAWK_DEFAULT_NAMESPACES = "hawk.defaultNamespaces";
 	private static final String PROPERTY_HAWK_QUERY = "hawk.query";
 	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
 	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
@@ -175,6 +180,7 @@ public class HawkModelDescriptor {
 	private LoadingMode loadingMode = DEFAULT_LOADING_MODE;
 	private String hawkQueryLanguage = DEFAULT_QUERY_LANGUAGE;
 	private String hawkQuery = DEFAULT_QUERY;
+	private String defaultNamespaces = DEFAULT_DEFAULT_NAMESPACES;
 	private boolean isSplit = DEFAULT_IS_SPLIT;
 
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
@@ -301,6 +307,14 @@ public class HawkModelDescriptor {
 		isSplit = newValue;
 	}
 
+	public String getDefaultNamespaces() {
+		return defaultNamespaces;
+	}
+
+	public void setDefaultNamespaces(String defaultNamespaces) {
+		this.defaultNamespaces = defaultNamespaces;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -320,6 +334,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_LOADING_MODE, loadingMode.toString());
 		props.setProperty(PROPERTY_HAWK_QUERY_LANGUAGE, hawkQueryLanguage);
 		props.setProperty(PROPERTY_HAWK_QUERY, hawkQuery);
+		props.setProperty(PROPERTY_HAWK_DEFAULT_NAMESPACES, defaultNamespaces);
 		props.setProperty(PROPERTY_HAWK_SPLIT, Boolean.toString(isSplit));
 
 		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
@@ -338,6 +353,7 @@ public class HawkModelDescriptor {
 		this.loadingMode = LoadingMode.valueOf(optionalProperty(props, PROPERTY_HAWK_LOADING_MODE, DEFAULT_LOADING_MODE + ""));
 		this.hawkQueryLanguage = optionalProperty(props, PROPERTY_HAWK_QUERY_LANGUAGE, DEFAULT_QUERY_LANGUAGE);
 		this.hawkQuery = optionalProperty(props, PROPERTY_HAWK_QUERY, DEFAULT_QUERY);
+		this.defaultNamespaces = optionalProperty(props, PROPERTY_HAWK_DEFAULT_NAMESPACES, DEFAULT_DEFAULT_NAMESPACES);
 		this.isSplit = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SPLIT, DEFAULT_IS_SPLIT + ""));
 
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
