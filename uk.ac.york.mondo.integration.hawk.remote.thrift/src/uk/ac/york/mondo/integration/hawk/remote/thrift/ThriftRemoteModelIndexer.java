@@ -586,12 +586,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
 			client.createInstance(name, dbType, minDelay, maxDelay);
-			connectToArtemis();
 		}
+		connectToArtemis();
 	}
 
 	protected void connectToArtemis() {
-		if (consumer != null) {
+		if (consumer != null && consumer.isSessionOpen()) {
 			return;
 		}
 		try {
@@ -758,6 +758,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public boolean isRunning() {
+		connectToArtemis();
 		try {
 			for (HawkInstance instance : client.listInstances()) {
 				if (instance.name.equals(name)) {

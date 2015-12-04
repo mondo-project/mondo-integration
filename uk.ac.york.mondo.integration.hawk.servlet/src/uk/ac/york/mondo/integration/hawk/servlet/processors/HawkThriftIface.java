@@ -186,11 +186,7 @@ final class HawkThriftIface implements Hawk.Iface {
 			FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		try {
-			final IQueryEngine queryEngine = model.getIndexer().getKnownQueryLanguages().get(language);
-			if (queryEngine == null) {
-				throw new UnknownQueryLanguage();
-			}
-			queryEngine.setDefaultNamespaces(opts.getDefaultNamespaces());
+			model.setDefaultNamespaces(opts.getDefaultNamespaces());
 
 			Object ret;
 			if ("*".equals(opts.getRepositoryPattern()) && Arrays.asList("*").equals(opts.getFilePatterns())) {

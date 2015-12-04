@@ -128,6 +128,10 @@ public class Consumer implements Closeable {
 		}
 	}
 
+	public boolean isSessionOpen() {
+		return session != null && !session.isClosed();
+	}
+
 	/**
 	 * Consumes all pending messages from the queue, translating them into
 	 * events for the {@link IGraphChangeListener}.
