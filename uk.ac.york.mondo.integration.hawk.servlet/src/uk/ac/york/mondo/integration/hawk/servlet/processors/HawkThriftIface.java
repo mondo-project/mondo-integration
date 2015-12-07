@@ -318,7 +318,12 @@ final class HawkThriftIface implements Hawk.Iface {
 	public void removeRepository(String name, String uri) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getRunningHawkByName(name);
 		try {
-			model.removeRepository(uri);
+			for (IVcsManager mgr : new ArrayList<>(model.getIndexer().getRunningVCSManagers())) {
+				if (mgr.getLocation().equals(uri)) {
+					model.removeRepository(mgr);
+					break;
+				}
+			}
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}

@@ -795,4 +795,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	public String getDerivedAttributeExecutionEngine() {
 		return null;
 	}
+
+	@Override
+	public void removeVCS(IVcsManager vcs) throws Exception {
+		client.removeRepository(name, vcs.getLocation());
+	}
 }
