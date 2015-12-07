@@ -1,12 +1,18 @@
 @doc(dServices="
-The present section lists the services offered by the current version of the
-MONDO platform. For each service, the available operations are presented, along
-with the parameters they take, their return type and the exceptions they may
-throw if they fail.
+The present section lists the services offered by the current version
+of the MONDO platform. For each service, the available operations are
+presented, along with the parameters they take, their return type and
+the exceptions they can throw. Readers familiar with Thrift may notice
+that some types inherit from others, which is not supported by Thrift
+itself: this is implemented through the
+Ecore2Thrift~\cite{ecore2thrift} model-to-text transformation
+developed in WP6, which takes into account inherited fields when
+transforming an \class{EClass} into a Thrift data type.
 
-In addition to their explicitly listed exceptions, operations requiring authentication
-may throw an AuthenticationFailed exception if the user fails to provide valid credentials
-or does not have the required permissions. In its current version, the MONDO platform
+In addition to their explicitly listed exceptions, operations
+requiring authentication may produce replies with HTTP 4xx status
+codes if the user fails to provide valid credentials or does not have
+the required permissions. In its current version, the MONDO platform
 assumes that authenticated users will have the necessary permissions.
 ")
 @thrift(javans="uk.ac.york.mondo.integration.api")
@@ -266,9 +272,9 @@ class Repository {
 
 @doc(d="One of the states that a Hawk instance can be in.")
 enum HawkState {
-	RUNNING;
-	UPDATING;
-	STOPPED;
+	@doc(d="The instance is running and monitoring the indexed locations") RUNNING;
+	@doc(d="The instance is updating its contents from the indexed locations") UPDATING;
+	@doc(d="The instance is stopped and is not monitoring any indexed locations") STOPPED;
 }
 
 @doc(d="Serialized form of a change in the state of a Hawk instance")
@@ -419,101 +425,47 @@ class InvalidPollingConfiguration {
 
 
 @doc(d="
-The following service operations expose the capabilities of the offline collaboration framework
-developed in Work Package 4. The framework is discussed in detail in D4.3.
+The offline collaboration tool is realized in the MONDO platform through the
+MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an
+off-the-shelf version control server with ``hooks'' that enforce access control and
+maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.
+This allows users to continue using their preferred tools for interacting with the version
+control systems in their day-to-day modelling activities.
+
+Nevertheless, managing the rules to be used by the hooks requires its own API, as this is
+not covered by traditional VCS protocols. The rest of the section describes a work-in-progress
+API for managing these access rules: the final version will be provided in D6.8, due in M30.
 ")
-// Services related to offline collaboration should go here
-// AG: how do the lock operations know which VCS they should talk to?
-// AG: a collaboration lock query spec is only a FQN? Shouldn't it include the query language and the language as well?
 class OfflineCollaboration {
-	@doc(d="Performs the checkout operation")
-	op CollaborationResource[*] checkout (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound;
+  @doc(d="Adds an access control rule to the specified version control system.")
+  op void addRule(
+  	@doc(d="URL of the version control system") String repoURL,
+  	@doc(d="Specification of the access control rule") CollaborationRule rule);
 
-	@doc(d="Performs the commit operation")
-	op void commit (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound, CollaborationResourceLocked;
+  @doc(d="Removes an access control rule from the specified version control system.")
+  op void removeRule(
+    @doc(d="URL of the version control system") String repoURL,
+    @doc(d="Specification of the access control rule") String ruleName) throws CollaborationRuleNotFound;
 
-	@doc(d="Performs the pull operation")
-	op CollaborationResource[*] pull (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The references to the required resources") CollaborationResourceReference[*] resources,
-		@doc(d="The operations executed on the client") OperationModel operationModel
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, CollaborationResourceNotFound, MergeRequired;
+  @doc(d="Updates an access control rule for the specified version control system.")
+  op void updateRule(
+    @doc(d="URL of the version control system") String repoURL,
+    @doc(d="Specification of the access control rule") CollaborationRule rule) throws CollaborationRuleNotFound;
 
-	@doc(d="Publishes a lock definition")
-	op void publishLockDefinition (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The lock query specification") CollaborationLockQuerySpec specification
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec;
-
-	@doc(d="Unpublish a lock definition")
-	op void unpublishLockDefinition (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The lock query specification") CollaborationLockQuerySpec specification
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationLockQueryNotFound;
-
-	@doc(d="Locks the pattern with the given bindings")
-	op void lock (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The lock specification with pattern and its bindings") CollaborationQueryInvocationSpecification specification
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationResourceLocked;
-
-	@doc(d="Unlocks the pattern with the given bindings")
-	op void unlock (
-		@doc(d="The credentials of the user in the underlying VCS") Credentials credentials,
-		@doc(d="The lock specification with pattern and its bindings") CollaborationQueryInvocationSpecification specification
-	) throws VCSAuthenticationFailed, VCSAuthorizationFailed, InvalidCollaborationLockQuerySpec, CollaborationLockQueryNotFound;
+  @doc(d="Lists the access control rules for the specified version control system.")
+  op CollaborationRule[*] listRules(
+    @doc(d="URL of the version control system") String repoURL);
 }
 
-@doc(d="Specification of a lock on a set of model elements, without bindings")
-class CollaborationLockQuerySpec {
-    @doc(d="Fully qualified name of the pre-existing query.")
-	attr String patternFQN;
+@doc(d="Specification of an access control rule for models")
+class CollaborationRule {
+	@doc(d="Unique identifier of the rule within the VCS") attr String name;
+	@doc(d="Specification of the access rule in the MONDO Collaboration Policy Language from D4.2") attr String body;
 }
 
-@doc(d="Specification of a lock on a set of model elements, with bindings")
-class CollaborationQueryInvocationSpecification {
-    @doc(d="Fully qualified name of the pre-existing query.")
-	attr String patternFQN;
-	@doc(d="Name/value bindings to be provided to the query.")
-	val CollaborationQueryBinding[*] bindings;
-}
-
-@doc(d="Name/value binding used within a lock pattern")
-class CollaborationQueryBinding {
-    @doc(d="Name of the query parameter being bound")
-	attr String name;
-	@doc(d="Value to be bound to the query parameter")
-	attr String value;
-	// AG: István says that the type is not necessary, as that will come from the query definition itself
-}
-
-@doc(d="Base entity for resource references in the collaboration API")
-abstract class CollaborationResourceReference {
-	@doc(d="The URI of the repository containing the resource") attr String repositoryUri;
-}
-
-@doc(d="Reference to a resource in a Git repository")
-class CollaborationGitResourceReference extends CollaborationResourceReference {
-	@doc(d="The name of the Git branch to which new commits should be pushed.") attr String branch;
-	@doc(d="The SHA1 identifier of the commit with the resource.") attr String commit;
-}
-
-@doc(d="Reference to a resource in a SVN repository")
-class CollaborationSvnResourceReference extends CollaborationResourceReference {
-	@doc(d="The revision number containing the resource.") attr String revision;
-	@doc(d="The path to the resource within the SVN repository.") attr String filePath;
-}
-
-@doc(d="Contents of a resource in the collaboration API")
-class CollaborationResource {
-    @doc(d="File with the contents of the resource")
-	ref File file;
+@doc(d="No collaboration rule with that name was found for the specified repository")
+class CollaborationRuleNotFound {
+	
 }
 
 @doc(d="Credentials of the client in the target VCS")
@@ -523,14 +475,6 @@ class Credentials {
 	@doc(d="Password for logging into the VCS")
 	attr String password;
 }
-
-@doc(d="
-Operational trace that encodes the operations carried out by the user locally over the models.
-")
-class OperationModel {
-	// AG: István says it should be left blank for now
-}
-
 
 @doc(d="
 The following service operations expose the capabilities of the cloud-enabled
@@ -801,28 +745,6 @@ class UserNotFound {}
 
 @doc(d="The client failed to prove its identity in the VCS.")
 class VCSAuthenticationFailed {}
-
-@doc(d="The client does not have the required permissions in the VCS to perform the operation.")
-class VCSAuthorizationFailed {}
-
-@doc(d="The resource does not exist in the VCS.")
-class CollaborationResourceNotFound {
-	@doc(d="Reference to the missing resource.") val CollaborationResourceReference resourceReference;
-}
-
-@doc(d="The resource is currently locked for collaboration.")
-class CollaborationResourceLocked {
-	@doc(d="Reference to the locked resource.") val CollaborationResourceReference resourceReference;
-}
-
-@doc(d="The operation requires a merge before it can be retried.")
-class MergeRequired {}
-
-@doc(d="The lock query specification is not valid.")
-class InvalidCollaborationLockQuerySpec {}
-
-@doc(d="No matching lock exists.")
-class CollaborationLockQueryNotFound {}
 
 @doc(d="The transformation is not valid: it is unparsable or inconsistent.")
 class InvalidTransformation {

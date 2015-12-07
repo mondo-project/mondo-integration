@@ -9,9 +9,9 @@ enum CommitItemChangeType {
 }
 
 enum HawkState {
-		/*  */ RUNNING 
-		/*  */ STOPPED 
-		/*  */ UPDATING 
+		/* The instance is running and monitoring the indexed locations. */ RUNNING 
+		/* The instance is stopped and is not monitoring any indexed locations. */ STOPPED 
+		/* The instance is updating its contents from the indexed locations. */ UPDATING 
 }
 
 enum SubscriptionDurability {
@@ -29,32 +29,12 @@ enum TransformationState {
 }
 
 
-struct CollaborationGitResourceReference {
-	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
-	 /* The name of the Git branch to which new commits should be pushed. */ 2: required string branch,
-	 /* The SHA1 identifier of the commit with the resource. */ 3: required string commit,
+struct CollaborationRule {
+	 /* Unique identifier of the rule within the VCS. */ 1: required string name,
+	 /* Specification of the access rule in the MONDO Collaboration Policy Language from D4.2. */ 2: required string body,
 }
 
-exception CollaborationLockQueryNotFound {
-}
-
-struct CollaborationLockQuerySpec {
-	 /* Fully qualified name of the pre-existing query. */ 1: required string patternFQN,
-}
-
-struct CollaborationQueryBinding {
-	 /* Name of the query parameter being bound. */ 1: required string name,
-	 /* Value to be bound to the query parameter. */ 2: required string value,
-}
-
-struct CollaborationResourceReference {
-	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
-}
-
-struct CollaborationSvnResourceReference {
-	 /* The URI of the repository containing the resource. */ 1: required string repositoryUri,
-	 /* The revision number containing the resource. */ 2: required string revision,
-	 /* The path to the resource within the SVN repository. */ 3: required string filePath,
+exception CollaborationRuleNotFound {
 }
 
 struct CommitItem {
@@ -132,9 +112,6 @@ struct IndexedAttributeSpec {
 	 /* The name of the indexed attribute. */ 3: required string attributeName,
 }
 
-exception InvalidCollaborationLockQuerySpec {
-}
-
 exception InvalidDerivedAttributeSpec {
 	 /* Reason for the spec not being valid. */ 1: required string reason,
 }
@@ -160,9 +137,6 @@ exception InvalidTransformation {
 	 /* Location of the problem, if applicable. Usually a combination of line and column numbers. */ 2: required string location,
 }
 
-exception MergeRequired {
-}
-
 union MixedReference {
 	 /* Identifier-based reference to a model element. */ 1: optional string id,
 	 /* Position-based reference to a model element. */ 2: optional i32 position,
@@ -171,9 +145,6 @@ union MixedReference {
 struct ModelSpec {
 	 /* The URI from which the model will be loaded or to which it will be persisted. */ 1: required string uri,
 	 /* The URIs of the metamodels to which elements of the model conform. */ 2: required list<string> metamodelUris,
-}
-
-struct OperationModel {
 }
 
 struct Repository {
@@ -247,9 +218,6 @@ struct UserProfile {
 exception VCSAuthenticationFailed {
 }
 
-exception VCSAuthorizationFailed {
-}
-
 union Value {
 	 /* Boolean (true/false) value. */ 1: optional bool vBoolean,
 	 /* 8-bit signed integer value. */ 2: optional byte vByte,
@@ -263,23 +231,6 @@ union Value {
 struct AttributeSlot {
 	 /* The name of the model element property the value of which is stored in this slot. */ 1: required string name,
 	 /* Value of the slot (if set). */ 2: optional SlotValue value,
-}
-
-struct CollaborationQueryInvocationSpecification {
-	 /* Fully qualified name of the pre-existing query. */ 1: required string patternFQN,
-	 /* Name/value bindings to be provided to the query. */ 2: required list<CollaborationQueryBinding> bindings,
-}
-
-struct CollaborationResource {
-	 /* File with the contents of the resource. */ 1: required File file,
-}
-
-exception CollaborationResourceLocked {
-	 /* Reference to the locked resource. */ 1: required CollaborationResourceReference resourceReference,
-}
-
-exception CollaborationResourceNotFound {
-	 /* Reference to the missing resource. */ 1: required CollaborationResourceReference resourceReference,
 }
 
 struct HawkAttributeRemovalEvent {
@@ -725,91 +676,45 @@ service Hawk {
 	
 }
 
-/* The following service operations expose the capabilities of the offline collaboration framework
-   developed in Work Package 4. The framework is discussed in detail in D4.3. */
+/* The offline collaboration tool is realized in the MONDO platform through the
+   MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an
+   off-the-shelf version control server with ``hooks'' that enforce access control and
+   maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.
+   This allows users to continue using their preferred tools for interacting with the version
+   control systems in their day-to-day modelling activities.
+   
+   Nevertheless, managing the rules to be used by the hooks requires its own API, as this is
+   not covered by traditional VCS protocols. The rest of the section describes a work-in-progress
+   API for managing these access rules: the final version will be provided in D6.8, due in M30. */
 service OfflineCollaboration {
-  /* Performs the checkout operation. Auth needed: Yes */
-  list<CollaborationResource> checkout(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The references to the required resources. */ 2: required list<CollaborationResourceReference> resources,
+  /* Adds an access control rule to the specified version control system. Auth needed: Yes */
+  void addRule(
+	/* URL of the version control system. */ 1: required string repoURL,
+	/* Specification of the access control rule. */ 2: required CollaborationRule rule,
+  )
+	
+  /* Removes an access control rule from the specified version control system. Auth needed: Yes */
+  void removeRule(
+	/* URL of the version control system. */ 1: required string repoURL,
+	/* Specification of the access control rule. */ 2: required string ruleName,
   )
   throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: CollaborationResourceNotFound err3 /* The resource does not exist in the VCS. */ 
+	1: CollaborationRuleNotFound err1 /* No collaboration rule with that name was found for the specified repository. */ 
 	) 
 	
-  /* Performs the commit operation. Auth needed: Yes */
-  void commit(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The references to the required resources. */ 2: required list<CollaborationResourceReference> resources,
+  /* Updates an access control rule for the specified version control system. Auth needed: Yes */
+  void updateRule(
+	/* URL of the version control system. */ 1: required string repoURL,
+	/* Specification of the access control rule. */ 2: required CollaborationRule rule,
   )
   throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: CollaborationResourceNotFound err3 /* The resource does not exist in the VCS. */ 
-	4: CollaborationResourceLocked err4 /* The resource is currently locked for collaboration. */ 
+	1: CollaborationRuleNotFound err1 /* No collaboration rule with that name was found for the specified repository. */ 
 	) 
 	
-  /* Performs the pull operation. Auth needed: Yes */
-  list<CollaborationResource> pull(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The references to the required resources. */ 2: required list<CollaborationResourceReference> resources,
-	/* The operations executed on the client. */ 3: required OperationModel operationModel,
+  /* Lists the access control rules for the specified version control system. Auth needed: Yes */
+  list<CollaborationRule> listRules(
+	/* URL of the version control system. */ 1: required string repoURL,
   )
-  throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: CollaborationResourceNotFound err3 /* The resource does not exist in the VCS. */ 
-	4: MergeRequired err4 /* The operation requires a merge before it can be retried. */ 
-	) 
-	
-  /* Publishes a lock definition. Auth needed: Yes */
-  void publishLockDefinition(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The lock query specification. */ 2: required CollaborationLockQuerySpec specification,
-  )
-  throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: InvalidCollaborationLockQuerySpec err3 /* The lock query specification is not valid. */ 
-	) 
-	
-  /* Unpublish a lock definition. Auth needed: Yes */
-  void unpublishLockDefinition(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The lock query specification. */ 2: required CollaborationLockQuerySpec specification,
-  )
-  throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: InvalidCollaborationLockQuerySpec err3 /* The lock query specification is not valid. */ 
-	4: CollaborationLockQueryNotFound err4 /* No matching lock exists. */ 
-	) 
-	
-  /* Locks the pattern with the given bindings. Auth needed: Yes */
-  void lock(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The lock specification with pattern and its bindings. */ 2: required CollaborationQueryInvocationSpecification specification,
-  )
-  throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: InvalidCollaborationLockQuerySpec err3 /* The lock query specification is not valid. */ 
-	4: CollaborationResourceLocked err4 /* The resource is currently locked for collaboration. */ 
-	) 
-	
-  /* Unlocks the pattern with the given bindings. Auth needed: Yes */
-  void unlock(
-	/* The credentials of the user in the underlying VCS. */ 1: required Credentials credentials,
-	/* The lock specification with pattern and its bindings. */ 2: required CollaborationQueryInvocationSpecification specification,
-  )
-  throws (
-	1: VCSAuthenticationFailed err1 /* The client failed to prove its identity in the VCS. */ 
-	2: VCSAuthorizationFailed err2 /* The client does not have the required permissions in the VCS to perform the operation. */ 
-	3: InvalidCollaborationLockQuerySpec err3 /* The lock query specification is not valid. */ 
-	4: CollaborationLockQueryNotFound err4 /* No matching lock exists. */ 
-	) 
 	
 }
 

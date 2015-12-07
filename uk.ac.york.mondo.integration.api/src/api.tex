@@ -16,14 +16,20 @@
 \label{sec:services}
 
 
-The present section lists the services offered by the current version of the
-MONDO platform. For each service, the available operations are presented, along
-with the parameters they take, their return type and the exceptions they may
-throw if they fail.
+The present section lists the services offered by the current version
+of the MONDO platform. For each service, the available operations are
+presented, along with the parameters they take, their return type and
+the exceptions they can throw. Readers familiar with Thrift may notice
+that some types inherit from others, which is not supported by Thrift
+itself: this is implemented through the
+Ecore2Thrift~\cite{ecore2thrift} model-to-text transformation
+developed in WP6, which takes into account inherited fields when
+transforming an \class{EClass} into a Thrift data type.
 
-In addition to their explicitly listed exceptions, operations requiring authentication
-may throw an AuthenticationFailed exception if the user fails to provide valid credentials
-or does not have the required permissions. In its current version, the MONDO platform
+In addition to their explicitly listed exceptions, operations
+requiring authentication may produce replies with HTTP 4xx status
+codes if the user fails to provide valid credentials or does not have
+the required permissions. In its current version, the MONDO platform
 assumes that authenticated users will have the necessary permissions.
 
 \subsubsection{CloudATL}
@@ -466,112 +472,59 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 
 \subsubsection{OfflineCollaboration}
 \label{sec:OfflineCollaboration}
-The following service operations expose the capabilities of the offline collaboration framework
-developed in Work Package 4. The framework is discussed in detail in D4.3.
+The offline collaboration tool is realized in the MONDO platform through the
+MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an
+off-the-shelf version control server with ``hooks'' that enforce access control and
+maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.
+This allows users to continue using their preferred tools for interacting with the version
+control systems in their day-to-day modelling activities.
+
+Nevertheless, managing the rules to be used by the hooks requires its own API, as this is
+not covered by traditional VCS protocols. The rest of the section describes a work-in-progress
+API for managing these access rules: the final version will be provided in D6.8, due in M30.
 
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.checkout}
-	\label{tab:offlineCollaboration-checkout}\\
+	\caption{Operation OfflineCollaboration.addRule}
+	\label{tab:offlineCollaboration-addRule}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{checkout} & \camelcase{list<CollaborationResource>} & Performs the checkout operation. \\\hline
+	\textbf{Operation} & \camelcase{addRule} & \camelcase{void} & Adds an access control rule to the specified version control system. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & resources & \camelcase{list<CollaborationResourceReference>} & The references to the required resources. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
+	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
+	 & rule & \camelcase{CollaborationRule} & Specification of the access control rule. \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.commit}
-	\label{tab:offlineCollaboration-commit}\\
+	\caption{Operation OfflineCollaboration.removeRule}
+	\label{tab:offlineCollaboration-removeRule}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{commit} & \camelcase{void} & Performs the commit operation. \\\hline
+	\textbf{Operation} & \camelcase{removeRule} & \camelcase{void} & Removes an access control rule from the specified version control system. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & resources & \camelcase{list<CollaborationResourceReference>} & The references to the required resources. \\\hline 
+	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
+	 & ruleName & \camelcase{string} & Specification of the access control rule. \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
-	 & \camelcase{CollaborationResourceLocked} & \multicolumn{2}{p{8.5cm}|}{The resource is currently locked for collaboration.} \\\hline 
+	 & \camelcase{CollaborationRuleNotFound} & \multicolumn{2}{p{8.5cm}|}{No collaboration rule with that name was found for the specified repository.} \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.pull}
-	\label{tab:offlineCollaboration-pull}\\
+	\caption{Operation OfflineCollaboration.updateRule}
+	\label{tab:offlineCollaboration-updateRule}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{pull} & \camelcase{list<CollaborationResource>} & Performs the pull operation. \\\hline
+	\textbf{Operation} & \camelcase{updateRule} & \camelcase{void} & Updates an access control rule for the specified version control system. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & resources & \camelcase{list<CollaborationResourceReference>} & The references to the required resources. \\\hline 
-	 & operationModel & \camelcase{OperationModel} & The operations executed on the client. \\\hline 
+	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
+	 & rule & \camelcase{CollaborationRule} & Specification of the access control rule. \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{CollaborationResourceNotFound} & \multicolumn{2}{p{8.5cm}|}{The resource does not exist in the VCS.} \\\hline 
-	 & \camelcase{MergeRequired} & \multicolumn{2}{p{8.5cm}|}{The operation requires a merge before it can be retried.} \\\hline 
+	 & \camelcase{CollaborationRuleNotFound} & \multicolumn{2}{p{8.5cm}|}{No collaboration rule with that name was found for the specified repository.} \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.publishLockDefinition}
-	\label{tab:offlineCollaboration-publishLockDefinition}\\
+	\caption{Operation OfflineCollaboration.listRules}
+	\label{tab:offlineCollaboration-listRules}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{publishLockDefinition} & \camelcase{void} & Publishes a lock definition. \\\hline
+	\textbf{Operation} & \camelcase{listRules} & \camelcase{list<CollaborationRule>} & Lists the access control rules for the specified version control system. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & specification & \camelcase{CollaborationLockQuerySpec} & The lock query specification. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.unpublishLockDefinition}
-	\label{tab:offlineCollaboration-unpublishLockDefinition}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{unpublishLockDefinition} & \camelcase{void} & Unpublish a lock definition. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & specification & \camelcase{CollaborationLockQuerySpec} & The lock query specification. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
-	 & \camelcase{CollaborationLockQueryNotFound} & \multicolumn{2}{p{8.5cm}|}{No matching lock exists.} \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.lock}
-	\label{tab:offlineCollaboration-lock}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{lock} & \camelcase{void} & Locks the pattern with the given bindings. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & specification & \camelcase{CollaborationQueryInvocationSpecification} & The lock specification with pattern and its bindings. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
-	 & \camelcase{CollaborationResourceLocked} & \multicolumn{2}{p{8.5cm}|}{The resource is currently locked for collaboration.} \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.unlock}
-	\label{tab:offlineCollaboration-unlock}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{unlock} & \camelcase{void} & Unlocks the pattern with the given bindings. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & credentials & \camelcase{Credentials} & The credentials of the user in the underlying VCS. \\\hline 
-	 & specification & \camelcase{CollaborationQueryInvocationSpecification} & The lock specification with pattern and its bindings. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
-	 & \camelcase{VCSAuthorizationFailed} & \multicolumn{2}{p{8.5cm}|}{The client does not have the required permissions in the VCS to perform the operation.} \\\hline 
-	 & \camelcase{InvalidCollaborationLockQuerySpec} & \multicolumn{2}{p{8.5cm}|}{The lock query specification is not valid.} \\\hline 
-	 & \camelcase{CollaborationLockQueryNotFound} & \multicolumn{2}{p{8.5cm}|}{No matching lock exists.} \\\hline 
+	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
 \end{longtable}
 
 \subsubsection{Users}
@@ -650,107 +603,18 @@ Represents a slot that can store the value(s) of an attribute of a model element
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElement} \\\hline
 \end{longtable}
 
-\subsubsection{CollaborationGitResourceReference}
+\subsubsection{CollaborationRule}
 
-Reference to a resource in a Git repository.
-
-\emph{Inherits from}: CollaborationResourceReference.
+Specification of an access control rule for models.
 
 \begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationGitResourceReference}
-	\label{tab:collaborationGitResourceReference}\\
+	\caption{Structure CollaborationRule}
+	\label{tab:collaborationRule}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{branch}  & \camelcase{string}  & The name of the Git branch to which new commits should be pushed. \\\hline
-		  \camelcase{commit}  & \camelcase{string}  & The SHA1 identifier of the commit with the resource. \\\hline
-		  \camelcase{repositoryUri}  (\nohyphens{inherited}) & \camelcase{string}  & The URI of the repository containing the resource. \\\hline
-   
-\end{longtable}
-
-\subsubsection{CollaborationLockQuerySpec}
-
-Specification of a lock on a set of model elements, without bindings.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationLockQuerySpec}
-	\label{tab:collaborationLockQuerySpec}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{patternFQN}  & \camelcase{string}  & Fully qualified name of the pre-existing query. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition} \\\hline
-\end{longtable}
-
-\subsubsection{CollaborationQueryBinding}
-
-Name/value binding used within a lock pattern.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationQueryBinding}
-	\label{tab:collaborationQueryBinding}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{name}  & \camelcase{string}  & Name of the query parameter being bound. \\\hline
-		  \camelcase{value}  & \camelcase{string}  & Value to be bound to the query parameter. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CollaborationQueryInvocationSpecification} \\\hline
-\end{longtable}
-
-\subsubsection{CollaborationQueryInvocationSpecification}
-
-Specification of a lock on a set of model elements, with bindings.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationQueryInvocationSpecification}
-	\label{tab:collaborationQueryInvocationSpecification}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{bindings}  & \camelcase{list<CollaborationQueryBinding>}  & Name/value bindings to be provided to the query. \\\hline
-		  \camelcase{patternFQN}  & \camelcase{string}  & Fully qualified name of the pre-existing query. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
-\end{longtable}
-
-\subsubsection{CollaborationResource}
-
-Contents of a resource in the collaboration API.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationResource}
-	\label{tab:collaborationResource}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{file}  & \camelcase{File}  & File with the contents of the resource. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.pull} \\\hline
-\end{longtable}
-
-\subsubsection{CollaborationResourceReference}
-
-Base entity for resource references in the collaboration API.
-
-\emph{Inherited by}: CollaborationGitResourceReference, CollaborationSvnResourceReference.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationResourceReference}
-	\label{tab:collaborationResourceReference}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{repositoryUri}  & \camelcase{string}  & The URI of the repository containing the resource. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, CollaborationResourceNotFound, CollaborationResourceLocked} \\\hline
-\end{longtable}
-
-\subsubsection{CollaborationSvnResourceReference}
-
-Reference to a resource in a SVN repository.
-
-\emph{Inherits from}: CollaborationResourceReference.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationSvnResourceReference}
-	\label{tab:collaborationSvnResourceReference}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{filePath}  & \camelcase{string}  & The path to the resource within the SVN repository. \\\hline
-		  \camelcase{repositoryUri}  (\nohyphens{inherited}) & \camelcase{string}  & The URI of the repository containing the resource. \\\hline
-		  \camelcase{revision}  & \camelcase{string}  & The revision number containing the resource. \\\hline
-   
+		  \camelcase{body}  & \camelcase{string}  & Specification of the access rule in the MONDO Collaboration Policy Language from D4.2. \\\hline
+		  \camelcase{name}  & \camelcase{string}  & Unique identifier of the rule within the VCS. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.addRule, OfflineCollaboration.updateRule, OfflineCollaboration.listRules} \\\hline
 \end{longtable}
 
 \subsubsection{CommitItem}
@@ -796,7 +660,7 @@ Credentials of the client in the target VCS.
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{password}  & \camelcase{string}  & Password for logging into the VCS. \\\hline
 		  \camelcase{username}  & \camelcase{string}  & Username for logging into the VCS. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, Hawk.updateRepositoryCredentials, OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, Hawk.updateRepositoryCredentials} \\\hline
 \end{longtable}
 
 \subsubsection{DerivedAttributeSpec}
@@ -831,7 +695,7 @@ A file to be sent through the network.
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{contents}  & \camelcase{binary}  & Sequence of bytes with the contents of the file. \\\hline
 		  \camelcase{name}  & \camelcase{string}  & Name of the file. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.registerMetamodels, CollaborationResource} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.registerMetamodels} \\\hline
 \end{longtable}
 
 \subsubsection{HawkAttributeRemovalEvent}
@@ -1133,19 +997,6 @@ Captures information about source/target models of ATL transformations.
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch, InvalidModelSpec} \\\hline
 \end{longtable}
 
-\subsubsection{OperationModel}
-
-Operational trace that encodes the operations carried out by the user locally over the models.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure OperationModel}
-	\label{tab:operationModel}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.pull} \\\hline
-\end{longtable}
-
 \subsubsection{QueryResult}
 
 Union type for a scalar value or a reference to a model element. Useful for heterogeneous collections.
@@ -1358,9 +1209,9 @@ Union type for a single scalar value.
 	\label{tab:hawkState}\\
 	\hline%
 	\textbf{Name} & \textbf{Documentation} \\\hline 
-		RUNNING &  \\\hline 
-		STOPPED &  \\\hline 
-		UPDATING &  \\\hline 
+		RUNNING & The instance is running and monitoring the indexed locations. \\\hline 
+		STOPPED & The instance is stopped and is not monitoring any indexed locations. \\\hline 
+		UPDATING & The instance is updating its contents from the indexed locations. \\\hline 
 	\multicolumn{2}{|p{.95\linewidth}|}{\textbf{Used in:} HawkStateEvent, HawkInstance} \\\hline
 \end{longtable}
 
@@ -1394,38 +1245,16 @@ Union type for a single scalar value.
 
 \subsection{Exceptions}
 \label{sec:exceptions}
-\subsubsection{CollaborationLockQueryNotFound}
-No matching lock exists.
+\subsubsection{CollaborationRuleNotFound}
+No collaboration rule with that name was found for the specified repository.
 
 \begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception CollaborationLockQueryNotFound}
-	\label{tab:collaborationLockQueryNotFound}\\
+	\caption{Exception CollaborationRuleNotFound}
+	\label{tab:collaborationRuleNotFound}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.unlock} \\\hline
-\end{longtable}
-\subsubsection{CollaborationResourceLocked}
-The resource is currently locked for collaboration.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception CollaborationResourceLocked}
-	\label{tab:collaborationResourceLocked}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{resourceReference}  & \camelcase{CollaborationResourceReference}  & Reference to the locked resource. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.commit, OfflineCollaboration.lock} \\\hline
-\end{longtable}
-\subsubsection{CollaborationResourceNotFound}
-The resource does not exist in the VCS.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception CollaborationResourceNotFound}
-	\label{tab:collaborationResourceNotFound}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{resourceReference}  & \camelcase{CollaborationResourceReference}  & Reference to the missing resource. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.removeRule, OfflineCollaboration.updateRule} \\\hline
 \end{longtable}
 \subsubsection{FailedQuery}
 The specified query failed to complete its execution.
@@ -1459,17 +1288,6 @@ The selected Hawk instance is not running.
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
-\end{longtable}
-\subsubsection{InvalidCollaborationLockQuerySpec}
-The lock query specification is not valid.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception InvalidCollaborationLockQuerySpec}
-	\label{tab:invalidCollaborationLockQuerySpec}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
 \end{longtable}
 \subsubsection{InvalidDerivedAttributeSpec}
 The derived attribute specification is not valid.
@@ -1550,17 +1368,6 @@ The transformation is not valid: it is unparsable or inconsistent.
 		  \camelcase{reason}  & \camelcase{string}  & Reason for the transformation not being valid. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch} \\\hline
 \end{longtable}
-\subsubsection{MergeRequired}
-The operation requires a merge before it can be retried.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception MergeRequired}
-	\label{tab:mergeRequired}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.pull} \\\hline
-\end{longtable}
 \subsubsection{TransformationTokenNotFound}
 The specified transformation token does not exist within the invokved MONDO instance.
 
@@ -1625,16 +1432,5 @@ The client failed to prove its identity in the VCS.
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
-\end{longtable}
-\subsubsection{VCSAuthorizationFailed}
-The client does not have the required permissions in the VCS to perform the operation.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception VCSAuthorizationFailed}
-	\label{tab:vCSAuthorizationFailed}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.checkout, OfflineCollaboration.commit, OfflineCollaboration.pull, OfflineCollaboration.publishLockDefinition, OfflineCollaboration.unpublishLockDefinition, OfflineCollaboration.lock, OfflineCollaboration.unlock} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository} \\\hline
 \end{longtable}

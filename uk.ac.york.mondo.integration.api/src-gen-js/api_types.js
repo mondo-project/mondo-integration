@@ -29,196 +29,24 @@ TransformationState = {
   'RUNNING' : 3,
   'SUCCEEDED' : 4
 };
-CollaborationGitResourceReference = function(args) {
-  this.repositoryUri = null;
-  this.branch = null;
-  this.commit = null;
-  if (args) {
-    if (args.repositoryUri !== undefined && args.repositoryUri !== null) {
-      this.repositoryUri = args.repositoryUri;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repositoryUri is unset!');
-    }
-    if (args.branch !== undefined && args.branch !== null) {
-      this.branch = args.branch;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field branch is unset!');
-    }
-    if (args.commit !== undefined && args.commit !== null) {
-      this.commit = args.commit;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field commit is unset!');
-    }
-  }
-};
-CollaborationGitResourceReference.prototype = {};
-CollaborationGitResourceReference.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repositoryUri = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.branch = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.commit = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationGitResourceReference.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationGitResourceReference');
-  if (this.repositoryUri !== null && this.repositoryUri !== undefined) {
-    output.writeFieldBegin('repositoryUri', Thrift.Type.STRING, 1);
-    output.writeString(this.repositoryUri);
-    output.writeFieldEnd();
-  }
-  if (this.branch !== null && this.branch !== undefined) {
-    output.writeFieldBegin('branch', Thrift.Type.STRING, 2);
-    output.writeString(this.branch);
-    output.writeFieldEnd();
-  }
-  if (this.commit !== null && this.commit !== undefined) {
-    output.writeFieldBegin('commit', Thrift.Type.STRING, 3);
-    output.writeString(this.commit);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationLockQueryNotFound = function(args) {
-};
-Thrift.inherits(CollaborationLockQueryNotFound, Thrift.TException);
-CollaborationLockQueryNotFound.prototype.name = 'CollaborationLockQueryNotFound';
-CollaborationLockQueryNotFound.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationLockQueryNotFound.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationLockQueryNotFound');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationLockQuerySpec = function(args) {
-  this.patternFQN = null;
-  if (args) {
-    if (args.patternFQN !== undefined && args.patternFQN !== null) {
-      this.patternFQN = args.patternFQN;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field patternFQN is unset!');
-    }
-  }
-};
-CollaborationLockQuerySpec.prototype = {};
-CollaborationLockQuerySpec.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.patternFQN = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationLockQuerySpec.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationLockQuerySpec');
-  if (this.patternFQN !== null && this.patternFQN !== undefined) {
-    output.writeFieldBegin('patternFQN', Thrift.Type.STRING, 1);
-    output.writeString(this.patternFQN);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationQueryBinding = function(args) {
+CollaborationRule = function(args) {
   this.name = null;
-  this.value = null;
+  this.body = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
     }
-    if (args.value !== undefined && args.value !== null) {
-      this.value = args.value;
+    if (args.body !== undefined && args.body !== null) {
+      this.body = args.body;
     } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field value is unset!');
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field body is unset!');
     }
   }
 };
-CollaborationQueryBinding.prototype = {};
-CollaborationQueryBinding.prototype.read = function(input) {
+CollaborationRule.prototype = {};
+CollaborationRule.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -240,7 +68,7 @@ CollaborationQueryBinding.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.value = input.readString().value;
+        this.body = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -254,16 +82,16 @@ CollaborationQueryBinding.prototype.read = function(input) {
   return;
 };
 
-CollaborationQueryBinding.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationQueryBinding');
+CollaborationRule.prototype.write = function(output) {
+  output.writeStructBegin('CollaborationRule');
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 1);
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.value !== null && this.value !== undefined) {
-    output.writeFieldBegin('value', Thrift.Type.STRING, 2);
-    output.writeString(this.value);
+  if (this.body !== null && this.body !== undefined) {
+    output.writeFieldBegin('body', Thrift.Type.STRING, 2);
+    output.writeString(this.body);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -271,18 +99,11 @@ CollaborationQueryBinding.prototype.write = function(output) {
   return;
 };
 
-CollaborationResourceReference = function(args) {
-  this.repositoryUri = null;
-  if (args) {
-    if (args.repositoryUri !== undefined && args.repositoryUri !== null) {
-      this.repositoryUri = args.repositoryUri;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repositoryUri is unset!');
-    }
-  }
+CollaborationRuleNotFound = function(args) {
 };
-CollaborationResourceReference.prototype = {};
-CollaborationResourceReference.prototype.read = function(input) {
+Thrift.inherits(CollaborationRuleNotFound, Thrift.TException);
+CollaborationRuleNotFound.prototype.name = 'CollaborationRuleNotFound';
+CollaborationRuleNotFound.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -293,122 +114,15 @@ CollaborationResourceReference.prototype.read = function(input) {
     if (ftype == Thrift.Type.STOP) {
       break;
     }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repositoryUri = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
+    input.skip(ftype);
     input.readFieldEnd();
   }
   input.readStructEnd();
   return;
 };
 
-CollaborationResourceReference.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationResourceReference');
-  if (this.repositoryUri !== null && this.repositoryUri !== undefined) {
-    output.writeFieldBegin('repositoryUri', Thrift.Type.STRING, 1);
-    output.writeString(this.repositoryUri);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationSvnResourceReference = function(args) {
-  this.repositoryUri = null;
-  this.revision = null;
-  this.filePath = null;
-  if (args) {
-    if (args.repositoryUri !== undefined && args.repositoryUri !== null) {
-      this.repositoryUri = args.repositoryUri;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repositoryUri is unset!');
-    }
-    if (args.revision !== undefined && args.revision !== null) {
-      this.revision = args.revision;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field revision is unset!');
-    }
-    if (args.filePath !== undefined && args.filePath !== null) {
-      this.filePath = args.filePath;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field filePath is unset!');
-    }
-  }
-};
-CollaborationSvnResourceReference.prototype = {};
-CollaborationSvnResourceReference.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repositoryUri = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.revision = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.filePath = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationSvnResourceReference.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationSvnResourceReference');
-  if (this.repositoryUri !== null && this.repositoryUri !== undefined) {
-    output.writeFieldBegin('repositoryUri', Thrift.Type.STRING, 1);
-    output.writeString(this.repositoryUri);
-    output.writeFieldEnd();
-  }
-  if (this.revision !== null && this.revision !== undefined) {
-    output.writeFieldBegin('revision', Thrift.Type.STRING, 2);
-    output.writeString(this.revision);
-    output.writeFieldEnd();
-  }
-  if (this.filePath !== null && this.filePath !== undefined) {
-    output.writeFieldBegin('filePath', Thrift.Type.STRING, 3);
-    output.writeString(this.filePath);
-    output.writeFieldEnd();
-  }
+CollaborationRuleNotFound.prototype.write = function(output) {
+  output.writeStructBegin('CollaborationRuleNotFound');
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -1500,35 +1214,6 @@ IndexedAttributeSpec.prototype.write = function(output) {
   return;
 };
 
-InvalidCollaborationLockQuerySpec = function(args) {
-};
-Thrift.inherits(InvalidCollaborationLockQuerySpec, Thrift.TException);
-InvalidCollaborationLockQuerySpec.prototype.name = 'InvalidCollaborationLockQuerySpec';
-InvalidCollaborationLockQuerySpec.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-InvalidCollaborationLockQuerySpec.prototype.write = function(output) {
-  output.writeStructBegin('InvalidCollaborationLockQuerySpec');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 InvalidDerivedAttributeSpec = function(args) {
   this.reason = null;
   if (args) {
@@ -1880,35 +1565,6 @@ InvalidTransformation.prototype.write = function(output) {
   return;
 };
 
-MergeRequired = function(args) {
-};
-Thrift.inherits(MergeRequired, Thrift.TException);
-MergeRequired.prototype.name = 'MergeRequired';
-MergeRequired.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-MergeRequired.prototype.write = function(output) {
-  output.writeStructBegin('MergeRequired');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 MixedReference = function(args) {
   this.id = null;
   this.position = null;
@@ -2062,34 +1718,6 @@ ModelSpec.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OperationModel = function(args) {
-};
-OperationModel.prototype = {};
-OperationModel.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OperationModel.prototype.write = function(output) {
-  output.writeStructBegin('OperationModel');
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -3199,35 +2827,6 @@ VCSAuthenticationFailed.prototype.write = function(output) {
   return;
 };
 
-VCSAuthorizationFailed = function(args) {
-};
-Thrift.inherits(VCSAuthorizationFailed, Thrift.TException);
-VCSAuthorizationFailed.prototype.name = 'VCSAuthorizationFailed';
-VCSAuthorizationFailed.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-VCSAuthorizationFailed.prototype.write = function(output) {
-  output.writeStructBegin('VCSAuthorizationFailed');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 Value = function(args) {
   this.vBoolean = null;
   this.vByte = null;
@@ -3436,269 +3035,6 @@ AttributeSlot.prototype.write = function(output) {
   if (this.value !== null && this.value !== undefined) {
     output.writeFieldBegin('value', Thrift.Type.STRUCT, 2);
     this.value.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationQueryInvocationSpecification = function(args) {
-  this.patternFQN = null;
-  this.bindings = null;
-  if (args) {
-    if (args.patternFQN !== undefined && args.patternFQN !== null) {
-      this.patternFQN = args.patternFQN;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field patternFQN is unset!');
-    }
-    if (args.bindings !== undefined && args.bindings !== null) {
-      this.bindings = Thrift.copyList(args.bindings, [CollaborationQueryBinding]);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field bindings is unset!');
-    }
-  }
-};
-CollaborationQueryInvocationSpecification.prototype = {};
-CollaborationQueryInvocationSpecification.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.patternFQN = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.LIST) {
-        var _size64 = 0;
-        var _rtmp368;
-        this.bindings = [];
-        var _etype67 = 0;
-        _rtmp368 = input.readListBegin();
-        _etype67 = _rtmp368.etype;
-        _size64 = _rtmp368.size;
-        for (var _i69 = 0; _i69 < _size64; ++_i69)
-        {
-          var elem70 = null;
-          elem70 = new CollaborationQueryBinding();
-          elem70.read(input);
-          this.bindings.push(elem70);
-        }
-        input.readListEnd();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationQueryInvocationSpecification.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationQueryInvocationSpecification');
-  if (this.patternFQN !== null && this.patternFQN !== undefined) {
-    output.writeFieldBegin('patternFQN', Thrift.Type.STRING, 1);
-    output.writeString(this.patternFQN);
-    output.writeFieldEnd();
-  }
-  if (this.bindings !== null && this.bindings !== undefined) {
-    output.writeFieldBegin('bindings', Thrift.Type.LIST, 2);
-    output.writeListBegin(Thrift.Type.STRUCT, this.bindings.length);
-    for (var iter71 in this.bindings)
-    {
-      if (this.bindings.hasOwnProperty(iter71))
-      {
-        iter71 = this.bindings[iter71];
-        iter71.write(output);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationResource = function(args) {
-  this.file = null;
-  if (args) {
-    if (args.file !== undefined && args.file !== null) {
-      this.file = new File(args.file);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field file is unset!');
-    }
-  }
-};
-CollaborationResource.prototype = {};
-CollaborationResource.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.file = new File();
-        this.file.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationResource.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationResource');
-  if (this.file !== null && this.file !== undefined) {
-    output.writeFieldBegin('file', Thrift.Type.STRUCT, 1);
-    this.file.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationResourceLocked = function(args) {
-  this.resourceReference = null;
-  if (args) {
-    if (args.resourceReference !== undefined && args.resourceReference !== null) {
-      this.resourceReference = new CollaborationResourceReference(args.resourceReference);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field resourceReference is unset!');
-    }
-  }
-};
-Thrift.inherits(CollaborationResourceLocked, Thrift.TException);
-CollaborationResourceLocked.prototype.name = 'CollaborationResourceLocked';
-CollaborationResourceLocked.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.resourceReference = new CollaborationResourceReference();
-        this.resourceReference.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationResourceLocked.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationResourceLocked');
-  if (this.resourceReference !== null && this.resourceReference !== undefined) {
-    output.writeFieldBegin('resourceReference', Thrift.Type.STRUCT, 1);
-    this.resourceReference.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationResourceNotFound = function(args) {
-  this.resourceReference = null;
-  if (args) {
-    if (args.resourceReference !== undefined && args.resourceReference !== null) {
-      this.resourceReference = new CollaborationResourceReference(args.resourceReference);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field resourceReference is unset!');
-    }
-  }
-};
-Thrift.inherits(CollaborationResourceNotFound, Thrift.TException);
-CollaborationResourceNotFound.prototype.name = 'CollaborationResourceNotFound';
-CollaborationResourceNotFound.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.resourceReference = new CollaborationResourceReference();
-        this.resourceReference.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationResourceNotFound.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationResourceNotFound');
-  if (this.resourceReference !== null && this.resourceReference !== undefined) {
-    output.writeFieldBegin('resourceReference', Thrift.Type.STRUCT, 1);
-    this.resourceReference.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -4550,19 +3886,19 @@ ModelElementType.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.LIST) {
-        var _size72 = 0;
-        var _rtmp376;
+        var _size64 = 0;
+        var _rtmp368;
         this.attributes = [];
-        var _etype75 = 0;
-        _rtmp376 = input.readListBegin();
-        _etype75 = _rtmp376.etype;
-        _size72 = _rtmp376.size;
-        for (var _i77 = 0; _i77 < _size72; ++_i77)
+        var _etype67 = 0;
+        _rtmp368 = input.readListBegin();
+        _etype67 = _rtmp368.etype;
+        _size64 = _rtmp368.size;
+        for (var _i69 = 0; _i69 < _size64; ++_i69)
         {
-          var elem78 = null;
-          elem78 = new SlotMetadata();
-          elem78.read(input);
-          this.attributes.push(elem78);
+          var elem70 = null;
+          elem70 = new SlotMetadata();
+          elem70.read(input);
+          this.attributes.push(elem70);
         }
         input.readListEnd();
       } else {
@@ -4571,19 +3907,19 @@ ModelElementType.prototype.read = function(input) {
       break;
       case 5:
       if (ftype == Thrift.Type.LIST) {
-        var _size79 = 0;
-        var _rtmp383;
+        var _size71 = 0;
+        var _rtmp375;
         this.references = [];
-        var _etype82 = 0;
-        _rtmp383 = input.readListBegin();
-        _etype82 = _rtmp383.etype;
-        _size79 = _rtmp383.size;
-        for (var _i84 = 0; _i84 < _size79; ++_i84)
+        var _etype74 = 0;
+        _rtmp375 = input.readListBegin();
+        _etype74 = _rtmp375.etype;
+        _size71 = _rtmp375.size;
+        for (var _i76 = 0; _i76 < _size71; ++_i76)
         {
-          var elem85 = null;
-          elem85 = new SlotMetadata();
-          elem85.read(input);
-          this.references.push(elem85);
+          var elem77 = null;
+          elem77 = new SlotMetadata();
+          elem77.read(input);
+          this.references.push(elem77);
         }
         input.readListEnd();
       } else {
@@ -4619,12 +3955,12 @@ ModelElementType.prototype.write = function(output) {
   if (this.attributes !== null && this.attributes !== undefined) {
     output.writeFieldBegin('attributes', Thrift.Type.LIST, 4);
     output.writeListBegin(Thrift.Type.STRUCT, this.attributes.length);
-    for (var iter86 in this.attributes)
+    for (var iter78 in this.attributes)
     {
-      if (this.attributes.hasOwnProperty(iter86))
+      if (this.attributes.hasOwnProperty(iter78))
       {
-        iter86 = this.attributes[iter86];
-        iter86.write(output);
+        iter78 = this.attributes[iter78];
+        iter78.write(output);
       }
     }
     output.writeListEnd();
@@ -4633,12 +3969,12 @@ ModelElementType.prototype.write = function(output) {
   if (this.references !== null && this.references !== undefined) {
     output.writeFieldBegin('references', Thrift.Type.LIST, 5);
     output.writeListBegin(Thrift.Type.STRUCT, this.references.length);
-    for (var iter87 in this.references)
+    for (var iter79 in this.references)
     {
-      if (this.references.hasOwnProperty(iter87))
+      if (this.references.hasOwnProperty(iter79))
       {
-        iter87 = this.references[iter87];
-        iter87.write(output);
+        iter79 = this.references[iter79];
+        iter79.write(output);
       }
     }
     output.writeListEnd();
@@ -4709,18 +4045,18 @@ ReferenceSlot.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size88 = 0;
-        var _rtmp392;
+        var _size80 = 0;
+        var _rtmp384;
         this.positions = [];
-        var _etype91 = 0;
-        _rtmp392 = input.readListBegin();
-        _etype91 = _rtmp392.etype;
-        _size88 = _rtmp392.size;
-        for (var _i93 = 0; _i93 < _size88; ++_i93)
+        var _etype83 = 0;
+        _rtmp384 = input.readListBegin();
+        _etype83 = _rtmp384.etype;
+        _size80 = _rtmp384.size;
+        for (var _i85 = 0; _i85 < _size80; ++_i85)
         {
-          var elem94 = null;
-          elem94 = input.readI32().value;
-          this.positions.push(elem94);
+          var elem86 = null;
+          elem86 = input.readI32().value;
+          this.positions.push(elem86);
         }
         input.readListEnd();
       } else {
@@ -4736,18 +4072,18 @@ ReferenceSlot.prototype.read = function(input) {
       break;
       case 5:
       if (ftype == Thrift.Type.LIST) {
-        var _size95 = 0;
-        var _rtmp399;
+        var _size87 = 0;
+        var _rtmp391;
         this.ids = [];
-        var _etype98 = 0;
-        _rtmp399 = input.readListBegin();
-        _etype98 = _rtmp399.etype;
-        _size95 = _rtmp399.size;
-        for (var _i100 = 0; _i100 < _size95; ++_i100)
+        var _etype90 = 0;
+        _rtmp391 = input.readListBegin();
+        _etype90 = _rtmp391.etype;
+        _size87 = _rtmp391.size;
+        for (var _i92 = 0; _i92 < _size87; ++_i92)
         {
-          var elem101 = null;
-          elem101 = input.readString().value;
-          this.ids.push(elem101);
+          var elem93 = null;
+          elem93 = input.readString().value;
+          this.ids.push(elem93);
         }
         input.readListEnd();
       } else {
@@ -4756,19 +4092,19 @@ ReferenceSlot.prototype.read = function(input) {
       break;
       case 6:
       if (ftype == Thrift.Type.LIST) {
-        var _size102 = 0;
-        var _rtmp3106;
+        var _size94 = 0;
+        var _rtmp398;
         this.mixed = [];
-        var _etype105 = 0;
-        _rtmp3106 = input.readListBegin();
-        _etype105 = _rtmp3106.etype;
-        _size102 = _rtmp3106.size;
-        for (var _i107 = 0; _i107 < _size102; ++_i107)
+        var _etype97 = 0;
+        _rtmp398 = input.readListBegin();
+        _etype97 = _rtmp398.etype;
+        _size94 = _rtmp398.size;
+        for (var _i99 = 0; _i99 < _size94; ++_i99)
         {
-          var elem108 = null;
-          elem108 = new MixedReference();
-          elem108.read(input);
-          this.mixed.push(elem108);
+          var elem100 = null;
+          elem100 = new MixedReference();
+          elem100.read(input);
+          this.mixed.push(elem100);
         }
         input.readListEnd();
       } else {
@@ -4799,12 +4135,12 @@ ReferenceSlot.prototype.write = function(output) {
   if (this.positions !== null && this.positions !== undefined) {
     output.writeFieldBegin('positions', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.I32, this.positions.length);
-    for (var iter109 in this.positions)
+    for (var iter101 in this.positions)
     {
-      if (this.positions.hasOwnProperty(iter109))
+      if (this.positions.hasOwnProperty(iter101))
       {
-        iter109 = this.positions[iter109];
-        output.writeI32(iter109);
+        iter101 = this.positions[iter101];
+        output.writeI32(iter101);
       }
     }
     output.writeListEnd();
@@ -4818,12 +4154,12 @@ ReferenceSlot.prototype.write = function(output) {
   if (this.ids !== null && this.ids !== undefined) {
     output.writeFieldBegin('ids', Thrift.Type.LIST, 5);
     output.writeListBegin(Thrift.Type.STRING, this.ids.length);
-    for (var iter110 in this.ids)
+    for (var iter102 in this.ids)
     {
-      if (this.ids.hasOwnProperty(iter110))
+      if (this.ids.hasOwnProperty(iter102))
       {
-        iter110 = this.ids[iter110];
-        output.writeString(iter110);
+        iter102 = this.ids[iter102];
+        output.writeString(iter102);
       }
     }
     output.writeListEnd();
@@ -4832,12 +4168,12 @@ ReferenceSlot.prototype.write = function(output) {
   if (this.mixed !== null && this.mixed !== undefined) {
     output.writeFieldBegin('mixed', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRUCT, this.mixed.length);
-    for (var iter111 in this.mixed)
+    for (var iter103 in this.mixed)
     {
-      if (this.mixed.hasOwnProperty(iter111))
+      if (this.mixed.hasOwnProperty(iter103))
       {
-        iter111 = this.mixed[iter111];
-        iter111.write(output);
+        iter103 = this.mixed[iter103];
+        iter103.write(output);
       }
     }
     output.writeListEnd();
@@ -5139,19 +4475,19 @@ ModelElement.prototype.read = function(input) {
       break;
       case 6:
       if (ftype == Thrift.Type.LIST) {
-        var _size112 = 0;
-        var _rtmp3116;
+        var _size104 = 0;
+        var _rtmp3108;
         this.attributes = [];
-        var _etype115 = 0;
-        _rtmp3116 = input.readListBegin();
-        _etype115 = _rtmp3116.etype;
-        _size112 = _rtmp3116.size;
-        for (var _i117 = 0; _i117 < _size112; ++_i117)
+        var _etype107 = 0;
+        _rtmp3108 = input.readListBegin();
+        _etype107 = _rtmp3108.etype;
+        _size104 = _rtmp3108.size;
+        for (var _i109 = 0; _i109 < _size104; ++_i109)
         {
-          var elem118 = null;
-          elem118 = new AttributeSlot();
-          elem118.read(input);
-          this.attributes.push(elem118);
+          var elem110 = null;
+          elem110 = new AttributeSlot();
+          elem110.read(input);
+          this.attributes.push(elem110);
         }
         input.readListEnd();
       } else {
@@ -5160,19 +4496,19 @@ ModelElement.prototype.read = function(input) {
       break;
       case 7:
       if (ftype == Thrift.Type.LIST) {
-        var _size119 = 0;
-        var _rtmp3123;
+        var _size111 = 0;
+        var _rtmp3115;
         this.references = [];
-        var _etype122 = 0;
-        _rtmp3123 = input.readListBegin();
-        _etype122 = _rtmp3123.etype;
-        _size119 = _rtmp3123.size;
-        for (var _i124 = 0; _i124 < _size119; ++_i124)
+        var _etype114 = 0;
+        _rtmp3115 = input.readListBegin();
+        _etype114 = _rtmp3115.etype;
+        _size111 = _rtmp3115.size;
+        for (var _i116 = 0; _i116 < _size111; ++_i116)
         {
-          var elem125 = null;
-          elem125 = new ReferenceSlot();
-          elem125.read(input);
-          this.references.push(elem125);
+          var elem117 = null;
+          elem117 = new ReferenceSlot();
+          elem117.read(input);
+          this.references.push(elem117);
         }
         input.readListEnd();
       } else {
@@ -5181,19 +4517,19 @@ ModelElement.prototype.read = function(input) {
       break;
       case 8:
       if (ftype == Thrift.Type.LIST) {
-        var _size126 = 0;
-        var _rtmp3130;
+        var _size118 = 0;
+        var _rtmp3122;
         this.containers = [];
-        var _etype129 = 0;
-        _rtmp3130 = input.readListBegin();
-        _etype129 = _rtmp3130.etype;
-        _size126 = _rtmp3130.size;
-        for (var _i131 = 0; _i131 < _size126; ++_i131)
+        var _etype121 = 0;
+        _rtmp3122 = input.readListBegin();
+        _etype121 = _rtmp3122.etype;
+        _size118 = _rtmp3122.size;
+        for (var _i123 = 0; _i123 < _size118; ++_i123)
         {
-          var elem132 = null;
-          elem132 = new ContainerSlot();
-          elem132.read(input);
-          this.containers.push(elem132);
+          var elem124 = null;
+          elem124 = new ContainerSlot();
+          elem124.read(input);
+          this.containers.push(elem124);
         }
         input.readListEnd();
       } else {
@@ -5239,12 +4575,12 @@ ModelElement.prototype.write = function(output) {
   if (this.attributes !== null && this.attributes !== undefined) {
     output.writeFieldBegin('attributes', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRUCT, this.attributes.length);
-    for (var iter133 in this.attributes)
+    for (var iter125 in this.attributes)
     {
-      if (this.attributes.hasOwnProperty(iter133))
+      if (this.attributes.hasOwnProperty(iter125))
       {
-        iter133 = this.attributes[iter133];
-        iter133.write(output);
+        iter125 = this.attributes[iter125];
+        iter125.write(output);
       }
     }
     output.writeListEnd();
@@ -5253,12 +4589,12 @@ ModelElement.prototype.write = function(output) {
   if (this.references !== null && this.references !== undefined) {
     output.writeFieldBegin('references', Thrift.Type.LIST, 7);
     output.writeListBegin(Thrift.Type.STRUCT, this.references.length);
-    for (var iter134 in this.references)
+    for (var iter126 in this.references)
     {
-      if (this.references.hasOwnProperty(iter134))
+      if (this.references.hasOwnProperty(iter126))
       {
-        iter134 = this.references[iter134];
-        iter134.write(output);
+        iter126 = this.references[iter126];
+        iter126.write(output);
       }
     }
     output.writeListEnd();
@@ -5267,12 +4603,12 @@ ModelElement.prototype.write = function(output) {
   if (this.containers !== null && this.containers !== undefined) {
     output.writeFieldBegin('containers', Thrift.Type.LIST, 8);
     output.writeListBegin(Thrift.Type.STRUCT, this.containers.length);
-    for (var iter135 in this.containers)
+    for (var iter127 in this.containers)
     {
-      if (this.containers.hasOwnProperty(iter135))
+      if (this.containers.hasOwnProperty(iter127))
       {
-        iter135 = this.containers[iter135];
-        iter135.write(output);
+        iter127 = this.containers[iter127];
+        iter127.write(output);
       }
     }
     output.writeListEnd();
@@ -5322,19 +4658,19 @@ ContainerSlot.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.LIST) {
-        var _size136 = 0;
-        var _rtmp3140;
+        var _size128 = 0;
+        var _rtmp3132;
         this.elements = [];
-        var _etype139 = 0;
-        _rtmp3140 = input.readListBegin();
-        _etype139 = _rtmp3140.etype;
-        _size136 = _rtmp3140.size;
-        for (var _i141 = 0; _i141 < _size136; ++_i141)
+        var _etype131 = 0;
+        _rtmp3132 = input.readListBegin();
+        _etype131 = _rtmp3132.etype;
+        _size128 = _rtmp3132.size;
+        for (var _i133 = 0; _i133 < _size128; ++_i133)
         {
-          var elem142 = null;
-          elem142 = new ModelElement();
-          elem142.read(input);
-          this.elements.push(elem142);
+          var elem134 = null;
+          elem134 = new ModelElement();
+          elem134.read(input);
+          this.elements.push(elem134);
         }
         input.readListEnd();
       } else {
@@ -5360,12 +4696,12 @@ ContainerSlot.prototype.write = function(output) {
   if (this.elements !== null && this.elements !== undefined) {
     output.writeFieldBegin('elements', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRUCT, this.elements.length);
-    for (var iter143 in this.elements)
+    for (var iter135 in this.elements)
     {
-      if (this.elements.hasOwnProperty(iter143))
+      if (this.elements.hasOwnProperty(iter135))
       {
-        iter143 = this.elements[iter143];
-        iter143.write(output);
+        iter135 = this.elements[iter135];
+        iter135.write(output);
       }
     }
     output.writeListEnd();

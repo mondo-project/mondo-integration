@@ -2,7 +2,7 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="mondo_api" nsURI="mondo_api" nsPrefix="">
   <eAnnotations source="doc">
-    <details key="dServices" value="&#xA;The present section lists the services offered by the current version of the&#xA;MONDO platform. For each service, the available operations are presented, along&#xA;with the parameters they take, their return type and the exceptions they may&#xA;throw if they fail.&#xA;&#xA;In addition to their explicitly listed exceptions, operations requiring authentication&#xA;may throw an AuthenticationFailed exception if the user fails to provide valid credentials&#xA;or does not have the required permissions. In its current version, the MONDO platform&#xA;assumes that authenticated users will have the necessary permissions.&#xA;"/>
+    <details key="dServices" value="&#xA;The present section lists the services offered by the current version&#xA;of the MONDO platform. For each service, the available operations are&#xA;presented, along with the parameters they take, their return type and&#xA;the exceptions they can throw. Readers familiar with Thrift may notice&#xA;that some types inherit from others, which is not supported by Thrift&#xA;itself: this is implemented through the&#xA;Ecore2Thrift~\cite{ecore2thrift} model-to-text transformation&#xA;developed in WP6, which takes into account inherited fields when&#xA;transforming an \class{EClass} into a Thrift data type.&#xA;&#xA;In addition to their explicitly listed exceptions, operations&#xA;requiring authentication may produce replies with HTTP 4xx status&#xA;codes if the user fails to provide valid credentials or does not have&#xA;the required permissions. In its current version, the MONDO platform&#xA;assumes that authenticated users will have the necessary permissions.&#xA;"/>
   </eAnnotations>
   <eAnnotations source="thrift">
     <details key="javans" value="uk.ac.york.mondo.integration.api"/>
@@ -596,9 +596,21 @@
     <eAnnotations source="doc">
       <details key="d" value="One of the states that a Hawk instance can be in."/>
     </eAnnotations>
-    <eLiterals name="RUNNING"/>
-    <eLiterals name="UPDATING" value="1"/>
-    <eLiterals name="STOPPED" value="2"/>
+    <eLiterals name="RUNNING">
+      <eAnnotations source="doc">
+        <details key="d" value="The instance is running and monitoring the indexed locations"/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="UPDATING" value="1">
+      <eAnnotations source="doc">
+        <details key="d" value="The instance is updating its contents from the indexed locations"/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="STOPPED" value="2">
+      <eAnnotations source="doc">
+        <details key="d" value="The instance is stopped and is not monitoring any indexed locations"/>
+      </eAnnotations>
+    </eLiterals>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkStateEvent">
     <eAnnotations source="doc">
@@ -1028,210 +1040,83 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaboration">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The following service operations expose the capabilities of the offline collaboration framework&#xA;developed in Work Package 4. The framework is discussed in detail in D4.3.&#xA;"/>
+      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities.&#xA;&#xA;Nevertheless, managing the rules to be used by the hooks requires its own API, as this is&#xA;not covered by traditional VCS protocols. The rest of the section describes a work-in-progress&#xA;API for managing these access rules: the final version will be provided in D6.8, due in M30.&#xA;"/>
     </eAnnotations>
-    <eOperations name="checkout" upperBound="-1" eType="#//CollaborationResource"
-        eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//CollaborationResourceNotFound">
+    <eOperations name="addRule">
       <eAnnotations source="doc">
-        <details key="d" value="Performs the checkout operation"/>
+        <details key="d" value="Adds an access control rule to the specified version control system."/>
       </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
+      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
+          <details key="d" value="URL of the version control system"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="resources" upperBound="-1" eType="#//CollaborationResourceReference">
+      <eParameters name="rule" eType="#//CollaborationRule">
         <eAnnotations source="doc">
-          <details key="d" value="The references to the required resources"/>
+          <details key="d" value="Specification of the access control rule"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="commit" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//CollaborationResourceNotFound #//CollaborationResourceLocked">
+    <eOperations name="removeRule" eExceptions="#//CollaborationRuleNotFound">
       <eAnnotations source="doc">
-        <details key="d" value="Performs the commit operation"/>
+        <details key="d" value="Removes an access control rule from the specified version control system."/>
       </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
+      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
+          <details key="d" value="URL of the version control system"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="resources" upperBound="-1" eType="#//CollaborationResourceReference">
+      <eParameters name="ruleName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The references to the required resources"/>
+          <details key="d" value="Specification of the access control rule"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="pull" upperBound="-1" eType="#//CollaborationResource" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//CollaborationResourceNotFound #//MergeRequired">
+    <eOperations name="updateRule" eExceptions="#//CollaborationRuleNotFound">
       <eAnnotations source="doc">
-        <details key="d" value="Performs the pull operation"/>
+        <details key="d" value="Updates an access control rule for the specified version control system."/>
       </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
+      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
+          <details key="d" value="URL of the version control system"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="resources" upperBound="-1" eType="#//CollaborationResourceReference">
+      <eParameters name="rule" eType="#//CollaborationRule">
         <eAnnotations source="doc">
-          <details key="d" value="The references to the required resources"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="operationModel" eType="#//OperationModel">
-        <eAnnotations source="doc">
-          <details key="d" value="The operations executed on the client"/>
+          <details key="d" value="Specification of the access control rule"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="publishLockDefinition" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//InvalidCollaborationLockQuerySpec">
+    <eOperations name="listRules" upperBound="-1" eType="#//CollaborationRule">
       <eAnnotations source="doc">
-        <details key="d" value="Publishes a lock definition"/>
+        <details key="d" value="Lists the access control rules for the specified version control system."/>
       </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
+      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="specification" eType="#//CollaborationLockQuerySpec">
-        <eAnnotations source="doc">
-          <details key="d" value="The lock query specification"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="unpublishLockDefinition" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//InvalidCollaborationLockQuerySpec #//CollaborationLockQueryNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Unpublish a lock definition"/>
-      </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
-        <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="specification" eType="#//CollaborationLockQuerySpec">
-        <eAnnotations source="doc">
-          <details key="d" value="The lock query specification"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="lock" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//InvalidCollaborationLockQuerySpec #//CollaborationResourceLocked">
-      <eAnnotations source="doc">
-        <details key="d" value="Locks the pattern with the given bindings"/>
-      </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
-        <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="specification" eType="#//CollaborationQueryInvocationSpecification">
-        <eAnnotations source="doc">
-          <details key="d" value="The lock specification with pattern and its bindings"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="unlock" eExceptions="#//VCSAuthenticationFailed #//VCSAuthorizationFailed #//InvalidCollaborationLockQuerySpec #//CollaborationLockQueryNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Unlocks the pattern with the given bindings"/>
-      </eAnnotations>
-      <eParameters name="credentials" eType="#//Credentials">
-        <eAnnotations source="doc">
-          <details key="d" value="The credentials of the user in the underlying VCS"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="specification" eType="#//CollaborationQueryInvocationSpecification">
-        <eAnnotations source="doc">
-          <details key="d" value="The lock specification with pattern and its bindings"/>
+          <details key="d" value="URL of the version control system"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationLockQuerySpec">
+  <eClassifiers xsi:type="ecore:EClass" name="CollaborationRule">
     <eAnnotations source="doc">
-      <details key="d" value="Specification of a lock on a set of model elements, without bindings"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="patternFQN" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="Fully qualified name of the pre-existing query."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationQueryInvocationSpecification">
-    <eAnnotations source="doc">
-      <details key="d" value="Specification of a lock on a set of model elements, with bindings"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="patternFQN" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="Fully qualified name of the pre-existing query."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="bindings" upperBound="-1"
-        eType="#//CollaborationQueryBinding" containment="true">
-      <eAnnotations source="doc">
-        <details key="d" value="Name/value bindings to be provided to the query."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationQueryBinding">
-    <eAnnotations source="doc">
-      <details key="d" value="Name/value binding used within a lock pattern"/>
+      <details key="d" value="Specification of an access control rule for models"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Name of the query parameter being bound"/>
+        <details key="d" value="Unique identifier of the rule within the VCS"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="body" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Value to be bound to the query parameter"/>
+        <details key="d" value="Specification of the access rule in the MONDO Collaboration Policy Language from D4.2"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationResourceReference" abstract="true">
+  <eClassifiers xsi:type="ecore:EClass" name="CollaborationRuleNotFound">
     <eAnnotations source="doc">
-      <details key="d" value="Base entity for resource references in the collaboration API"/>
+      <details key="d" value="No collaboration rule with that name was found for the specified repository"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="repositoryUri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The URI of the repository containing the resource"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationGitResourceReference" eSuperTypes="#//CollaborationResourceReference">
-    <eAnnotations source="doc">
-      <details key="d" value="Reference to a resource in a Git repository"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="branch" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The name of the Git branch to which new commits should be pushed."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="commit" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The SHA1 identifier of the commit with the resource."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationSvnResourceReference" eSuperTypes="#//CollaborationResourceReference">
-    <eAnnotations source="doc">
-      <details key="d" value="Reference to a resource in a SVN repository"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="revision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The revision number containing the resource."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filePath" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="The path to the resource within the SVN repository."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationResource">
-    <eAnnotations source="doc">
-      <details key="d" value="Contents of a resource in the collaboration API"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="file" eType="#//File">
-      <eAnnotations source="doc">
-        <details key="d" value="File with the contents of the resource"/>
-      </eAnnotations>
-    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Credentials">
     <eAnnotations source="doc">
@@ -1247,11 +1132,6 @@
         <details key="d" value="Password for logging into the VCS"/>
       </eAnnotations>
     </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="OperationModel">
-    <eAnnotations source="doc">
-      <details key="d" value="&#xA;Operational trace that encodes the operations carried out by the user locally over the models.&#xA;"/>
-    </eAnnotations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CloudATL">
     <eAnnotations source="doc">
@@ -1833,48 +1713,6 @@
   <eClassifiers xsi:type="ecore:EClass" name="VCSAuthenticationFailed">
     <eAnnotations source="doc">
       <details key="d" value="The client failed to prove its identity in the VCS."/>
-    </eAnnotations>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="VCSAuthorizationFailed">
-    <eAnnotations source="doc">
-      <details key="d" value="The client does not have the required permissions in the VCS to perform the operation."/>
-    </eAnnotations>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationResourceNotFound">
-    <eAnnotations source="doc">
-      <details key="d" value="The resource does not exist in the VCS."/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceReference" eType="#//CollaborationResourceReference"
-        containment="true">
-      <eAnnotations source="doc">
-        <details key="d" value="Reference to the missing resource."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationResourceLocked">
-    <eAnnotations source="doc">
-      <details key="d" value="The resource is currently locked for collaboration."/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceReference" eType="#//CollaborationResourceReference"
-        containment="true">
-      <eAnnotations source="doc">
-        <details key="d" value="Reference to the locked resource."/>
-      </eAnnotations>
-    </eStructuralFeatures>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="MergeRequired">
-    <eAnnotations source="doc">
-      <details key="d" value="The operation requires a merge before it can be retried."/>
-    </eAnnotations>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="InvalidCollaborationLockQuerySpec">
-    <eAnnotations source="doc">
-      <details key="d" value="The lock query specification is not valid."/>
-    </eAnnotations>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationLockQueryNotFound">
-    <eAnnotations source="doc">
-      <details key="d" value="No matching lock exists."/>
     </eAnnotations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InvalidTransformation">
