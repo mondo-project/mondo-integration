@@ -1040,7 +1040,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaboration">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities.&#xA;&#xA;Nevertheless, managing the rules to be used by the hooks requires its own API, as this is&#xA;not covered by traditional VCS protocols. The rest of the section describes a work-in-progress&#xA;API for managing these access rules: the final version will be provided in D6.8, due in M30.&#xA;"/>
+      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities.&#xA;&#xA;Nevertheless, managing the rules to be used by the hooks and the lens relationship requires&#xA;its own API, as this is not covered by traditional VCS protocols. The rest of the section&#xA;describes a work-in-progress API for managing these access rules: the final version will be&#xA;provided in D6.8, due in M30.&#xA;"/>
     </eAnnotations>
     <eOperations name="addRule">
       <eAnnotations source="doc">
@@ -1094,6 +1094,26 @@
       <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
           <details key="d" value="URL of the version control system"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
+    <eOperations name="regenerateFrontRepositories">
+      <eAnnotations source="doc">
+        <details key="d" value="Regenerate all front repositories based on the gold repository."/>
+      </eAnnotations>
+      <eParameters name="goldRepoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="URL of the gold repository"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
+    <eOperations name="getMyFrontRepositoryURL">
+      <eAnnotations source="doc">
+        <details key="d" value="Retrieve the front repository URL for the current user"/>
+      </eAnnotations>
+      <eParameters name="goldRepoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="URL of the gold repository"/>
         </eAnnotations>
       </eParameters>
     </eOperations>

@@ -494,6 +494,172 @@ OfflineCollaboration_listRules_result.prototype.write = function(output) {
   return;
 };
 
+OfflineCollaboration_regenerateFrontRepositories_args = function(args) {
+  this.goldRepoURL = null;
+  if (args) {
+    if (args.goldRepoURL !== undefined && args.goldRepoURL !== null) {
+      this.goldRepoURL = args.goldRepoURL;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field goldRepoURL is unset!');
+    }
+  }
+};
+OfflineCollaboration_regenerateFrontRepositories_args.prototype = {};
+OfflineCollaboration_regenerateFrontRepositories_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.goldRepoURL = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_regenerateFrontRepositories_args.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_regenerateFrontRepositories_args');
+  if (this.goldRepoURL !== null && this.goldRepoURL !== undefined) {
+    output.writeFieldBegin('goldRepoURL', Thrift.Type.STRING, 1);
+    output.writeString(this.goldRepoURL);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaboration_regenerateFrontRepositories_result = function(args) {
+};
+OfflineCollaboration_regenerateFrontRepositories_result.prototype = {};
+OfflineCollaboration_regenerateFrontRepositories_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_regenerateFrontRepositories_result.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_regenerateFrontRepositories_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaboration_getMyFrontRepositoryURL_args = function(args) {
+  this.goldRepoURL = null;
+  if (args) {
+    if (args.goldRepoURL !== undefined && args.goldRepoURL !== null) {
+      this.goldRepoURL = args.goldRepoURL;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field goldRepoURL is unset!');
+    }
+  }
+};
+OfflineCollaboration_getMyFrontRepositoryURL_args.prototype = {};
+OfflineCollaboration_getMyFrontRepositoryURL_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.goldRepoURL = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_getMyFrontRepositoryURL_args.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_getMyFrontRepositoryURL_args');
+  if (this.goldRepoURL !== null && this.goldRepoURL !== undefined) {
+    output.writeFieldBegin('goldRepoURL', Thrift.Type.STRING, 1);
+    output.writeString(this.goldRepoURL);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaboration_getMyFrontRepositoryURL_result = function(args) {
+};
+OfflineCollaboration_getMyFrontRepositoryURL_result.prototype = {};
+OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_getMyFrontRepositoryURL_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 OfflineCollaborationClient = function(input, output) {
     this.input = input;
     this.output = (!output) ? input : output;
@@ -695,4 +861,96 @@ OfflineCollaborationClient.prototype.recv_listRules = function() {
     return result.success;
   }
   throw 'listRules failed: unknown result';
+};
+OfflineCollaborationClient.prototype.regenerateFrontRepositories = function(goldRepoURL, callback) {
+  this.send_regenerateFrontRepositories(goldRepoURL, callback); 
+  if (!callback) {
+  this.recv_regenerateFrontRepositories();
+  }
+};
+
+OfflineCollaborationClient.prototype.send_regenerateFrontRepositories = function(goldRepoURL, callback) {
+  this.output.writeMessageBegin('regenerateFrontRepositories', Thrift.MessageType.CALL, this.seqid);
+  var args = new OfflineCollaboration_regenerateFrontRepositories_args();
+  args.goldRepoURL = goldRepoURL;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_regenerateFrontRepositories();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+OfflineCollaborationClient.prototype.recv_regenerateFrontRepositories = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new OfflineCollaboration_regenerateFrontRepositories_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  return;
+};
+OfflineCollaborationClient.prototype.getMyFrontRepositoryURL = function(goldRepoURL, callback) {
+  this.send_getMyFrontRepositoryURL(goldRepoURL, callback); 
+  if (!callback) {
+  this.recv_getMyFrontRepositoryURL();
+  }
+};
+
+OfflineCollaborationClient.prototype.send_getMyFrontRepositoryURL = function(goldRepoURL, callback) {
+  this.output.writeMessageBegin('getMyFrontRepositoryURL', Thrift.MessageType.CALL, this.seqid);
+  var args = new OfflineCollaboration_getMyFrontRepositoryURL_args();
+  args.goldRepoURL = goldRepoURL;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_getMyFrontRepositoryURL();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+OfflineCollaborationClient.prototype.recv_getMyFrontRepositoryURL = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new OfflineCollaboration_getMyFrontRepositoryURL_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  return;
 };

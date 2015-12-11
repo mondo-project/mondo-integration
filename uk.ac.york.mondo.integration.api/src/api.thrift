@@ -683,9 +683,10 @@ service Hawk {
    This allows users to continue using their preferred tools for interacting with the version
    control systems in their day-to-day modelling activities.
    
-   Nevertheless, managing the rules to be used by the hooks requires its own API, as this is
-   not covered by traditional VCS protocols. The rest of the section describes a work-in-progress
-   API for managing these access rules: the final version will be provided in D6.8, due in M30. */
+   Nevertheless, managing the rules to be used by the hooks and the lens relationship requires
+   its own API, as this is not covered by traditional VCS protocols. The rest of the section
+   describes a work-in-progress API for managing these access rules: the final version will be
+   provided in D6.8, due in M30. */
 service OfflineCollaboration {
   /* Adds an access control rule to the specified version control system. Auth needed: Yes */
   void addRule(
@@ -714,6 +715,16 @@ service OfflineCollaboration {
   /* Lists the access control rules for the specified version control system. Auth needed: Yes */
   list<CollaborationRule> listRules(
 	/* URL of the version control system. */ 1: required string repoURL,
+  )
+	
+  /* Regenerate all front repositories based on the gold repository. Auth needed: Yes */
+  void regenerateFrontRepositories(
+	/* URL of the gold repository. */ 1: required string goldRepoURL,
+  )
+	
+  /* Retrieve the front repository URL for the current user. Auth needed: Yes */
+  void getMyFrontRepositoryURL(
+	/* URL of the gold repository. */ 1: required string goldRepoURL,
   )
 	
 }

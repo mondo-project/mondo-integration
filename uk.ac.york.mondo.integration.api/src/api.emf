@@ -432,9 +432,10 @@ maintain the lens relationship between the ``gold'' repository and the ``front''
 This allows users to continue using their preferred tools for interacting with the version
 control systems in their day-to-day modelling activities.
 
-Nevertheless, managing the rules to be used by the hooks requires its own API, as this is
-not covered by traditional VCS protocols. The rest of the section describes a work-in-progress
-API for managing these access rules: the final version will be provided in D6.8, due in M30.
+Nevertheless, managing the rules to be used by the hooks and the lens relationship requires
+its own API, as this is not covered by traditional VCS protocols. The rest of the section
+describes a work-in-progress API for managing these access rules: the final version will be
+provided in D6.8, due in M30.
 ")
 class OfflineCollaboration {
   @doc(d="Adds an access control rule to the specified version control system.")
@@ -455,6 +456,14 @@ class OfflineCollaboration {
   @doc(d="Lists the access control rules for the specified version control system.")
   op CollaborationRule[*] listRules(
     @doc(d="URL of the version control system") String repoURL);
+
+  @doc(d="Regenerate all front repositories based on the gold repository.")
+  op void regenerateFrontRepositories(
+    @doc(d="URL of the gold repository") String goldRepoURL);
+
+  @doc(d="Retrieve the front repository URL for the current user")
+  op void getMyFrontRepositoryURL(
+    @doc(d="URL of the gold repository") String goldRepoURL);
 }
 
 @doc(d="Specification of an access control rule for models")
