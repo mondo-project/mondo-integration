@@ -34,6 +34,8 @@
     <module>uk.ac.york.mondo.integration.hawk.emf.dt</module>
     <module>uk.ac.york.mondo.integration.hawk.emf.dt.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.emf.feature</module>
+    <module>uk.ac.york.mondo.integration.hawk.emf.ifcexport</module>
+    <module>uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.remote.thrift</module>
     <module>uk.ac.york.mondo.integration.hawk.remote.thrift.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.servlet</module>
