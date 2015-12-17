@@ -309,6 +309,7 @@
       <feature id="org.eclipse.acceleo.query"/>
       <feature id="uk.ac.york.mondo.integration.eclipse.feature"/>
       <feature id="org.hawk.modelio.exml.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature"/>
    </features>
 
    <configurations>
