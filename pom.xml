@@ -38,6 +38,7 @@
     <module>uk.ac.york.mondo.integration.hawk.remote.thrift.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.servlet</module>
     <module>uk.ac.york.mondo.integration.hawk.servlet.feature</module>
+    <module>uk.ac.york.mondo.integration.server.cli</module>
     <module>uk.ac.york.mondo.integration.server.feature</module>
     <module>uk.ac.york.mondo.integration.server.gzip</module>
     <module>uk.ac.york.mondo.integration.server.logback</module>
