@@ -147,19 +147,22 @@ final class HawkThriftIface implements Hawk.Iface {
 	public void registerMetamodels(String name, List<File> metamodels) throws HawkInstanceNotFound, HawkInstanceNotRunning, InvalidMetamodel, TException {
 		final HModel model = getRunningHawkByName(name);
 
+		List<java.io.File> files = new ArrayList<>();
 		for (File f : metamodels) {
 			try {
 				// Remove path separators for now (UNIX-style / and Windows-style \)
 				final String safeName = f.name.replaceAll("/", "_").replaceAll("\\\\", "_");
 				final java.io.File dataFile = Activator.getInstance().writeToDataFile(safeName, f.contents);
-				// TODO No way to report a bad file?
-				model.registerMeta(dataFile);
+				files.add(dataFile);
 			} catch (FileNotFoundException ex) {
 				throw new TException(ex);
 			} catch (IOException ex) {
 				throw new TException(ex);
 			}
 		}
+
+		final java.io.File[] fArray = files.toArray(new java.io.File[files.size()]);
+		model.registerMeta(fArray);
 	}
 
 	@Override
