@@ -487,8 +487,7 @@ class Credentials {
 
 @doc(d="
 The following service operations expose the capabilities of the cloud-enabled
-version of the ATL transformation language which is currently under development and
-will be presented in M24 in D3.3
+version of the ATL transformation language which is presented in D3.3~\cite{D3.3}.
 ")
 class CloudATL {
 
