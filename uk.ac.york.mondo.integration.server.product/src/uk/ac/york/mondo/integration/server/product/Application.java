@@ -7,6 +7,8 @@ import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.york.mondo.integration.server.cli.ServerCommandProvider;
+
 public class Application implements IApplication {
 
 	private static final String TEST_NODE = "mondo.test";
@@ -26,6 +28,11 @@ public class Application implements IApplication {
 			LOGGER.info("Secure store encrypted: setup is OK");
 		}
 		factory.flush();
+
+		System.out.println("\n"
+				+ "Welcome to the MONDO Server!\n"
+				+ "List available commands with '" + ServerCommandProvider.MSERVER_HELP_CMD + "'.\n"
+				+ "Stop the server with 'shutdown' and then 'close'.\n");
 
 		// We don't really do anything at the moment for the application:
 		// we just want a working Equinox instance for now		
