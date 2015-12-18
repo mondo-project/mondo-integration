@@ -84,6 +84,7 @@
       <feature id="org.eclipse.equinox.core.sdk"/>
       <feature id="org.eclipse.bpmn2.feature"/>
       <feature id="org.hawk.modelio.exml.feature"/>
+      <feature id="org.hawk.git.feature"/>
    </features>
 
    <configurations>

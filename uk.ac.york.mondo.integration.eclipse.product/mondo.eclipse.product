@@ -299,7 +299,6 @@
       <feature id="org.eclipse.platform.source"/>
       <feature id="org.mondo.collaboration.security.macl.feature"/>
       <feature id="org.mondo.collaboration.security.mpbl.feature"/>
-      <feature id="org.mondo.wt.cstudy.editor.feature"/>
       <feature id="org.mondo.wt.cstudy.merge.feature"/>
       <feature id="org.mondo.wt.cstudy.model.feature"/>
       <feature id="org.eclipse.sirius.aql"/>
@@ -308,6 +307,7 @@
       <feature id="uk.ac.york.mondo.integration.eclipse.feature"/>
       <feature id="org.hawk.modelio.exml.feature"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature"/>
+      <feature id="org.hawk.git.feature"/>
    </features>
 
    <configurations>

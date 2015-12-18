@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="294">
+<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="300">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.team.svn.feature.group" version="3.0.1.I20150722-1700"/>
@@ -50,17 +50,6 @@
 <repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.apache.commons.collections.source" version="3.2.0.v2013030210310"/>
-<unit id="org.apache.commons.collections" version="3.2.0.v2013030210310"/>
-<unit id="javax.inject" version="1.0.0.v20091030"/>
-<unit id="com.google.guava" version="15.0.0.v201403281430"/>
-<unit id="javax.inject.source" version="1.0.0.v20091030"/>
-<unit id="com.google.guava.source" version="15.0.0.v201403281430"/>
-<unit id="org.apache.commons.beanutils.source" version="1.8.0.v201205091237"/>
-<unit id="org.apache.commons.beanutils" version="1.8.0.v201205091237"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.ocl.examples.classic.feature.group" version="5.1.0.v20150624-0903"/>
 <repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
@@ -89,12 +78,6 @@
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.pde.feature.group" version="3.11.1.v20150904-0345"/>
 <repository location="http://download.eclipse.org/releases/mars/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.mondo.wt.cstudy.merge.feature.feature.group" version="1.0.0.201511261726"/>
-<unit id="org.mondo.wt.cstudy.editor.feature.feature.group" version="1.0.0.201511261726"/>
-<unit id="org.mondo.wt.cstudy.model.feature.feature.group" version="1.0.0.201511261726"/>
-<repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.jolokia.osgi" version="1.3.1"/>
@@ -218,30 +201,51 @@
 <repository location="http://mondo.inf.mit.bme.hu/web/mondo-dse-merge/update/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.modelio.exml.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
-<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201512171832"/>
-<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201512171832"/>
-<repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
+<unit id="org.apache.commons.collections.source" version="3.2.0.v2013030210310"/>
+<unit id="org.apache.commons.collections" version="3.2.0.v2013030210310"/>
+<unit id="javax.inject" version="1.0.0.v20091030"/>
+<unit id="com.google.guava" version="15.0.0.v201403281430"/>
+<unit id="org.apache.httpcomponents.httpcore.nio.source" version="4.1.0.v201101201700"/>
+<unit id="javax.inject.source" version="1.0.0.v20091030"/>
+<unit id="com.google.guava.source" version="15.0.0.v201403281430"/>
+<unit id="org.apache.commons.beanutils.source" version="1.8.0.v201205091237"/>
+<unit id="org.apache.httpcomponents.httpcore.nio" version="4.1.0.v201101201700"/>
+<unit id="org.apache.commons.beanutils" version="1.8.0.v201205091237"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201512171900"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201512171900"/>
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201512171900"/>
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201512181343"/>
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201512181343"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201512181343"/>
 <repository location="http://localhost:8000/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.mondo.wt.cstudy.model.feature.feature.group" version="1.0.0.201512180910"/>
+<unit id="org.mondo.wt.cstudy.merge.feature.feature.group" version="1.0.0.201512180910"/>
+<repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.modelio.exml.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
+<unit id="org.eclipse.epsilon.emf.dt.dependencies.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.git.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.eclipse.epsilon.core.dependencies.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201512181647"/>
+<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201511231042"/>
+<repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>

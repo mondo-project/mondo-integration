@@ -44,6 +44,7 @@ ENTRIES_NOGPL = (
     ('org.hawk.emf.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.emfresource.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.epsilon.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.hawk.git.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.localfolder.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.modelio.exml.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.orientdb.feature.feature.group', '[1.0.0,2.0.0)'),
@@ -70,7 +71,7 @@ ENTRIES_NOGPL = (
 
     ('org.mondo.collaboration.security.macl.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.mondo.collaboration.security.mpbl.feature.feature.group', '[1.0.0,2.0.0)'),
-    ('org.mondo.wt.cstudy.editor.feature.feature.group', '[1.0.0,2.0.0)'),
+    # ('org.mondo.wt.cstudy.editor.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.mondo.wt.cstudy.merge.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.mondo.wt.cstudy.model.feature.feature.group', '[1.0.0,2.0.0)'),
 )

@@ -163,51 +163,51 @@ requires.40.name = org.hawk.epsilon.feature.feature.group
 requires.40.range = [1.0.0,2.0.0)
 
 requires.41.namespace = org.eclipse.equinox.p2.iu
-requires.41.name = org.hawk.localfolder.feature.feature.group
+requires.41.name = org.hawk.git.feature.feature.group
 requires.41.range = [1.0.0,2.0.0)
 
 requires.42.namespace = org.eclipse.equinox.p2.iu
-requires.42.name = org.hawk.modelio.exml.feature.feature.group
+requires.42.name = org.hawk.localfolder.feature.feature.group
 requires.42.range = [1.0.0,2.0.0)
 
 requires.43.namespace = org.eclipse.equinox.p2.iu
-requires.43.name = org.hawk.orientdb.feature.feature.group
+requires.43.name = org.hawk.modelio.exml.feature.feature.group
 requires.43.range = [1.0.0,2.0.0)
 
 requires.44.namespace = org.eclipse.equinox.p2.iu
-requires.44.name = org.hawk.osgiserver.feature.feature.group
+requires.44.name = org.hawk.orientdb.feature.feature.group
 requires.44.range = [1.0.0,2.0.0)
 
 requires.45.namespace = org.eclipse.equinox.p2.iu
-requires.45.name = org.hawk.svn.feature.feature.group
+requires.45.name = org.hawk.osgiserver.feature.feature.group
 requires.45.range = [1.0.0,2.0.0)
 
 requires.46.namespace = org.eclipse.equinox.p2.iu
-requires.46.name = org.hawk.ui.feature.feature.group
+requires.46.name = org.hawk.svn.feature.feature.group
 requires.46.range = [1.0.0,2.0.0)
 
 requires.47.namespace = org.eclipse.equinox.p2.iu
-requires.47.name = org.hawk.workspace.feature.feature.group
+requires.47.name = org.hawk.ui.feature.feature.group
 requires.47.range = [1.0.0,2.0.0)
 
 requires.48.namespace = org.eclipse.equinox.p2.iu
-requires.48.name = org.mondo.editor.feature.feature.group
-requires.48.range = [0.3.8,2.0.0)
+requires.48.name = org.hawk.workspace.feature.feature.group
+requires.48.range = [1.0.0,2.0.0)
 
 requires.49.namespace = org.eclipse.equinox.p2.iu
-requires.49.name = uk.ac.york.mondo.integration.api.feature.feature.group
-requires.49.range = [1.0.0,2.0.0)
+requires.49.name = org.mondo.editor.feature.feature.group
+requires.49.range = [0.3.8,2.0.0)
 
 requires.50.namespace = org.eclipse.equinox.p2.iu
-requires.50.name = uk.ac.york.mondo.integration.clients.cli.feature.feature.group
+requires.50.name = uk.ac.york.mondo.integration.api.feature.feature.group
 requires.50.range = [1.0.0,2.0.0)
 
 requires.51.namespace = org.eclipse.equinox.p2.iu
-requires.51.name = uk.ac.york.mondo.integration.hawk.cli.feature.feature.group
+requires.51.name = uk.ac.york.mondo.integration.clients.cli.feature.feature.group
 requires.51.range = [1.0.0,2.0.0)
 
 requires.52.namespace = org.eclipse.equinox.p2.iu
-requires.52.name = uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature.feature.group
+requires.52.name = uk.ac.york.mondo.integration.hawk.cli.feature.feature.group
 requires.52.range = [1.0.0,2.0.0)
 
 requires.53.namespace = org.eclipse.equinox.p2.iu
@@ -263,23 +263,23 @@ requires.65.name = org.mondo.collaboration.security.mpbl.feature.feature.group
 requires.65.range = [1.0.0,2.0.0)
 
 requires.66.namespace = org.eclipse.equinox.p2.iu
-requires.66.name = org.mondo.wt.cstudy.editor.feature.feature.group
+requires.66.name = org.mondo.wt.cstudy.merge.feature.feature.group
 requires.66.range = [1.0.0,2.0.0)
 
 requires.67.namespace = org.eclipse.equinox.p2.iu
-requires.67.name = org.mondo.wt.cstudy.merge.feature.feature.group
+requires.67.name = org.mondo.wt.cstudy.model.feature.feature.group
 requires.67.range = [1.0.0,2.0.0)
 
 requires.68.namespace = org.eclipse.equinox.p2.iu
-requires.68.name = org.mondo.wt.cstudy.model.feature.feature.group
+requires.68.name = org.hawk.neo4jv2.feature.feature.group
 requires.68.range = [1.0.0,2.0.0)
 
 requires.69.namespace = org.eclipse.equinox.p2.iu
-requires.69.name = org.hawk.neo4jv2.feature.feature.group
+requires.69.name = org.hawk.ifc.feature.feature.group
 requires.69.range = [1.0.0,2.0.0)
 
 requires.70.namespace = org.eclipse.equinox.p2.iu
-requires.70.name = org.hawk.ifc.feature.feature.group
+requires.70.name = uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature.feature.group
 requires.70.range = [1.0.0,2.0.0)
 
 requires.71.namespace = org.eclipse.equinox.p2.iu
