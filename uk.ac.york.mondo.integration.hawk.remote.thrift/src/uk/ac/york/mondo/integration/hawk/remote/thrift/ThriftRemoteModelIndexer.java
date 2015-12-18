@@ -186,7 +186,11 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 			try {
 				final HawkQueryOptions opts = new HawkQueryOptions();
-				opts.setDefaultNamespaces(defaultNamespaces);
+				if (context.containsKey(PROPERTY_DEFAULTNAMESPACES)) {
+					opts.setDefaultNamespaces(context.get(PROPERTY_DEFAULTNAMESPACES));
+				} else {
+					opts.setDefaultNamespaces(defaultNamespaces);
+				}
 				opts.setRepositoryPattern(sRepoScope);
 				opts.setFilePatterns(filePatterns);
 				opts.setIncludeAttributes(true);
