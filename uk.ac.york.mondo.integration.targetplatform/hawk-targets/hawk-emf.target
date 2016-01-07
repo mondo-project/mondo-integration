@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Hawk Integration (only EMF)" sequenceNumber="323">
+<?pde version="3.8"?><target name="Hawk Integration (only EMF)" sequenceNumber="330">
 <locations>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201512181343"/>
-<repository location="http://localhost:8000/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.git.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.eclipse.epsilon.core.dependencies.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
-<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201601041756"/>
-<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201511231042"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201601041756"/>
-<repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
-</location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.apache.httpcomponents.httpcore" version="4.3.3.v201411290715"/>
 <unit id="org.apache.commons.collections" version="3.2.0.v2013030210310"/>
@@ -41,57 +19,166 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201512181343"/>
+<repository location="https://www.cs.york.ac.uk/mondo/downloads/hawk-gpl/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.eclipse.epsilon.emf.dt.dependencies.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.git.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
+<unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.eclipse.epsilon.core.dependencies.feature.feature.group" version="1.3.0.201511231042"/>
+<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201601041756"/>
+<unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201511231042"/>
+<repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.emf.feature.group" version="2.11.1.v20150806-0404"/>
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.11.1.v20150831-1342"/>
 <unit id="org.eclipse.platform.feature.group" version="4.5.1.v20150904-0015"/>
+<unit id="org.eclipse.xsd.sdk.feature.group" version="2.11.0.v20150806-0404"/>
 <unit id="org.eclipse.core.runtime.feature.feature.group" version="1.1.101.v20150903-1804"/>
 <repository location="http://download.eclipse.org/releases/mars/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="uk.ac.york.mondo.integration.hawk.emf.feature.feature.group" version="1.0.0.201511181354"/>
+<unit id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature.feature.group" version="1.0.0.201511181322"/>
+<unit id="uk.ac.york.mondo.integration.api.feature.feature.group" version="1.0.0.201511181354"/>
+<unit id="uk.ac.york.mondo.integration.hawk.emf.dt.feature.feature.group" version="1.0.0.201511181322"/>
+<repository location="http://mondo-project.github.io/mondo-integration/client-updates/"/>
 </location>
 </locations>
 <includeBundles>
 <plugin id="ch.qos.logback.classic"/>
 <plugin id="ch.qos.logback.core"/>
 <plugin id="ch.qos.logback.slf4j"/>
-<plugin id="com.google.guava"/>
+<plugin id="com.google.guava" version="15.0.0.v201403281430"/>
+<plugin id="com.ibm.icu"/>
 <plugin id="com.trilead.ssh2"/>
+<plugin id="javax.annotation"/>
 <plugin id="javax.inject" version="1.0.0.v20091030"/>
 <plugin id="javax.xml" version="1.3.4.v201005080400"/>
 <plugin id="org.antlr.runtime_3.1.b1"/>
-<plugin id="org.apache.commons.beanutils"/>
-<plugin id="org.apache.commons.codec"/>
-<plugin id="org.apache.commons.collections"/>
+<plugin id="org.apache.batik.css"/>
+<plugin id="org.apache.batik.util"/>
+<plugin id="org.apache.batik.util.gui"/>
+<plugin id="org.apache.commons.beanutils" version="1.8.0.v201205091237"/>
+<plugin id="org.apache.commons.codec" version="1.6.0.v201305230611"/>
+<plugin id="org.apache.commons.collections" version="3.2.0.v2013030210310"/>
+<plugin id="org.apache.commons.jxpath"/>
 <plugin id="org.apache.commons.logging" version="1.1.1.v201101211721"/>
-<plugin id="org.apache.httpcomponents.httpclient"/>
-<plugin id="org.apache.httpcomponents.httpcore"/>
+<plugin id="org.apache.httpcomponents.httpclient" version="4.3.6.v201411290715"/>
+<plugin id="org.apache.httpcomponents.httpcore" version="4.3.3.v201411290715"/>
 <plugin id="org.apache.httpcomponents.httpcore.nio"/>
+<plugin id="org.apache.thrift"/>
+<plugin id="org.eclipse.ant.core"/>
+<plugin id="org.eclipse.compare.core"/>
+<plugin id="org.eclipse.core.commands"/>
 <plugin id="org.eclipse.core.contenttype"/>
+<plugin id="org.eclipse.core.databinding"/>
+<plugin id="org.eclipse.core.databinding.observable"/>
+<plugin id="org.eclipse.core.databinding.property"/>
 <plugin id="org.eclipse.core.expressions"/>
+<plugin id="org.eclipse.core.filebuffers"/>
 <plugin id="org.eclipse.core.filesystem"/>
 <plugin id="org.eclipse.core.jobs"/>
 <plugin id="org.eclipse.core.resources"/>
 <plugin id="org.eclipse.core.runtime"/>
+<plugin id="org.eclipse.core.variables"/>
+<plugin id="org.eclipse.debug.core"/>
+<plugin id="org.eclipse.debug.ui"/>
+<plugin id="org.eclipse.e4.core.commands"/>
+<plugin id="org.eclipse.e4.core.contexts"/>
+<plugin id="org.eclipse.e4.core.di"/>
+<plugin id="org.eclipse.e4.core.di.annotations"/>
+<plugin id="org.eclipse.e4.core.di.extensions"/>
+<plugin id="org.eclipse.e4.core.services"/>
+<plugin id="org.eclipse.e4.emf.xpath"/>
+<plugin id="org.eclipse.e4.ui.bindings"/>
+<plugin id="org.eclipse.e4.ui.css.core"/>
+<plugin id="org.eclipse.e4.ui.css.swt"/>
+<plugin id="org.eclipse.e4.ui.css.swt.theme"/>
+<plugin id="org.eclipse.e4.ui.di"/>
+<plugin id="org.eclipse.e4.ui.model.workbench"/>
+<plugin id="org.eclipse.e4.ui.services"/>
+<plugin id="org.eclipse.e4.ui.widgets"/>
+<plugin id="org.eclipse.e4.ui.workbench"/>
+<plugin id="org.eclipse.e4.ui.workbench.addons.swt"/>
+<plugin id="org.eclipse.e4.ui.workbench.renderers.swt"/>
+<plugin id="org.eclipse.e4.ui.workbench.swt"/>
+<plugin id="org.eclipse.e4.ui.workbench3"/>
 <plugin id="org.eclipse.emf"/>
 <plugin id="org.eclipse.emf.common"/>
+<plugin id="org.eclipse.emf.common.ui"/>
 <plugin id="org.eclipse.emf.ecore"/>
 <plugin id="org.eclipse.emf.ecore.change"/>
+<plugin id="org.eclipse.emf.ecore.edit"/>
+<plugin id="org.eclipse.emf.ecore.editor"/>
 <plugin id="org.eclipse.emf.ecore.xmi"/>
 <plugin id="org.eclipse.emf.edit"/>
+<plugin id="org.eclipse.emf.edit.ui"/>
+<plugin id="org.eclipse.emf.mapping"/>
+<plugin id="org.eclipse.emf.mapping.xsd2ecore"/>
 <plugin id="org.eclipse.epsilon.common"/>
+<plugin id="org.eclipse.epsilon.common.dt"/>
 <plugin id="org.eclipse.epsilon.dependencies"/>
+<plugin id="org.eclipse.epsilon.dt.exeed"/>
 <plugin id="org.eclipse.epsilon.emc.emf"/>
 <plugin id="org.eclipse.epsilon.emc.emf.decorator"/>
+<plugin id="org.eclipse.epsilon.emc.emf.dt"/>
 <plugin id="org.eclipse.epsilon.emc.emf.virtual"/>
+<plugin id="org.eclipse.epsilon.emf.dt"/>
+<plugin id="org.eclipse.epsilon.eol.dt"/>
 <plugin id="org.eclipse.epsilon.eol.engine"/>
 <plugin id="org.eclipse.epsilon.erl.engine"/>
 <plugin id="org.eclipse.equinox.app"/>
+<plugin id="org.eclipse.equinox.bidi"/>
 <plugin id="org.eclipse.equinox.common"/>
+<plugin id="org.eclipse.equinox.ds"/>
+<plugin id="org.eclipse.equinox.event"/>
+<plugin id="org.eclipse.equinox.p2.core"/>
+<plugin id="org.eclipse.equinox.p2.engine"/>
+<plugin id="org.eclipse.equinox.p2.metadata"/>
+<plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+<plugin id="org.eclipse.equinox.p2.repository"/>
 <plugin id="org.eclipse.equinox.preferences"/>
 <plugin id="org.eclipse.equinox.registry"/>
 <plugin id="org.eclipse.equinox.security"/>
+<plugin id="org.eclipse.equinox.util"/>
+<plugin id="org.eclipse.help"/>
+<plugin id="org.eclipse.jface"/>
+<plugin id="org.eclipse.jface.databinding"/>
+<plugin id="org.eclipse.jface.text"/>
 <plugin id="org.eclipse.osgi"/>
+<plugin id="org.eclipse.osgi.services"/>
+<plugin id="org.eclipse.swt"/>
+<plugin id="org.eclipse.team.core"/>
+<plugin id="org.eclipse.text"/>
+<plugin id="org.eclipse.ui"/>
+<plugin id="org.eclipse.ui.console"/>
+<plugin id="org.eclipse.ui.editors"/>
+<plugin id="org.eclipse.ui.forms"/>
+<plugin id="org.eclipse.ui.ide"/>
+<plugin id="org.eclipse.ui.views"/>
+<plugin id="org.eclipse.ui.workbench"/>
+<plugin id="org.eclipse.ui.workbench.texteditor"/>
+<plugin id="org.eclipse.xsd"/>
+<plugin id="org.eclipse.xsd.edit"/>
 <plugin id="org.hawk.core"/>
 <plugin id="org.hawk.core.dependencies"/>
 <plugin id="org.hawk.emf"/>
+<plugin id="org.hawk.emfresource"/>
 <plugin id="org.hawk.epsilon"/>
 <plugin id="org.hawk.git"/>
 <plugin id="org.hawk.graph"/>
@@ -101,9 +188,22 @@
 <plugin id="org.hawk.orientdb"/>
 <plugin id="org.hawk.osgiserver"/>
 <plugin id="org.hawk.svn"/>
+<plugin id="org.hawk.ui.emfresource"/>
+<plugin id="org.hawk.ui2"/>
+<plugin id="org.jdom_1.0"/>
 <plugin id="org.slf4j.api" version="1.7.2.v20121108-1250"/>
 <plugin id="org.tmatesoft.sqljet"/>
 <plugin id="org.tmatesoft.svnkit"/>
+<plugin id="org.tukaani.xz"/>
+<plugin id="org.w3c.css.sac"/>
+<plugin id="org.w3c.dom.events"/>
+<plugin id="org.w3c.dom.smil"/>
+<plugin id="org.w3c.dom.svg"/>
+<plugin id="uk.ac.york.mondo.integration.api"/>
+<plugin id="uk.ac.york.mondo.integration.artemis"/>
+<plugin id="uk.ac.york.mondo.integration.hawk.emf"/>
+<plugin id="uk.ac.york.mondo.integration.hawk.emf.dt"/>
+<plugin id="uk.ac.york.mondo.integration.hawk.remote.thrift"/>
 </includeBundles>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 <launcherArgs>
