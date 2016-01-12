@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#./to-maven.sh
-
 DEST_P2="$HOME/Documents/mondo-integration-ghpages/client-updates"
 rm -rf "$DEST_P2"
 mkdir "$DEST_P2"
