@@ -18,6 +18,9 @@
    <feature url="features/hu.bme.mit.mondo.integration.incquery.hawk.feature_1.0.0.qualifier.jar" id="hu.bme.mit.mondo.integration.incquery.hawk.feature" version="1.0.0.qualifier">
       <category name="incquery"/>
    </feature>
+   <feature url="features/uk.ac.york.mondo.integration.api.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.api.feature" version="1.0.0.qualifier">
+      <category name="hawk"/>
+   </feature>
    <category-def name="hawk" label="Hawk"/>
    <category-def name="cloudatl" label="CloudATL"/>
    <category-def name="incquery" label="IncQuery"/>
