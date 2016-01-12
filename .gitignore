@@ -12,7 +12,9 @@
 hs_err_pid*
 
 bin/
+mondo-gpl
 
 *~
 target
+target-plain
 .polyglot.build.properties

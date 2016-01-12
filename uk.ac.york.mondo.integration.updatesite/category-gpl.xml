@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature_1.0.0.qualifier.jar" id="uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature" version="1.0.0.qualifier">
+      <category name="hawk.extras"/>
+   </feature>
+   <category-def name="hawk.extras" label="Hawk Extras (GPL)"/>
+</site>
