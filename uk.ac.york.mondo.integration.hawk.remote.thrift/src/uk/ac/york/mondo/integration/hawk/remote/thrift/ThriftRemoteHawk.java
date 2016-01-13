@@ -34,7 +34,7 @@ public class ThriftRemoteHawk implements IHawk {
 	public ThriftRemoteHawk(String name, String location, File parentFolder, ICredentialsStore credStore, IConsole console, ThriftProtocol thriftProtocol) throws TTransportException, IOException {
 		this.client = APIUtils.connectTo(Hawk.Client.class, location, thriftProtocol, new LazyCredentials(location, credStore));
 		this.folder = parentFolder;
-		this.indexer = new ThriftRemoteModelIndexer(name, parentFolder, client, credStore, console);
+		this.indexer = new ThriftRemoteModelIndexer(name, location, parentFolder, client, credStore, console);
 	}
 
 	@Override

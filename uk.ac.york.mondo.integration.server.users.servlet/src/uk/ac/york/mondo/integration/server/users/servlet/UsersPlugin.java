@@ -8,10 +8,10 @@ import org.osgi.framework.FrameworkUtil;
 
 import uk.ac.york.mondo.integration.server.users.servlet.db.UserStorage;
 
-public class Activator implements BundleActivator {
+public class UsersPlugin implements BundleActivator {
 
 	private static BundleContext context;
-	private static Activator instance;
+	private static UsersPlugin instance;
 
 	static BundleContext getContext() {
 		return context;
@@ -20,20 +20,20 @@ public class Activator implements BundleActivator {
 	private UserStorage storage;
 
 	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
-		Activator.instance = this;
-		File dataFile = FrameworkUtil.getBundle(Activator.class).getDataFile("users.db");
+		UsersPlugin.context = bundleContext;
+		UsersPlugin.instance = this;
+		File dataFile = FrameworkUtil.getBundle(UsersPlugin.class).getDataFile("users.db");
 		storage = new UserStorage(dataFile);
 
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
-		Activator.instance = null;
+		UsersPlugin.context = null;
+		UsersPlugin.instance = null;
 		storage.close();
 	}
 
-	public static Activator getInstance() {
+	public static UsersPlugin getInstance() {
 		return instance;
 	}
 

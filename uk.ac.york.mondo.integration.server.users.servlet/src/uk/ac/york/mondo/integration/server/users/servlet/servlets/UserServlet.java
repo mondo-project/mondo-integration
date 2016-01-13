@@ -11,7 +11,7 @@ import uk.ac.york.mondo.integration.api.UserNotFound;
 import uk.ac.york.mondo.integration.api.UserProfile;
 import uk.ac.york.mondo.integration.api.Users;
 import uk.ac.york.mondo.integration.api.Users.Iface;
-import uk.ac.york.mondo.integration.server.users.servlet.Activator;
+import uk.ac.york.mondo.integration.server.users.servlet.UsersPlugin;
 import uk.ac.york.mondo.integration.server.users.servlet.db.User;
 import uk.ac.york.mondo.integration.server.users.servlet.db.UserStorage;
 
@@ -22,7 +22,7 @@ public class UserServlet extends TServlet {
 
 		@Override
 		public void createUser(String username, String password, UserProfile profile) throws UserExists, TException {
-			final UserStorage storage = Activator.getInstance().getStorage();
+			final UserStorage storage = UsersPlugin.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();
 			try {
 				BTreeMap<String, User> userMap = storage.getUserMap(db);
@@ -46,7 +46,7 @@ public class UserServlet extends TServlet {
 
 		@Override
 		public void updateProfile(String username, UserProfile profile) throws UserNotFound, TException {
-			final UserStorage storage = Activator.getInstance().getStorage();
+			final UserStorage storage = UsersPlugin.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();
 			try {
 				final BTreeMap<String, User> userMap = storage.getUserMap(db);
@@ -68,7 +68,7 @@ public class UserServlet extends TServlet {
 
 		@Override
 		public void updatePassword(String username, String password) throws UserNotFound, TException {
-			final UserStorage storage = Activator.getInstance().getStorage();
+			final UserStorage storage = UsersPlugin.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();
 			try {
 				final BTreeMap<String, User> userMap = storage.getUserMap(db);
@@ -88,7 +88,7 @@ public class UserServlet extends TServlet {
 
 		@Override
 		public void deleteUser(String username) throws UserNotFound, TException {
-			final UserStorage storage = Activator.getInstance().getStorage();
+			final UserStorage storage = UsersPlugin.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();
 			try {
 				final BTreeMap<String, User> userMap = storage.getUserMap(db);

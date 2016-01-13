@@ -87,12 +87,13 @@ public class Consumer implements Closeable {
 		this.queueName = queueName;
 	}
 
-	public void openSession() throws Exception {
+	public void openSession(String username, String password) throws Exception {
 		if (session != null) return;
 
 		locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfig);
 		sessionFactory = locator.createSessionFactory();
-		session = sessionFactory.createSession();
+		session = sessionFactory.createSession(username, password, false, true, true,
+				locator.isPreAcknowledge(), locator.getAckBatchSize());
 		final boolean queueExists = session.queueQuery(new SimpleString(queueName)).isExists();
 		if (!queueExists) {
 			createQueue();

@@ -8,17 +8,13 @@
 	<classpathentry exported="true" kind="lib" path="lib/artemis-selector-jar-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/artemis-server-jar-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/artemis-server-javadoc-1.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-server-source-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/artemis-stomp-protocol-bundle-1.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-stomp-protocol-javadoc-1.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/artemis-stomp-protocol-source-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-jar-1.9.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections-jar-3.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-jar-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava-bundle-18.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javassist-bundle-3.20.0-GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javassist-javadoc-3.20.0-GA.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/javassist-source-3.20.0-GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-annotations-jar-2.0.0.Alpha1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-jar-3.1.4.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-processor-jar-2.0.0.Alpha2.jar"/>

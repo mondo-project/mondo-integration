@@ -64,6 +64,10 @@ public class HawkCommandProvider implements CommandProvider {
 	private String defaultNamespaces;
 	private Consumer consumer;
 
+	private String username;
+
+	private String password;
+
 	public Object _hawkHelp(CommandInterpreter intp) {
 		return getHelp();
 	}
@@ -73,8 +77,8 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkConnect(CommandInterpreter intp) throws Exception {
 		final String url = requiredArgument(intp, "url");
 
-		final String username = intp.nextArgument();
-		String password = intp.nextArgument();
+		username = intp.nextArgument();
+		password = intp.nextArgument();
 		if (username != null && password == null) {
 			Console console = System.console();
 			if (console == null) {
@@ -107,6 +111,8 @@ public class HawkCommandProvider implements CommandProvider {
 
 			client = null;
 			currentInstance = null;
+			username = null;
+			password = null;
 			return "Connection closed";
 		}
 		else {
@@ -472,7 +478,7 @@ public class HawkCommandProvider implements CommandProvider {
 
 		Subscription subscription = client.watchModelChanges(currentInstance, repository, files, clientId, durability);
 		consumer = APIUtils.connectToArtemis(subscription, durability);
-		consumer.openSession();
+		consumer.openSession(username, password);
 		Activator.getInstance().addCloseable(consumer);
 		final MessageHandler handler = new MessageHandler() {
 			@Override

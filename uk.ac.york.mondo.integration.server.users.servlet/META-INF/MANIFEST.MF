@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: MONDO User Management Servlet
 Bundle-SymbolicName: uk.ac.york.mondo.integration.server.users.servlet;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.york.mondo.integration.server.users.servlet.Activator
+Bundle-Activator: uk.ac.york.mondo.integration.server.users.servlet.UsersPlugin
 Bundle-Vendor: University of York
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.http.registry;bundle-version="1.1.300",
@@ -18,3 +18,14 @@ Bundle-ClassPath: lib/mapdb-1.0.8.jar,
  lib/shiro-core-1.2.4.jar,
  lib/shiro-web-1.2.4.jar,
  .
+Export-Package: org.apache.shiro,
+ org.apache.shiro.authc,
+ org.apache.shiro.authc.credential,
+ org.apache.shiro.mgt,
+ org.apache.shiro.realm,
+ org.mapdb,
+ uk.ac.york.mondo.integration.server.users.servlet,
+ uk.ac.york.mondo.integration.server.users.servlet.db,
+ uk.ac.york.mondo.integration.server.users.servlet.filters,
+ uk.ac.york.mondo.integration.server.users.servlet.servlets,
+ uk.ac.york.mondo.integration.server.users.servlet.shiro

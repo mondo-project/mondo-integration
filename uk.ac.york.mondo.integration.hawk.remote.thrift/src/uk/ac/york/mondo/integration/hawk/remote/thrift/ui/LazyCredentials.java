@@ -63,6 +63,9 @@ public class LazyCredentials implements Credentials {
 	public Principal getUserPrincipal() {
 		if (principal == null) {
 			getCredentials();
+			if (principal == null) {
+				return new BasicUserPrincipal("");
+			}
 		}
 		return principal;
 	}
@@ -71,7 +74,26 @@ public class LazyCredentials implements Credentials {
 	public String getPassword() {
 		if (password == null) {
 			getCredentials();
+			if (password == null) {
+				return "";
+			}
 		}
+		return password;
+	}
+
+	/**
+	 * Returns the principal if it has been fetched by a previous call of {@link #getUserPrincipal()},
+	 * otherwise returns <code>null</code>.
+	 */
+	public Principal getRawUserPrincipal() {
+		return principal;
+	}
+
+	/**
+	 * Returns the password if it has been fetched by a previous call of {@link #getPassword()},
+	 * otherwise returns <code>null</code>.
+	 */
+	public String getRawPassword() {
 		return password;
 	}
 

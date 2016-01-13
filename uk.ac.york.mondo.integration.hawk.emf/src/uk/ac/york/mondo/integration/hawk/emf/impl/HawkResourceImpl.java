@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -603,6 +604,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 			final String username = descriptor.getUsername();
 			final String password = descriptor.getPassword();
+			Credentials lazyCreds = null;
 			if (username != null && password != null && username.length() > 0 && password.length() > 0) {
 				this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
 						descriptor.getThriftProtocol(), username, password);
@@ -615,10 +617,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					 */
 					Class<?> lCredClass = Class
 							.forName("uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials");
-					Credentials creds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
+					lazyCreds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
 							.newInstance(descriptor.getHawkURL());
 					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
-							descriptor.getThriftProtocol(), creds);
+							descriptor.getThriftProtocol(), lazyCreds);
 				} catch (Exception ex) {
 					// Falling back to non-auth
 					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
@@ -674,7 +676,15 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					descriptor.getSubscriptionClientID(), sd);
 
 				subscriber = APIUtils.connectToArtemis(subscription, sd);
-				subscriber.openSession();
+				if (lazyCreds != null) {
+					// If security is disabled for the Thrift API, we do not want to trigger the secure storage here either.
+					// These methods in the LazyCredentials class do just that.
+					final Principal fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+					final String fetchedPass = (String) lazyCreds.getClass().getMethod("getRawPassword").invoke(lazyCreds);
+					subscriber.openSession(fetchedUser.getName(), fetchedPass);
+				} else {
+					subscriber.openSession(descriptor.getUsername(), descriptor.getPassword());
+				}
 				subscriber.processChangesAsync(new HawkResourceMessageHandler(
 					descriptor.getThriftProtocol().getProtocolFactory()));
 			}

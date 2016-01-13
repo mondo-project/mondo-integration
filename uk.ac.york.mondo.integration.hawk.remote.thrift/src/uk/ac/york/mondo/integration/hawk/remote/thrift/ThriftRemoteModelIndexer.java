@@ -51,6 +51,7 @@ import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.runtime.CompositeStateListener;
 import org.hawk.core.util.HawkProperties;
+import org.hawk.osgiserver.HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -381,7 +382,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 	}
 
-	private final String name;
+	private final String name, location;
 	private final Client client;
 	private final IConsole console;
 
@@ -393,8 +394,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	private CompositeStateListener stateListener = new CompositeStateListener();
 	private Consumer consumer;
 
-	public ThriftRemoteModelIndexer(String name, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
+	public ThriftRemoteModelIndexer(String name, String location, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
 		this.name = name;
+		this.location = location;
 		this.client = client;
 		this.credStore = credStore;
 		this.console = console;
@@ -572,9 +574,14 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 				}
 			}
 
+			org.hawk.core.ICredentialsStore.Credentials creds = HManager.getInstance().getCredentialsStore().get(location);
 			Subscription subState = client.watchStateChanges(name);
 			consumer = APIUtils.connectToArtemis(subState, SubscriptionDurability.TEMPORARY);
-			consumer.openSession();
+			if (creds != null) {
+				consumer.openSession(creds.getUsername(), creds.getPassword());
+			} else {
+				consumer.openSession(null, null);
+			}
 			consumer.processChangesAsync(new StatePropagationConsumer(currentState, currentInfo));
 		} catch (HawkInstanceNotFound nf) {
 			/*

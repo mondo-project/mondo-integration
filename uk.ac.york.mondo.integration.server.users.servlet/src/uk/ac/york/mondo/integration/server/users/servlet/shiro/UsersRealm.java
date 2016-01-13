@@ -13,7 +13,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.mapdb.DB;
 
-import uk.ac.york.mondo.integration.server.users.servlet.Activator;
+import uk.ac.york.mondo.integration.server.users.servlet.UsersPlugin;
 import uk.ac.york.mondo.integration.server.users.servlet.db.User;
 import uk.ac.york.mondo.integration.server.users.servlet.db.UserStorage;
 
@@ -54,7 +54,7 @@ public class UsersRealm extends AuthenticatingRealm {
 			final UsernamePasswordToken upToken = (UsernamePasswordToken)token;
 			final String username = upToken.getUsername();
 
-			final UserStorage storage = Activator.getInstance().getStorage();
+			final UserStorage storage = UsersPlugin.getInstance().getStorage();
 			final DB db = storage.getTxMaker().makeTx();
 			try {
 				final User user = storage.getUserMap(db).get(username);

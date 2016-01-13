@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Server {
 
+	private static final String SECURITY_ENABLED_PROPERTY = "artemis.security.enabled";
+
 	private class FluidMap<K, V> extends HashMap<K, V> {
 		private static final long serialVersionUID = 1L;
 
@@ -62,8 +64,13 @@ public class Server {
 
 		Configuration config = new ConfigurationImpl();
 
-		// TODO: integrate with auth after it's done
-		config.setSecurityEnabled(false);
+		// Enable/disable Artemis security through property
+		final String sSecurityEnabled = System.getProperty(SECURITY_ENABLED_PROPERTY);
+		boolean securityEnabled = false;
+		if (sSecurityEnabled != null) {
+			securityEnabled = Boolean.valueOf(sSecurityEnabled);
+		}
+		config.setSecurityEnabled(securityEnabled);
 
 		// Enable in-VM, regular HTTP and Stomp over Web Sockets
 		Set<TransportConfiguration> transports = new HashSet<>();
@@ -94,6 +101,7 @@ public class Server {
 
 		server = new EmbeddedActiveMQ();
 		server.setConfiguration(config);
+		server.setSecurityManager(new ShiroRealmSecurityManager());
 		server.start();
 
 		LOGGER.info("Artemis server started");

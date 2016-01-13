@@ -53,6 +53,7 @@
       <import plugin="org.hawk.graph" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="uk.ac.york.mondo.integration.artemis" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="javax.servlet"/>
+      <import plugin="uk.ac.york.mondo.integration.artemis.server"/>
    </requires>
 
    <plugin
