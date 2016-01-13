@@ -76,6 +76,10 @@ Creating a password file from 100 bytes of random data can be produced with thes
 
 The server will test on startup that the secure store has been set properly: if you get a warning that encryption is not available, you will need to revise your setup.
 
+Another important detail for production environments is turning on security. This is disabled by default to help with testing and initial evaluations, but it can be enabled by running the server once, shutting it down and then editing the `shiro.ini` file appropriately (relevant sections include comments on what to do) and switching `artemis.security.enabled` to `true` in the `mondo-server.ini` file. The MONDO server uses an embedded MapDB database, which is managed through the Users Thrift API. Once security is enabled, all Thrift APIs and all external (not in-VM) Artemis connections become password-protected.
+
+Finally, production environments should enable and enforce SSL as well, since plain HTTP is insecure. Some pointers on how to do this are provided [https://www.eclipse.org/forums/index.php/t/24782/](here).
+
 Hawk integration
 ----------------
 
