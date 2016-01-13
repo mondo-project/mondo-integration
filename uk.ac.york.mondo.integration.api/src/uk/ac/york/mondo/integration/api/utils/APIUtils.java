@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.thrift.TServiceClient;
@@ -118,10 +119,15 @@ public class APIUtils {
 	}
 
 	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, String username, String password) throws TTransportException {
+		final UsernamePasswordCredentials credentials = (username != null && password != null) ? new UsernamePasswordCredentials(username, password) : null;
+		return connectTo(clazz, url, thriftProtocol, credentials);
+	}
+
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, final Credentials credentials) throws TTransportException {
 		try {
 			final DefaultHttpClient httpClient = APIUtils.createGZipAwareHttpClient();
-			if (username != null && password != null) {
-				httpClient.getCredentialsProvider().setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(username, password));
+			if (credentials != null) {
+				httpClient.getCredentialsProvider().setCredentials(new AuthScope(null, -1), credentials);
 			}
 			final THttpClient transport = new THttpClient(url, httpClient);
 			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
