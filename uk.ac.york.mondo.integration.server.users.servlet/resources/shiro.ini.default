@@ -3,10 +3,10 @@
 # Such as the securityManager, Realms and anything
 # else needed to build the SecurityManager
 
-# Note: this should be set to true in production!
+# Toggle to enforce using SSL: should be true in production!
 ssl.enabled = false
 
-# Toggle to enable/disable authentication completely (false by default until we finish updating all clients)
+# Toggle to enable/disable authentication completely: should be true in production!
 authcBasic.enabled = false
 
 # Use MONDO realm

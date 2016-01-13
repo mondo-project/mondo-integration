@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.httpcomponents.httpcore;bundle-version="4.3.3",
  uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0",
  org.hawk.emfresource;bundle-version="1.0.0",
- com.google.guava;bundle-version="15.0.0"
+ com.google.guava;bundle-version="15.0.0",
+ uk.ac.york.mondo.integration.hawk.remote.thrift;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.york.mondo.integration.hawk.emf,
  uk.ac.york.mondo.integration.hawk.emf.impl

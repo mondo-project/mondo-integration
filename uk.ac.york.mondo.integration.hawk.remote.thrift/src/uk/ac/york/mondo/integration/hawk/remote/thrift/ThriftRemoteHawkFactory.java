@@ -20,11 +20,13 @@ import org.hawk.core.IHawk;
 import org.hawk.core.IHawkFactory;
 import org.hawk.core.IStateListener;
 import org.hawk.core.IStateListener.HawkState;
+import org.hawk.osgiserver.HManager;
 
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkInstance;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
@@ -76,8 +78,9 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 	}
 
 	protected Hawk.Client getClient(String location) throws TTransportException {
+		final ICredentialsStore credentialsStore = HManager.getInstance().getCredentialsStore();
 		ThriftProtocol proto = ThriftProtocol.guessFromURL(location);
-		Hawk.Client client = APIUtils.connectToHawk(location, proto);
+		Hawk.Client client = APIUtils.connectTo(Hawk.Client.class, location, proto, new LazyCredentials(location, credentialsStore));
 		return client;
 	}
 

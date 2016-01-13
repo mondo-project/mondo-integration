@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.http.auth.Credentials;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
@@ -66,6 +67,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
 import uk.ac.york.mondo.integration.api.FailedQuery;
+import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.HawkAttributeRemovalEvent;
 import uk.ac.york.mondo.integration.api.HawkAttributeUpdateEvent;
@@ -598,7 +600,31 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 		try {
 			this.descriptor = descriptor;
-			this.client = APIUtils.connectToHawk(descriptor.getHawkURL(), descriptor.getThriftProtocol());
+
+			final String username = descriptor.getUsername();
+			final String password = descriptor.getPassword();
+			if (username != null && password != null && username.length() > 0 && password.length() > 0) {
+				this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
+						descriptor.getThriftProtocol(), username, password);
+			} else {
+				try {
+					/*
+					 * If we don't have explicit username/password but the
+					 * remote.thrift plugin is available, we may be able to
+					 * reuse previously stored usernames/passwords.
+					 */
+					Class<?> lCredClass = Class
+							.forName("uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials");
+					Credentials creds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
+							.newInstance(descriptor.getHawkURL());
+					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
+							descriptor.getThriftProtocol(), creds);
+				} catch (Exception ex) {
+					// Falling back to non-auth
+					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
+							descriptor.getThriftProtocol());
+				}
+			}
 
 			// TODO allow for multiple repositories
 			final LoadingMode mode = descriptor.getLoadingMode();

@@ -102,10 +102,6 @@ public class APIUtils {
 	private APIUtils() {
 	}
 
-	public static Hawk.Client connectToHawk(String url, ThriftProtocol tProtocol) throws TTransportException {
-		return connectTo(Hawk.Client.class, url, tProtocol);
-	}
-
 	public static Consumer connectToArtemis(Subscription s, SubscriptionDurability sd) throws Exception {
 		return Consumer.connectRemote(s.host, s.port, s.queueAddress, s.queueName, toQueueType(sd));
 	}

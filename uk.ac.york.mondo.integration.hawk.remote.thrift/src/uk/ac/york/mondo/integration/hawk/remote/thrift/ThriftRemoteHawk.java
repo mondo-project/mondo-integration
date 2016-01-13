@@ -23,6 +23,7 @@ import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
+import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 
 public class ThriftRemoteHawk implements IHawk {
 

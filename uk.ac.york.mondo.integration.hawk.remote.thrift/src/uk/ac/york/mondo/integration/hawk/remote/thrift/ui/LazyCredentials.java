@@ -1,4 +1,4 @@
-package uk.ac.york.mondo.integration.hawk.remote.thrift;
+package uk.ac.york.mondo.integration.hawk.remote.thrift.ui;
 
 import java.security.Principal;
 
@@ -8,10 +8,9 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.hawk.core.ICredentialsStore;
+import org.hawk.osgiserver.HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.UsernamePasswordDialog;
 
 /**
  * Uses the Hawk credentials store to provide HTTP auth credentials. If needed, it
@@ -29,7 +28,7 @@ public class LazyCredentials implements Credentials {
 
 		@Override
 		public void run() {
-			UsernamePasswordDialog dlg = new UsernamePasswordDialog(display.getActiveShell());
+			UsernamePasswordDialog dlg = new UsernamePasswordDialog(display.getActiveShell(), storeKey);
 			if (dlg.open() == Dialog.OK) {
 				creds = new org.hawk.core.ICredentialsStore.Credentials(dlg.getUsername(), dlg.getPassword());
 				try {
@@ -50,6 +49,10 @@ public class LazyCredentials implements Credentials {
 	private final ICredentialsStore credStore;
 	private Principal principal;
 	private String password;
+
+	public LazyCredentials(String storeKey) {
+		this(storeKey, HManager.getInstance().getCredentialsStore());
+	}
 
 	public LazyCredentials(String storeKey, ICredentialsStore credStore) {
 		this.storeKey = storeKey;

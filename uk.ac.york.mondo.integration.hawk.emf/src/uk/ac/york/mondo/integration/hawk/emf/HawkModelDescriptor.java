@@ -142,6 +142,8 @@ public class HawkModelDescriptor {
 	public static final String DEFAULT_FILES = "*";
 	public static final String DEFAULT_REPOSITORY = "*";
 	public static final String DEFAULT_URL = "http://127.0.0.1:8080/thrift/hawk/tuple";
+	public static final String DEFAULT_USERNAME = "";
+	public static final String DEFAULT_PASSWORD = "";
 	public static final String DEFAULT_INSTANCE = "myhawk";
 	public static final LoadingMode DEFAULT_LOADING_MODE = LoadingMode.GREEDY;
 	public static final boolean DEFAULT_IS_SUBSCRIBED = false;
@@ -170,10 +172,14 @@ public class HawkModelDescriptor {
 	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
 	private static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
 	private static final String PROPERTY_HAWK_SPLIT = "hawk.split";
+	private static final String PROPERTY_HAWK_USERNAME = "hawk.username";
+	private static final String PROPERTY_HAWK_PASSWORD = "hawk.password";
 
 	private String hawkURL = DEFAULT_URL;
 	private String hawkInstance = DEFAULT_INSTANCE;
 	private ThriftProtocol thriftProtocol = DEFAULT_TPROTOCOL;
+	private String hawkUsername = DEFAULT_USERNAME;
+	private String hawkPassword = DEFAULT_PASSWORD;
 
 	private String hawkRepository = DEFAULT_REPOSITORY;
 	private String[] hawkFilePatterns = new String[] { DEFAULT_FILES };
@@ -315,6 +321,22 @@ public class HawkModelDescriptor {
 		this.defaultNamespaces = defaultNamespaces;
 	}
 
+	public String getUsername() {
+		return hawkUsername;
+	}
+
+	public void setUsername(String hawkUsername) {
+		this.hawkUsername = hawkUsername;
+	}
+
+	public String getPassword() {
+		return hawkPassword;
+	}
+
+	public void setPassword(String hawkPassword) {
+		this.hawkPassword = hawkPassword;
+	}
+
 	public void save(OutputStream os) throws IOException {
 		createProperties().store(os, "");
 	}
@@ -328,6 +350,8 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_URL, hawkURL);
 		props.setProperty(PROPERTY_HAWK_INSTANCE, hawkInstance);
 		props.setProperty(PROPERTY_HAWK_TPROTOCOL, thriftProtocol.toString());
+		props.setProperty(PROPERTY_HAWK_USERNAME, hawkUsername);
+		props.setProperty(PROPERTY_HAWK_PASSWORD, hawkPassword);
 
 		props.setProperty(PROPERTY_HAWK_REPOSITORY, hawkRepository);
 		props.setProperty(PROPERTY_HAWK_FILES, concat(hawkFilePatterns, FILE_PATTERN_SEP));
@@ -347,6 +371,8 @@ public class HawkModelDescriptor {
 		this.hawkURL = requiredProperty(props, PROPERTY_HAWK_URL);
 		this.hawkInstance = requiredProperty(props, PROPERTY_HAWK_INSTANCE);
 		this.thriftProtocol = ThriftProtocol.valueOf(optionalProperty(props, PROPERTY_HAWK_TPROTOCOL, DEFAULT_TPROTOCOL + ""));
+		this.hawkUsername = optionalProperty(props, PROPERTY_HAWK_USERNAME, DEFAULT_USERNAME);
+		this.hawkPassword = optionalProperty(props, PROPERTY_HAWK_PASSWORD, DEFAULT_PASSWORD);
 
 		this.hawkRepository = optionalProperty(props, PROPERTY_HAWK_REPOSITORY, DEFAULT_REPOSITORY);
 		this.hawkFilePatterns = optionalProperty(props, PROPERTY_HAWK_FILES, DEFAULT_FILES).split(FILE_PATTERN_SEP);

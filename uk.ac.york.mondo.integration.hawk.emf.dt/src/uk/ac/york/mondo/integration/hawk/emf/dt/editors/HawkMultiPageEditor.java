@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.thrift.transport.TTransportException;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -78,6 +79,7 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceFactoryImpl;
+import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 
 /**
  * Editor for <code>.hawkmodel</code> files. The first page is a form-based UI
@@ -143,11 +145,12 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void instanceNameChanged() { refreshRawText(); }
 				@Override protected void serverURLChanged()    { refreshRawText(); }
 				@Override protected void thriftProtocolChanged() { refreshRawText(); }
+				@Override protected void usernameChanged() { refreshRawText(); }
+				@Override protected void passwordChanged() { refreshRawText(); }
 				@Override protected void selectInstance() {
 					final HawkModelDescriptor d = buildDescriptor();
 					try {
-						Hawk.Client client = APIUtils.connectToHawk(
-								d.getHawkURL(), d.getThriftProtocol());
+						Hawk.Client client = connectToHawk(d);
 						final List<HawkInstance> instances = client.listInstances();
 						Collections.sort(instances);
 						client.getInputProtocol().getTransport().close();
@@ -203,8 +206,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				@Override protected void selectQueryLanguage() {
 					final HawkModelDescriptor d = buildDescriptor();
 					try {
-						Hawk.Client client = APIUtils.connectToHawk(
-								d.getHawkURL(), d.getThriftProtocol());
+						Hawk.Client client = connectToHawk(d);
 						final String[] languages = client.listQueryLanguages(
 								d.getHawkInstance()).toArray(new String[0]);
 						client.getInputProtocol().getTransport().close();
@@ -235,8 +237,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				protected void selectRepository() {
 					final HawkModelDescriptor d = buildDescriptor();
 					try {
-						Hawk.Client client = APIUtils.connectToHawk(
-								d.getHawkURL(), d.getThriftProtocol());
+						Hawk.Client client = connectToHawk(d);
 						List<Repository> repositories = client.listRepositories(d.getHawkInstance());
 						final String[] repos = new String[1 + repositories.size()];
 						repos[0] = "*";
@@ -273,8 +274,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				protected void selectFiles() {
 					final HawkModelDescriptor d = buildDescriptor();
 					try {
-						Hawk.Client client = APIUtils.connectToHawk(
-								d.getHawkURL(), d.getThriftProtocol());
+						Hawk.Client client = connectToHawk(d);
 						final String[] files = client.listFiles(
 								d.getHawkInstance(), Arrays.asList(d.getHawkRepository()),
 								Arrays.asList("*")).toArray(new String[0]);
@@ -351,6 +351,10 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		private final Text text;
 
 		public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
+			this(toolkit, sectionClient, labelText, defaultValue, SWT.BORDER);
+		}
+
+		public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue, int textStyle) {
 		    label = toolkit.createFormText(sectionClient, true);
 		    label.setText("<form><p>" + labelText + "</p></form>", true, false);
 		    label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
@@ -359,7 +363,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			layoutData.valign = TableWrapData.MIDDLE;
 			label.setLayoutData(layoutData);
 
-			text = toolkit.createText(sectionClient, defaultValue, SWT.BORDER);
+			text = toolkit.createText(sectionClient, defaultValue, textStyle);
 			text.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 		}
 
@@ -593,6 +597,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		private final FormTextField fldInstanceName;
 		private final FormTextField fldServerURL;
 		private final FormComboBoxField fldTProtocol;
+		private final FormTextField fldUsername;
+		private final FormTextField fldPassword;
 
 		public InstanceSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Instance", "Access details for the remote Hawk instance.");
@@ -601,10 +607,23 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		    this.fldServerURL = new FormTextField(toolkit, cContents, "Server URL:", "");
 		    this.fldTProtocol = new FormComboBoxField(toolkit, cContents, "Thrift protocol:", ThriftProtocol.strings());
 		    this.fldInstanceName = new FormTextField(toolkit, cContents, "<a href=\"selectInstance\">Instance name</a>:", "");
+		    this.fldUsername = new FormTextField(toolkit, cContents, "Username:", "");
+		    this.fldPassword = new FormTextField(toolkit, cContents, "Password:", "", SWT.BORDER | SWT.PASSWORD);
 
 		    fldServerURL.getText().addModifyListener(this);
 		    fldInstanceName.getText().addModifyListener(this);
 		    fldTProtocol.getCombo().addSelectionListener(this);
+		    fldUsername.getText().addModifyListener(this);
+		    fldPassword.getText().addModifyListener(this);
+
+		    fldUsername.getText().setToolTipText(
+		    	"Username to be included in the .hawkmodel file, to log "
+			+ "into the Hawk Thrift API. To use the Eclipse secure storage "
+			+ "instead, keep blank.");
+		    fldPassword.getText().setToolTipText(
+			"Plaintext password to be included in the .hawkmodel file, to log "
+			+ "into the Hawk Thrift API. To use the Eclipse secure storage "
+			+ "instead, keep blank.");
 
 		    fldInstanceName.getLabel().addHyperlinkListener(new HyperlinkAdapter() {
 		    	public void linkActivated(HyperlinkEvent e) {
@@ -641,12 +660,32 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			fldTProtocol.getCombo().select(t.ordinal());
 		}
 
+		public String getUsername() {
+			return fldUsername.getText().getText();
+		}
+
+		public void setUsername(String u) {
+			fldUsername.setTextWithoutListener(u, this);
+		}
+
+		public String getPassword() {
+			return fldPassword.getText().getText();
+		}
+
+		public void setPassword(String p) {
+			fldPassword.setTextWithoutListener(p, this);
+		}
+
 		@Override
 		public void modifyText(ModifyEvent e) {
 			if (e.widget == fldServerURL.getText()) {
 				serverURLChanged();
 			} else if (e.widget == fldInstanceName.getText()) {
 				instanceNameChanged();
+			} else if (e.widget == fldUsername.getText()) {
+				usernameChanged();
+			} else if (e.widget == fldPassword.getText()) {
+				passwordChanged();
 			}
 		}
 
@@ -665,6 +704,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		protected abstract void instanceNameChanged();
 		protected abstract void serverURLChanged();
 		protected abstract void thriftProtocolChanged();
+		protected abstract void usernameChanged();
+		protected abstract void passwordChanged();
 		protected abstract void selectInstance();
 	}
 
@@ -875,6 +916,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getInstanceSection().setServerURL(descriptor.getHawkURL());
 			detailsPage.getInstanceSection().setInstanceName(descriptor.getHawkInstance());
 			detailsPage.getInstanceSection().setThriftProtocol(descriptor.getThriftProtocol());
+			detailsPage.getInstanceSection().setUsername(descriptor.getUsername());
+			detailsPage.getInstanceSection().setPassword(descriptor.getPassword());
 			detailsPage.getContentSection().setRepositoryURL(descriptor.getHawkRepository());
 			detailsPage.getContentSection().setFilePatterns(descriptor.getHawkFilePatterns());
 			detailsPage.getContentSection().setLoadingMode(descriptor.getLoadingMode());
@@ -910,6 +953,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setHawkURL(detailsPage.getInstanceSection().getServerURL());
 		descriptor.setHawkInstance(detailsPage.getInstanceSection().getInstanceName());
 		descriptor.setThriftProtocol(detailsPage.getInstanceSection().getThriftProtocol());
+		descriptor.setUsername(detailsPage.getInstanceSection().getUsername());
+		descriptor.setPassword(detailsPage.getInstanceSection().getPassword());
 		descriptor.setHawkRepository(detailsPage.getContentSection().getRepositoryURL());
 		descriptor.setHawkFilePatterns(detailsPage.getContentSection().getFilePatterns());
 		descriptor.setLoadingMode(detailsPage.getContentSection().getLoadingMode());
@@ -946,4 +991,9 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 	}
 
+	protected Hawk.Client connectToHawk(final HawkModelDescriptor d) throws TTransportException {
+		return APIUtils.connectTo(Hawk.Client.class,
+				d.getHawkURL(), d.getThriftProtocol(),
+				new LazyCredentials(d.getHawkURL()));
+	}
 }

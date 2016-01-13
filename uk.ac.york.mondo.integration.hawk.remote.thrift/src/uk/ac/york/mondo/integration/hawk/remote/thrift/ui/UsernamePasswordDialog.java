@@ -1,14 +1,15 @@
 package uk.ac.york.mondo.integration.hawk.remote.thrift.ui;
 
-/*
-  SWT/JFace in Action
-  GUI Design with Eclipse 3.0
-  Matthew Scarpino, Stephen Holder, Stanford Ng, and Laurent Mihalkovic
-
-  ISBN: 1932394273
-
-  Publisher: Manning
-*/
+/* Based on the following code, with modifications:
+ *
+ * SWT/JFace in Action
+ * GUI Design with Eclipse 3.0
+ * Matthew Scarpino, Stephen Holder, Stanford Ng, and Laurent Mihalkovic
+ *
+ * ISBN: 1932394273
+ *
+ * Publisher: Manning
+ */
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -28,11 +29,18 @@ public class UsernamePasswordDialog extends Dialog {
 	private Text passwordField;
 
 	private String username;
-
 	private String password;
+	private String location;
 
-	public UsernamePasswordDialog(Shell parentShell) {
+	public UsernamePasswordDialog(Shell parentShell, String location) {
 		super(parentShell);
+		this.location = location;
+	}
+
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText("Auth for " + location);
 	}
 
 	protected Control createDialogArea(Composite parent) {
