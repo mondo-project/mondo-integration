@@ -950,12 +950,29 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				eobFactory = new LazyEObjectFactory(getResourceSet().getPackageRegistry(), new MethodInterceptor() {
 					@Override
 					public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
-						// We need to serialize modifications from lazy loading + change notifications,
-						// for consistency and for the ability to signal if an EMF notification comes
-						// from lazy loading or not.
-						synchronized(nodeIdToEObjectMap) {
+						final EObject eob = (EObject)o;
+						switch (m.getName()) {
+						case "eGet":
+							// We need to serialize modifications from lazy loading + change notifications,
+							// for consistency and for the ability to signal if an EMF notification comes
+							// from lazy loading or not.
+							synchronized(nodeIdToEObjectMap) {
+								final LoadingMode loadingMode = getDescriptor().getLoadingMode();
+								getLazyResolver().resolve(eob, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+							}
+							break;
+						case "eContents":
+						default:
+							// eContents requires resolving all containment references from the object
 							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
-							getLazyResolver().resolve((EObject)o, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+							synchronized(nodeIdToEObjectMap) {
+								for (EReference ref : eob.eClass().getEAllReferences()) {
+									if (ref.isContainment()) {
+										getLazyResolver().resolve(eob, (EStructuralFeature)ref, loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+									}
+								}
+							}
+							break;
 						}
 						return proxy.invokeSuper(o, args);
 					}
