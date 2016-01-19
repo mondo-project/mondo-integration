@@ -169,6 +169,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public Object query(IGraphDatabase g, String query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
+			if (context == null) {
+				context = Collections.emptyMap();
+			}
 			String sRepoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
 			if (sRepoScope == null) {
 				sRepoScope = "*";
