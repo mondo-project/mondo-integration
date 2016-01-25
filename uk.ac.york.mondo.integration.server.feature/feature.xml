@@ -35,13 +35,6 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.york.mondo.integration.server.product"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.york.mondo.integration.server.logback"
          download-size="0"
          install-size="0"
@@ -106,5 +99,11 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="uk.ac.york.mondo.integration.server.application"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
