@@ -23,6 +23,7 @@
     <module>uk.ac.york.mondo.integration.api</module>
     <module>uk.ac.york.mondo.integration.api.feature</module>
     <module>uk.ac.york.mondo.integration.artemis</module>
+    <module>uk.ac.york.mondo.integration.artemis.server</module>
     <module>uk.ac.york.mondo.integration.clients.cli.feature</module>
     <module>uk.ac.york.mondo.integration.clients.cli.application</module>
     <module>uk.ac.york.mondo.integration.clients.cli.product</module>
