@@ -14,9 +14,9 @@ Require-Bundle: org.hawk.core,
  org.eclipse.core.runtime,
  uk.ac.york.mondo.integration.artemis;bundle-version="1.0.0",
  org.apache.httpcomponents.httpclient;bundle-version="4.3.6",
- org.eclipse.swt;bundle-version="3.104.1",
- org.eclipse.jface;bundle-version="3.11.0",
- org.eclipse.ui;bundle-version="3.107.0",
+ org.eclipse.swt,
+ org.eclipse.jface,
+ org.eclipse.ui,
  org.hawk.osgiserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.york.mondo.integration.hawk.remote.thrift.Activator
