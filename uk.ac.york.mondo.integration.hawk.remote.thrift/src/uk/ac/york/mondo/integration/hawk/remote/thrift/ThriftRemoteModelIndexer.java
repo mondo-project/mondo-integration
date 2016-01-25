@@ -49,6 +49,7 @@ import org.hawk.core.query.IAccessListener;
 import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
+import org.hawk.core.runtime.CompositeGraphChangeListener;
 import org.hawk.core.runtime.CompositeStateListener;
 import org.hawk.core.util.HawkProperties;
 import org.hawk.osgiserver.HManager;
@@ -157,7 +158,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object query(IGraphDatabase g, File query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer g, File query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			try {
 				return query(g, fileToString(query), context);
@@ -167,7 +168,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object query(IGraphDatabase g, String query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer g, String query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			if (context == null) {
 				context = Collections.emptyMap();
@@ -214,17 +215,15 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public IAccessListener calculateDerivedAttributes(IGraphDatabase g,
-				Iterable<IGraphNode> nodes) throws InvalidQueryException,
-				QueryExecutionException {
-			// this dummy query engine does *not* update derived attributes
-			// -- we're just a client.
-			return null;
+		public void setDefaultNamespaces(String defaultNamespaces) {
+			this.defaultNamespaces = defaultNamespaces;
 		}
 
 		@Override
-		public void setDefaultNamespaces(String defaultNamespaces) {
-			this.defaultNamespaces = defaultNamespaces;
+		public IAccessListener calculateDerivedAttributes(IModelIndexer m, Iterable<IGraphNode> nodes)
+				throws InvalidQueryException, QueryExecutionException {
+			// nothing to do here!
+			return null;
 		}
 	}
 
@@ -762,7 +761,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public IGraphChangeListener getCompositeGraphChangeListener() {
+	public CompositeGraphChangeListener getCompositeGraphChangeListener() {
 		// TODO Add remote notifications here?
 		return null;
 	}
@@ -801,7 +800,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public IStateListener getCompositeStateListener() {
+	public CompositeStateListener getCompositeStateListener() {
 		return stateListener;
 	}
 
