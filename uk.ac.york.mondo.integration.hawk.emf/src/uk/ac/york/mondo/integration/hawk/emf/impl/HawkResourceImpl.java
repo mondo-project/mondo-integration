@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -640,7 +641,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
 			opts.setIncludeAttributes(mode.isGreedyAttributes());
 			opts.setIncludeReferences(true);
-			opts.setIncludeNodeIDs(!mode.isGreedyAttributes() || descriptor.isSubscribed());
+			opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
 			opts.setIncludeContained(mode.isGreedyElements());
 
 			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
@@ -654,7 +655,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			} else if (mode.isGreedyElements()) {
 				opts.setIncludeAttributes(mode.isGreedyAttributes());
 				opts.setIncludeReferences(true);
-				opts.setIncludeNodeIDs(!mode.isGreedyAttributes() || descriptor.isSubscribed());
+				opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
 
 				// We need node IDs if attributes are lazy or if we're subscribing to remote changes
 				elems = client.getModel(descriptor.getHawkInstance(), opts);
@@ -701,10 +702,19 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		}
 	}
 
+	protected boolean isIncludeNodeIDs(final HawkModelDescriptor descriptor) {
+		final LoadingMode lm = descriptor.getLoadingMode();
+		return !lm.isGreedyElements() || !lm.isGreedyAttributes() || descriptor.isSubscribed();
+	}
+
 	@Override
 	public EList<EObject> fetchNodes(final List<String> ids, boolean mustFetchAttributes)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning,
 			TException, IOException {
+		if (!isIncludeNodeIDs(getDescriptor())) {
+			throw new IllegalArgumentException("Cannot fetch by ID: loading mode is " + descriptor.getLoadingMode());
+		}
+
 		// Filter the objects that need to be retrieved
 		final List<String> toBeFetched = new ArrayList<>();
 		for (final String id : ids) {
@@ -744,17 +754,34 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				return precomputed;
 			}
 
-			// TODO: add "getInstancesOfType" to Hawk API instead of Hawk EOL query?
-			final HawkQueryOptions opts = new HawkQueryOptions();
-			opts.setDefaultNamespaces(eClass.getEPackage().getNsURI());
-			opts.setRepositoryPattern(descriptor.getHawkRepository());
-			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+			if (!isIncludeNodeIDs(getDescriptor())) {
+				// IDs are not available, so do a full traversal and precompute allInstances
+				// for every class while we're at it.
+				final EList<EObject> computed = new BasicEList<EObject>();
+				for (Resource r : getResourceSet().getResources()) {
+					for (final Iterator<EObject> itEob = r.getAllContents(); itEob.hasNext(); ) {
+						final EObject eob = itEob.next();
+						final EClass ec = eob.eClass();
+						if (eClass.isSuperTypeOf(ec)) {
+							computed.add(eob);
+						}
+					}
+				}
+				classToEObjectsMap.put(eClass, computed);
+				return computed;
+			} else {
+				// TODO: add "getInstancesOfType" to Hawk API instead of Hawk EOL query?
+				final HawkQueryOptions opts = new HawkQueryOptions();
+				opts.setDefaultNamespaces(eClass.getEPackage().getNsURI());
+				opts.setRepositoryPattern(descriptor.getHawkRepository());
+				opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
 
-			final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
+				final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
 					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG, opts);
-			final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs, includeAttributes);
-			classToEObjectsMap.put(eClass, fetched);
-			return fetched;
+				final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs, includeAttributes);
+				classToEObjectsMap.put(eClass, fetched);
+				return fetched;
+			}
 		}
 	}
 
