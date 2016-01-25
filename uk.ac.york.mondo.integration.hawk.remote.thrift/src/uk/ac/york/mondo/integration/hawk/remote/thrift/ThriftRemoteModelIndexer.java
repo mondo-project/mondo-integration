@@ -158,17 +158,17 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object query(IModelIndexer g, File query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer m, File query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			try {
-				return query(g, fileToString(query), context);
+				return query(m, fileToString(query), context);
 			} catch (IOException e) {
 				throw new InvalidQueryException(e);
 			}
 		}
 
 		@Override
-		public Object query(IModelIndexer g, String query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer m, String query, Map<String, String> context) throws InvalidQueryException,
 				QueryExecutionException {
 			if (context == null) {
 				context = Collections.emptyMap();
@@ -215,15 +215,17 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void setDefaultNamespaces(String defaultNamespaces) {
-			this.defaultNamespaces = defaultNamespaces;
+		public IAccessListener calculateDerivedAttributes(IModelIndexer m,
+				Iterable<IGraphNode> nodes) throws InvalidQueryException,
+				QueryExecutionException {
+			// this dummy query engine does *not* update derived attributes
+			// -- we're just a client.
+			return null;
 		}
 
 		@Override
-		public IAccessListener calculateDerivedAttributes(IModelIndexer m, Iterable<IGraphNode> nodes)
-				throws InvalidQueryException, QueryExecutionException {
-			// nothing to do here!
-			return null;
+		public void setDefaultNamespaces(String defaultNamespaces) {
+			this.defaultNamespaces = defaultNamespaces;
 		}
 	}
 
