@@ -350,7 +350,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void run(String vcsloc, IModelIndexer indexer) throws Exception {
+		public void init(String vcsloc, IModelIndexer indexer) throws Exception {
+			// nothing to do
+		}
+		
+		@Override
+		public void run() throws Exception {
 			// nothing to do
 		}
 
