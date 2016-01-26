@@ -82,16 +82,6 @@ exception HawkInstanceNotFound {
 exception HawkInstanceNotRunning {
 }
 
-struct HawkQueryOptions {
-	 /* The repository for the query (or * for all repositories). */ 1: optional string repositoryPattern = "*",
-	 /* The file patterns for the query (e.g. *.uml). */ 2: optional list<string> filePatterns,
-	 /* The default namespaces to be used to resolve ambiguous unqualified types. */ 3: optional string defaultNamespaces,
-	 /* Whether to include attributes (true) or not (false) in model element results. */ 4: optional bool includeAttributes = true,
-	 /* Whether to include references (true) or not (false) in model element results. */ 5: optional bool includeReferences = true,
-	 /* Whether to include node IDs (true) or not (false) in model element results. */ 6: optional bool includeNodeIDs = false,
-	 /* Whether to include all the child elements of the model element results (true) or not (false). */ 7: optional bool includeContained = true,
-}
-
 struct HawkStateEvent {
 	 /* Timestamp for this state change. */ 1: required i64 timestamp,
 	 /* State of the Hawk instance. */ 2: required HawkState state,
@@ -264,6 +254,17 @@ struct HawkModelElementAdditionEvent {
 struct HawkModelElementRemovalEvent {
 	 /* Entry within the commit that produced the changes. */ 1: required CommitItem vcsItem,
 	 /* Identifier of the model element that was removed. */ 2: required string id,
+}
+
+struct HawkQueryOptions {
+	 /* The repository for the query (or * for all repositories). */ 1: optional string repositoryPattern = "*",
+	 /* The file patterns for the query (e.g. *.uml). */ 2: optional list<string> filePatterns,
+	 /* The default namespaces to be used to resolve ambiguous unqualified types. */ 3: optional string defaultNamespaces,
+	 /* Whether to include attributes (true) or not (false) in model element results. */ 4: optional bool includeAttributes = true,
+	 /* Whether to include references (true) or not (false) in model element results. */ 5: optional bool includeReferences = true,
+	 /* Whether to include node IDs (true) or not (false) in model element results. */ 6: optional bool includeNodeIDs = false,
+	 /* Whether to include all the child elements of the model element results (true) or not (false). */ 7: optional bool includeContained = true,
+	 /* If set, limits the types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent. */ 8: optional map<string,list<string>> effectiveMetamodel,
 }
 
 struct HawkReferenceAdditionEvent {
