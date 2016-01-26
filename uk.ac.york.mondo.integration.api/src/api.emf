@@ -131,8 +131,7 @@ class Hawk {
 	op ModelElement[*] resolveProxies (
 		@doc(d="The name of the Hawk instance") String name,
 		@doc(d="Proxy model element IDs to be resolved") String[*] ids,
-		@doc(d="Whether to include attributes (true) or not (false)", optional="true", default="true") Boolean includeAttributes,
-		@doc(d="Whether to include references (true) or not (false)", optional="true", default="true") Boolean includeReferences
+		@doc(d="Options for the query") HawkQueryOptions options
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Asks a Hawk instance to start monitoring a repository")

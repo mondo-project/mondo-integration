@@ -279,7 +279,7 @@ final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public List<ModelElement> resolveProxies(String name, List<String> ids, boolean includeAttributes, boolean includeReferences) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+	public List<ModelElement> resolveProxies(String name, List<String> ids, HawkQueryOptions options) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getRunningHawkByName(name);
 
 		final IGraphDatabase graph = model.getGraph();
@@ -287,8 +287,8 @@ final class HawkThriftIface implements Hawk.Iface {
 			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(graph));
 			encoder.setIncludeNodeIDs(true);
 			encoder.setUseContainment(false);
-			encoder.setIncludeAttributes(includeAttributes);
-			encoder.setIncludeReferences(includeReferences);
+			encoder.setIncludeAttributes(options.isIncludeAttributes());
+			encoder.setIncludeReferences(options.isIncludeReferences());
 			for (String id : ids) {
 				try {
 					encoder.encode(id);

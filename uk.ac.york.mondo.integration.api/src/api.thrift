@@ -496,8 +496,7 @@ service Hawk {
   list<ModelElement> resolveProxies(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* Proxy model element IDs to be resolved. */ 2: required list<string> ids,
-	/* Whether to include attributes (true) or not (false). */ 3:  bool includeAttributes = true,
-	/* Whether to include references (true) or not (false). */ 4:  bool includeReferences = true,
+	/* Options for the query. */ 3: required HawkQueryOptions options,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -730,8 +729,7 @@ service OfflineCollaboration {
 }
 
 /* The following service operations expose the capabilities of the cloud-enabled
-   version of the ATL transformation language which is currently under development and
-   will be presented in M24 in D3.3. */
+   version of the ATL transformation language which is presented in D3.3~\cite{D3.3}. */
 service CloudATL {
   /* Invokes a cloud-based transformation in a batch non-blocking mode.
      			Returns a token that can be used to check the status of the transformation. Auth needed: Yes */

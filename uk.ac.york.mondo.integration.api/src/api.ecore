@@ -241,18 +241,9 @@
           <details key="d" value="Proxy model element IDs to be resolved"/>
         </eAnnotations>
       </eParameters>
-      <eParameters name="includeAttributes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eParameters name="options" eType="#//HawkQueryOptions">
         <eAnnotations source="doc">
-          <details key="d" value="Whether to include attributes (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="includeReferences" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
-        <eAnnotations source="doc">
-          <details key="d" value="Whether to include references (true) or not (false)"/>
-          <details key="optional" value="true"/>
-          <details key="default" value="true"/>
+          <details key="d" value="Options for the query"/>
         </eAnnotations>
       </eParameters>
     </eOperations>
@@ -1155,7 +1146,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CloudATL">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The following service operations expose the capabilities of the cloud-enabled&#xA;version of the ATL transformation language which is currently under development and&#xA;will be presented in M24 in D3.3&#xA;"/>
+      <details key="d" value="&#xA;The following service operations expose the capabilities of the cloud-enabled&#xA;version of the ATL transformation language which is presented in D3.3~\cite{D3.3}.&#xA;"/>
     </eAnnotations>
     <eOperations name="launch" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         eExceptions="#//InvalidTransformation #//InvalidModelSpec">

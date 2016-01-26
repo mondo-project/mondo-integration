@@ -1781,8 +1781,7 @@ Hawk_query_result.prototype.write = function(output) {
 Hawk_resolveProxies_args = function(args) {
   this.name = null;
   this.ids = null;
-  this.includeAttributes = true;
-  this.includeReferences = true;
+  this.options = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -1794,11 +1793,10 @@ Hawk_resolveProxies_args = function(args) {
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field ids is unset!');
     }
-    if (args.includeAttributes !== undefined && args.includeAttributes !== null) {
-      this.includeAttributes = args.includeAttributes;
-    }
-    if (args.includeReferences !== undefined && args.includeReferences !== null) {
-      this.includeReferences = args.includeReferences;
+    if (args.options !== undefined && args.options !== null) {
+      this.options = new HawkQueryOptions(args.options);
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field options is unset!');
     }
   }
 };
@@ -1844,15 +1842,9 @@ Hawk_resolveProxies_args.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.BOOL) {
-        this.includeAttributes = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.BOOL) {
-        this.includeReferences = input.readBool().value;
+      if (ftype == Thrift.Type.STRUCT) {
+        this.options = new HawkQueryOptions();
+        this.options.read(input);
       } else {
         input.skip(ftype);
       }
@@ -1887,14 +1879,9 @@ Hawk_resolveProxies_args.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
-  if (this.includeAttributes !== null && this.includeAttributes !== undefined) {
-    output.writeFieldBegin('includeAttributes', Thrift.Type.BOOL, 3);
-    output.writeBool(this.includeAttributes);
-    output.writeFieldEnd();
-  }
-  if (this.includeReferences !== null && this.includeReferences !== undefined) {
-    output.writeFieldBegin('includeReferences', Thrift.Type.BOOL, 4);
-    output.writeBool(this.includeReferences);
+  if (this.options !== null && this.options !== undefined) {
+    output.writeFieldBegin('options', Thrift.Type.STRUCT, 3);
+    this.options.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5561,20 +5548,19 @@ HawkClient.prototype.recv_query = function() {
   }
   throw 'query failed: unknown result';
 };
-HawkClient.prototype.resolveProxies = function(name, ids, includeAttributes, includeReferences, callback) {
-  this.send_resolveProxies(name, ids, includeAttributes, includeReferences, callback); 
+HawkClient.prototype.resolveProxies = function(name, ids, options, callback) {
+  this.send_resolveProxies(name, ids, options, callback); 
   if (!callback) {
     return this.recv_resolveProxies();
   }
 };
 
-HawkClient.prototype.send_resolveProxies = function(name, ids, includeAttributes, includeReferences, callback) {
+HawkClient.prototype.send_resolveProxies = function(name, ids, options, callback) {
   this.output.writeMessageBegin('resolveProxies', Thrift.MessageType.CALL, this.seqid);
   var args = new Hawk_resolveProxies_args();
   args.name = name;
   args.ids = ids;
-  args.includeAttributes = includeAttributes;
-  args.includeReferences = includeReferences;
+  args.options = options;
   args.write(this.output);
   this.output.writeMessageEnd();
   if (callback) {

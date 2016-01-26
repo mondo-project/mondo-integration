@@ -364,7 +364,10 @@ public class HawkCommandProvider implements CommandProvider {
 		checkInstanceSelected();
 
 		final List<String> ids = readRemainingArguments(intp);
-		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids, true, true);
+		final HawkQueryOptions options = new HawkQueryOptions();
+		options.setIncludeAttributes(true);
+		options.setIncludeReferences(true);
+		final List<ModelElement> elems = client.resolveProxies(currentInstance, ids, options);
 		return formatModelElements(elems, "");
 	}
 

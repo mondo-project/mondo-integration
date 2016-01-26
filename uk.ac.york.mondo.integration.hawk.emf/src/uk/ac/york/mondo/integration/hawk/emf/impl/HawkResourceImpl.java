@@ -725,10 +725,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 		// Fetch the eObjects, decode them and resolve references
 		if (!toBeFetched.isEmpty()) {
+			final HawkQueryOptions options = new HawkQueryOptions();
+			options.setIncludeAttributes(descriptor.getLoadingMode().isGreedyAttributes() || mustFetchAttributes);
+			options.setIncludeReferences(true);
 			final List<ModelElement> elems = client.resolveProxies(
 					descriptor.getHawkInstance(), toBeFetched,
-					descriptor.getLoadingMode().isGreedyAttributes() || mustFetchAttributes,
-					true);
+					options);
 			final TreeLoadingState state = new TreeLoadingState();
 			createEObjectTree(elems, state);
 			fillInReferences(elems, state);
@@ -881,9 +883,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	public void fetchAttributes(final Map<String, EObject> objects) throws IOException, HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final HawkQueryOptions options = new HawkQueryOptions();
+		options.setIncludeAttributes(true);
+		options.setIncludeReferences(false);
 		final List<ModelElement> elems = client.resolveProxies(
 			descriptor.getHawkInstance(), new ArrayList<>(objects.keySet()),
-			true, false);
+			options);
 
 		for (ModelElement me : elems) {
 			final EObject object = objects.get(me.id);
