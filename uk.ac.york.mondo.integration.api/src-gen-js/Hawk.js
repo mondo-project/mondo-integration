@@ -193,18 +193,18 @@ Hawk_listBackends_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size154 = 0;
-        var _rtmp3158;
+        var _size164 = 0;
+        var _rtmp3168;
         this.success = [];
-        var _etype157 = 0;
-        _rtmp3158 = input.readListBegin();
-        _etype157 = _rtmp3158.etype;
-        _size154 = _rtmp3158.size;
-        for (var _i159 = 0; _i159 < _size154; ++_i159)
+        var _etype167 = 0;
+        _rtmp3168 = input.readListBegin();
+        _etype167 = _rtmp3168.etype;
+        _size164 = _rtmp3168.size;
+        for (var _i169 = 0; _i169 < _size164; ++_i169)
         {
-          var elem160 = null;
-          elem160 = input.readString().value;
-          this.success.push(elem160);
+          var elem170 = null;
+          elem170 = input.readString().value;
+          this.success.push(elem170);
         }
         input.readListEnd();
       } else {
@@ -228,12 +228,12 @@ Hawk_listBackends_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter161 in this.success)
+    for (var iter171 in this.success)
     {
-      if (this.success.hasOwnProperty(iter161))
+      if (this.success.hasOwnProperty(iter171))
       {
-        iter161 = this.success[iter161];
-        output.writeString(iter161);
+        iter171 = this.success[iter171];
+        output.writeString(iter171);
       }
     }
     output.writeListEnd();
@@ -296,19 +296,19 @@ Hawk_listInstances_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size162 = 0;
-        var _rtmp3166;
+        var _size172 = 0;
+        var _rtmp3176;
         this.success = [];
-        var _etype165 = 0;
-        _rtmp3166 = input.readListBegin();
-        _etype165 = _rtmp3166.etype;
-        _size162 = _rtmp3166.size;
-        for (var _i167 = 0; _i167 < _size162; ++_i167)
+        var _etype175 = 0;
+        _rtmp3176 = input.readListBegin();
+        _etype175 = _rtmp3176.etype;
+        _size172 = _rtmp3176.size;
+        for (var _i177 = 0; _i177 < _size172; ++_i177)
         {
-          var elem168 = null;
-          elem168 = new HawkInstance();
-          elem168.read(input);
-          this.success.push(elem168);
+          var elem178 = null;
+          elem178 = new HawkInstance();
+          elem178.read(input);
+          this.success.push(elem178);
         }
         input.readListEnd();
       } else {
@@ -332,12 +332,12 @@ Hawk_listInstances_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter169 in this.success)
+    for (var iter179 in this.success)
     {
-      if (this.success.hasOwnProperty(iter169))
+      if (this.success.hasOwnProperty(iter179))
       {
-        iter169 = this.success[iter169];
-        iter169.write(output);
+        iter179 = this.success[iter179];
+        iter179.write(output);
       }
     }
     output.writeListEnd();
@@ -875,19 +875,19 @@ Hawk_registerMetamodels_args.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.LIST) {
-        var _size170 = 0;
-        var _rtmp3174;
+        var _size180 = 0;
+        var _rtmp3184;
         this.metamodel = [];
-        var _etype173 = 0;
-        _rtmp3174 = input.readListBegin();
-        _etype173 = _rtmp3174.etype;
-        _size170 = _rtmp3174.size;
-        for (var _i175 = 0; _i175 < _size170; ++_i175)
+        var _etype183 = 0;
+        _rtmp3184 = input.readListBegin();
+        _etype183 = _rtmp3184.etype;
+        _size180 = _rtmp3184.size;
+        for (var _i185 = 0; _i185 < _size180; ++_i185)
         {
-          var elem176 = null;
-          elem176 = new File();
-          elem176.read(input);
-          this.metamodel.push(elem176);
+          var elem186 = null;
+          elem186 = new File();
+          elem186.read(input);
+          this.metamodel.push(elem186);
         }
         input.readListEnd();
       } else {
@@ -913,12 +913,12 @@ Hawk_registerMetamodels_args.prototype.write = function(output) {
   if (this.metamodel !== null && this.metamodel !== undefined) {
     output.writeFieldBegin('metamodel', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRUCT, this.metamodel.length);
-    for (var iter177 in this.metamodel)
+    for (var iter187 in this.metamodel)
     {
-      if (this.metamodel.hasOwnProperty(iter177))
+      if (this.metamodel.hasOwnProperty(iter187))
       {
-        iter177 = this.metamodel[iter177];
-        iter177.write(output);
+        iter187 = this.metamodel[iter187];
+        iter187.write(output);
       }
     }
     output.writeListEnd();
@@ -1065,18 +1065,18 @@ Hawk_unregisterMetamodels_args.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.LIST) {
-        var _size178 = 0;
-        var _rtmp3182;
+        var _size188 = 0;
+        var _rtmp3192;
         this.metamodel = [];
-        var _etype181 = 0;
-        _rtmp3182 = input.readListBegin();
-        _etype181 = _rtmp3182.etype;
-        _size178 = _rtmp3182.size;
-        for (var _i183 = 0; _i183 < _size178; ++_i183)
+        var _etype191 = 0;
+        _rtmp3192 = input.readListBegin();
+        _etype191 = _rtmp3192.etype;
+        _size188 = _rtmp3192.size;
+        for (var _i193 = 0; _i193 < _size188; ++_i193)
         {
-          var elem184 = null;
-          elem184 = input.readString().value;
-          this.metamodel.push(elem184);
+          var elem194 = null;
+          elem194 = input.readString().value;
+          this.metamodel.push(elem194);
         }
         input.readListEnd();
       } else {
@@ -1102,12 +1102,12 @@ Hawk_unregisterMetamodels_args.prototype.write = function(output) {
   if (this.metamodel !== null && this.metamodel !== undefined) {
     output.writeFieldBegin('metamodel', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRING, this.metamodel.length);
-    for (var iter185 in this.metamodel)
+    for (var iter195 in this.metamodel)
     {
-      if (this.metamodel.hasOwnProperty(iter185))
+      if (this.metamodel.hasOwnProperty(iter195))
       {
-        iter185 = this.metamodel[iter185];
-        output.writeString(iter185);
+        iter195 = this.metamodel[iter195];
+        output.writeString(iter195);
       }
     }
     output.writeListEnd();
@@ -1289,18 +1289,18 @@ Hawk_listMetamodels_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size186 = 0;
-        var _rtmp3190;
+        var _size196 = 0;
+        var _rtmp3200;
         this.success = [];
-        var _etype189 = 0;
-        _rtmp3190 = input.readListBegin();
-        _etype189 = _rtmp3190.etype;
-        _size186 = _rtmp3190.size;
-        for (var _i191 = 0; _i191 < _size186; ++_i191)
+        var _etype199 = 0;
+        _rtmp3200 = input.readListBegin();
+        _etype199 = _rtmp3200.etype;
+        _size196 = _rtmp3200.size;
+        for (var _i201 = 0; _i201 < _size196; ++_i201)
         {
-          var elem192 = null;
-          elem192 = input.readString().value;
-          this.success.push(elem192);
+          var elem202 = null;
+          elem202 = input.readString().value;
+          this.success.push(elem202);
         }
         input.readListEnd();
       } else {
@@ -1337,12 +1337,12 @@ Hawk_listMetamodels_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter193 in this.success)
+    for (var iter203 in this.success)
     {
-      if (this.success.hasOwnProperty(iter193))
+      if (this.success.hasOwnProperty(iter203))
       {
-        iter193 = this.success[iter193];
-        output.writeString(iter193);
+        iter203 = this.success[iter203];
+        output.writeString(iter203);
       }
     }
     output.writeListEnd();
@@ -1442,18 +1442,18 @@ Hawk_listQueryLanguages_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size194 = 0;
-        var _rtmp3198;
+        var _size204 = 0;
+        var _rtmp3208;
         this.success = [];
-        var _etype197 = 0;
-        _rtmp3198 = input.readListBegin();
-        _etype197 = _rtmp3198.etype;
-        _size194 = _rtmp3198.size;
-        for (var _i199 = 0; _i199 < _size194; ++_i199)
+        var _etype207 = 0;
+        _rtmp3208 = input.readListBegin();
+        _etype207 = _rtmp3208.etype;
+        _size204 = _rtmp3208.size;
+        for (var _i209 = 0; _i209 < _size204; ++_i209)
         {
-          var elem200 = null;
-          elem200 = input.readString().value;
-          this.success.push(elem200);
+          var elem210 = null;
+          elem210 = input.readString().value;
+          this.success.push(elem210);
         }
         input.readListEnd();
       } else {
@@ -1477,12 +1477,12 @@ Hawk_listQueryLanguages_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter201 in this.success)
+    for (var iter211 in this.success)
     {
-      if (this.success.hasOwnProperty(iter201))
+      if (this.success.hasOwnProperty(iter211))
       {
-        iter201 = this.success[iter201];
-        output.writeString(iter201);
+        iter211 = this.success[iter211];
+        output.writeString(iter211);
       }
     }
     output.writeListEnd();
@@ -1664,19 +1664,19 @@ Hawk_query_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size202 = 0;
-        var _rtmp3206;
+        var _size212 = 0;
+        var _rtmp3216;
         this.success = [];
-        var _etype205 = 0;
-        _rtmp3206 = input.readListBegin();
-        _etype205 = _rtmp3206.etype;
-        _size202 = _rtmp3206.size;
-        for (var _i207 = 0; _i207 < _size202; ++_i207)
+        var _etype215 = 0;
+        _rtmp3216 = input.readListBegin();
+        _etype215 = _rtmp3216.etype;
+        _size212 = _rtmp3216.size;
+        for (var _i217 = 0; _i217 < _size212; ++_i217)
         {
-          var elem208 = null;
-          elem208 = new QueryResult();
-          elem208.read(input);
-          this.success.push(elem208);
+          var elem218 = null;
+          elem218 = new QueryResult();
+          elem218.read(input);
+          this.success.push(elem218);
         }
         input.readListEnd();
       } else {
@@ -1737,12 +1737,12 @@ Hawk_query_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter209 in this.success)
+    for (var iter219 in this.success)
     {
-      if (this.success.hasOwnProperty(iter209))
+      if (this.success.hasOwnProperty(iter219))
       {
-        iter209 = this.success[iter209];
-        iter209.write(output);
+        iter219 = this.success[iter219];
+        iter219.write(output);
       }
     }
     output.writeListEnd();
@@ -1823,18 +1823,18 @@ Hawk_resolveProxies_args.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.LIST) {
-        var _size210 = 0;
-        var _rtmp3214;
+        var _size220 = 0;
+        var _rtmp3224;
         this.ids = [];
-        var _etype213 = 0;
-        _rtmp3214 = input.readListBegin();
-        _etype213 = _rtmp3214.etype;
-        _size210 = _rtmp3214.size;
-        for (var _i215 = 0; _i215 < _size210; ++_i215)
+        var _etype223 = 0;
+        _rtmp3224 = input.readListBegin();
+        _etype223 = _rtmp3224.etype;
+        _size220 = _rtmp3224.size;
+        for (var _i225 = 0; _i225 < _size220; ++_i225)
         {
-          var elem216 = null;
-          elem216 = input.readString().value;
-          this.ids.push(elem216);
+          var elem226 = null;
+          elem226 = input.readString().value;
+          this.ids.push(elem226);
         }
         input.readListEnd();
       } else {
@@ -1868,12 +1868,12 @@ Hawk_resolveProxies_args.prototype.write = function(output) {
   if (this.ids !== null && this.ids !== undefined) {
     output.writeFieldBegin('ids', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRING, this.ids.length);
-    for (var iter217 in this.ids)
+    for (var iter227 in this.ids)
     {
-      if (this.ids.hasOwnProperty(iter217))
+      if (this.ids.hasOwnProperty(iter227))
       {
-        iter217 = this.ids[iter217];
-        output.writeString(iter217);
+        iter227 = this.ids[iter227];
+        output.writeString(iter227);
       }
     }
     output.writeListEnd();
@@ -1929,19 +1929,19 @@ Hawk_resolveProxies_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size218 = 0;
-        var _rtmp3222;
+        var _size228 = 0;
+        var _rtmp3232;
         this.success = [];
-        var _etype221 = 0;
-        _rtmp3222 = input.readListBegin();
-        _etype221 = _rtmp3222.etype;
-        _size218 = _rtmp3222.size;
-        for (var _i223 = 0; _i223 < _size218; ++_i223)
+        var _etype231 = 0;
+        _rtmp3232 = input.readListBegin();
+        _etype231 = _rtmp3232.etype;
+        _size228 = _rtmp3232.size;
+        for (var _i233 = 0; _i233 < _size228; ++_i233)
         {
-          var elem224 = null;
-          elem224 = new ModelElement();
-          elem224.read(input);
-          this.success.push(elem224);
+          var elem234 = null;
+          elem234 = new ModelElement();
+          elem234.read(input);
+          this.success.push(elem234);
         }
         input.readListEnd();
       } else {
@@ -1978,12 +1978,12 @@ Hawk_resolveProxies_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter225 in this.success)
+    for (var iter235 in this.success)
     {
-      if (this.success.hasOwnProperty(iter225))
+      if (this.success.hasOwnProperty(iter235))
       {
-        iter225 = this.success[iter225];
-        iter225.write(output);
+        iter235 = this.success[iter235];
+        iter235.write(output);
       }
     }
     output.writeListEnd();
@@ -2616,19 +2616,19 @@ Hawk_listRepositories_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size226 = 0;
-        var _rtmp3230;
+        var _size236 = 0;
+        var _rtmp3240;
         this.success = [];
-        var _etype229 = 0;
-        _rtmp3230 = input.readListBegin();
-        _etype229 = _rtmp3230.etype;
-        _size226 = _rtmp3230.size;
-        for (var _i231 = 0; _i231 < _size226; ++_i231)
+        var _etype239 = 0;
+        _rtmp3240 = input.readListBegin();
+        _etype239 = _rtmp3240.etype;
+        _size236 = _rtmp3240.size;
+        for (var _i241 = 0; _i241 < _size236; ++_i241)
         {
-          var elem232 = null;
-          elem232 = new Repository();
-          elem232.read(input);
-          this.success.push(elem232);
+          var elem242 = null;
+          elem242 = new Repository();
+          elem242.read(input);
+          this.success.push(elem242);
         }
         input.readListEnd();
       } else {
@@ -2665,12 +2665,12 @@ Hawk_listRepositories_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter233 in this.success)
+    for (var iter243 in this.success)
     {
-      if (this.success.hasOwnProperty(iter233))
+      if (this.success.hasOwnProperty(iter243))
       {
-        iter233 = this.success[iter233];
-        iter233.write(output);
+        iter243 = this.success[iter243];
+        iter243.write(output);
       }
     }
     output.writeListEnd();
@@ -2743,18 +2743,18 @@ Hawk_listRepositoryTypes_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size234 = 0;
-        var _rtmp3238;
+        var _size244 = 0;
+        var _rtmp3248;
         this.success = [];
-        var _etype237 = 0;
-        _rtmp3238 = input.readListBegin();
-        _etype237 = _rtmp3238.etype;
-        _size234 = _rtmp3238.size;
-        for (var _i239 = 0; _i239 < _size234; ++_i239)
+        var _etype247 = 0;
+        _rtmp3248 = input.readListBegin();
+        _etype247 = _rtmp3248.etype;
+        _size244 = _rtmp3248.size;
+        for (var _i249 = 0; _i249 < _size244; ++_i249)
         {
-          var elem240 = null;
-          elem240 = input.readString().value;
-          this.success.push(elem240);
+          var elem250 = null;
+          elem250 = input.readString().value;
+          this.success.push(elem250);
         }
         input.readListEnd();
       } else {
@@ -2778,12 +2778,12 @@ Hawk_listRepositoryTypes_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter241 in this.success)
+    for (var iter251 in this.success)
     {
-      if (this.success.hasOwnProperty(iter241))
+      if (this.success.hasOwnProperty(iter251))
       {
-        iter241 = this.success[iter241];
-        output.writeString(iter241);
+        iter251 = this.success[iter251];
+        output.writeString(iter251);
       }
     }
     output.writeListEnd();
@@ -2839,18 +2839,18 @@ Hawk_listFiles_args.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.LIST) {
-        var _size242 = 0;
-        var _rtmp3246;
+        var _size252 = 0;
+        var _rtmp3256;
         this.repository = [];
-        var _etype245 = 0;
-        _rtmp3246 = input.readListBegin();
-        _etype245 = _rtmp3246.etype;
-        _size242 = _rtmp3246.size;
-        for (var _i247 = 0; _i247 < _size242; ++_i247)
+        var _etype255 = 0;
+        _rtmp3256 = input.readListBegin();
+        _etype255 = _rtmp3256.etype;
+        _size252 = _rtmp3256.size;
+        for (var _i257 = 0; _i257 < _size252; ++_i257)
         {
-          var elem248 = null;
-          elem248 = input.readString().value;
-          this.repository.push(elem248);
+          var elem258 = null;
+          elem258 = input.readString().value;
+          this.repository.push(elem258);
         }
         input.readListEnd();
       } else {
@@ -2859,18 +2859,18 @@ Hawk_listFiles_args.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size249 = 0;
-        var _rtmp3253;
+        var _size259 = 0;
+        var _rtmp3263;
         this.filePatterns = [];
-        var _etype252 = 0;
-        _rtmp3253 = input.readListBegin();
-        _etype252 = _rtmp3253.etype;
-        _size249 = _rtmp3253.size;
-        for (var _i254 = 0; _i254 < _size249; ++_i254)
+        var _etype262 = 0;
+        _rtmp3263 = input.readListBegin();
+        _etype262 = _rtmp3263.etype;
+        _size259 = _rtmp3263.size;
+        for (var _i264 = 0; _i264 < _size259; ++_i264)
         {
-          var elem255 = null;
-          elem255 = input.readString().value;
-          this.filePatterns.push(elem255);
+          var elem265 = null;
+          elem265 = input.readString().value;
+          this.filePatterns.push(elem265);
         }
         input.readListEnd();
       } else {
@@ -2896,12 +2896,12 @@ Hawk_listFiles_args.prototype.write = function(output) {
   if (this.repository !== null && this.repository !== undefined) {
     output.writeFieldBegin('repository', Thrift.Type.LIST, 2);
     output.writeListBegin(Thrift.Type.STRING, this.repository.length);
-    for (var iter256 in this.repository)
+    for (var iter266 in this.repository)
     {
-      if (this.repository.hasOwnProperty(iter256))
+      if (this.repository.hasOwnProperty(iter266))
       {
-        iter256 = this.repository[iter256];
-        output.writeString(iter256);
+        iter266 = this.repository[iter266];
+        output.writeString(iter266);
       }
     }
     output.writeListEnd();
@@ -2910,12 +2910,12 @@ Hawk_listFiles_args.prototype.write = function(output) {
   if (this.filePatterns !== null && this.filePatterns !== undefined) {
     output.writeFieldBegin('filePatterns', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRING, this.filePatterns.length);
-    for (var iter257 in this.filePatterns)
+    for (var iter267 in this.filePatterns)
     {
-      if (this.filePatterns.hasOwnProperty(iter257))
+      if (this.filePatterns.hasOwnProperty(iter267))
       {
-        iter257 = this.filePatterns[iter257];
-        output.writeString(iter257);
+        iter267 = this.filePatterns[iter267];
+        output.writeString(iter267);
       }
     }
     output.writeListEnd();
@@ -2966,18 +2966,18 @@ Hawk_listFiles_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size258 = 0;
-        var _rtmp3262;
+        var _size268 = 0;
+        var _rtmp3272;
         this.success = [];
-        var _etype261 = 0;
-        _rtmp3262 = input.readListBegin();
-        _etype261 = _rtmp3262.etype;
-        _size258 = _rtmp3262.size;
-        for (var _i263 = 0; _i263 < _size258; ++_i263)
+        var _etype271 = 0;
+        _rtmp3272 = input.readListBegin();
+        _etype271 = _rtmp3272.etype;
+        _size268 = _rtmp3272.size;
+        for (var _i273 = 0; _i273 < _size268; ++_i273)
         {
-          var elem264 = null;
-          elem264 = input.readString().value;
-          this.success.push(elem264);
+          var elem274 = null;
+          elem274 = input.readString().value;
+          this.success.push(elem274);
         }
         input.readListEnd();
       } else {
@@ -3014,12 +3014,12 @@ Hawk_listFiles_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter265 in this.success)
+    for (var iter275 in this.success)
     {
-      if (this.success.hasOwnProperty(iter265))
+      if (this.success.hasOwnProperty(iter275))
       {
-        iter265 = this.success[iter265];
-        output.writeString(iter265);
+        iter275 = this.success[iter275];
+        output.writeString(iter275);
       }
     }
     output.writeListEnd();
@@ -3635,19 +3635,19 @@ Hawk_listDerivedAttributes_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size266 = 0;
-        var _rtmp3270;
+        var _size276 = 0;
+        var _rtmp3280;
         this.success = [];
-        var _etype269 = 0;
-        _rtmp3270 = input.readListBegin();
-        _etype269 = _rtmp3270.etype;
-        _size266 = _rtmp3270.size;
-        for (var _i271 = 0; _i271 < _size266; ++_i271)
+        var _etype279 = 0;
+        _rtmp3280 = input.readListBegin();
+        _etype279 = _rtmp3280.etype;
+        _size276 = _rtmp3280.size;
+        for (var _i281 = 0; _i281 < _size276; ++_i281)
         {
-          var elem272 = null;
-          elem272 = new DerivedAttributeSpec();
-          elem272.read(input);
-          this.success.push(elem272);
+          var elem282 = null;
+          elem282 = new DerivedAttributeSpec();
+          elem282.read(input);
+          this.success.push(elem282);
         }
         input.readListEnd();
       } else {
@@ -3684,12 +3684,12 @@ Hawk_listDerivedAttributes_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter273 in this.success)
+    for (var iter283 in this.success)
     {
-      if (this.success.hasOwnProperty(iter273))
+      if (this.success.hasOwnProperty(iter283))
       {
-        iter273 = this.success[iter273];
-        iter273.write(output);
+        iter283 = this.success[iter283];
+        iter283.write(output);
       }
     }
     output.writeListEnd();
@@ -4120,19 +4120,19 @@ Hawk_listIndexedAttributes_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size274 = 0;
-        var _rtmp3278;
+        var _size284 = 0;
+        var _rtmp3288;
         this.success = [];
-        var _etype277 = 0;
-        _rtmp3278 = input.readListBegin();
-        _etype277 = _rtmp3278.etype;
-        _size274 = _rtmp3278.size;
-        for (var _i279 = 0; _i279 < _size274; ++_i279)
+        var _etype287 = 0;
+        _rtmp3288 = input.readListBegin();
+        _etype287 = _rtmp3288.etype;
+        _size284 = _rtmp3288.size;
+        for (var _i289 = 0; _i289 < _size284; ++_i289)
         {
-          var elem280 = null;
-          elem280 = new IndexedAttributeSpec();
-          elem280.read(input);
-          this.success.push(elem280);
+          var elem290 = null;
+          elem290 = new IndexedAttributeSpec();
+          elem290.read(input);
+          this.success.push(elem290);
         }
         input.readListEnd();
       } else {
@@ -4169,12 +4169,12 @@ Hawk_listIndexedAttributes_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter281 in this.success)
+    for (var iter291 in this.success)
     {
-      if (this.success.hasOwnProperty(iter281))
+      if (this.success.hasOwnProperty(iter291))
       {
-        iter281 = this.success[iter281];
-        iter281.write(output);
+        iter291 = this.success[iter291];
+        iter291.write(output);
       }
     }
     output.writeListEnd();
@@ -4306,19 +4306,19 @@ Hawk_getModel_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size282 = 0;
-        var _rtmp3286;
+        var _size292 = 0;
+        var _rtmp3296;
         this.success = [];
-        var _etype285 = 0;
-        _rtmp3286 = input.readListBegin();
-        _etype285 = _rtmp3286.etype;
-        _size282 = _rtmp3286.size;
-        for (var _i287 = 0; _i287 < _size282; ++_i287)
+        var _etype295 = 0;
+        _rtmp3296 = input.readListBegin();
+        _etype295 = _rtmp3296.etype;
+        _size292 = _rtmp3296.size;
+        for (var _i297 = 0; _i297 < _size292; ++_i297)
         {
-          var elem288 = null;
-          elem288 = new ModelElement();
-          elem288.read(input);
-          this.success.push(elem288);
+          var elem298 = null;
+          elem298 = new ModelElement();
+          elem298.read(input);
+          this.success.push(elem298);
         }
         input.readListEnd();
       } else {
@@ -4355,12 +4355,12 @@ Hawk_getModel_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter289 in this.success)
+    for (var iter299 in this.success)
     {
-      if (this.success.hasOwnProperty(iter289))
+      if (this.success.hasOwnProperty(iter299))
       {
-        iter289 = this.success[iter289];
-        iter289.write(output);
+        iter299 = this.success[iter299];
+        iter299.write(output);
       }
     }
     output.writeListEnd();
@@ -4476,19 +4476,19 @@ Hawk_getRootElements_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size290 = 0;
-        var _rtmp3294;
+        var _size300 = 0;
+        var _rtmp3304;
         this.success = [];
-        var _etype293 = 0;
-        _rtmp3294 = input.readListBegin();
-        _etype293 = _rtmp3294.etype;
-        _size290 = _rtmp3294.size;
-        for (var _i295 = 0; _i295 < _size290; ++_i295)
+        var _etype303 = 0;
+        _rtmp3304 = input.readListBegin();
+        _etype303 = _rtmp3304.etype;
+        _size300 = _rtmp3304.size;
+        for (var _i305 = 0; _i305 < _size300; ++_i305)
         {
-          var elem296 = null;
-          elem296 = new ModelElement();
-          elem296.read(input);
-          this.success.push(elem296);
+          var elem306 = null;
+          elem306 = new ModelElement();
+          elem306.read(input);
+          this.success.push(elem306);
         }
         input.readListEnd();
       } else {
@@ -4512,12 +4512,12 @@ Hawk_getRootElements_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter297 in this.success)
+    for (var iter307 in this.success)
     {
-      if (this.success.hasOwnProperty(iter297))
+      if (this.success.hasOwnProperty(iter307))
       {
-        iter297 = this.success[iter297];
-        iter297.write(output);
+        iter307 = this.success[iter307];
+        iter307.write(output);
       }
     }
     output.writeListEnd();
@@ -4740,18 +4740,18 @@ Hawk_watchModelChanges_args.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size298 = 0;
-        var _rtmp3302;
+        var _size308 = 0;
+        var _rtmp3312;
         this.filePath = [];
-        var _etype301 = 0;
-        _rtmp3302 = input.readListBegin();
-        _etype301 = _rtmp3302.etype;
-        _size298 = _rtmp3302.size;
-        for (var _i303 = 0; _i303 < _size298; ++_i303)
+        var _etype311 = 0;
+        _rtmp3312 = input.readListBegin();
+        _etype311 = _rtmp3312.etype;
+        _size308 = _rtmp3312.size;
+        for (var _i313 = 0; _i313 < _size308; ++_i313)
         {
-          var elem304 = null;
-          elem304 = input.readString().value;
-          this.filePath.push(elem304);
+          var elem314 = null;
+          elem314 = input.readString().value;
+          this.filePath.push(elem314);
         }
         input.readListEnd();
       } else {
@@ -4796,12 +4796,12 @@ Hawk_watchModelChanges_args.prototype.write = function(output) {
   if (this.filePath !== null && this.filePath !== undefined) {
     output.writeFieldBegin('filePath', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRING, this.filePath.length);
-    for (var iter305 in this.filePath)
+    for (var iter315 in this.filePath)
     {
-      if (this.filePath.hasOwnProperty(iter305))
+      if (this.filePath.hasOwnProperty(iter315))
       {
-        iter305 = this.filePath[iter305];
-        output.writeString(iter305);
+        iter315 = this.filePath[iter315];
+        output.writeString(iter315);
       }
     }
     output.writeListEnd();

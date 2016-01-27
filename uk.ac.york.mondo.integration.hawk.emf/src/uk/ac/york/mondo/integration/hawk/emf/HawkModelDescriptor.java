@@ -25,32 +25,9 @@ import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
 /**
  * Abstraction over the <code>.hawkmodel</code> file format. The file format is
- * a simple Java properties file, with the following keys:
- * </p>
- * <ul>
- * <li>{@link #PROPERTY_HAWK_URL} (required) is the URL to the remote Hawk index
- * (e.g. <code>http://127.0.0.1:8080/thrift/hawk</code>.</li>
- * <li>{@link #PROPERTY_HAWK_INSTANCE} (required) is the name of the Hawk
- * instance within the server.
- * <li>{@link #PROPERTY_HAWK_REPOSITORY} (optional) is the URL of the VCS
- * repository within Hawk that contains the models of interest, or
- * <code>*</code> if all repositories should be considered (the default, as in
- * {@link #DEFAULT_REPOSITORY}).
- * <li>{@link #PROPERTY_HAWK_FILES} (optional) is a comma-separated list of file
- * patterns to filter (such as <code>*.xmi</code>), or <code>*</code> if all
- * files should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
- * <li>{@link #PROPERTY_HAWK_LOADING_MODE} (optional) is a string with one of
- * the values in {@link LoadingMode}, indicating how should the model be
- * lodaded. The default value is {@link #DEFAULT_LOADING_MODE}.</li>
- * <li>{@link #PROPERTY_HAWK_SUBSCRIBE} (optional), indicating if the client
- * should subscribe to changes in the Hawk index for the indicated files and
- * repository. The default value is {@link #DEFAULT_IS_SUBSCRIBED}.</li>
- * <li>{@link #PROPERTY_HAWK_TPROTOCOL} (optional) is one of the values of
- * {@link ThriftProtocol}. By default, it is {@link #DEFAULT_TPROTOCOL}.</li>
- * <li>{@link #PROPERTY_DEFAULT_NAMESPACES} (optional) is a string with a
- * comma-separated list of metamodels used to disambiguate type names. By
- * default, it is {@link #DEFAULT_DEFAULT_NAMESPACES}.</li>
- * </ul>
+ * a simple Java properties file. Each of the available properties is listed in
+ * this class as a <code>PROPERTY_HAWK</code> constant: please consult their
+ * individual documentation for details.
  */
 public class HawkModelDescriptor {
 
@@ -159,21 +136,101 @@ public class HawkModelDescriptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HawkModelDescriptor.class);
 	private static final String FILE_PATTERN_SEP = ",";
-	private static final String PROPERTY_HAWK_FILES = "hawk.files";
-	private static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
-	private static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
-	private static final String PROPERTY_HAWK_URL = "hawk.url";
-	private static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thriftProtocol";
-	private static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
-	private static final String PROPERTY_HAWK_QUERY_LANGUAGE = "hawk.queryLanguage";
-	private static final String PROPERTY_HAWK_DEFAULT_NAMESPACES = "hawk.defaultNamespaces";
-	private static final String PROPERTY_HAWK_QUERY = "hawk.query";
-	private static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
-	private static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
-	private static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
-	private static final String PROPERTY_HAWK_SPLIT = "hawk.split";
-	private static final String PROPERTY_HAWK_USERNAME = "hawk.username";
-	private static final String PROPERTY_HAWK_PASSWORD = "hawk.password";
+
+	/**
+	 * Property that contains a comma-separated list of file patterns to be
+	 * considered (such as <code>*.xmi</code>), or <code>*</code> if all files
+	 * should be considered (the default, as in {@link #DEFAULT_REPOSITORY}).
+	 */
+	public static final String PROPERTY_HAWK_FILES = "hawk.files";
+
+	/**
+	 * Property that limits the contents of the resource to the files in the
+	 * specified version control systems. It can be a comma-separated list of
+	 * glob-like patterns (where * is a wildcard), or simply <code>*</code> if
+	 * all repositories should be considered (the default, as in
+	 * {@link #DEFAULT_REPOSITORY}).
+	 */
+	public static final String PROPERTY_HAWK_REPOSITORY = "hawk.repository";
+
+	/**
+	 * Property that must be set to the name of the remote Hawk index. By
+	 * default, it is {@link #DEFAULT_INSTANCE}.
+	 */
+	public static final String PROPERTY_HAWK_INSTANCE = "hawk.instance";
+
+	/**
+	 * Property that must be set to the URL to the remote Hawk index (e.g.
+	 * <code>http://127.0.0.1:8080/thrift/hawk</code>.
+	 */
+	public static final String PROPERTY_HAWK_URL = "hawk.url";
+
+	/**
+	 * Property that defines the Thrift protocol that should be used for
+	 * serialization. It must be one of the values of {@link ThriftProtocol}. By
+	 * default, it is {@link #DEFAULT_TPROTOCOL}.
+	 */
+	public static final String PROPERTY_HAWK_TPROTOCOL = "hawk.thriftProtocol";
+
+	/**
+	 * Property that contains a string with one of the values in
+	 * {@link LoadingMode}, indicating how should the model be lodaded. The
+	 * default value is {@link #DEFAULT_LOADING_MODE}.
+	 */
+	public static final String PROPERTY_HAWK_LOADING_MODE = "hawk.loadingMode";
+
+	/**
+	 * Property that indicates the query language to be used for the query in
+	 * {@link #PROPERTY_HAWK_QUERY}.
+	 */
+	public static final String PROPERTY_HAWK_QUERY_LANGUAGE = "hawk.queryLanguage";
+
+	/**
+	 * Property that contains a list of comma-separated namespace URLs, used to resolve
+	 * ambiguous type names.
+	 */
+	public static final String PROPERTY_HAWK_DEFAULT_NAMESPACES = "hawk.defaultNamespaces";
+
+	/**
+	 * Property that specifies a query in the language indicated in
+	 * {@link #PROPERTY_HAWK_QUERY_LANGUAGE} that limits the contents of the
+	 * model to the results of this query.
+	 */
+	public static final String PROPERTY_HAWK_QUERY = "hawk.query";
+
+	/**
+	 * Property that if set to true, indicates that the client should subscribe
+	 * to changes in the Hawk index for the indicated files and repository. The
+	 * default value is {@link #DEFAULT_IS_SUBSCRIBED}.
+	 */
+	public static final String PROPERTY_HAWK_SUBSCRIBE = "hawk.subscribe";
+
+	/**
+	 * Property that should be set to a unique client ID for subscriptions. It allows
+	 * Hawk to know if the same subscriber is reconnecting to an old subscription.
+	 */
+	public static final String PROPERTY_HAWK_CLIENTID = "hawk.clientID";
+
+	/**
+	 * Property that indicates the durability of the Artemis queue to be used
+	 * for subscriptions. The valid values are those of {@link SubscriptionDurability}.
+	 */
+	public static final String PROPERTY_HAWK_DURABILITY = "hawk.subscriptionDurability";
+
+	/**
+	 * Property that if set to true, will make the Hawk resource split its
+	 * contents across surrogate file resources.
+	 */
+	public static final String PROPERTY_HAWK_SPLIT = "hawk.split";
+
+	/** Property that stores the username to be used to connect to Hawk. */
+	public static final String PROPERTY_HAWK_USERNAME = "hawk.username";
+
+	/** Property that stores the password to be used to connect to Hawk. */
+	public static final String PROPERTY_HAWK_PASSWORD = "hawk.password";
+
+	/** Prefix for a collection of properties containing the effective metamodel store. */
+	public static final String PROPERTY_HAWK_EMM_PREFIX = "hawk.effectiveMetamodel";
 
 	private String hawkURL = DEFAULT_URL;
 	private String hawkInstance = DEFAULT_INSTANCE;

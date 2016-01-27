@@ -514,14 +514,24 @@
       </eParameters>
     </eOperations>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodelStore">
+    <eAnnotations source="thrift.map">
+      <details key="key" value="uri"/>
+      <details key="value" value="metamodel"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" upperBound="-1"
+        eType="#//EffectiveMetamodel" containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodel">
     <eAnnotations source="thrift.map">
-      <details key="key" value="key"/>
-      <details key="value" value="value"/>
+      <details key="key" value="type"/>
+      <details key="value" value="slots"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="value" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="slots" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkQueryOptions">
@@ -577,10 +587,10 @@
         <details key="default" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="effectiveMetamodel" eType="#//EffectiveMetamodel"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="effectiveMetamodels" eType="#//EffectiveMetamodelStore"
         containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="If set, limits the types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent"/>
+        <details key="d" value="If set, limits the metamodels, types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent"/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
