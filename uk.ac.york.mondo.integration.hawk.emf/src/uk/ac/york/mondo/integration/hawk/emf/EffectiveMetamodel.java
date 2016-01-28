@@ -26,7 +26,18 @@ public class EffectiveMetamodel {
 	public static final String ALL_FIELDS = "__all__";
 	protected Map<String, Set<String>> store = new HashMap<>();
 
+	/**
+	 * Creates an empty instance that includes no types.
+	 */
 	protected EffectiveMetamodel() {}
+
+	/**
+	 * Copy constructor.
+	 */
+	protected EffectiveMetamodel(EffectiveMetamodel toCopy) {
+		// We can do this simple copy *because* we use ImmutableSet
+		this.store = new HashMap<>(toCopy.store);
+	}
 
 	/**
 	 * Adds a type to the effective metamodel, including a specific set of slots.
@@ -78,8 +89,8 @@ public class EffectiveMetamodel {
 	 *         all fields are included implicitly, or <code>null</code> if
 	 *         the type is not included.
 	 */
-	public Set<String> getIncludedSlots(String type) {
-		return store.get(type);
+	public ImmutableSet<String> getIncludedSlots(String type) {
+		return (ImmutableSet<String>) store.get(type);
 	}
 
 	@Override

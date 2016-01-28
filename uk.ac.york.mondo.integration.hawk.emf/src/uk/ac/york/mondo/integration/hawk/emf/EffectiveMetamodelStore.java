@@ -26,10 +26,29 @@ import com.google.common.collect.ImmutableSet;
  *
  * The contents of this effective metamodel can only be changed through the
  * {@link #addType(String, String)}, {@link #addType(String, String, Set)} and
+ * {@link #removeType(String, String)} methods.
  */
 public class EffectiveMetamodelStore {
 
 	private Map<String, EffectiveMetamodel> store = new HashMap<>();
+
+	/**
+	 * Creates a metamodel that includes all metamodels and types. Note: as soon
+	 * as one type is added, the effective metamodel will only include the
+	 * explicitly added types.
+	 */
+	public EffectiveMetamodelStore() {
+		// nothing to do
+	}
+
+	/**
+	 * Copy constructor.
+	 */
+	public EffectiveMetamodelStore(EffectiveMetamodelStore toCopy) {
+		for (Entry<String, EffectiveMetamodel> toCopyEntry : toCopy.store.entrySet()) {
+			store.put(toCopyEntry.getKey(), new EffectiveMetamodel(toCopyEntry.getValue()));
+		}
+	}
 
 	/**
 	 * Adds or replaces a type to the effective metamodels, including a specific
@@ -43,8 +62,8 @@ public class EffectiveMetamodelStore {
 	}
 
 	/**
-	 * Convenience method for {@link #addType(String, String)} that adds all
-	 * the fields in the type.
+	 * Convenience method for {@link #addType(String, String)} that adds all the
+	 * fields in the type.
 	 */
 	public ImmutableSet<String> addType(String metamodel, String type) {
 		final EffectiveMetamodel mmEntry = getOrPutMetamodel(metamodel);
@@ -82,8 +101,16 @@ public class EffectiveMetamodelStore {
 	}
 
 	/**
-	 * Returns a raw unmodifiable view of all the explicitly
-	 * included metamodels. Callers should check {@link #isEverythingIncluded()} first.
+	 * Returns the {@link EffectiveMetamodel} for the specified URI, or
+	 * <code>null</code> if it was not explicitly added.
+	 */
+	public EffectiveMetamodel getMetamodel(String metamodel) {
+		return store.get(metamodel);
+	}
+
+	/**
+	 * Returns a raw unmodifiable view of all the explicitly included
+	 * metamodels. Callers should check {@link #isEverythingIncluded()} first.
 	 */
 	public Map<String, Map<String, Set<String>>> getRawIncludedMetamodels() {
 		final Map<String, Map<String, Set<String>>> ret = new HashMap<>();
@@ -107,7 +134,7 @@ public class EffectiveMetamodelStore {
 	}
 
 	/**
-	 * Returns <code>true</code>  if the slot is included in the effective
+	 * Returns <code>true</code> if the slot is included in the effective
 	 * metamodel, <code>false</code> otherwise.
 	 */
 	public boolean isSlotIncluded(String metamodel, String type, String slot) {
@@ -121,6 +148,26 @@ public class EffectiveMetamodelStore {
 		}
 
 		return mmEntry.isSlotIncluded(type, slot);
+	}
+
+	/**
+	 * Returns the set of slots included in the specified effective metamodel.
+	 * For details about the possible return values, see
+	 * {@link EffectiveMetamodel#getIncludedSlots(String)}. If
+	 * {@link #isEverythingIncluded()} is true, this method reports that all
+	 * slots are included.
+	 */
+	public ImmutableSet<String> getIncludedSlots(String metamodel, String type) {
+		if (isEverythingIncluded()) {
+			return ImmutableSet.of(EffectiveMetamodel.ALL_FIELDS);
+		}
+
+		EffectiveMetamodel emm = store.get(metamodel);
+		if (emm == null) {
+			return null;
+		} else {
+			return emm.getIncludedSlots(type);
+		}
 	}
 
 	protected EffectiveMetamodel getOrPutMetamodel(String metamodel) {

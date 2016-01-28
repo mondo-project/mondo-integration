@@ -2,6 +2,7 @@ package uk.ac.york.mondo.integration.hawk.emf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
@@ -30,6 +31,9 @@ public class EffectiveMetamodelStoreSerializerTest {
 		final EffectiveMetamodelStore loaded = serializer.load(props);
 		assertEquals(saved, loaded);
 		assertTrue(loaded.isEverythingIncluded());
+		assertTrue(loaded.isTypeIncluded("x", "y"));
+		assertTrue(loaded.isSlotIncluded("a", "b", "c"));
+		assertEquals(ImmutableSet.of(EffectiveMetamodel.ALL_FIELDS), loaded.getIncludedSlots("f", "g"));
 	}
 
 	@Test
@@ -70,6 +74,7 @@ public class EffectiveMetamodelStoreSerializerTest {
 		assertFalse(loaded.isTypeIncluded("x", "z"));
 		assertFalse(loaded.isTypeIncluded("y", "x"));
 		assertTrue(loaded.isSlotIncluded("x", "y", "z"));
+		assertNull(loaded.getIncludedSlots("a", "b"));
 	}
 
 	@Test
@@ -83,11 +88,13 @@ public class EffectiveMetamodelStoreSerializerTest {
 	}
 	
 	@Test
-	public void saveLoadOneTypeSomeSlots() {
+	public void saveLoadSomeTypesSomeSlots() {
 		final ImmutableSet<String> empty = ImmutableSet.of();
+		final ImmutableSet<String> xzSlots = ImmutableSet.of("a", "b");
+
 		final EffectiveMetamodelStore saved = new EffectiveMetamodelStore();
 		saved.addType("x", "y", empty);
-		saved.addType("x", "z", ImmutableSet.of("a", "b"));
+		saved.addType("x", "z", xzSlots);
 		saved.addType("u", "w", ImmutableSet.of("f"));
 		serializer.save(saved, props);
 
@@ -98,12 +105,48 @@ public class EffectiveMetamodelStoreSerializerTest {
 		assertTrue(loaded.isTypeIncluded("x", "z"));
 		assertTrue(loaded.isTypeIncluded("u", "w"));
 		assertFalse(loaded.isTypeIncluded("u", "z"));
+		assertFalse(loaded.isTypeIncluded("v", "z"));
 
 		assertFalse(loaded.isSlotIncluded("x", "y", "z"));
 		assertTrue(loaded.isSlotIncluded("x", "z", "a"));
 		assertTrue(loaded.isSlotIncluded("x", "z", "b"));
 		assertTrue(loaded.isSlotIncluded("u", "w", "f"));
 		assertFalse(loaded.isSlotIncluded("u", "w", "g"));
+		assertFalse(loaded.isSlotIncluded("v", "z", "h"));
+
+		assertEquals(empty, loaded.getIncludedSlots("x", "y"));
+		assertEquals(xzSlots, loaded.getMetamodel("x").getIncludedSlots("z"));
 	}
 
+	@Test
+	public void removeType() {
+		final ImmutableSet<String> empty = ImmutableSet.of();
+		final EffectiveMetamodelStore saved = new EffectiveMetamodelStore();
+		saved.addType("x", "y", empty);
+		saved.addType("x", "z", ImmutableSet.of("a", "b"));
+		saved.addType("u", "w", ImmutableSet.of("f"));
+		assertEquals(empty, saved.removeType("x", "y"));
+		assertNull(saved.removeType("u", "z"));
+		assertNull(saved.removeType("h", "x"));
+		serializer.save(saved, props);
+
+		final EffectiveMetamodelStore loaded = serializer.load(props);
+		assertEquals(loaded, saved);
+		assertFalse(loaded.isTypeIncluded("x", "y"));
+		assertFalse(loaded.isTypeIncluded("h", "x"));
+		assertTrue(loaded.isTypeIncluded("x", "z"));
+		assertTrue(loaded.isTypeIncluded("u", "w"));
+	}
+
+	@Test
+	public void copyConstructor() {
+		final ImmutableSet<String> empty = ImmutableSet.of();
+		final EffectiveMetamodelStore original = new EffectiveMetamodelStore();
+		original.addType("x", "y", empty);
+		original.addType("x", "z", ImmutableSet.of("a", "b"));
+		original.addType("u", "w", ImmutableSet.of("f"));
+
+		final EffectiveMetamodelStore copy = new EffectiveMetamodelStore(original);
+		assertEquals(original, copy);
+	}
 }
