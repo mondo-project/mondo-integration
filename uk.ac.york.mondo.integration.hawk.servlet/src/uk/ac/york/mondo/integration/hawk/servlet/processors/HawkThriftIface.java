@@ -194,12 +194,15 @@ final class HawkThriftIface implements Hawk.Iface {
 				context.put(IQueryEngine.PROPERTY_DEFAULTNAMESPACES, opts.getDefaultNamespaces());
 			}
 
-			Object ret;
-			if (!"*".equals(opts.getRepositoryPattern()) || !Arrays.asList("*").equals(opts.getFilePatterns())) {
-				context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, opts.getRepositoryPattern());
-				context.put(IQueryEngine.PROPERTY_FILECONTEXT, join(opts.getFilePatterns(), ","));
+			if (opts.isSetRepositoryPattern() || opts.isSetFilePatterns()) {
+				final boolean allRepositories = "*".equals(opts.getRepositoryPattern());
+				final boolean allFiles = Arrays.asList("*").equals(opts.getFilePatterns());
+				if (!allRepositories || !allFiles) {
+					context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, opts.isSetRepositoryPattern() ? opts.getRepositoryPattern() : "*");
+					context.put(IQueryEngine.PROPERTY_FILECONTEXT, opts.isSetFilePatterns() ? join(opts.getFilePatterns(), ",") : "*");
+				}
 			}
-			ret = model.query(query, language, context);
+			Object ret = model.query(query, language, context);
 
 			final GraphWrapper gw = new GraphWrapper(model.getGraph());
 			final HawkModelElementEncoder enc = new HawkModelElementEncoder(gw);

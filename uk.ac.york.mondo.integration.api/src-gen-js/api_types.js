@@ -3671,13 +3671,9 @@ ModelElementType = function(args) {
     }
     if (args.attributes !== undefined && args.attributes !== null) {
       this.attributes = Thrift.copyList(args.attributes, [SlotMetadata]);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field attributes is unset!');
     }
     if (args.references !== undefined && args.references !== null) {
       this.references = Thrift.copyList(args.references, [SlotMetadata]);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field references is unset!');
     }
   }
 };

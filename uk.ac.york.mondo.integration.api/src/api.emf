@@ -563,9 +563,9 @@ class ModelElementType {
 	attr String metamodelUri;
 	@doc(d="Name of the type")
 	attr String typeName;
-	@doc(d="Metadata for the attribute slots")
+	@doc(d="Metadata for the attribute slots", optional="true")
 	val SlotMetadata[*] attributes;
-	@doc(d="Metadata for the reference slots")
+	@doc(d="Metadata for the reference slots", optional="true")
 	val SlotMetadata[*] references;
 }
 

@@ -279,8 +279,8 @@ struct ModelElementType {
 	 /* Unique ID of the model element type. */ 1: required string id,
 	 /* URI of the metamodel to which the type belongs. */ 2: required string metamodelUri,
 	 /* Name of the type. */ 3: required string typeName,
-	 /* Metadata for the attribute slots. */ 4: required list<SlotMetadata> attributes,
-	 /* Metadata for the reference slots. */ 5: required list<SlotMetadata> references,
+	 /* Metadata for the attribute slots. */ 4: optional list<SlotMetadata> attributes,
+	 /* Metadata for the reference slots. */ 5: optional list<SlotMetadata> references,
 }
 
 struct ReferenceSlot {

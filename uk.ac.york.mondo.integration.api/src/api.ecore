@@ -1301,12 +1301,14 @@
         eType="#//SlotMetadata" containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Metadata for the attribute slots"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
         eType="#//SlotMetadata" containment="true">
       <eAnnotations source="doc">
         <details key="d" value="Metadata for the reference slots"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
