@@ -110,7 +110,7 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
  */
 public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
-	private static final String EOL_QUERY_LANG = "org.hawk.epsilon.emc.EOLQueryEngine";
+	public static final String EOL_QUERY_LANG = "org.hawk.epsilon.emc.EOLQueryEngine";
 
 	/**
 	 * Internal state used only while loading a tree of {@link ModelElement}s. It's

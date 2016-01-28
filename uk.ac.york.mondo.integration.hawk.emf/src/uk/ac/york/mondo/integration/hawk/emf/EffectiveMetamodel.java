@@ -63,6 +63,11 @@ public class EffectiveMetamodel {
 		return (ImmutableSet<String>) store.remove(type);
 	}
 
+	/** Returns <code>true</code> if the effective metamodel does not include any types. */
+	public boolean isEmpty() {
+		return store.isEmpty();
+	}
+
 	public boolean isTypeIncluded(String type) {
 		return store.containsKey(type);
 	}

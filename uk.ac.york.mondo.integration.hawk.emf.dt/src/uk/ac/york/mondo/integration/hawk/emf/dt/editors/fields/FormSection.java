@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
+package uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -16,7 +16,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 
-abstract class FormSection {
+public abstract class FormSection {
 	protected Composite cContents;
 
 	public FormSection(FormToolkit toolkit, Composite parent, String title, String description) {

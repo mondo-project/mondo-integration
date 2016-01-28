@@ -51,6 +51,7 @@ import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 import uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields.FormCheckBoxField;
 import uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields.FormComboBoxField;
+import uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields.FormSection;
 import uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields.FormTextField;
 import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceFactoryImpl;
 
@@ -67,7 +68,7 @@ class DetailsFormPage extends FormPage {
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
-		    cContents.setLayout(createTableWrapLayout(2));
+		    cContents.setLayout(Utils.createTableWrapLayout(2));
 
 		    this.fldRepositoryURL = new FormTextField(toolkit, cContents, "<a href=\"selectRepository\">Repository URL</a>:", HawkModelDescriptor.DEFAULT_REPOSITORY);
 		    this.fldFilePatterns = new FormTextField(toolkit, cContents, "<a href=\"selectFiles\">File pattern(s)</a>:", HawkModelDescriptor.DEFAULT_FILES);
@@ -177,7 +178,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public void setFilePatterns(String... patterns) {
-			fldFilePatterns.setTextWithoutListener(concat(patterns, ","), this);
+			fldFilePatterns.setTextWithoutListener(Utils.concat(patterns, ","), this);
 		}
 
 		public void setRepositoryURL(String url) {
@@ -226,7 +227,7 @@ class DetailsFormPage extends FormPage {
 
 		public InstanceSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Instance", "Access details for the remote Hawk instance.");
-		    cContents.setLayout(createTableWrapLayout(2));
+		    cContents.setLayout(Utils.createTableWrapLayout(2));
 
 		    this.fldServerURL = new FormTextField(toolkit, cContents, "Server URL:", "");
 		    this.fldTProtocol = new FormComboBoxField(toolkit, cContents, "Thrift protocol:", ThriftProtocol.strings());
@@ -340,7 +341,7 @@ class DetailsFormPage extends FormPage {
 
 		public SubscriptionSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Subscription", "Configuration parameters for subscriptions to changes in the models indexed by Hawk.");
-		    cContents.setLayout(createTableWrapLayout(2));
+		    cContents.setLayout(Utils.createTableWrapLayout(2));
 
 		    this.fldSubscribe = new FormCheckBoxField(toolkit, cContents, "Subscribe:", HawkModelDescriptor.DEFAULT_IS_SUBSCRIBED);
 		    this.fldClientID = new FormTextField(toolkit, cContents, "Client ID:", HawkModelDescriptor.DEFAULT_CLIENTID);
@@ -470,11 +471,11 @@ class DetailsFormPage extends FormPage {
 		});
 
 		this.instanceSection = new InstanceSection(toolkit, formBody) {
-			@Override protected void instanceNameChanged() { getEditor().refreshRawText(); }
-			@Override protected void serverURLChanged()    { getEditor().refreshRawText(); }
-			@Override protected void thriftProtocolChanged() { getEditor().refreshRawText(); }
-			@Override protected void usernameChanged() { getEditor().refreshRawText(); }
-			@Override protected void passwordChanged() { getEditor().refreshRawText(); }
+			@Override protected void instanceNameChanged() { getEditor().setDirty(true); }
+			@Override protected void serverURLChanged()    { getEditor().setDirty(true); }
+			@Override protected void thriftProtocolChanged() { getEditor().setDirty(true); }
+			@Override protected void usernameChanged() { getEditor().setDirty(true); }
+			@Override protected void passwordChanged() { getEditor().setDirty(true); }
 			@Override protected void selectInstance() {
 				final HawkModelDescriptor d = getEditor().buildDescriptor();
 				try {
@@ -523,13 +524,13 @@ class DetailsFormPage extends FormPage {
 			}
 		};
 		this.contentSection = new ContentSection(toolkit, formBody) {
-			@Override protected void filePatternsChanged()  { getEditor().refreshRawText(); }
-			@Override protected void repositoryURLChanged() { getEditor().refreshRawText(); }
-			@Override protected void loadingModeChanged() { getEditor().refreshRawText(); }
-			@Override protected void queryLanguageChanged() { getEditor().refreshRawText(); }
-			@Override protected void queryChanged() { getEditor().refreshRawText(); }
-			@Override protected void defaultNamespacesChanged() { getEditor().refreshRawText(); }
-			@Override protected void splitChanged() { getEditor().refreshRawText(); }
+			@Override protected void filePatternsChanged()  { getEditor().setDirty(true); }
+			@Override protected void repositoryURLChanged() { getEditor().setDirty(true); }
+			@Override protected void loadingModeChanged() { getEditor().setDirty(true); }
+			@Override protected void queryLanguageChanged() { getEditor().setDirty(true); }
+			@Override protected void queryChanged() { getEditor().setDirty(true); }
+			@Override protected void defaultNamespacesChanged() { getEditor().setDirty(true); }
+			@Override protected void splitChanged() { getEditor().setDirty(true); }
 
 			@Override protected void selectQueryLanguage() {
 				final HawkModelDescriptor d = getEditor().buildDescriptor();
@@ -634,9 +635,9 @@ class DetailsFormPage extends FormPage {
 			}
 		};
 		this.subscriptionSection = new SubscriptionSection(toolkit, formBody) {
-			@Override protected void subscribeChanged() { getEditor().refreshRawText(); }
-			@Override protected void clientIDChanged() { getEditor().refreshRawText(); }
-			@Override protected void durabilityChanged() { getEditor().refreshRawText(); }
+			@Override protected void subscribeChanged() { getEditor().setDirty(true); }
+			@Override protected void clientIDChanged() { getEditor().setDirty(true); }
+			@Override protected void durabilityChanged() { getEditor().setDirty(true); }
 		};
 	}
 
@@ -650,27 +651,5 @@ class DetailsFormPage extends FormPage {
 
 	public SubscriptionSection getSubscriptionSection() {
 		return subscriptionSection;
-	}
-
-	private static String concat(final String[] elems, final String separator) {
-		final StringBuffer sbuf = new StringBuffer();
-		boolean bFirst = true;
-		for (String filePattern : elems) {
-			if (bFirst) {
-				bFirst = false;
-			} else {
-				sbuf.append(separator);
-			}
-			sbuf.append(filePattern);
-		}
-		return sbuf.toString();
-	}
-
-	private static TableWrapLayout createTableWrapLayout(int nColumns) {
-		final TableWrapLayout cContentsLayout = new TableWrapLayout();
-	    cContentsLayout.numColumns = nColumns;
-	    cContentsLayout.horizontalSpacing = 5;
-	    cContentsLayout.verticalSpacing = 3;
-		return cContentsLayout;
 	}
 }

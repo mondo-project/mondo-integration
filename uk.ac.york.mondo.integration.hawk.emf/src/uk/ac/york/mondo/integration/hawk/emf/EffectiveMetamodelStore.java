@@ -81,7 +81,12 @@ public class EffectiveMetamodelStore {
 		if (mmEntry == null) {
 			return null;
 		}
-		return mmEntry.removeType(type);
+
+		final ImmutableSet<String> oldSet = mmEntry.removeType(type);
+		if (mmEntry.isEmpty()) {
+			store.remove(metamodel);
+		}
+		return oldSet;
 	}
 
 	/**

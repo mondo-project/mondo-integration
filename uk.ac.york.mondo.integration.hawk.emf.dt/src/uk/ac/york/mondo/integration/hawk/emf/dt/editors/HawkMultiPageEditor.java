@@ -19,15 +19,14 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -45,15 +44,13 @@ import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
  */
 public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeListener {
 
-	private static final int RAW_EDITOR_PAGE_INDEX = 1;
-
-	/** The text editor used in page 0. */
-	private TextEditor editor;
 	private DetailsFormPage detailsPage;
-	private IDocumentListener documentListener;
+	private EffectiveMetamodelFormPage emmPage;
+	private TextEditor textEditor;
+	private int textEditorPageIndex;
+	private boolean isDirty;
 
 	public HawkMultiPageEditor() {
-		super();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 
@@ -70,20 +67,23 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		getEditor(RAW_EDITOR_PAGE_INDEX).doSave(monitor);
+		refreshRawText();
+		textEditor.doSave(monitor);
+		setDirty(false);
 	}
 
 	/**
-	 * Saves the multi-page editor's document as another file. Also updates the
+	 * Saves the multi-page textEditor's document as another file. Also updates the
 	 * text for page {@link #RAW_EDITOR_PAGE_INDEX}'s tab, and updates this
-	 * multi-page editor's input to correspond to the nested editor's.
+	 * multi-page textEditor's input to correspond to the nested textEditor's.
 	 */
 	@Override
 	public void doSaveAs() {
-		IEditorPart editor = getEditor(RAW_EDITOR_PAGE_INDEX);
-		editor.doSaveAs();
-		setPageText(RAW_EDITOR_PAGE_INDEX, editor.getTitle());
-		setInput(editor.getEditorInput());
+		refreshRawText();
+		textEditor.doSaveAs();
+		setPageText(textEditorPageIndex, textEditor.getTitle());
+		setInput(textEditor.getEditorInput());
+		setDirty(false);
 	}
 
 	/**
@@ -114,8 +114,8 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 				public void run() {
 					IWorkbenchPage[] pages = getSite().getWorkbenchWindow().getPages();
 					for (int i = 0; i < pages.length; i++) {
-						if (((FileEditorInput) editor.getEditorInput()).getFile().getProject().equals(event.getResource())) {
-							IEditorPart editorPart = pages[i].findEditor(editor.getEditorInput());
+						if (((FileEditorInput) textEditor.getEditorInput()).getFile().getProject().equals(event.getResource())) {
+							IEditorPart editorPart = pages[i].findEditor(textEditor.getEditorInput());
 							pages[i].closeEditor(editorPart, true);
 						}
 					}
@@ -125,20 +125,26 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 	}
 
 	private void createFormBasedEditorPage() throws PartInitException {
-		detailsPage = new DetailsFormPage(this, "details", "Remote Hawk Model Descriptor");
+		detailsPage = new DetailsFormPage(this, "details", "Descriptor");
 		int index = addPage(detailsPage, getEditorInput());
-		setPageText(index, "Descriptor");
+		setPageText(index, detailsPage.getTitle());
+	}
+
+	private void createEffectiveMetamodelPage() throws PartInitException {
+		emmPage = new EffectiveMetamodelFormPage(this, "emm", "Effective Metamodel");
+		int index = addPage(emmPage);
+		setPageText(index, emmPage.getTitle());
 	}
 
 	private void createRawTextEditorPage() throws PartInitException {
-		editor = new TextEditor();
-		int rawEditorPage = addPage(editor, getEditorInput());
-		setPageText(rawEditorPage, editor.getTitle());
-		setPartName(editor.getTitle());
+		textEditor = new TextEditor();
+		textEditorPageIndex = addPage(textEditor, getEditorInput());
+		setPageText(textEditorPageIndex, textEditor.getTitle());
+		setPartName(textEditor.getTitle());
 	}
 
 	private IDocument getDocument() {
-		return editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		return textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 	}
 
 	private void refreshForm() {
@@ -164,21 +170,21 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getSubscriptionSection().setSubscribed(descriptor.isSubscribed());
 			detailsPage.getSubscriptionSection().setClientID(descriptor.getSubscriptionClientID());
 			detailsPage.getSubscriptionSection().setDurability(descriptor.getSubscriptionDurability());
+
+			emmPage.setEffectiveMetamodelStore(descriptor.getEffectiveMetamodelStore());
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
 	}
 
-	void refreshRawText() {
+	private void refreshRawText() {
 		final HawkModelDescriptor descriptor = buildDescriptor();
 		final StringWriter sW = new StringWriter();
 		try {
 			descriptor.save(sW);
 
 			final IDocument doc = getDocument();
-			doc.removeDocumentListener(documentListener);
 			doc.set(sW.toString());
-			doc.addDocumentListener(documentListener);
 		} catch (IOException e) {
 			Activator.getDefault().logError(e);
 		}
@@ -201,26 +207,28 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setHawkQuery(detailsPage.getContentSection().getQuery());
 		descriptor.setDefaultNamespaces(detailsPage.getContentSection().getDefaultNamespaces());
 		descriptor.setSplit(detailsPage.getContentSection().isSplit());
+		descriptor.setEffectiveMetamodelStore(emmPage.getEffectiveMetamodelStore());
 		return descriptor;
+	}
+
+	@Override
+	protected void pageChange(int newPageIndex) {
+		super.pageChange(newPageIndex);
+		if (isDirty()) { 
+			if (newPageIndex == textEditorPageIndex && isDirty()) {
+				refreshRawText();
+			} else {
+				refreshForm();
+			}
+		}
 	}
 
 	@Override
 	protected void addPages() {
 		try {
 			createFormBasedEditorPage();
+			createEffectiveMetamodelPage();
 			createRawTextEditorPage();
-			documentListener = new IDocumentListener() {
-				@Override
-				public void documentAboutToBeChanged(DocumentEvent event) {
-					// ignore
-				}
-
-				@Override
-				public void documentChanged(DocumentEvent event) {
-					refreshForm();
-				}
-			};
-			getDocument().addDocumentListener(documentListener);
 			refreshForm();
 		} catch (Exception ex) {
 			Activator.getDefault().logError(ex);
@@ -231,5 +239,17 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		return APIUtils.connectTo(Hawk.Client.class,
 				d.getHawkURL(), d.getThriftProtocol(),
 				new LazyCredentials(d.getHawkURL()));
+	}
+
+	@Override
+	public boolean isDirty() {
+		return super.isDirty() || isDirty;
+	}
+
+	protected void setDirty(boolean newValue) {
+		if (this.isDirty != newValue) {
+			this.isDirty = newValue;
+			firePropertyChange(IWorkbenchPartConstants.PROP_DIRTY);
+		}
 	}
 }

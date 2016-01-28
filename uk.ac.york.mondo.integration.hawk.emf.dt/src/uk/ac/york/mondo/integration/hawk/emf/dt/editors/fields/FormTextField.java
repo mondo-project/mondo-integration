@@ -17,7 +17,7 @@ public class FormTextField {
 	private final Text text;
 
 	public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue) {
-		this(toolkit, sectionClient, labelText, defaultValue, SWT.BORDER);
+		this(toolkit, sectionClient, labelText, defaultValue, SWT.BORDER|SWT.WRAP);
 	}
 
 	public FormTextField(FormToolkit toolkit, Composite sectionClient, String labelText, String defaultValue, int textStyle) {
@@ -29,7 +29,7 @@ public class FormTextField {
 		layoutData.valign = TableWrapData.MIDDLE;
 		label.setLayoutData(layoutData);
 
-		text = toolkit.createText(sectionClient, defaultValue, textStyle);
+		text = toolkit.createText(sectionClient, defaultValue, textStyle|SWT.WRAP);
 		text.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 	}
 
