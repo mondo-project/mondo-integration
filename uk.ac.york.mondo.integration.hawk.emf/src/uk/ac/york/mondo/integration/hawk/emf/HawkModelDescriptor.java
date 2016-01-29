@@ -245,7 +245,7 @@ public class HawkModelDescriptor {
 	private String hawkQuery = DEFAULT_QUERY;
 	private String defaultNamespaces = DEFAULT_DEFAULT_NAMESPACES;
 	private boolean isSplit = DEFAULT_IS_SPLIT;
-	private EffectiveMetamodelStore emmStore = new EffectiveMetamodelStore();
+	private EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset();
 
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
 	private String subscriptionClientID = DEFAULT_CLIENTID;
@@ -395,12 +395,12 @@ public class HawkModelDescriptor {
 		this.hawkPassword = hawkPassword;
 	}
 
-	public EffectiveMetamodelStore getEffectiveMetamodelStore() {
-		return emmStore;
+	public EffectiveMetamodelRuleset getEffectiveMetamodel() {
+		return emm;
 	}
 
-	public void setEffectiveMetamodelStore(EffectiveMetamodelStore emmStore) {
-		this.emmStore = emmStore;
+	public void setEffectiveMetamodel(EffectiveMetamodelRuleset emm) {
+		this.emm = emm;
 	}
 
 	public void save(OutputStream os) throws IOException {
@@ -431,7 +431,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_CLIENTID, subscriptionClientID);
 		props.setProperty(PROPERTY_HAWK_DURABILITY, subscriptionDurability.toString());
 
-		new EffectiveMetamodelStoreSerializer(PROPERTY_HAWK_EMM_PREFIX).save(emmStore, props);
+		new EffectiveMetamodelRulesetSerializer(PROPERTY_HAWK_EMM_PREFIX).save(emm, props);
 		return props;
 	}
 
@@ -449,7 +449,7 @@ public class HawkModelDescriptor {
 		this.hawkQuery = optionalProperty(props, PROPERTY_HAWK_QUERY, DEFAULT_QUERY);
 		this.defaultNamespaces = optionalProperty(props, PROPERTY_HAWK_DEFAULT_NAMESPACES, DEFAULT_DEFAULT_NAMESPACES);
 		this.isSplit = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SPLIT, DEFAULT_IS_SPLIT + ""));
-		this.emmStore = new EffectiveMetamodelStoreSerializer(PROPERTY_HAWK_EMM_PREFIX).load(props);
+		this.emm = new EffectiveMetamodelRulesetSerializer(PROPERTY_HAWK_EMM_PREFIX).load(props);
 
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
 		this.subscriptionClientID = optionalProperty(props, PROPERTY_HAWK_CLIENTID, DEFAULT_CLIENTID);

@@ -11,27 +11,36 @@
 package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.thrift.TException;
-import org.eclipse.jface.viewers.CheckStateChangedEvent;
-import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.ICheckStateProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnPixelData;
+import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -40,169 +49,333 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.ModelElementType;
 import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.SlotMetadata;
-import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodel;
-import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodelStore;
+import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl;
 
 public class EffectiveMetamodelFormPage extends FormPage {
 
-	private final class MetamodelTreeViewer extends ContainerCheckedTreeViewer {
-		private MetamodelTreeViewer(Composite parent) {
-			super(parent);
+	private final class SetStateSelectionListener extends SelectionAdapter {
+		private final MetamodelEditingSupport editingSupport;
+		private final RowState newState;
+
+		private SetStateSelectionListener(MetamodelEditingSupport editingSupport, RowState newState) {
+			this.newState = newState;
+			this.editingSupport = editingSupport;
 		}
 
-		public TreeItem findTreeItem(Object o) {
-			return (TreeItem)this.findItem(o);
-		}
-	}
-
-	private final class MetamodelCheckStateListener implements ICheckStateListener {
 		@Override
-		public void checkStateChanged(CheckStateChangedEvent event) {
-			if (event.getElement() instanceof MetamodelNode) {
-				final MetamodelNode mn = (MetamodelNode)event.getElement();
-				if (event.getChecked()) {
-					for (Node child : mn.children) {
-						store.addType(mn.label, child.label);
-					}
-				} else {
-					for (Node child : mn.children) {
-						store.removeType(mn.label, child.label);
-					}
-				}
-			}
-			else if (event.getElement() instanceof TypeNode) {
-				final TypeNode tn = (TypeNode)event.getElement();
-				if (event.getChecked()) {
-					store.addType(tn.parent.label, tn.label);
-				} else {
-					store.removeType(tn.parent.label, tn.label);
-				}
-			} else if (event.getElement() instanceof SlotNode) {
-				final SlotNode sn = (SlotNode)event.getElement();
-				final TypeNode tn = (TypeNode)sn.parent;
-				final MetamodelNode mn = (MetamodelNode)tn.parent;
-				ImmutableSet<String> slots = store.getIncludedSlots(mn.label, tn.label);
-				ImmutableSet<String> newSlots;
-				if (slots == null) {
-					slots = ImmutableSet.of();
-				}
-
-				if (event.getChecked()) {
-					newSlots = new ImmutableSet.Builder<String>().addAll(slots).add(sn.label).build();
-				} else {
-					final Builder<String> builder = new ImmutableSet.Builder<>();
-					for (Node n : tn.children) {
-						if (treeViewer.getChecked(n)) {
-							builder.add(n.label);
-						}
-					}
-					newSlots = builder.build();
-				}
-
-				if (newSlots.size() != tn.children.size()) {
-					store.addType(mn.label, tn.label, newSlots);
-				} else {
-					store.addType(mn.label, tn.label);
-				}
-			}
-
-			// We *don't* want to check anything that's not visible - too expensive for large metamodels!
-			final TreeItem treeItem = treeViewer.findTreeItem(event.getElement());
-			checkItemRecursively(treeItem, event.getChecked());
-			getEditor().setDirty(true);
-		}
-
-		private void checkItemRecursively(TreeItem treeItem, boolean newState) {
-			treeItem.setChecked(newState);
-			for (TreeItem child : treeItem.getItems()) {
-				checkItemRecursively(child, newState);
+		public void widgetSelected(SelectionEvent e) {
+			for (final Iterator<?> it = treeViewer.getStructuredSelection().iterator(); it.hasNext(); ) {
+				Object element = it.next();
+				editingSupport.setValue(element, newState.ordinal());
 			}
 		}
 	}
 
-	public class MetamodelCheckStateProvider implements ICheckStateProvider {
+	private final class MetamodelCellLabelProvider extends CellLabelProvider {
+		private final MetamodelEditingSupport editingSupport;
+		private final int iColumn;
 
-		@Override
-		public boolean isChecked(Object element) {
-			if (element instanceof MetamodelNode) {
-				MetamodelNode mn = (MetamodelNode)element;
-				return store.getMetamodel(mn.label) != null;
-			} else if (element instanceof TypeNode) {
-				TypeNode tn = (TypeNode)element;
-				MetamodelNode mn = (MetamodelNode)tn.parent;
-				return !store.isEverythingIncluded() && store.isTypeIncluded(mn.label, tn.label);
-			} else if (element instanceof SlotNode) {
-				SlotNode sn = (SlotNode)element; 
-				TypeNode tn = (TypeNode)sn.parent;
-				MetamodelNode mn = (MetamodelNode)tn.parent;
-				return !store.isEverythingIncluded() && store.isSlotIncluded(mn.label, tn.label, sn.label);
-			}
-
-			return false;
+		private MetamodelCellLabelProvider(MetamodelEditingSupport editingSupport, int iColumn) {
+			this.editingSupport = editingSupport;
+			this.iColumn = iColumn;
 		}
 
 		@Override
-		public boolean isGrayed(Object element) {
-			if (element instanceof MetamodelNode) {
-				MetamodelNode mn = (MetamodelNode) element;
-				EffectiveMetamodel emm = store.getMetamodel(mn.label);
-				if (emm != null) {
-					for (Node child : mn.children) {
-						if (!emm.isTypeIncluded(child.label) || isGrayed(child)) {
-							return true;
-						}
+		public void update(ViewerCell cell) {
+			final Node element = (Node)cell.getElement();
+			final RowState state = editingSupport.getState(element);
+			if (iColumn == 0) {
+				cell.setText(((Node)element).label);
+			} else {
+				cell.setText("" + state.getLabel());
+			}
+
+			final RowState inheritedState = getInheritedState(element, state);
+			setBackgroundColor(cell, inheritedState);
+		}
+
+		private RowState getInheritedState(Node element, RowState state) {
+			switch (state) {
+			case INCLUDED:
+			case EXCLUDED:
+				return state;
+			default:
+				if (element.parent == null) {
+					return RowState.DEFAULT;
+				} else {
+					return getInheritedState(element.parent, editingSupport.getState(element.parent));
+				}
+			}
+		}
+
+		private void setBackgroundColor(ViewerCell cell, final RowState state) {
+			switch (state) {
+			case INCLUDED:
+				cell.setBackground(clrIncludes);
+				break;
+			case EXCLUDED:
+				cell.setBackground(clrExcludes);
+				break;
+			default:
+				if (cell.getElement() instanceof MetamodelNode) {
+					final MetamodelNode mn = (MetamodelNode)cell.getElement();
+					if (store.getInclusionRules().containsRow(mn.label) || store.getExclusionRules().containsRow(mn.label)) {
+						cell.setBackground(clrPartial);
+					} else {
+						cell.setBackground(null);
 					}
+				} else if (cell.getElement() instanceof TypeNode) {
+					final TypeNode tn = (TypeNode)cell.getElement();
+					if (store.getInclusionRules().contains(tn.parent.label, tn.label) || store.getExclusionRules().contains(tn.parent.label, tn.label)) {
+						cell.setBackground(clrPartial);
+					} else {
+						cell.setBackground(null);
+					}
+				} else {
+					cell.setBackground(null);
+				}
+				break;
+			}
+		}
+	}
+
+	private static enum RowState {
+		DEFAULT ("Default"), EXCLUDED ("Excluded"), INCLUDED ("Included");
+		private final String label;
+
+		RowState(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public static String[] getLabels() {
+			final List<String> labels = new ArrayList<>();
+			for (RowState s : RowState.values()) {
+				labels.add(s.label);
+			}
+			return labels.toArray(new String[labels.size()]);
+		}
+	}
+
+	private final class MetamodelEditingSupport extends EditingSupport {
+
+		private MetamodelEditingSupport(ColumnViewer viewer) {
+			super(viewer);
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			final TreeViewer viewer = (TreeViewer)getViewer();
+			return new ComboBoxCellEditor(viewer.getTree(), RowState.getLabels());
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		public Object getValue(Object element) {
+			final RowState state = getState(element);
+			return state == null ? 0 : state.ordinal();
+		}
+
+		protected RowState getState(Object element) {
+			RowState state = null;
+			if (element instanceof MetamodelNode) {
+				final MetamodelNode mn = (MetamodelNode)element;
+				if (store.getInclusionRules().contains(mn.label, EffectiveMetamodelRuleset.WILDCARD)) {
+					state = RowState.INCLUDED;
+				} else if (store.getExclusionRules().contains(mn.label, EffectiveMetamodelRuleset.WILDCARD)) {
+					state = RowState.EXCLUDED;
+				} else {
+					state = RowState.DEFAULT;
 				}
 			} else if (element instanceof TypeNode) {
 				final TypeNode tn = (TypeNode)element;
+				final MetamodelNode mn = (MetamodelNode) tn.parent;
+				final ImmutableSet<String> includedSlots = store.getInclusionRules().get(mn.label, tn.label);
+				if (includedSlots != null && includedSlots.contains(EffectiveMetamodelRuleset.WILDCARD)) {
+					state = RowState.INCLUDED;
+				}
+				else {
+					final ImmutableSet<String> excludedSlots = store.getExclusionRules().get(mn.label, tn.label);
+					if (excludedSlots != null && excludedSlots.contains(EffectiveMetamodelRuleset.WILDCARD)) {
+						state = RowState.EXCLUDED;
+					} else {
+						state = RowState.DEFAULT;
+					}
+				}
+			} else if (element instanceof SlotNode) {
+				final SlotNode sn = (SlotNode)element;
+				final TypeNode tn = (TypeNode)sn.parent;
 				final MetamodelNode mn = (MetamodelNode)tn.parent;
-				ImmutableSet<String> slots = store.getIncludedSlots(mn.label, tn.label);
-				if (slots == null) {
-					return false;
-				} else if (slots.contains(EffectiveMetamodel.ALL_FIELDS)) {
-					return false;
-				} else if (slots.isEmpty()) {
-					return false;
-				} else {
-					for (Node child : tn.children) {
-						if (!slots.contains(child.label)) {
-							return true;
-						}
+				final ImmutableSet<String> includedSlots = store.getInclusionRules().get(mn.label, tn.label);
+				if (includedSlots != null && includedSlots.contains(sn.label)) {
+					state = RowState.INCLUDED;
+				}
+				else {
+					final ImmutableSet<String> excludedSlots = store.getExclusionRules().get(mn.label, tn.label);
+					if (excludedSlots != null && excludedSlots.contains(sn.label)) {
+						state = RowState.EXCLUDED;
+					} else {
+						state = RowState.DEFAULT;
 					}
 				}
 			}
-			return false;
-		}
-	}
-
-	private EffectiveMetamodelStore store = new EffectiveMetamodelStore();
-	private MetamodelTreeViewer treeViewer;
-	private MetamodelCheckStateProvider checkStateProvider;
-
-	private static final class MetamodelLabelProvider extends LabelProvider implements ITableLabelProvider {
-		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO: add icons
-			return null;
+			return state;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
-			return "" + element;
+		protected void setValue(Object element, Object value) {
+			final RowState oldValue = RowState.values()[(Integer) getValue(element)];
+			final RowState newValue = RowState.values()[(Integer)value];
+			if (oldValue.equals(newValue)) {
+				return;
+			}
+
+			final ColumnViewer v = getViewer();
+			if (element instanceof MetamodelNode) {
+				MetamodelNode mn = (MetamodelNode)element;
+				store.reset(mn.label);
+
+				switch (newValue) {
+				case INCLUDED:
+					store.include(mn.label);
+					break;
+				case EXCLUDED:
+					store.exclude(mn.label);
+					break;
+				default:
+					break;
+				}
+
+				v.update(mn, null);
+				for (Node tn : mn.children) {
+					v.update(tn, null);
+					for (Node sn : tn.children) {
+						v.update(sn, null);
+					}
+				}
+			} else if (element instanceof TypeNode) {
+				TypeNode tn = (TypeNode)element;
+
+				store.reset(tn.parent.label, tn.label);
+				switch (newValue) {
+				case INCLUDED:
+					store.include(tn.parent.label, tn.label);
+					break;
+				case EXCLUDED:
+					store.exclude(tn.parent.label, tn.label);
+					break;
+				default:
+					break;
+				}
+
+				v.update(tn.parent, null);
+				v.update(tn, null);
+				for (Node sn : tn.children) {
+					v.update(sn, null);
+				}
+			} else if (element instanceof SlotNode) {
+				final SlotNode sn = (SlotNode) element;
+				final Node tn = sn.parent;
+
+				switch (oldValue) {
+				case INCLUDED: {
+						final ImmutableSet<String> oldSlots = store.getInclusionRules().get(tn.parent.label, tn.label);
+						final ImmutableSet<String> newSlots = removeSlot(sn, oldSlots);
+						if (newSlots != null) {
+							store.include(tn.parent.label, tn.label, newSlots);
+						}
+					}
+					break;
+				case EXCLUDED: {
+						final ImmutableSet<String> oldSlots = store.getExclusionRules().get(tn.parent.label, tn.label);
+						final ImmutableSet<String> newSlots = removeSlot(sn, oldSlots);
+						if (newSlots != null) {
+							store.exclude(tn.parent.label, tn.label, newSlots);
+						}
+					}
+					break;
+				default:
+					break;
+				}
+
+				switch (newValue) {
+				case INCLUDED: {
+					final ImmutableSet<String> oldSlots = store.getInclusionRules().get(tn.parent.label, tn.label);
+					final ImmutableSet<String> newSlots = addSlot(sn, oldSlots);
+					if (newSlots != null) {
+						store.include(tn.parent.label, tn.label, newSlots);
+					}
+					break;
+				}
+				case EXCLUDED: {
+					final ImmutableSet<String> oldSlots = store.getExclusionRules().get(tn.parent.label, tn.label);
+					final ImmutableSet<String> newSlots = addSlot(sn, oldSlots);
+					if (newSlots != null) {
+						store.exclude(tn.parent.label, tn.label, newSlots);
+					}
+					break;
+				}
+				default:
+					break;
+				}
+
+				v.update(sn.parent.parent, null);
+				v.update(sn.parent, null);
+				v.update(sn, null);
+			}
+
+			getEditor().setDirty(true);
+		}
+
+		protected ImmutableSet<String> addSlot(final SlotNode sn, ImmutableSet<String> oldSlots) {
+			ImmutableSet<String> newSlots = oldSlots;
+			if (oldSlots == null) {
+				return ImmutableSet.of(sn.label);
+			} else if ( !oldSlots.contains(EffectiveMetamodelRuleset.WILDCARD) && !oldSlots.contains(sn.label)) {
+				ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
+				builder.addAll(oldSlots);
+				builder.add(sn.label);
+				newSlots = builder.build();
+			}
+			return newSlots;
+		}
+
+		protected ImmutableSet<String> removeSlot(final SlotNode sn, ImmutableSet<String> oldSlots) {
+			ImmutableSet<String> newSlots = oldSlots;
+			if (oldSlots != null && !oldSlots.contains(EffectiveMetamodelRuleset.WILDCARD) && oldSlots.contains(sn.label)) {
+				ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
+				for (String s : oldSlots) {
+					if (!sn.label.equals(s)) {
+						builder.add(s);
+					}
+				}
+				newSlots = builder.build();
+			}
+			return newSlots;
 		}
 	}
 
-	private abstract static class Node {
+	private EffectiveMetamodelRuleset store = new EffectiveMetamodelRuleset();
+	private TreeViewer treeViewer;
+	private Color clrExcludes, clrIncludes, clrPartial;
+
+	private abstract static class Node implements Comparable<Node> {
 		public final Node parent;
 		public final List<Node> children = new ArrayList<>();
 		public final String label;
@@ -215,6 +388,11 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		@Override
 		public String toString() {
 			return label;
+		}
+
+		@Override
+		public int compareTo(Node o) {
+			return label.compareTo(o.label);
 		}
 	}
 
@@ -278,10 +456,14 @@ public class EffectiveMetamodelFormPage extends FormPage {
 									tn.children.add(sn);
 								}
 							}
+							Collections.sort(tn.children);
 						}
 					}
 
 					roots = new ArrayList<>(mmNodes.values()).toArray();
+					for (Node root : mmNodes.values()) {
+						Collections.sort(root.children);
+					}
 				} catch (TException e) {
 					Activator.getDefault().logError(e);
 				}
@@ -291,6 +473,9 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		@Override
 		public void dispose() {
 			roots = null;
+			clrExcludes.dispose();
+			clrIncludes.dispose();
+			clrPartial.dispose();
 		}
 
 		@Override
@@ -332,6 +517,10 @@ public class EffectiveMetamodelFormPage extends FormPage {
 	protected void createFormContent(IManagedForm managedForm) {
 		super.createFormContent(managedForm);
 		managedForm.getForm().setText("Effective Metamodel");
+
+		clrIncludes = new Color(managedForm.getForm().getDisplay(), new RGB(180, 255, 255));
+		clrExcludes = new Color(managedForm.getForm().getDisplay(), new RGB(255, 200, 255));
+		clrPartial = new Color(managedForm.getForm().getDisplay(), new RGB(255, 255, 220));
 		
 		final FormToolkit toolkit = managedForm.getToolkit();
 		final TableWrapLayout layout = new TableWrapLayout();
@@ -343,10 +532,12 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		final FormText formText = toolkit.createFormText(formBody, true);
 		formText.setText(
 				"<p>"
-				+ "<p>This page allows for limiting the types and slots that should be retrieved."
-				+ " By default (with everything unchecked), all types and slots are retrieved.</p>"
-				+ "<p>The shown metamodels are those registered in the Hawk server: please make sure "
-				+ "the Instance section of the descriptor has been setup correctly before using this page.</p>"
+				+ "<p>This page allows for limiting the types and slots that should be retrieved through the Hawk API.</p>"
+				+ "<p>With everything set to 'Default', all metamodels, types and slots are retrieved.</p>"
+				+ "<p>With everything set to 'Default' or 'Includes', only the included elements are retrieved.</p>"
+				+ "<p>With everything set to 'Default' or 'Excludes', everything but the excluded elements is retrieved.</p>"
+				+ "<p>Using all three values, only the elements which are 1. included and 2. not excluded are retrieved.</p>"
+				+ "<p>The shown metamodels are those registered in the Hawk server: please make sure the Instance section of the descriptor has been setup correctly before using this page.</p>"
 				+ "</p>",
 				true, false);
 
@@ -354,60 +545,99 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		cTable.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 		cTable.setLayout(Utils.createTableWrapLayout(2));
 
-		treeViewer = new MetamodelTreeViewer(cTable);
+		final Composite cTree = new Composite(cTable, SWT.NONE);
+		cTree.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+		TreeColumnLayout tcl_cTree = new TreeColumnLayout();
+		cTree.setLayout(tcl_cTree);
+
+		treeViewer = new TreeViewer(cTree, SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL);
+		treeViewer.getTree().setHeaderVisible(true);
 		final MetamodelContentProvider contentProvider = new MetamodelContentProvider();
 		treeViewer.setUseHashlookup(true);
 		treeViewer.setContentProvider(contentProvider);
-		treeViewer.setLabelProvider(new MetamodelLabelProvider());
-		checkStateProvider = new MetamodelCheckStateProvider();
-		treeViewer.setCheckStateProvider(checkStateProvider);
-		treeViewer.addCheckStateListener(new MetamodelCheckStateListener());
+
+		final MetamodelEditingSupport editingSupport = new MetamodelEditingSupport(treeViewer);
+    	final TreeViewerColumn labelColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
+    	labelColumn.getColumn().setText("Element");
+		labelColumn.setLabelProvider(new MetamodelCellLabelProvider(editingSupport, 0));
+		tcl_cTree.setColumnData(labelColumn.getColumn(), new ColumnWeightData(100, 0, true));
+
+		final TreeViewerColumn stateColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
+		stateColumn.getColumn().setText("State");
+		stateColumn.setLabelProvider(new MetamodelCellLabelProvider(editingSupport, 1));
+		stateColumn.setEditingSupport(editingSupport);
+		tcl_cTree.setColumnData(stateColumn.getColumn(), new ColumnPixelData(100));
+
 		treeViewer.setInput(store);
-		treeViewer.getTree().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 		final Composite cButtons = toolkit.createComposite(cTable, SWT.WRAP);
 		final FillLayout cButtonsLayout = new FillLayout(SWT.VERTICAL);
 		cButtonsLayout.spacing = 7;
 		cButtonsLayout.marginWidth = 3;
 		cButtons.setLayout(cButtonsLayout);
 
-		final Button btnSelectAll = new Button(cButtons, SWT.NONE);
-		btnSelectAll.setText("Select all");
-		btnSelectAll.addSelectionListener(new SelectionAdapter() {
-			@SuppressWarnings("deprecation")
+		final Button btnIncludeAll = new Button(cButtons, SWT.NONE);
+		btnIncludeAll.setText("Include all");
+		btnIncludeAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				for (Object on : contentProvider.roots) {
-					final MetamodelNode mn = (MetamodelNode)on;
-					for (Node tn : mn.children) {
-						store.addType(mn.label, tn.label);
-					}
-				}
-				treeViewer.setAllChecked(true);
+				setEffectiveMetamodel(new EffectiveMetamodelRuleset());
+				treeViewer.refresh();
 				getEditor().setDirty(true);
 			}
 		});
 
-		final Button btnDeselectAll = new Button(cButtons, SWT.NONE);
-		btnDeselectAll.setText("Deselect all");
-		btnDeselectAll.addSelectionListener(new SelectionAdapter() {
+		final Button btnExcludeAll = new Button(cButtons, SWT.NONE);
+		btnExcludeAll.setText("Exclude all");
+		btnExcludeAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setEffectiveMetamodelStore(new EffectiveMetamodelStore());
+				final EffectiveMetamodelRuleset ruleset = new EffectiveMetamodelRuleset();
+				for (Object on : contentProvider.roots) {
+					final MetamodelNode mn = (MetamodelNode)on;
+					ruleset.exclude(mn.label);
+				}
+				setEffectiveMetamodel(ruleset);
+				treeViewer.refresh();
+				getEditor().setDirty(true);
+			}
+		});
+
+		final Button btnExclude = new Button(cButtons, SWT.NONE);
+		btnExclude.setText("Exclude");
+		btnExclude.addSelectionListener(new SetStateSelectionListener(editingSupport, RowState.EXCLUDED));
+		btnExclude.setEnabled(false);
+
+		final Button btnInclude = new Button(cButtons, SWT.NONE);
+		btnInclude.setText("Include");
+		btnInclude.addSelectionListener(new SetStateSelectionListener(editingSupport, RowState.INCLUDED));
+		btnInclude.setEnabled(false);
+
+		final Button btnReset = new Button(cButtons, SWT.NONE);
+		btnReset.setText("Reset");
+		btnReset.addSelectionListener(new SetStateSelectionListener(editingSupport, RowState.DEFAULT));
+		btnReset.setEnabled(false);
+
+		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				final boolean isAnySelected = !event.getSelection().isEmpty();
+				btnExclude.setEnabled(isAnySelected);
+				btnInclude.setEnabled(isAnySelected);
+				btnReset.setEnabled(isAnySelected);
 			}
 		});
 
 		// TODO add UI for Analyze... button
 	}
 
-	public EffectiveMetamodelStore getEffectiveMetamodelStore() {
+	public EffectiveMetamodelRuleset getEffectiveMetamodel() {
 		return store;
 	}
 
-	public void setEffectiveMetamodelStore(EffectiveMetamodelStore newStore) {
+	public void setEffectiveMetamodel(EffectiveMetamodelRuleset newStore) {
 		this.store = newStore;
 		if (treeViewer != null) {
 			treeViewer.setInput(this.store);
 		}
-		getEditor().setDirty(true);
 	}
 }

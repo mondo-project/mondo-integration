@@ -65,7 +65,7 @@ public class EffectiveMetamodelStoreSerializerTest {
 	@Test
 	public void saveLoadOneTypeAllSlotsExplicit() {
 		final EffectiveMetamodelStore saved = new EffectiveMetamodelStore();
-		saved.addType("x", "y");
+		saved.add("x", "y");
 		serializer.save(saved, props);
 		final EffectiveMetamodelStore loaded = serializer.load(props);
 		assertEquals(saved, loaded);
@@ -93,9 +93,9 @@ public class EffectiveMetamodelStoreSerializerTest {
 		final ImmutableSet<String> xzSlots = ImmutableSet.of("a", "b");
 
 		final EffectiveMetamodelStore saved = new EffectiveMetamodelStore();
-		saved.addType("x", "y", empty);
-		saved.addType("x", "z", xzSlots);
-		saved.addType("u", "w", ImmutableSet.of("f"));
+		saved.add("x", "y", empty);
+		saved.add("x", "z", xzSlots);
+		saved.add("u", "w", ImmutableSet.of("f"));
 		serializer.save(saved, props);
 
 		final EffectiveMetamodelStore loaded = serializer.load(props);
@@ -122,12 +122,12 @@ public class EffectiveMetamodelStoreSerializerTest {
 	public void removeType() {
 		final ImmutableSet<String> empty = ImmutableSet.of();
 		final EffectiveMetamodelStore saved = new EffectiveMetamodelStore();
-		saved.addType("x", "y", empty);
-		saved.addType("x", "z", ImmutableSet.of("a", "b"));
-		saved.addType("u", "w", ImmutableSet.of("f"));
-		assertEquals(empty, saved.removeType("x", "y"));
-		assertNull(saved.removeType("u", "z"));
-		assertNull(saved.removeType("h", "x"));
+		saved.add("x", "y", empty);
+		saved.add("x", "z", ImmutableSet.of("a", "b"));
+		saved.add("u", "w", ImmutableSet.of("f"));
+		assertEquals(empty, saved.remove("x", "y"));
+		assertNull(saved.remove("u", "z"));
+		assertNull(saved.remove("h", "x"));
 		serializer.save(saved, props);
 
 		final EffectiveMetamodelStore loaded = serializer.load(props);
@@ -142,9 +142,9 @@ public class EffectiveMetamodelStoreSerializerTest {
 	public void copyConstructor() {
 		final ImmutableSet<String> empty = ImmutableSet.of();
 		final EffectiveMetamodelStore original = new EffectiveMetamodelStore();
-		original.addType("x", "y", empty);
-		original.addType("x", "z", ImmutableSet.of("a", "b"));
-		original.addType("u", "w", ImmutableSet.of("f"));
+		original.add("x", "y", empty);
+		original.add("x", "z", ImmutableSet.of("a", "b"));
+		original.add("u", "w", ImmutableSet.of("f"));
 
 		final EffectiveMetamodelStore copy = new EffectiveMetamodelStore(original);
 		assertEquals(original, copy);

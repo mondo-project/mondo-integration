@@ -91,9 +91,9 @@ public class EffectiveMetamodelStoreSerializer {
 				final String type = typeEntry.getValue();
 				final Set<String> slots = slotTable.get(mmEntry.getKey(), typeEntry.getKey());
 				if (slots == null) {
-					store.addType(mmURI, type);
+					store.add(mmURI, type);
 				} else {
-					store.addType(mmURI, type, ImmutableSet.copyOf(slots));
+					store.add(mmURI, type, ImmutableSet.copyOf(slots));
 				}
 			}
 		}

@@ -18,12 +18,15 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * In-memory representation of an effective metamodel. By default, no types are
+ * In-memory representation of an effective metamodel. By default, all types are
  * included. This representation is designed to be modified only from
  * {@link EffectiveMetamodelStore}.
+ *
+ * TODO: use a more efficient representation based on includes/excludes rules.
  */
 public class EffectiveMetamodel {
-	public static final String ALL_FIELDS = "__all__";
+	public static final String ALL_FIELDS = "*";
+	public static final String ALL_TYPES = "*";
 	protected Map<String, Set<String>> store = new HashMap<>();
 
 	/**
@@ -40,17 +43,10 @@ public class EffectiveMetamodel {
 	}
 
 	/**
-	 * Adds a type to the effective metamodel, including a specific set of slots.
-	 */
-	protected ImmutableSet<String> addType(String type, ImmutableSet<String> slots) {
-		return (ImmutableSet<String>) store.put(type, slots);
-	}
-
-	/**
 	 * Adds a type to the effective metamodel, including all slots.
 	 */
-	protected ImmutableSet<String> addType(String type) {
-		return addType(type, ImmutableSet.of(ALL_FIELDS));
+	protected ImmutableSet<String> add(String type) {
+		return add(type, ImmutableSet.of(ALL_FIELDS));
 	}
 
 	/**
@@ -59,8 +55,15 @@ public class EffectiveMetamodel {
 	 * @return The set of included fields from the removed type (see
 	 *         {@link #getIncludedSlots(String)} for details).
 	 */
-	protected ImmutableSet<String> removeType(String type) {
+	protected ImmutableSet<String> remove(String type) {
 		return (ImmutableSet<String>) store.remove(type);
+	}
+
+	/**
+	 * Adds a type to the effective metamodel, including a specific set of slots.
+	 */
+	protected ImmutableSet<String> add(String type, ImmutableSet<String> slots) {
+		return (ImmutableSet<String>) store.put(type, slots);
 	}
 
 	/** Returns <code>true</code> if the effective metamodel does not include any types. */

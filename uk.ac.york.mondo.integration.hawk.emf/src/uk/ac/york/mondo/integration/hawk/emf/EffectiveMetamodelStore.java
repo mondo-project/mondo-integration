@@ -25,8 +25,8 @@ import com.google.common.collect.ImmutableSet;
  * added, the effective metamodel will only include the explicitly added types.
  *
  * The contents of this effective metamodel can only be changed through the
- * {@link #addType(String, String)}, {@link #addType(String, String, Set)} and
- * {@link #removeType(String, String)} methods.
+ * {@link #add(String, String)}, {@link #add(String, String, Set)} and
+ * {@link #remove(String, String)} methods.
  */
 public class EffectiveMetamodelStore {
 
@@ -56,18 +56,18 @@ public class EffectiveMetamodelStore {
 	 * included for the type, or <code>null</code> if the type wasn't part of
 	 * the empty metamodel yet.
 	 */
-	public ImmutableSet<String> addType(String metamodel, String type, ImmutableSet<String> slots) {
+	public ImmutableSet<String> add(String metamodel, String type, ImmutableSet<String> slots) {
 		final EffectiveMetamodel mmEntry = getOrPutMetamodel(metamodel);
-		return mmEntry.addType(type, slots);
+		return mmEntry.add(type, slots);
 	}
 
 	/**
-	 * Convenience method for {@link #addType(String, String)} that adds all the
+	 * Convenience method for {@link #add(String, String)} that adds all the
 	 * fields in the type.
 	 */
-	public ImmutableSet<String> addType(String metamodel, String type) {
+	public ImmutableSet<String> add(String metamodel, String type) {
 		final EffectiveMetamodel mmEntry = getOrPutMetamodel(metamodel);
-		return mmEntry.addType(type);
+		return mmEntry.add(type);
 	}
 
 	/**
@@ -76,13 +76,13 @@ public class EffectiveMetamodelStore {
 	 * @return The set of previously included fields for the removed type, or
 	 *         <code>null</code> if the type was not previously included.
 	 */
-	public ImmutableSet<String> removeType(String metamodel, String type) {
+	public ImmutableSet<String> remove(String metamodel, String type) {
 		EffectiveMetamodel mmEntry = store.get(metamodel);
 		if (mmEntry == null) {
 			return null;
 		}
 
-		final ImmutableSet<String> oldSet = mmEntry.removeType(type);
+		final ImmutableSet<String> oldSet = mmEntry.remove(type);
 		if (mmEntry.isEmpty()) {
 			store.remove(metamodel);
 		}
