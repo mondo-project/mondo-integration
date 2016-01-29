@@ -45,7 +45,7 @@ public class EffectiveMetamodelRulesetTest {
 		assertTrue(loaded.isIncluded("x", "y"));
 		assertTrue(loaded.isFullyIncluded("x", "y"));
 		assertTrue(loaded.isIncluded("a", "b", "c"));
-		assertEquals(ImmutableSet.of(EffectiveMetamodel.ALL_FIELDS), loaded.getIncludedSlots("f", "g"));
+		assertEquals(ImmutableSet.of(EffectiveMetamodelRuleset.WILDCARD), loaded.getIncludedSlots("f", "g"));
 	}
 
 	@Test
