@@ -195,8 +195,8 @@ final class HawkThriftIface implements Hawk.Iface {
 			}
 
 			if (opts.isSetRepositoryPattern() || opts.isSetFilePatterns()) {
-				final boolean allRepositories = "*".equals(opts.getRepositoryPattern());
-				final boolean allFiles = Arrays.asList("*").equals(opts.getFilePatterns());
+				final boolean allRepositories = !opts.isSetRepositoryPattern() || "*".equals(opts.getRepositoryPattern());
+				final boolean allFiles = !opts.isSetFilePatterns() || Arrays.asList("*").equals(opts.getFilePatterns());
 				if (!allRepositories || !allFiles) {
 					context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, opts.isSetRepositoryPattern() ? opts.getRepositoryPattern() : "*");
 					context.put(IQueryEngine.PROPERTY_FILECONTEXT, opts.isSetFilePatterns() ? join(opts.getFilePatterns(), ",") : "*");
