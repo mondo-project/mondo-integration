@@ -240,7 +240,7 @@ class Hawk {
 }
 
 @thrift.map(key="uri", value="metamodel")
-class EffectiveMetamodelStore {
+class EffectiveMetamodelMap {
     val String uri;
     val EffectiveMetamodel[*] metamodel;
 }
@@ -248,6 +248,7 @@ class EffectiveMetamodelStore {
 @thrift.map(key="type", value="slots")
 class EffectiveMetamodel {
 	val String type;
+    @thrift.set
 	val String[*] slots;
 }
 
@@ -274,8 +275,11 @@ class HawkQueryOptions {
   @doc(d="Whether to include all the child elements of the model element results (true) or not (false)", optional="true", default="true")
   attr Boolean includeContained;
 
-  @doc(d="If set, limits the metamodels, types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent", optional="true")
-  val EffectiveMetamodelStore effectiveMetamodels;
+  @doc(d="If set and not empty, only the specified metamodels, types and features will be fetched. Otherwise, everything that is not excluded will be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type.", optional="true")
+  val EffectiveMetamodelMap effectiveMetamodelIncludes;
+
+  @doc(d="If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type.", optional="true")
+  val EffectiveMetamodelMap effectiveMetamodelExcludes;
 }
 
 @doc(d="Entity that represents a model repository")

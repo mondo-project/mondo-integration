@@ -442,19 +442,19 @@ OfflineCollaboration_listRules_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size316 = 0;
-        var _rtmp3320;
+        var _size344 = 0;
+        var _rtmp3348;
         this.success = [];
-        var _etype319 = 0;
-        _rtmp3320 = input.readListBegin();
-        _etype319 = _rtmp3320.etype;
-        _size316 = _rtmp3320.size;
-        for (var _i321 = 0; _i321 < _size316; ++_i321)
+        var _etype347 = 0;
+        _rtmp3348 = input.readListBegin();
+        _etype347 = _rtmp3348.etype;
+        _size344 = _rtmp3348.size;
+        for (var _i349 = 0; _i349 < _size344; ++_i349)
         {
-          var elem322 = null;
-          elem322 = new CollaborationRule();
-          elem322.read(input);
-          this.success.push(elem322);
+          var elem350 = null;
+          elem350 = new CollaborationRule();
+          elem350.read(input);
+          this.success.push(elem350);
         }
         input.readListEnd();
       } else {
@@ -478,12 +478,12 @@ OfflineCollaboration_listRules_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter323 in this.success)
+    for (var iter351 in this.success)
     {
-      if (this.success.hasOwnProperty(iter323))
+      if (this.success.hasOwnProperty(iter351))
       {
-        iter323 = this.success[iter323];
-        iter323.write(output);
+        iter351 = this.success[iter351];
+        iter351.write(output);
       }
     }
     output.writeListEnd();

@@ -313,7 +313,8 @@ struct HawkQueryOptions {
 	 /* Whether to include references (true) or not (false) in model element results. */ 5: optional bool includeReferences = true,
 	 /* Whether to include node IDs (true) or not (false) in model element results. */ 6: optional bool includeNodeIDs = false,
 	 /* Whether to include all the child elements of the model element results (true) or not (false). */ 7: optional bool includeContained = true,
-	 /* If set, limits the metamodels, types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent. */ 8: optional map<string,map<string,list<string>>> effectiveMetamodels,
+	 /* If set and not empty, only the specified metamodels, types and features will be fetched. Otherwise, everything that is not excluded will be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. */ 8: optional map<string,map<string,set<string>>> effectiveMetamodelIncludes,
+	 /* If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. */ 9: optional map<string,map<string,set<string>>> effectiveMetamodelExcludes,
 }
 
 struct ModelElement {

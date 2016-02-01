@@ -514,7 +514,7 @@
       </eParameters>
     </eOperations>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodelStore">
+  <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodelMap">
     <eAnnotations source="thrift.map">
       <details key="key" value="uri"/>
       <details key="value" value="metamodel"/>
@@ -532,7 +532,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="slots" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true"/>
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true">
+      <eAnnotations source="thrift.set"/>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="HawkQueryOptions">
     <eAnnotations source="doc">
@@ -587,10 +589,17 @@
         <details key="default" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="effectiveMetamodels" eType="#//EffectiveMetamodelStore"
-        containment="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="effectiveMetamodelIncludes"
+        eType="#//EffectiveMetamodelMap" containment="true">
       <eAnnotations source="doc">
-        <details key="d" value="If set, limits the metamodels, types and features to be fetched. If a key only has the special value __ALL__, all features of that type will be sent"/>
+        <details key="d" value="If set and not empty, only the specified metamodels, types and features will be fetched. Otherwise, everything that is not excluded will be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type."/>
+        <details key="optional" value="true"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="effectiveMetamodelExcludes"
+        eType="#//EffectiveMetamodelMap" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type."/>
         <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
