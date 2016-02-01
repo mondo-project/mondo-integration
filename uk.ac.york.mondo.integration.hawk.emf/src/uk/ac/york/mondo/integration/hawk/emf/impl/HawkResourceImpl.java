@@ -62,6 +62,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Table;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -97,6 +99,7 @@ import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
+import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
@@ -643,6 +646,27 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			opts.setIncludeReferences(true);
 			opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
 			opts.setIncludeContained(mode.isGreedyElements());
+
+			// Send the effective metamodel if included
+			// TODO: use stateful variant to keep using effective metamodel in lazy modes
+			final EffectiveMetamodelRuleset emm = descriptor.getEffectiveMetamodel();
+			final Table<String, String, ImmutableSet<String>> inclusionRules = emm.getInclusionRules();
+			final Table<String, String, ImmutableSet<String>> exclusionRules = emm.getExclusionRules();
+			if (!inclusionRules.isEmpty()) {
+				// The rowMap points to ImmutableSet<String>, which is compatible with
+				// Set<String>, but the Java compiler is not smart enough to accept this.
+				// Here we use a cast to work around this, which is cheaper than doing a
+				// full copy.
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				final Map<String, Map<String, Set<String>>> inclusionMap = (Map) inclusionRules.rowMap();
+				opts.setEffectiveMetamodelIncludes(inclusionMap);
+			}
+			if (!exclusionRules.isEmpty()) {
+				// See comment above.
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				final Map<String, Map<String, Set<String>>> exclusionMap = (Map) exclusionRules.rowMap();
+				opts.setEffectiveMetamodelExcludes(exclusionMap);
+			}
 
 			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
 				List<QueryResult> results = client.query(descriptor.getHawkInstance(), query, queryLanguage, opts);

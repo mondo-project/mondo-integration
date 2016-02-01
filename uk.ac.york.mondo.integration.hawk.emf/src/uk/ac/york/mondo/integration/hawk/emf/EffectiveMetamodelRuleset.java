@@ -10,6 +10,8 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.HashBasedTable;
@@ -44,6 +46,24 @@ public class EffectiveMetamodelRuleset {
 	public EffectiveMetamodelRuleset(EffectiveMetamodelRuleset toCopy) {
 		this.inclusions = HashBasedTable.create(toCopy.inclusions);
 		this.exclusions = HashBasedTable.create(toCopy.exclusions);
+	}
+
+	/** Constructor from two raw maps (e.g. from Thrift). */
+	public EffectiveMetamodelRuleset(Map<String, Map<String, Set<String>>> inclusionRules, Map<String, Map<String, Set<String>>> exclusionRules) {
+		this();
+		loadMapIntoTable(inclusionRules, this.inclusions);
+		loadMapIntoTable(exclusionRules, this.exclusions);
+	}
+
+	protected void loadMapIntoTable(Map<String, Map<String, Set<String>>> inclusionRules, final Table<String, String, ImmutableSet<String>> table) {
+		for (final Entry<String, Map<String, Set<String>>> mmEntry : inclusionRules.entrySet()) {
+			final String mmURI = mmEntry.getKey();
+			for (final Entry<String, Set<String>> typeEntry : mmEntry.getValue().entrySet()) {
+				final String typeName = typeEntry.getKey();
+				final ImmutableSet<String> slots = ImmutableSet.copyOf(typeEntry.getValue());
+				table.put(mmURI, typeName, slots);
+			}
+		}
 	}
 
 	public boolean isEverythingIncluded() {
