@@ -820,4 +820,43 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	public void removeVCS(IVcsManager vcs) throws Exception {
 		client.removeRepository(name, vcs.getLocation());
 	}
+
+	@Override
+	public void setPolling(int base, int max) {
+		try {
+			client.configurePolling(name, base, max);
+		} catch (TException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean removeIndexedAttribute(String metamodelUri, String typename, String attributename) {
+		IndexedAttributeSpec spec = new IndexedAttributeSpec();
+		spec.setMetamodelUri(metamodelUri);
+		spec.setTypeName(typename);
+		spec.setAttributeName(attributename);
+		try {
+			client.removeIndexedAttribute(name, spec);
+			return true;
+		} catch (TException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public boolean removeDerivedAttribute(String metamodelUri, String typeName, String attributeName) {
+		DerivedAttributeSpec spec = new DerivedAttributeSpec();
+		spec.setMetamodelUri(metamodelUri);
+		spec.setTypeName(typeName);
+		spec.setAttributeName(attributeName);
+		try {
+			client.removeDerivedAttribute(name, spec);
+			return true;
+		} catch (TException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
