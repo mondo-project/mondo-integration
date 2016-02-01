@@ -67,8 +67,13 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		refreshRawText();
+		if (this.getActivePage() != textEditorPageIndex) {
+			refreshRawText();
+		}
 		textEditor.doSave(monitor);
+		if (this.getActivePage() == textEditorPageIndex) {
+			refreshForm();
+		}
 		setDirty(false);
 	}
 

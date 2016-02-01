@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
+
 public class EffectiveMetamodelRulesetTest {
 
 	private static final String PROPERTY_EMM_PREFIX = "hawk.effectiveMetamodel";

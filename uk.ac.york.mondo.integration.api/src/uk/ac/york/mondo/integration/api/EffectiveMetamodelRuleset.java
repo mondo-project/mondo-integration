@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emf;
+package uk.ac.york.mondo.integration.api;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,20 +48,22 @@ public class EffectiveMetamodelRuleset {
 		this.exclusions = HashBasedTable.create(toCopy.exclusions);
 	}
 
-	/** Constructor from two raw maps (e.g. from Thrift). */
+	/** Constructor from two raw maps (e.g. from Thrift). <code>null</code> values are safely ignored. */
 	public EffectiveMetamodelRuleset(Map<String, Map<String, Set<String>>> inclusionRules, Map<String, Map<String, Set<String>>> exclusionRules) {
 		this();
 		loadMapIntoTable(inclusionRules, this.inclusions);
 		loadMapIntoTable(exclusionRules, this.exclusions);
 	}
 
-	protected void loadMapIntoTable(Map<String, Map<String, Set<String>>> inclusionRules, final Table<String, String, ImmutableSet<String>> table) {
-		for (final Entry<String, Map<String, Set<String>>> mmEntry : inclusionRules.entrySet()) {
-			final String mmURI = mmEntry.getKey();
-			for (final Entry<String, Set<String>> typeEntry : mmEntry.getValue().entrySet()) {
-				final String typeName = typeEntry.getKey();
-				final ImmutableSet<String> slots = ImmutableSet.copyOf(typeEntry.getValue());
-				table.put(mmURI, typeName, slots);
+	protected void loadMapIntoTable(Map<String, Map<String, Set<String>>> rawMap, final Table<String, String, ImmutableSet<String>> table) {
+		if (rawMap != null) {
+			for (final Entry<String, Map<String, Set<String>>> mmEntry : rawMap.entrySet()) {
+				final String mmURI = mmEntry.getKey();
+				for (final Entry<String, Set<String>> typeEntry : mmEntry.getValue().entrySet()) {
+					final String typeName = typeEntry.getKey();
+					final ImmutableSet<String> slots = ImmutableSet.copyOf(typeEntry.getValue());
+					table.put(mmURI, typeName, slots);
+				}
 			}
 		}
 	}

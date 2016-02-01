@@ -50,12 +50,12 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.google.common.collect.ImmutableSet;
 
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.HawkQueryOptions;
 import uk.ac.york.mondo.integration.api.ModelElementType;
 import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.SlotMetadata;
-import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
 import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl;

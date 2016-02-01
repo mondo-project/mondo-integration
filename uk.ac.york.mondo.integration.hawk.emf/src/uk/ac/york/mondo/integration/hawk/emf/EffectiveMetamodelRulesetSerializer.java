@@ -19,6 +19,9 @@ import java.util.TreeMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
+
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
+
 import com.google.common.collect.TreeBasedTable;
 
 public class EffectiveMetamodelRulesetSerializer {

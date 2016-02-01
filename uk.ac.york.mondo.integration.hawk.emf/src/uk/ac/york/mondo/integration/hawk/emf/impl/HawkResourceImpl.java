@@ -70,6 +70,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
@@ -99,7 +100,6 @@ import uk.ac.york.mondo.integration.api.UnknownQueryLanguage;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.ActiveMQBufferTransport;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
-import uk.ac.york.mondo.integration.hawk.emf.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor.LoadingMode;
 
@@ -725,6 +725,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
+
+	
 
 	protected boolean isIncludeNodeIDs(final HawkModelDescriptor descriptor) {
 		final LoadingMode lm = descriptor.getLoadingMode();

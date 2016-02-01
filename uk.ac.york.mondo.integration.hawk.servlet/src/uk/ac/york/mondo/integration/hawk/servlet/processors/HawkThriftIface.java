@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +47,9 @@ import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.runtime.LocalHawkFactory;
 import org.hawk.graph.FileNode;
 import org.hawk.graph.GraphWrapper;
+import org.hawk.graph.MetamodelNode;
 import org.hawk.graph.ModelElementNode;
+import org.hawk.graph.TypeNode;
 import org.hawk.osgiserver.HManager;
 import org.hawk.osgiserver.HModel;
 import org.hawk.osgiserver.SecurePreferencesCredentialsStore;
@@ -55,8 +58,11 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 import uk.ac.york.mondo.integration.api.Credentials;
 import uk.ac.york.mondo.integration.api.DerivedAttributeSpec;
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.api.FailedQuery;
 import uk.ac.york.mondo.integration.api.File;
 import uk.ac.york.mondo.integration.api.Hawk;
@@ -210,6 +216,11 @@ final class HawkThriftIface implements Hawk.Iface {
 			enc.setIncludeNodeIDs(opts.includeNodeIDs);
 			enc.setIncludeAttributes(opts.includeAttributes);
 			enc.setIncludeReferences(opts.includeReferences);
+			final EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset(
+					opts.getEffectiveMetamodelIncludes(), opts.getEffectiveMetamodelExcludes());
+			if (!emm.isEverythingIncluded()) {
+				enc.setEffectiveMetamodel(emm);
+			}
 
 			final HawkModelElementTypeEncoder typeEnc = new HawkModelElementTypeEncoder(gw);
 
@@ -264,12 +275,18 @@ final class HawkThriftIface implements Hawk.Iface {
 		} else if (ret instanceof IGraphNodeReference) {
 			final String id = ((IGraphNodeReference)ret).getId();
 			if (!enc.isEncoded(id)) {
-				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(id)));
+				final ModelElement meEncoded = enc.encode(id);
+				if (meEncoded != null) {
+					l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, meEncoded));
+				}
 			}
 		} else if (ret instanceof IGraphNode) {
 			final ModelElementNode meNode = new ModelElementNode((IGraphNode)ret);
 			if (!enc.isEncoded(meNode)) {
-				l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, enc.encode(meNode)));
+				final ModelElement meEncoded = enc.encode(meNode);
+				if (meEncoded != null) {
+					l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, meEncoded));
+				}
 			}
 		} else if (ret instanceof Iterable) {
 			final Iterable<?> c = (Iterable<?>) ret;
@@ -292,6 +309,13 @@ final class HawkThriftIface implements Hawk.Iface {
 			encoder.setUseContainment(false);
 			encoder.setIncludeAttributes(options.isIncludeAttributes());
 			encoder.setIncludeReferences(options.isIncludeReferences());
+			final EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset(
+					options.getEffectiveMetamodelIncludes(),
+					options.getEffectiveMetamodelExcludes());
+			if (!emm.isEverythingIncluded()) {
+				encoder.setEffectiveMetamodel(emm);
+			}
+			
 			for (String id : ids) {
 				try {
 					encoder.encode(id);
@@ -481,27 +505,57 @@ final class HawkThriftIface implements Hawk.Iface {
 	private List<ModelElement> collectElements(String name, final CollectElements collectType, final HawkQueryOptions opts)
 			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getRunningHawkByName(name);
-		final GraphWrapper gw = new GraphWrapper(model.getGraph());
 
 		// TODO filtering by repository
 		try (IGraphTransaction tx = model.getGraph().beginTransaction()) {
-			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(new GraphWrapper(model.getGraph()));
+			final GraphWrapper gw = new GraphWrapper(model.getGraph());
+			final HawkModelElementEncoder encoder = new HawkModelElementEncoder(gw);
 			encoder.setIncludeAttributes(opts.includeAttributes);
 			encoder.setIncludeReferences(opts.includeReferences);
 			encoder.setIncludeNodeIDs(opts.includeNodeIDs);
-			for (FileNode fileNode : gw.getFileNodes(Arrays.asList(opts.getRepositoryPattern()), opts.getFilePatterns())) {
-				LOGGER.info("Retrieving elements from {}", opts.getFilePatterns());
 
-				if (collectType == CollectElements.ALL) {
-					for (ModelElementNode meNode : fileNode.getModelElements()) {
-						encoder.encode(meNode);
-					}
-				} else {
-					encoder.setUseContainment(false);
-					for (ModelElementNode meNode : fileNode.getRootModelElements()) {
-						encoder.encode(meNode);
+			final EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset(
+					opts.getEffectiveMetamodelIncludes(), opts.getEffectiveMetamodelExcludes());
+			if (!emm.isEverythingIncluded()) {
+				encoder.setEffectiveMetamodel(emm);
+			}
+
+			final Set<FileNode> fileNodes = gw.getFileNodes(Arrays.asList(opts.getRepositoryPattern()), opts.getFilePatterns());
+			if (emm.getInclusionRules().isEmpty() || collectType == CollectElements.ONLY_ROOTS) {
+				// No explicitly included types or we only want the roots - start with the files
+				for (FileNode fileNode : fileNodes) {
+					LOGGER.info("Retrieving elements from file {}", opts.getFilePatterns());
+
+					if (collectType == CollectElements.ALL) {
+						for (ModelElementNode meNode : fileNode.getModelElements()) {
+							encoder.encode(meNode);
+						}
+					} else {
+						encoder.setUseContainment(false);
+						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
+							encoder.encode(meNode);
+						}
 					}
 				}
+			} else {
+				// Explicitly listed metamodels/types - start with the types
+				// TODO: talk with Dimitris about this (optimal traversal can vary)
+				for (Entry<String, Map<String, ImmutableSet<String>>> mmEntry : emm.getInclusionRules().rowMap().entrySet()) {
+					final String mmURI = mmEntry.getKey();
+					final MetamodelNode mn = gw.getMetamodelNodeByNsURI(mmURI);
+					for (final TypeNode tn : mn.getTypes()) {
+						// Filter by type
+						if (emm.isIncluded(mmURI, tn.getTypeName())) {
+							LOGGER.info("Retrieving elements from type {}", tn.getTypeName());
+							for (final ModelElementNode meNode : tn.getAllInstances()) {
+								// Filter by scope
+								if (fileNodes.contains(meNode.getFileNode())) {
+									encoder.encode(meNode);
+								}
+							} // for (meNode)
+						}
+					} // for (tn)
+				} // for (mmEntry)
 			}
 
 			return new ArrayList<>(encoder.getElements());

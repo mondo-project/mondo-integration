@@ -26,9 +26,11 @@ import java.util.Set;
 
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
+import org.hawk.graph.TypeNode;
 
 import uk.ac.york.mondo.integration.api.AttributeSlot;
 import uk.ac.york.mondo.integration.api.ContainerSlot;
+import uk.ac.york.mondo.integration.api.EffectiveMetamodelRuleset;
 import uk.ac.york.mondo.integration.api.MixedReference;
 import uk.ac.york.mondo.integration.api.MixedReference._Fields;
 import uk.ac.york.mondo.integration.api.ModelElement;
@@ -67,6 +69,7 @@ public class HawkModelElementEncoder {
 	private boolean sendElementNodeIDs = false;
 	private boolean sortByNodeIDs = false;
 	private boolean useContainment = true;
+	private EffectiveMetamodelRuleset effectiveMetamodel = new EffectiveMetamodelRuleset();
 
 	public HawkModelElementEncoder(GraphWrapper gw) {
 		this.graph = gw;
@@ -303,21 +306,30 @@ public class HawkModelElementEncoder {
 
 	/**
 	 * Encodes a single model element.
-	 * @return The unoptimised encoded model element.
+	 * 
+	 * @return The unoptimised encoded model element, or <code>null</code> if
+	 *         the model element is not included in the effective metamodel.
 	 */
 	public ModelElement encode(String id) throws Exception {
 		final ModelElementNode me = graph.getModelElementNodeById(id);
-		return encodeInternal(me);
+		return encode(me);
 	}
 
 	/**
 	 * Encodes a single model element.
-	 * @return The unoptimised encoded model element.
+	 * 
+	 * @return The unoptimised encoded model element, or <code>null</code> if
+	 *         the model element is not included in the effective metamodel.
 	 */
 	public ModelElement encode(ModelElementNode meNode) throws Exception {
 		assert meNode.getNode().getGraph() == this.graph.getGraph()
 			: "The node should belong to the same graph as this encoder";
-		return encodeInternal(meNode);
+		final TypeNode tn = meNode.getTypeNode();
+		if (effectiveMetamodel.isIncluded(tn.getMetamodelURI(), tn.getTypeName())) {
+			return encodeInternal(meNode);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -334,16 +346,27 @@ public class HawkModelElementEncoder {
 		return isEncoded(meNode.getNodeId());
 	}
 
+	public EffectiveMetamodelRuleset getEffectiveMetamodel() {
+		return effectiveMetamodel;
+	}
+
+	public void setEffectiveMetamodel(EffectiveMetamodelRuleset effectiveMetamodel) {
+		this.effectiveMetamodel = effectiveMetamodel;
+	}
+
 	private ModelElement encodeInternal(ModelElementNode meNode) throws Exception {
 		final ModelElement existing = nodeIdToElement.get(meNode.getNodeId());
 		if (existing != null) {
 			return existing;
 		}
+		final TypeNode typeNode = meNode.getTypeNode();
+		final String typeName = typeNode.getTypeName();
+		final String metamodelURI = typeNode.getMetamodelURI();
 
 		final ModelElement me = new ModelElement();
 		me.setId(meNode.getNodeId());
-		me.setTypeName(meNode.getTypeNode().getTypeName());
-		me.setMetamodelUri(meNode.getTypeNode().getMetamodelURI());
+		me.setTypeName(typeName);
+		me.setMetamodelUri(metamodelURI);
 		me.setFile(meNode.getFileNode().getFilePath());
 		me.setRepositoryURL(meNode.getFileNode().getRepositoryURL());
 
@@ -363,18 +386,21 @@ public class HawkModelElementEncoder {
 		if (isIncludeAttributes()) {
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
 				// to save bandwidth, we do not send unset attributes
-				if (attr.getValue() == null) continue;
-				me.addToAttributes(encodeAttributeSlot(attr.getKey(), attr.getValue()));
+				if (attr.getValue() != null && effectiveMetamodel.isIncluded(metamodelURI, typeName, attr.getKey())) {
+					me.addToAttributes(encodeAttributeSlot(attr.getKey(), attr.getValue()));
+				}
 			}
 		}
 		if (isIncludeReferences()) {
 			for (Map.Entry<String, Object> ref : refs.entrySet()) {
 				// to save bandwidth, we do not send unset or empty references
-				if (ref.getValue() == null) continue;
+				if (ref.getValue() == null || !effectiveMetamodel.isIncluded(metamodelURI, typeName, ref.getKey())) {
+					continue;
+				}
 
 				if (useContainment && meNode.isContainment(ref.getKey())) {
 					final ContainerSlot slot = encodeContainerSlot(ref);
-					if (slot.elements.isEmpty()) continue;
+					if (!slot.isSetElements() || slot.elements.isEmpty()) continue;
 					me.addToContainers(slot);
 				} else if (useContainment && discardContainerRefs && meNode.isContainer(ref.getKey())) {
 					// skip this container reference: we're already using containment, so
@@ -399,15 +425,19 @@ public class HawkModelElementEncoder {
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
 				final ModelElementNode meNode = graph.getModelElementNodeById(o);
-				final ModelElement me = encodeInternal(meNode);
-				s.addToElements(me);
-				rootElements.remove(me);
+				final ModelElement me = encode(meNode);
+				if (me != null) {
+					s.addToElements(me);
+					rootElements.remove(me);
+				}
 			}
 		} else {
 			final ModelElementNode meNode = graph.getModelElementNodeById(value);
-			final ModelElement me = encodeInternal(meNode);
-			s.addToElements(me);
-			rootElements.remove(me);
+			final ModelElement me = encode(meNode);
+			if (me != null) {
+				s.addToElements(me);
+				rootElements.remove(me);
+			}
 		}
 
 		return s;
