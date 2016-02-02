@@ -26,7 +26,9 @@ import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -73,9 +75,13 @@ public class EffectiveMetamodelFormPage extends FormPage {
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			for (final Iterator<?> it = treeViewer.getStructuredSelection().iterator(); it.hasNext(); ) {
-				Object element = it.next();
-				editingSupport.setValue(element, newState.ordinal());
+			final ISelection selection = treeViewer.getSelection();
+			if (selection instanceof IStructuredSelection) {
+				final IStructuredSelection ssel = (IStructuredSelection)selection;
+				for (final Iterator<?> it = ssel.iterator(); it.hasNext(); ) {
+					Object element = it.next();
+					editingSupport.setValue(element, newState.ordinal());
+				}
 			}
 		}
 	}
