@@ -121,11 +121,11 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String[] getFilePatterns() {
-			return fldFilePatterns.getText().getText().split(",");
+			return fldFilePatterns.getText().getText().trim().split(",");
 		}
 
 		public String getRepositoryURL() {
-			return fldRepositoryURL.getText().getText();
+			return fldRepositoryURL.getText().getText().trim();
 		}
 
 		public LoadingMode getLoadingMode() {
@@ -137,7 +137,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getQuery() {
-			return fldQuery.getText().getText();
+			return fldQuery.getText().getText().trim();
 		}
 
 		public boolean isSplit() {
@@ -145,7 +145,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getDefaultNamespaces() {
-			return fldDefaultNamespaces.getText().getText();
+			return fldDefaultNamespaces.getText().getText().trim();
 		}
 
 		@Override
@@ -262,11 +262,11 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getInstanceName() {
-			return fldInstanceName.getText().getText();
+			return fldInstanceName.getText().getText().trim();
 		}
 
 		public String getServerURL() {
-			return fldServerURL.getText().getText();
+			return fldServerURL.getText().getText().trim();
 		}
 
 		public ThriftProtocol getThriftProtocol() {
@@ -286,7 +286,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getUsername() {
-			return fldUsername.getText().getText();
+			return fldUsername.getText().getText().trim();
 		}
 
 		public void setUsername(String u) {
@@ -294,7 +294,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getPassword() {
-			return fldPassword.getText().getText();
+			return fldPassword.getText().getText().trim();
 		}
 
 		public void setPassword(String p) {
@@ -392,7 +392,7 @@ class DetailsFormPage extends FormPage {
 		}
 
 		public String getClientID() {
-			return fldClientID.getText().getText();
+			return fldClientID.getText().getText().trim();
 		}
 
 		public void setClientID(String s) {

@@ -425,7 +425,9 @@ public class EffectiveMetamodelFormPage extends FormPage {
 
 		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			computeRoots();
+			if (newInput != null) {
+				computeRoots();
+			}
 		}
 
 		protected void computeRoots() {

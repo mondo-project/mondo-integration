@@ -803,14 +803,20 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				opts.setDefaultNamespaces(eClass.getEPackage().getNsURI());
 				opts.setRepositoryPattern(descriptor.getHawkRepository());
 				opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+				opts.setIncludeAttributes(includeAttributes);
 
-				final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(),
-					String.format("return %s.all;", eClass.getName()), EOL_QUERY_LANG, opts);
-				final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs, includeAttributes);
+				final String query = String.format("return %s.all;", eClass.getName());
+				final EList<EObject> fetched = fetchByQuery(EOL_QUERY_LANG, query, opts);
 				classToEObjectsMap.put(eClass, fetched);
 				return fetched;
 			}
 		}
+	}
+
+	public EList<EObject> fetchByQuery(final String language, final String query, final HawkQueryOptions opts) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		final List<QueryResult> typeInstanceIDs = client.query(descriptor.getHawkInstance(), query, language, opts);
+		final EList<EObject> fetched = fetchNodesByQueryResults(typeInstanceIDs, opts.includeAttributes);
+		return fetched;
 	}
 
 	protected EList<EObject> fetchNodesByQueryResults(final List<QueryResult> typeInstanceIDs, boolean includeAttributes)

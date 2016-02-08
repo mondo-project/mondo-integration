@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -60,6 +61,9 @@ public class ServerCommandProvider implements CommandProvider {
 		final boolean hardDeletion = requiredArgument(intp, "mode").toLowerCase().equals("hard"); 
 		final String name = requiredArgument(intp, "name");
 		HModel hmodel = hawkManager.getHawkByName(name);
+		if (hmodel == null) {
+			throw new NoSuchElementException("No Hawk instance exists with name '" + name + "'");
+		}
 		hawkManager.delete(hmodel, hmodel.exists());
 		if (hardDeletion) {
 			removeRecursive(Paths.get(hmodel.getFolder()));

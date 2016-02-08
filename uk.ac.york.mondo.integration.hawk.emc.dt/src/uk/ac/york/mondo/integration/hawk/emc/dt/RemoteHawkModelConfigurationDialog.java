@@ -152,7 +152,7 @@ public class RemoteHawkModelConfigurationDialog extends AbstractCachedModelConfi
 		super.createGroups(control);
 		createEmfGroup(control);
 		createFilesGroup(control);
-		createLoadStoreOptionsGroup(control);
+		//createLoadStoreOptionsGroup(control);
 	}
 	
 	@Override
