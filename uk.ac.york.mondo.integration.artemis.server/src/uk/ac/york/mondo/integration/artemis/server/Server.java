@@ -78,6 +78,7 @@ public class Server {
 		transports.add(new TransportConfiguration(
 				NettyAcceptorFactory.class.getName(),
 				new FluidMap<String, Object>()
+					.with(TransportConstants.HOST_PROP_NAME, host)
 					.with(TransportConstants.PORT_PROP_NAME, port + "")
 					.with(TransportConstants.PROTOCOLS_PROP_NAME, "CORE,STOMP"))
 		);
