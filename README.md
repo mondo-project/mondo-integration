@@ -78,6 +78,8 @@ The server will test on startup that the secure store has been set properly: if 
 
 Another important detail for production environments is turning on security. This is disabled by default to help with testing and initial evaluations, but it can be enabled by running the server once, shutting it down and then editing the `shiro.ini` file appropriately (relevant sections include comments on what to do) and switching `artemis.security.enabled` to `true` in the `mondo-server.ini` file. The MONDO server uses an embedded MapDB database, which is managed through the Users Thrift API. Once security is enabled, all Thrift APIs and all external (not in-VM) Artemis connections become password-protected.
 
+If you are deploying this across a network, you will need to edit the `mondo-server.ini` file and customize the `hawk.artemis.host` line to the host that you want the Artemis server to listen to. This should be the IP address or hostname of the MONDO server in the network, normally. The Thrift API uses this hostname as well in its replies to the `watchModelChanges` operation in the Hawk API.
+
 Finally, production environments should enable and enforce SSL as well, since plain HTTP is insecure. Some pointers on how to do this are provided [https://www.eclipse.org/forums/index.php/t/24782/](here).
 
 Hawk integration
