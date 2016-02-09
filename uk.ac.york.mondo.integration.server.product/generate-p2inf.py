@@ -18,6 +18,8 @@ ENTRIES_NOGPL = (
     ('org.hawk.emfresource.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.epsilon.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.localfolder.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.hawk.git.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('org.hawk.http.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.orientdb.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.osgiserver.feature.feature.group', '[1.0.0,2.0.0)'),
     ('org.hawk.svn.feature.feature.group', '[1.0.0,2.0.0)'),

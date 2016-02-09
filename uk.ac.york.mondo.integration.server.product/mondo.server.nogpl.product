@@ -86,6 +86,7 @@
       <feature id="org.eclipse.bpmn2.feature"/>
       <feature id="org.hawk.modelio.exml.feature"/>
       <feature id="org.hawk.git.feature"/>
+      <feature id="org.hawk.http.feature"/>
    </features>
 
    <configurations>
