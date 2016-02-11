@@ -859,4 +859,16 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			return false;
 		}
 	}
+
+	@Override
+	public void waitFor(org.hawk.core.IStateListener.HawkState targetState) throws InterruptedException {
+		synchronized (stateListener) {
+			for (org.hawk.core.IStateListener.HawkState s = stateListener.getCurrentState(); s != targetState; s = stateListener.getCurrentState()) {
+				if (s == org.hawk.core.IStateListener.HawkState.STOPPED) {
+					throw new IllegalStateException("The selected Hawk is stopped");
+				}
+				stateListener.wait();
+			}
+		}
+	}
 }
