@@ -20,6 +20,8 @@ import org.apache.thrift.TException;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
@@ -77,4 +79,15 @@ public class RemoteHawkModel extends EmfModel {
 			setupContainmentChangeListeners();
 		}
 	}
+
+	@Override
+	protected ResourceSet createResourceSet() {
+		/**
+		 * We cannot use a cached resource set here, as that would be
+		 * potentially thread-unsafe. It could have multiple threads trying to
+		 * use the same HawkResourceImpl, which is not thread-safe.
+		 */
+		return new ResourceSetImpl();
+	}
+
 }
