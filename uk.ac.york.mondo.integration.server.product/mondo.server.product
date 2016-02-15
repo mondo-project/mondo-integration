@@ -12,7 +12,7 @@
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
 -Dosgi.noShutdown=true -Xmx4096m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
--Dartemis.security.enabled=false -Dhawk.artemis.host=localhost
+-Dartemis.security.enabled=false -Dhawk.artemis.host=localhost -Dhawk.tcp.port=2080 -Dhawk.tcp.thriftProtocol=TUPLE
       </vmArgs>
       <vmArgsLin>-Dsvnkit.library.gnome-keyring.enabled=false
       </vmArgsLin>
@@ -101,6 +101,7 @@
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="uk.ac.york.mondo.integration.artemis.server" autoStart="true" startLevel="4" />
+      <plugin id="uk.ac.york.mondo.integration.hawk.servlet" autoStart="true" startLevel="0" />
    </configurations>
 
    <preferencesInfo>

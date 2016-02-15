@@ -13,6 +13,7 @@ package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 
 import org.apache.thrift.transport.TTransportException;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -240,7 +241,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		}
 	}
 
-	protected Hawk.Client connectToHawk(final HawkModelDescriptor d) throws TTransportException {
+	protected Hawk.Client connectToHawk(final HawkModelDescriptor d) throws TTransportException, URISyntaxException {
 		return APIUtils.connectTo(Hawk.Client.class,
 				d.getHawkURL(), d.getThriftProtocol(),
 				new LazyCredentials(d.getHawkURL()));

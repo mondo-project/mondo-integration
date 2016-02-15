@@ -16,6 +16,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -30,10 +32,12 @@ import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.apache.thrift.transport.TZlibTransport;
 
 import uk.ac.york.mondo.integration.api.File;
-import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.Subscription;
 import uk.ac.york.mondo.integration.api.SubscriptionDurability;
 import uk.ac.york.mondo.integration.artemis.consumer.Consumer;
@@ -106,26 +110,35 @@ public class APIUtils {
 		return Consumer.connectRemote(s.host, s.port, s.queueAddress, s.queueName, toQueueType(sd));
 	}
 
-	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException {
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException, URISyntaxException {
 		return connectTo(clazz, url, ThriftProtocol.TUPLE);
 	}
 
-	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol) throws TTransportException {
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol) throws TTransportException, URISyntaxException {
 		return connectTo(clazz, url, thriftProtocol, null, null);
 	}
 
-	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, String username, String password) throws TTransportException {
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, String username, String password) throws TTransportException, URISyntaxException {
 		final UsernamePasswordCredentials credentials = (username != null && password != null) ? new UsernamePasswordCredentials(username, password) : null;
 		return connectTo(clazz, url, thriftProtocol, credentials);
 	}
 
-	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, final Credentials credentials) throws TTransportException {
+	@SuppressWarnings({ "deprecation", "restriction" })
+	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url, ThriftProtocol thriftProtocol, final Credentials credentials) throws TTransportException, URISyntaxException {
 		try {
-			final DefaultHttpClient httpClient = APIUtils.createGZipAwareHttpClient();
-			if (credentials != null) {
-				httpClient.getCredentialsProvider().setCredentials(new AuthScope(null, -1), credentials);
+			final URI parsed = new URI(url);
+
+			TTransport transport;
+			if (parsed.getScheme().startsWith("http")) {
+				final DefaultHttpClient httpClient = APIUtils.createGZipAwareHttpClient();
+				if (credentials != null) {
+					httpClient.getCredentialsProvider().setCredentials(new AuthScope(null, -1), credentials);
+				}
+				transport = new THttpClient(url, httpClient);
+			} else {
+				transport = new TZlibTransport(new TSocket(parsed.getHost(), parsed.getPort()));
+				transport.open();
 			}
-			final THttpClient transport = new THttpClient(url, httpClient);
 			Constructor<T> constructor = clazz.getDeclaredConstructor(org.apache.thrift.protocol.TProtocol.class);
 			return constructor.newInstance(thriftProtocol.getProtocolFactory().getProtocol(transport));
 		} catch (InstantiationException 

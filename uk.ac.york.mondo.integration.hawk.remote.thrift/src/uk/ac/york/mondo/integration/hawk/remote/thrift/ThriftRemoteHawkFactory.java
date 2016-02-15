@@ -11,6 +11,7 @@
 package uk.ac.york.mondo.integration.hawk.remote.thrift;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.thrift.transport.TTransportException;
@@ -77,7 +78,7 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 		return infos;
 	}
 
-	protected Hawk.Client getClient(String location) throws TTransportException {
+	protected Hawk.Client getClient(String location) throws TTransportException, URISyntaxException {
 		final ICredentialsStore credentialsStore = HManager.getInstance().getCredentialsStore();
 		ThriftProtocol proto = ThriftProtocol.guessFromURL(location);
 		Hawk.Client client = APIUtils.connectTo(Hawk.Client.class, location, proto, new LazyCredentials(location, credentialsStore));

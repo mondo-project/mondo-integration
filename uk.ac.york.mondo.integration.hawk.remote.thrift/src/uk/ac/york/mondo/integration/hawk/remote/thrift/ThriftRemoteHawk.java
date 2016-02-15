@@ -12,6 +12,7 @@ package uk.ac.york.mondo.integration.hawk.remote.thrift;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.thrift.transport.TTransportException;
 import org.hawk.core.IConsole;
@@ -31,7 +32,7 @@ public class ThriftRemoteHawk implements IHawk {
 	private ThriftRemoteModelIndexer indexer;
 	private File folder;
 
-	public ThriftRemoteHawk(String name, String location, File parentFolder, ICredentialsStore credStore, IConsole console, ThriftProtocol thriftProtocol) throws TTransportException, IOException {
+	public ThriftRemoteHawk(String name, String location, File parentFolder, ICredentialsStore credStore, IConsole console, ThriftProtocol thriftProtocol) throws TTransportException, IOException, URISyntaxException {
 		this.client = APIUtils.connectTo(Hawk.Client.class, location, thriftProtocol, new LazyCredentials(location, credStore));
 		this.folder = parentFolder;
 		this.indexer = new ThriftRemoteModelIndexer(name, location, parentFolder, client, credStore, console);

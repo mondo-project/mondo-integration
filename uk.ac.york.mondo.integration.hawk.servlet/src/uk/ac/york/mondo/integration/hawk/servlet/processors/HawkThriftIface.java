@@ -97,7 +97,7 @@ import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncod
 /**
  * Entry point to the Hawk model indexers, implementing a Thrift-based API.
  */
-final class HawkThriftIface implements Hawk.Iface {
+public final class HawkThriftIface implements Hawk.Iface {
 
 	public static String getStateQueueName(final HModel model) {
 		return "hawkstate." + model.getName();

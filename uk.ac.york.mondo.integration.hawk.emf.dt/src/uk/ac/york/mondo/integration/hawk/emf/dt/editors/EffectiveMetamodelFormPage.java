@@ -10,6 +10,7 @@
  *******************************************************************************/
 package uk.ac.york.mondo.integration.hawk.emf.dt.editors;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -472,7 +473,7 @@ public class EffectiveMetamodelFormPage extends FormPage {
 					for (Node root : mmNodes.values()) {
 						Collections.sort(root.children);
 					}
-				} catch (TException e) {
+				} catch (TException | URISyntaxException e) {
 					Activator.getDefault().logError(e);
 				}
 			}
