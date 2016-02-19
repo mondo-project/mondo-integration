@@ -270,12 +270,12 @@ public final class HawkThriftIface implements Hawk.Iface {
 		} else if (ret instanceof String) {
 			l.add(new QueryResult(_Fields.V_STRING, (String)ret));
 		} else if (ret instanceof IGraphTypeNodeReference) {
-			final String id = ((IGraphTypeNodeReference)ret).getId();
-			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT_TYPE, typeEnc.encode(id)));
+			final IGraphNode n = ((IGraphTypeNodeReference)ret).getNode(model.getGraph());
+			l.add(new QueryResult(_Fields.V_MODEL_ELEMENT_TYPE, typeEnc.encode(n)));
 		} else if (ret instanceof IGraphNodeReference) {
-			final String id = ((IGraphNodeReference)ret).getId();
-			if (!enc.isEncoded(id)) {
-				final ModelElement meEncoded = enc.encode(id);
+			final IGraphNodeReference ref = (IGraphNodeReference)ret;
+			if (!enc.isEncoded(ref.getId())) {
+				final ModelElement meEncoded = enc.encode(ref.getNode(model.getGraph()));
 				if (meEncoded != null) {
 					l.add(new QueryResult(_Fields.V_MODEL_ELEMENT, meEncoded));
 				}

@@ -1,5 +1,6 @@
 package uk.ac.york.mondo.integration.hawk.servlet.utils;
 
+import org.hawk.core.graph.IGraphNode;
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.Slot;
 import org.hawk.graph.TypeNode;
@@ -18,7 +19,6 @@ public class HawkModelElementTypeEncoder {
 	public ModelElementType encode(final String id) {
 		final TypeNode me = graph.getTypeNodeById(id);
 		return encode(me);
-		
 	}
 
 	public ModelElementType encode(TypeNode me) {
@@ -43,5 +43,9 @@ public class HawkModelElementTypeEncoder {
 		}
 
 		return t;
+	}
+
+	public Object encode(IGraphNode n) {
+		return encode(new TypeNode(n));
 	}
 }

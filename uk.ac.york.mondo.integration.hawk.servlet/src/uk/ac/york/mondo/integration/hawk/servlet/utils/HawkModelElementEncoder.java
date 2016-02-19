@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.hawk.core.graph.IGraphNode;
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
 import org.hawk.graph.TypeNode;
@@ -313,6 +314,13 @@ public class HawkModelElementEncoder {
 	public ModelElement encode(String id) throws Exception {
 		final ModelElementNode me = graph.getModelElementNodeById(id);
 		return encode(me);
+	}
+
+	/**
+	 * Convenience method for {@link #encode(ModelElementNode)}.
+	 */
+	public ModelElement encode(IGraphNode node) throws Exception {
+		return encode(new ModelElementNode(node));
 	}
 
 	/**
