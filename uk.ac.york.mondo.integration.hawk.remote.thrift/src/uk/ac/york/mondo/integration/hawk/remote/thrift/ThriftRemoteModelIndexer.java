@@ -149,7 +149,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		@Override
 		public List<String> validate(String derivationlogic) {
 			// TODO should we add something for this in the API?
-			return Arrays.asList(derivationlogic);
+			// Right now we don't have a way to validate derived
+			// attribute expressions for remote Hawk instances.
+			return Collections.emptyList();
 		}
 
 		@Override
