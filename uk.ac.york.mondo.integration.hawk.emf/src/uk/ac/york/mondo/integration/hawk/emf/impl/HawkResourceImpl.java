@@ -649,24 +649,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 			// Send the effective metamodel if included
 			// TODO: use stateful variant to keep using effective metamodel in lazy modes
-			final EffectiveMetamodelRuleset emm = descriptor.getEffectiveMetamodel();
-			final Table<String, String, ImmutableSet<String>> inclusionRules = emm.getInclusionRules();
-			final Table<String, String, ImmutableSet<String>> exclusionRules = emm.getExclusionRules();
-			if (!inclusionRules.isEmpty()) {
-				// The rowMap points to ImmutableSet<String>, which is compatible with
-				// Set<String>, but the Java compiler is not smart enough to accept this.
-				// Here we use a cast to work around this, which is cheaper than doing a
-				// full copy.
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				final Map<String, Map<String, Set<String>>> inclusionMap = (Map) inclusionRules.rowMap();
-				opts.setEffectiveMetamodelIncludes(inclusionMap);
-			}
-			if (!exclusionRules.isEmpty()) {
-				// See comment above.
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				final Map<String, Map<String, Set<String>>> exclusionMap = (Map) exclusionRules.rowMap();
-				opts.setEffectiveMetamodelExcludes(exclusionMap);
-			}
+			setEffectiveMetamodelOptions(opts, descriptor.getEffectiveMetamodel());
 
 			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
 				List<QueryResult> results = client.query(descriptor.getHawkInstance(), query, queryLanguage, opts);
@@ -726,6 +709,26 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		}
 	}
 
+	protected void setEffectiveMetamodelOptions(final HawkQueryOptions opts, final EffectiveMetamodelRuleset emm) {
+		final Table<String, String, ImmutableSet<String>> inclusionRules = emm.getInclusionRules();
+		final Table<String, String, ImmutableSet<String>> exclusionRules = emm.getExclusionRules();
+		if (!inclusionRules.isEmpty()) {
+			// The rowMap points to ImmutableSet<String>, which is compatible with
+			// Set<String>, but the Java compiler is not smart enough to accept this.
+			// Here we use a cast to work around this, which is cheaper than doing a
+			// full copy.
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			final Map<String, Map<String, Set<String>>> inclusionMap = (Map) inclusionRules.rowMap();
+			opts.setEffectiveMetamodelIncludes(inclusionMap);
+		}
+		if (!exclusionRules.isEmpty()) {
+			// See comment above.
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			final Map<String, Map<String, Set<String>>> exclusionMap = (Map) exclusionRules.rowMap();
+			opts.setEffectiveMetamodelExcludes(exclusionMap);
+		}
+	}
+
 	
 
 	protected boolean isIncludeNodeIDs(final HawkModelDescriptor descriptor) {
@@ -754,6 +757,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			final HawkQueryOptions options = new HawkQueryOptions();
 			options.setIncludeAttributes(descriptor.getLoadingMode().isGreedyAttributes() || mustFetchAttributes);
 			options.setIncludeReferences(true);
+			setEffectiveMetamodelOptions(options, descriptor.getEffectiveMetamodel());
 			final List<ModelElement> elems = client.resolveProxies(
 					descriptor.getHawkInstance(), toBeFetched,
 					options);
@@ -804,6 +808,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				opts.setRepositoryPattern(descriptor.getHawkRepository());
 				opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
 				opts.setIncludeAttributes(includeAttributes);
+				setEffectiveMetamodelOptions(opts, descriptor.getEffectiveMetamodel());
 
 				final String query = String.format("return %s.all;", eClass.getName());
 				final EList<EObject> fetched = fetchByQuery(EOL_QUERY_LANG, query, opts);
@@ -857,6 +862,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final HawkQueryOptions opts = new HawkQueryOptions();
 		opts.setRepositoryPattern(descriptor.getHawkRepository());
 		opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+		setEffectiveMetamodelOptions(opts, descriptor.getEffectiveMetamodel());
 		final List<QueryResult> typesWithInstances = client.query(descriptor.getHawkInstance(),
 				"return Model.types.select(t|not t.all.isEmpty);",
 				EOL_QUERY_LANG, opts);
@@ -918,6 +924,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final HawkQueryOptions options = new HawkQueryOptions();
 		options.setIncludeAttributes(true);
 		options.setIncludeReferences(false);
+		setEffectiveMetamodelOptions(options, descriptor.getEffectiveMetamodel());
+
 		final List<ModelElement> elems = client.resolveProxies(
 			descriptor.getHawkInstance(), new ArrayList<>(objects.keySet()),
 			options);
