@@ -338,7 +338,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 		try {
 			final String username = credentials != null ? credentials.username : null;
 			final String password = credentials != null ? credentials.password : null;
-			model.addVCS(repo.uri, repo.type, username, password);
+			model.addVCS(repo.uri, repo.type, username, password, repo.isFrozen);
 		} catch (NoSuchElementException ex) {
 			throw new UnknownRepositoryType();
 		}
@@ -375,7 +375,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getRunningHawkByName(name);
 		final List<Repository> repos = new ArrayList<Repository>();
 		for (IVcsManager mgr : model.getRunningVCSManagers()) {
-			repos.add(new Repository(mgr.getLocation(), mgr.getType()));
+			repos.add(new Repository(mgr.getLocation(), mgr.getType(), mgr.isFrozen()));
 		}
 		return repos;
 	}
@@ -730,6 +730,27 @@ public final class HawkThriftIface implements Hawk.Iface {
 			model.sync();
 		} catch (Exception e) {
 			throw new TException("Could not force an immediate synchronisation", e);
+		}
+	}
+
+	@Override
+	public boolean isFrozen(String name, String uri) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		for (Repository repo : listRepositories(name)) {
+			if (repo.uri.equals(uri)) {
+				return repo.isFrozen;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void setFrozen(String name, String uri, boolean isFrozen) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+		final HModel model = getHawkByName(name);
+		for (IVcsManager manager : model.getRunningVCSManagers()) {
+			if (manager.getLocation().equals(uri)) {
+				manager.setFrozen(isFrozen);
+				break;
+			}
 		}
 	}
 }

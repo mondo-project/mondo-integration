@@ -141,6 +141,19 @@ class Hawk {
 		@doc(d="A valid set of credentials that has read-access to the repository", optional="true") Credentials credentials
 	) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownRepositoryType, VCSAuthenticationFailed;
 
+	@doc(d="Returns true if a repository is frozen, false otherwise.")
+	op boolean isFrozen (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to query") String uri
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
+	@doc(d="Changes the 'frozen' state of a repository")
+	op void setFrozen (
+		@doc(d="The name of the Hawk instance") String name,
+		@doc(d="The URI of the repository to be changed") String uri,
+		@doc(d="Whether the repository should be frozen (true) or not (false)") Boolean isFrozen
+	) throws HawkInstanceNotFound, HawkInstanceNotRunning;
+
 	@doc(d="Asks a Hawk instance to stop monitoring a repository")
 	op void removeRepository (
 		@doc(d="The name of the Hawk instance") String name,
@@ -286,6 +299,7 @@ class HawkQueryOptions {
 class Repository {
 	@doc(d="The URI to the repository") attr String uri;
 	@doc(d="The type of repository") attr String type;
+	@doc(d="True if the repository is frozen, false otherwise") attr Boolean isFrozen;
 }
 
 @doc(d="One of the states that a Hawk instance can be in.")

@@ -391,6 +391,29 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			}
 			return null;
 		}
+
+		@Override
+		public boolean isFrozen() {
+			try {
+				return client.isFrozen(name, location);
+			} catch (TException e) {
+				LOGGER.error(String.format(
+					"Could not retrieve frozen state of repository %s from remote Hawk %s",
+					name, location), e);
+				return false;
+			}
+		}
+
+		@Override
+		public void setFrozen(boolean f) {
+			try {
+				client.setFrozen(name, location, f);
+			} catch (TException e) {
+				LOGGER.error(String.format(
+					"Could not change frozen state of repository %s of remote Hawk %s",
+					name, location), e);
+			}
+		}
 	}
 
 	private final String name, location;
@@ -529,7 +552,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 				credentials.setPassword(storedCredentials.getPassword());
 			}
 
-			client.addRepository(name, new Repository(vcs.getLocation(), vcs.getType()), credentials);
+			client.addRepository(name, new Repository(vcs.getLocation(), vcs.getType(), false), credentials);
 		} catch (Exception e) {
 			console.printerrln("Could not add the specified repository");
 			console.printerrln(e);

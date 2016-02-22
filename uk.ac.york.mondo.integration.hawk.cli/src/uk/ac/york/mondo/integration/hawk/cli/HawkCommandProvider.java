@@ -137,7 +137,7 @@ public class HawkCommandProvider implements CommandProvider {
 		} else {
 			StringBuffer sbuf = new StringBuffer();
 			for (HawkInstance i : instances) {
-				sbuf.append(String.format("%s (%s%s)\n", i.name,
+				sbuf.append(String.format("%s (%s%s%s)\n", i.name,
 					i.state.toString(),
 					i.name.equals(currentInstance) ? ", selected": ""
 				));
@@ -259,7 +259,7 @@ public class HawkCommandProvider implements CommandProvider {
 		if (creds.password == null) { creds.password = "anonymous"; }
 
 		// TODO tell Kostas that LocalFolder does not work if the path has a trailing separator
-		client.addRepository(currentInstance, new Repository(repoURL, repoType), creds);
+		client.addRepository(currentInstance, new Repository(repoURL, repoType, false), creds);
 		return String.format("Added repository of type '%s' at '%s'", repoType, repoURL);
 	}
 
@@ -282,6 +282,14 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkListRepositories(CommandInterpreter intp) throws Exception {
 		checkInstanceSelected();
 		return formatList(client.listRepositories(currentInstance));
+	}
+
+	public Object _hawkSetFrozenRepository(CommandInterpreter intp) throws Exception {
+		checkInstanceSelected();
+		final String repoURL = requiredArgument(intp, "url");
+		final boolean isFrozen = Boolean.valueOf(requiredArgument(intp, "url"));
+		client.setFrozen(currentInstance, repoURL, isFrozen);
+		return String.format("Set repository '%s' frozen flag to %s", repoURL, isFrozen);
 	}
 
 	public Object _hawkListRepositoryTypes(CommandInterpreter intp) throws Exception {
@@ -679,6 +687,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkUnregisterMetamodel <uri> - unregisters the metamodel with the specified URI\n");
 		sbuf.append("--Repositories--\n\t");
 		sbuf.append("hawkAddRepository <url> <type> [user] [pwd] - adds a repository\n\t");
+		sbuf.append("hawkSetFrozenRepository <url> <frozen:true|false> - changes the frozen state of a repository\n\t");
 		sbuf.append("hawkListFiles <url> [filepatterns...] - lists files within a repository\n\t");
 		sbuf.append("hawkListRepositories - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkListRepositoryTypes - lists available repository types\n\t");

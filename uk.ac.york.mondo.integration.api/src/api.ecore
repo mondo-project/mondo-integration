@@ -268,6 +268,42 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
+    <eOperations name="isFrozen" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+      <eAnnotations source="doc">
+        <details key="d" value="Returns true if a repository is frozen, false otherwise."/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The URI of the repository to query"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
+    <eOperations name="setFrozen" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
+      <eAnnotations source="doc">
+        <details key="d" value="Changes the 'frozen' state of a repository"/>
+      </eAnnotations>
+      <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The name of the Hawk instance"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="The URI of the repository to be changed"/>
+        </eAnnotations>
+      </eParameters>
+      <eParameters name="isFrozen" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+        <eAnnotations source="doc">
+          <details key="d" value="Whether the repository should be frozen (true) or not (false)"/>
+        </eAnnotations>
+      </eParameters>
+    </eOperations>
     <eOperations name="removeRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
         <details key="d" value="Asks a Hawk instance to stop monitoring a repository"/>
@@ -616,6 +652,11 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="The type of repository"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isFrozen" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
+      <eAnnotations source="doc">
+        <details key="d" value="True if the repository is frozen, false otherwise"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>

@@ -1558,6 +1558,7 @@ ModelSpec.prototype.write = function(output) {
 Repository = function(args) {
   this.uri = null;
   this.type = null;
+  this.isFrozen = null;
   if (args) {
     if (args.uri !== undefined && args.uri !== null) {
       this.uri = args.uri;
@@ -1568,6 +1569,11 @@ Repository = function(args) {
       this.type = args.type;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field type is unset!');
+    }
+    if (args.isFrozen !== undefined && args.isFrozen !== null) {
+      this.isFrozen = args.isFrozen;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field isFrozen is unset!');
     }
   }
 };
@@ -1599,6 +1605,13 @@ Repository.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isFrozen = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1618,6 +1631,11 @@ Repository.prototype.write = function(output) {
   if (this.type !== null && this.type !== undefined) {
     output.writeFieldBegin('type', Thrift.Type.STRING, 2);
     output.writeString(this.type);
+    output.writeFieldEnd();
+  }
+  if (this.isFrozen !== null && this.isFrozen !== undefined) {
+    output.writeFieldBegin('isFrozen', Thrift.Type.BOOL, 3);
+    output.writeBool(this.isFrozen);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

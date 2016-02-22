@@ -2210,6 +2210,332 @@ Hawk_addRepository_result.prototype.write = function(output) {
   return;
 };
 
+Hawk_isFrozen_args = function(args) {
+  this.name = null;
+  this.uri = null;
+  if (args) {
+    if (args.name !== undefined && args.name !== null) {
+      this.name = args.name;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
+    }
+    if (args.uri !== undefined && args.uri !== null) {
+      this.uri = args.uri;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field uri is unset!');
+    }
+  }
+};
+Hawk_isFrozen_args.prototype = {};
+Hawk_isFrozen_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.uri = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_isFrozen_args.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_isFrozen_args');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.uri !== null && this.uri !== undefined) {
+    output.writeFieldBegin('uri', Thrift.Type.STRING, 2);
+    output.writeString(this.uri);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Hawk_isFrozen_result = function(args) {
+  this.success = null;
+  this.err1 = null;
+  this.err2 = null;
+  if (args instanceof HawkInstanceNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof HawkInstanceNotRunning) {
+    this.err2 = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = args.success;
+    }
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+  }
+};
+Hawk_isFrozen_result.prototype = {};
+Hawk_isFrozen_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.BOOL) {
+        this.success = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new HawkInstanceNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new HawkInstanceNotRunning();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_isFrozen_result.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_isFrozen_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.BOOL, 0);
+    output.writeBool(this.success);
+    output.writeFieldEnd();
+  }
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Hawk_setFrozen_args = function(args) {
+  this.name = null;
+  this.uri = null;
+  this.isFrozen = null;
+  if (args) {
+    if (args.name !== undefined && args.name !== null) {
+      this.name = args.name;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
+    }
+    if (args.uri !== undefined && args.uri !== null) {
+      this.uri = args.uri;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field uri is unset!');
+    }
+    if (args.isFrozen !== undefined && args.isFrozen !== null) {
+      this.isFrozen = args.isFrozen;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field isFrozen is unset!');
+    }
+  }
+};
+Hawk_setFrozen_args.prototype = {};
+Hawk_setFrozen_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.uri = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isFrozen = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_setFrozen_args.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_setFrozen_args');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.uri !== null && this.uri !== undefined) {
+    output.writeFieldBegin('uri', Thrift.Type.STRING, 2);
+    output.writeString(this.uri);
+    output.writeFieldEnd();
+  }
+  if (this.isFrozen !== null && this.isFrozen !== undefined) {
+    output.writeFieldBegin('isFrozen', Thrift.Type.BOOL, 3);
+    output.writeBool(this.isFrozen);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+Hawk_setFrozen_result = function(args) {
+  this.err1 = null;
+  this.err2 = null;
+  if (args instanceof HawkInstanceNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof HawkInstanceNotRunning) {
+    this.err2 = args;
+    return;
+  }
+  if (args) {
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+  }
+};
+Hawk_setFrozen_result.prototype = {};
+Hawk_setFrozen_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new HawkInstanceNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new HawkInstanceNotRunning();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+Hawk_setFrozen_result.prototype.write = function(output) {
+  output.writeStructBegin('Hawk_setFrozen_result');
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 Hawk_removeRepository_args = function(args) {
   this.name = null;
   this.uri = null;
@@ -5662,6 +5988,116 @@ HawkClient.prototype.recv_addRepository = function() {
   }
   if (null !== result.err4) {
     throw result.err4;
+  }
+  return;
+};
+HawkClient.prototype.isFrozen = function(name, uri, callback) {
+  this.send_isFrozen(name, uri, callback); 
+  if (!callback) {
+    return this.recv_isFrozen();
+  }
+};
+
+HawkClient.prototype.send_isFrozen = function(name, uri, callback) {
+  this.output.writeMessageBegin('isFrozen', Thrift.MessageType.CALL, this.seqid);
+  var args = new Hawk_isFrozen_args();
+  args.name = name;
+  args.uri = uri;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_isFrozen();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+HawkClient.prototype.recv_isFrozen = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new Hawk_isFrozen_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'isFrozen failed: unknown result';
+};
+HawkClient.prototype.setFrozen = function(name, uri, isFrozen, callback) {
+  this.send_setFrozen(name, uri, isFrozen, callback); 
+  if (!callback) {
+  this.recv_setFrozen();
+  }
+};
+
+HawkClient.prototype.send_setFrozen = function(name, uri, isFrozen, callback) {
+  this.output.writeMessageBegin('setFrozen', Thrift.MessageType.CALL, this.seqid);
+  var args = new Hawk_setFrozen_args();
+  args.name = name;
+  args.uri = uri;
+  args.isFrozen = isFrozen;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_setFrozen();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+HawkClient.prototype.recv_setFrozen = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new Hawk_setFrozen_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
   }
   return;
 };
