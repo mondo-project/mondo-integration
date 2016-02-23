@@ -299,7 +299,7 @@ class HawkQueryOptions {
 class Repository {
 	@doc(d="The URI to the repository") attr String uri;
 	@doc(d="The type of repository") attr String type;
-	@doc(d="True if the repository is frozen, false otherwise") attr Boolean isFrozen;
+	@doc(d="True if the repository is frozen, false otherwise", default="false", optional="true") attr Boolean isFrozen;
 }
 
 @doc(d="One of the states that a Hawk instance can be in.")

@@ -552,7 +552,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 				credentials.setPassword(storedCredentials.getPassword());
 			}
 
-			client.addRepository(name, new Repository(vcs.getLocation(), vcs.getType(), false), credentials);
+			final Repository repo = new Repository(vcs.getLocation(), vcs.getType());
+			repo.setIsFrozen(false);
+			client.addRepository(name, repo, credentials);
 		} catch (Exception e) {
 			console.printerrln("Could not add the specified repository");
 			console.printerrln(e);

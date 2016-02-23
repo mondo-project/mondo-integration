@@ -375,7 +375,9 @@ public final class HawkThriftIface implements Hawk.Iface {
 		final HModel model = getRunningHawkByName(name);
 		final List<Repository> repos = new ArrayList<Repository>();
 		for (IVcsManager mgr : model.getRunningVCSManagers()) {
-			repos.add(new Repository(mgr.getLocation(), mgr.getType(), mgr.isFrozen()));
+			final Repository repo = new Repository(mgr.getLocation(), mgr.getType());
+			repo.setIsFrozen(mgr.isFrozen());
+			repos.add(repo);
 		}
 		return repos;
 	}

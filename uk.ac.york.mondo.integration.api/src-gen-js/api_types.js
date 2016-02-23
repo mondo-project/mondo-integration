@@ -515,6 +515,35 @@ File.prototype.write = function(output) {
   return;
 };
 
+GoldRepoNotFound = function(args) {
+};
+Thrift.inherits(GoldRepoNotFound, Thrift.TException);
+GoldRepoNotFound.prototype.name = 'GoldRepoNotFound';
+GoldRepoNotFound.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+GoldRepoNotFound.prototype.write = function(output) {
+  output.writeStructBegin('GoldRepoNotFound');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 HawkInstance = function(args) {
   this.name = null;
   this.state = null;
@@ -1456,10 +1485,66 @@ ModelSpec.prototype.write = function(output) {
   return;
 };
 
+OfflineCollaborationInternalError = function(args) {
+  this.errorMessage = null;
+  if (args) {
+    if (args.errorMessage !== undefined && args.errorMessage !== null) {
+      this.errorMessage = args.errorMessage;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field errorMessage is unset!');
+    }
+  }
+};
+Thrift.inherits(OfflineCollaborationInternalError, Thrift.TException);
+OfflineCollaborationInternalError.prototype.name = 'OfflineCollaborationInternalError';
+OfflineCollaborationInternalError.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.errorMessage = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaborationInternalError.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaborationInternalError');
+  if (this.errorMessage !== null && this.errorMessage !== undefined) {
+    output.writeFieldBegin('errorMessage', Thrift.Type.STRING, 1);
+    output.writeString(this.errorMessage);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 Repository = function(args) {
   this.uri = null;
   this.type = null;
-  this.isFrozen = null;
+  this.isFrozen = false;
   if (args) {
     if (args.uri !== undefined && args.uri !== null) {
       this.uri = args.uri;
@@ -1473,8 +1558,6 @@ Repository = function(args) {
     }
     if (args.isFrozen !== undefined && args.isFrozen !== null) {
       this.isFrozen = args.isFrozen;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field isFrozen is unset!');
     }
   }
 };
@@ -2358,6 +2441,35 @@ TransformationTokenNotFound.prototype.write = function(output) {
     output.writeString(this.token);
     output.writeFieldEnd();
   }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+UnauthorizedRepositoryOperation = function(args) {
+};
+Thrift.inherits(UnauthorizedRepositoryOperation, Thrift.TException);
+UnauthorizedRepositoryOperation.prototype.name = 'UnauthorizedRepositoryOperation';
+UnauthorizedRepositoryOperation.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+UnauthorizedRepositoryOperation.prototype.write = function(output) {
+  output.writeStructBegin('UnauthorizedRepositoryOperation');
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -5004,120 +5116,6 @@ QueryResult.prototype.write = function(output) {
   if (this.vModelElementType !== null && this.vModelElementType !== undefined) {
     output.writeFieldBegin('vModelElementType', Thrift.Type.STRUCT, 9);
     this.vModelElementType.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-GoldRepoNotFound = function(args) {
-};
-Thrift.inherits(GoldRepoNotFound, Thrift.TException);
-GoldRepoNotFound.prototype.name = 'GoldRepoNotFound';
-GoldRepoNotFound.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-GoldRepoNotFound.prototype.write = function(output) {
-  output.writeStructBegin('GoldRepoNotFound');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-UnauthorizedRepositoryOperation = function(args) {
-};
-Thrift.inherits(UnauthorizedRepositoryOperation, Thrift.TException);
-UnauthorizedRepositoryOperation.prototype.name = 'UnauthorizedRepositoryOperation';
-UnauthorizedRepositoryOperation.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-UnauthorizedRepositoryOperation.prototype.write = function(output) {
-  output.writeStructBegin('UnauthorizedRepositoryOperation');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaborationInternalError = function(args) {
-  this.errorMessage = null;
-  if (args) {
-    if (args.errorMessage !== undefined && args.errorMessage !== null) {
-      this.errorMessage = args.errorMessage;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field errorMessage is unset!');
-    }
-  }
-};
-Thrift.inherits(OfflineCollaborationInternalError, Thrift.TException);
-OfflineCollaborationInternalError.prototype.name = 'OfflineCollaborationInternalError';
-OfflineCollaborationInternalError.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.errorMessage = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaborationInternalError.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaborationInternalError');
-  if (this.errorMessage !== null && this.errorMessage !== undefined) {
-    output.writeFieldBegin('errorMessage', Thrift.Type.STRING, 1);
-    output.writeString(this.errorMessage);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

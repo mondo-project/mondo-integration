@@ -259,7 +259,9 @@ public class HawkCommandProvider implements CommandProvider {
 		if (creds.password == null) { creds.password = "anonymous"; }
 
 		// TODO tell Kostas that LocalFolder does not work if the path has a trailing separator
-		client.addRepository(currentInstance, new Repository(repoURL, repoType, false), creds);
+		final Repository repo = new Repository(repoURL, repoType);
+		repo.setIsFrozen(false);
+		client.addRepository(currentInstance, repo, creds);
 		return String.format("Added repository of type '%s' at '%s'", repoType, repoURL);
 	}
 

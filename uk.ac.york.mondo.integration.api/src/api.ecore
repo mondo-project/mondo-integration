@@ -657,6 +657,8 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="isFrozen" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject">
       <eAnnotations source="doc">
         <details key="d" value="True if the repository is frozen, false otherwise"/>
+        <details key="default" value="false"/>
+        <details key="optional" value="true"/>
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
