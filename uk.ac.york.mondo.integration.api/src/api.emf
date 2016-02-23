@@ -448,14 +448,16 @@ MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends
 off-the-shelf version control server with ``hooks'' that enforce access control and
 maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.
 This allows users to continue using their preferred tools for interacting with the version
-control systems in their day-to-day modelling activities.
+control systems in their day-to-day modelling activities. The access control rules to be used 
+by the security lens are themselves described in the repository.
 
-Nevertheless, managing the rules to be used by the hooks and the lens relationship requires
+Nevertheless, managing the operation of the hooks and the lens relationship requires
 its own API, as this is not covered by traditional VCS protocols. The rest of the section
 describes a work-in-progress API for managing these access rules: the final version will be
 provided in D6.8, due in M30.
 ")
 class OfflineCollaboration {
+/*  
   @doc(d="Adds an access control rule to the specified version control system.")
   op void addRule(
   	@doc(d="URL of the version control system") String repoURL,
@@ -474,16 +476,28 @@ class OfflineCollaboration {
   @doc(d="Lists the access control rules for the specified version control system.")
   op CollaborationRule[*] listRules(
     @doc(d="URL of the version control system") String repoURL);
-
-  @doc(d="Regenerate all front repositories based on the gold repository.")
+*/
+  @doc(d="Regenerate all front repositories based on the gold repository. Requires superuser privileges. ")
   op void regenerateFrontRepositories(
-    @doc(d="URL of the gold repository") String goldRepoURL);
+    @doc(d="URL of the gold repository") String goldRepoURL)
+		throws GoldRepoNotFound, UnauthorizedRepositoryOperation, OfflineCollaborationInternalError;
 
   @doc(d="Retrieve the front repository URL for the current user")
-  op void getMyFrontRepositoryURL(
-    @doc(d="URL of the gold repository") String goldRepoURL);
+  op String getMyFrontRepositoryURL(
+    @doc(d="URL of the gold repository") String goldRepoURL)
+		throws GoldRepoNotFound, UnauthorizedRepositoryOperation, OfflineCollaborationInternalError;
+}
+@doc(d="No gold repository is configured at the specified URL")
+class GoldRepoNotFound {}
+@doc(d="Authenticated user is not permitted to carry out the requested operation on the specified repository")
+class UnauthorizedRepositoryOperation {}
+@doc(d="An internal error occurred on the collaboration server. See details in server log.")
+class OfflineCollaborationInternalError {
+    @doc(d="Summary description of the error. See details in server log.")
+	attr String errorMessage;
 }
 
+/*
 @doc(d="Specification of an access control rule for models")
 class CollaborationRule {
 	@doc(d="Unique identifier of the rule within the VCS") attr String name;
@@ -494,6 +508,7 @@ class CollaborationRule {
 class CollaborationRuleNotFound {
 	
 }
+*/
 
 @doc(d="Credentials of the client in the target VCS")
 class Credentials {
@@ -803,3 +818,4 @@ enum SubscriptionDurability {
 	@doc(d="Subscription survives client disconnections but not server restarts.") DEFAULT;
 	@doc(d="Subscription survives client disconnections and server restarts.") DURABLE;
 }
+

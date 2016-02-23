@@ -35,8 +35,7 @@ assumes that authenticated users will have the necessary permissions.
 \subsubsection{CloudATL}
 \label{sec:CloudATL}
 The following service operations expose the capabilities of the cloud-enabled
-version of the ATL transformation language which is currently under development and
-will be presented in M24 in D3.3.
+version of the ATL transformation language which is presented in D3.3~\cite{D3.3}.
 
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation CloudATL.launch}
@@ -240,8 +239,7 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & name & \camelcase{string} & The name of the Hawk instance. \\\hline 
 	 & ids & \camelcase{list<string>} & Proxy model element IDs to be resolved. \\\hline 
-	 & includeAttributes  (optional)& \camelcase{bool} & Whether to include attributes (true) or not (false). \\\hline 
-	 & includeReferences  (optional)& \camelcase{bool} & Whether to include references (true) or not (false). \\\hline 
+	 & options & \camelcase{HawkQueryOptions} & Options for the query. \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
 	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
 	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
@@ -477,73 +475,39 @@ MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends
 off-the-shelf version control server with ``hooks'' that enforce access control and
 maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.
 This allows users to continue using their preferred tools for interacting with the version
-control systems in their day-to-day modelling activities.
+control systems in their day-to-day modelling activities. The access control rules to be used 
+by the security lens are themselves described in the repository.
 
-Nevertheless, managing the rules to be used by the hooks and the lens relationship requires
+Nevertheless, managing the operation of the hooks and the lens relationship requires
 its own API, as this is not covered by traditional VCS protocols. The rest of the section
 describes a work-in-progress API for managing these access rules: the final version will be
 provided in D6.8, due in M30.
 
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.addRule}
-	\label{tab:offlineCollaboration-addRule}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{addRule} & \camelcase{void} & Adds an access control rule to the specified version control system. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
-	 & rule & \camelcase{CollaborationRule} & Specification of the access control rule. \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.removeRule}
-	\label{tab:offlineCollaboration-removeRule}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{removeRule} & \camelcase{void} & Removes an access control rule from the specified version control system. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
-	 & ruleName & \camelcase{string} & Specification of the access control rule. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{CollaborationRuleNotFound} & \multicolumn{2}{p{8.5cm}|}{No collaboration rule with that name was found for the specified repository.} \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.updateRule}
-	\label{tab:offlineCollaboration-updateRule}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{updateRule} & \camelcase{void} & Updates an access control rule for the specified version control system. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
-	 & rule & \camelcase{CollaborationRule} & Specification of the access control rule. \\\hline 
-	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
-	 & \camelcase{CollaborationRuleNotFound} & \multicolumn{2}{p{8.5cm}|}{No collaboration rule with that name was found for the specified repository.} \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
-	\caption{Operation OfflineCollaboration.listRules}
-	\label{tab:offlineCollaboration-listRules}\\
-	\cline{2-4}%
-	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{listRules} & \camelcase{list<CollaborationRule>} & Lists the access control rules for the specified version control system. \\\hline
-	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & repoURL & \camelcase{string} & URL of the version control system. \\\hline 
-\end{longtable}
-\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation OfflineCollaboration.regenerateFrontRepositories}
 	\label{tab:offlineCollaboration-regenerateFrontRepositories}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{regenerateFrontRepositories} & \camelcase{void} & Regenerate all front repositories based on the gold repository. \\\hline
+	\textbf{Operation} & \camelcase{regenerateFrontRepositories} & \camelcase{void} & Regenerate all front repositories based on the gold repository. Requires superuser privileges. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & goldRepoURL & \camelcase{string} & URL of the gold repository. \\\hline 
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{GoldRepoNotFound} & \multicolumn{2}{p{8.5cm}|}{No gold repository is configured at the specified URL.} \\\hline 
+	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
+	 & \camelcase{OfflineCollaborationInternalError} & \multicolumn{2}{p{8.5cm}|}{An internal error occurred on the collaboration server. See details in server log.} \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation OfflineCollaboration.getMyFrontRepositoryURL}
 	\label{tab:offlineCollaboration-getMyFrontRepositoryURL}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{getMyFrontRepositoryURL} & \camelcase{void} & Retrieve the front repository URL for the current user. \\\hline
+	\textbf{Operation} & \camelcase{getMyFrontRepositoryURL} & \camelcase{string} & Retrieve the front repository URL for the current user. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & goldRepoURL & \camelcase{string} & URL of the gold repository. \\\hline 
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{GoldRepoNotFound} & \multicolumn{2}{p{8.5cm}|}{No gold repository is configured at the specified URL.} \\\hline 
+	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
+	 & \camelcase{OfflineCollaborationInternalError} & \multicolumn{2}{p{8.5cm}|}{An internal error occurred on the collaboration server. See details in server log.} \\\hline 
 \end{longtable}
 
 \subsubsection{Users}
@@ -622,20 +586,6 @@ Represents a slot that can store the value(s) of an attribute of a model element
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} ModelElement} \\\hline
 \end{longtable}
 
-\subsubsection{CollaborationRule}
-
-Specification of an access control rule for models.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Structure CollaborationRule}
-	\label{tab:collaborationRule}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{body}  & \camelcase{string}  & Specification of the access rule in the MONDO Collaboration Policy Language from D4.2. \\\hline
-		  \camelcase{name}  & \camelcase{string}  & Unique identifier of the rule within the VCS. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.addRule, OfflineCollaboration.updateRule, OfflineCollaboration.listRules} \\\hline
-\end{longtable}
-
 \subsubsection{CommitItem}
 
 Simplified entry within a commit of a repository.
@@ -701,6 +651,34 @@ Used to configure Hawk's derived attributes (discussed in D5.3).
 		  \camelcase{metamodelUri}  & \camelcase{string}  & The URI of the metamodel to which the derived attribute belongs. \\\hline
 		  \camelcase{typeName}  & \camelcase{string}  & The name of the type to which the derived attribute belongs. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes} \\\hline
+\end{longtable}
+
+\subsubsection{EffectiveMetamodel}
+
+
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Structure EffectiveMetamodel}
+	\label{tab:effectiveMetamodel}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  \camelcase{slots}  & \camelcase{set<string>}  &  \\\hline
+		  \camelcase{type}  & \camelcase{string}  &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} EffectiveMetamodelMap} \\\hline
+\end{longtable}
+
+\subsubsection{EffectiveMetamodelMap}
+
+
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Structure EffectiveMetamodelMap}
+	\label{tab:effectiveMetamodelMap}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  \camelcase{metamodel}  & \camelcase{map<string,set<string>>}  &  \\\hline
+		  \camelcase{uri}  & \camelcase{string}  &  \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkQueryOptions} \\\hline
 \end{longtable}
 
 \subsubsection{File}
@@ -851,13 +829,15 @@ Options for a Hawk query.
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{defaultNamespaces}  & \camelcase{string}  (optional) & The default namespaces to be used to resolve ambiguous unqualified types. \\\hline
+		  \camelcase{effectiveMetamodelExcludes}  & \camelcase{map<string,map<string,set<string>>>}  (optional) & If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. \\\hline
+		  \camelcase{effectiveMetamodelIncludes}  & \camelcase{map<string,map<string,set<string>>>}  (optional) & If set and not empty, only the specified metamodels, types and features will be fetched. Otherwise, everything that is not excluded will be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. \\\hline
 		  \camelcase{filePatterns}  & \camelcase{list<string>}  (optional) & The file patterns for the query (e.g. *.uml). \\\hline
 		  \camelcase{includeAttributes}  & \camelcase{bool}  (optional) & Whether to include attributes (true) or not (false) in model element results. \\\hline
 		  \camelcase{includeContained}  & \camelcase{bool}  (optional) & Whether to include all the child elements of the model element results (true) or not (false). \\\hline
 		  \camelcase{includeNodeIDs}  & \camelcase{bool}  (optional) & Whether to include node IDs (true) or not (false) in model element results. \\\hline
 		  \camelcase{includeReferences}  & \camelcase{bool}  (optional) & Whether to include references (true) or not (false) in model element results. \\\hline
 		  \camelcase{repositoryPattern}  & \camelcase{string}  (optional) & The repository for the query (or * for all repositories). \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query, Hawk.getModel, Hawk.getRootElements} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query, Hawk.resolveProxies, Hawk.getModel, Hawk.getRootElements} \\\hline
 \end{longtable}
 
 \subsubsection{HawkReferenceAdditionEvent}
@@ -994,10 +974,10 @@ Represents a type of model element.
 	\label{tab:modelElementType}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{attributes}  & \camelcase{list<SlotMetadata>}  & Metadata for the attribute slots. \\\hline
+		  \camelcase{attributes}  & \camelcase{list<SlotMetadata>}  (optional) & Metadata for the attribute slots. \\\hline
 		  \camelcase{id}  & \camelcase{string}  & Unique ID of the model element type. \\\hline
 		  \camelcase{metamodelUri}  & \camelcase{string}  & URI of the metamodel to which the type belongs. \\\hline
-		  \camelcase{references}  & \camelcase{list<SlotMetadata>}  & Metadata for the reference slots. \\\hline
+		  \camelcase{references}  & \camelcase{list<SlotMetadata>}  (optional) & Metadata for the reference slots. \\\hline
 		  \camelcase{typeName}  & \camelcase{string}  & Name of the type. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} QueryResult} \\\hline
 \end{longtable}
@@ -1264,17 +1244,6 @@ Union type for a single scalar value.
 
 \subsection{Exceptions}
 \label{sec:exceptions}
-\subsubsection{CollaborationRuleNotFound}
-No collaboration rule with that name was found for the specified repository.
-
-\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
-	\caption{Exception CollaborationRuleNotFound}
-	\label{tab:collaborationRuleNotFound}\\
-	\hline%
-	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.removeRule, OfflineCollaboration.updateRule} \\\hline
-\end{longtable}
 \subsubsection{FailedQuery}
 The specified query failed to complete its execution.
 
@@ -1285,6 +1254,17 @@ The specified query failed to complete its execution.
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{reason}  & \camelcase{string}  & Reason for the query failing to complete its execution. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.query} \\\hline
+\end{longtable}
+\subsubsection{GoldRepoNotFound}
+No gold repository is configured at the specified URL.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception GoldRepoNotFound}
+	\label{tab:goldRepoNotFound}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
 \end{longtable}
 \subsubsection{HawkInstanceNotFound}
 No Hawk instance exists with that name.
@@ -1387,6 +1367,17 @@ The transformation is not valid: it is unparsable or inconsistent.
 		  \camelcase{reason}  & \camelcase{string}  & Reason for the transformation not being valid. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.launch} \\\hline
 \end{longtable}
+\subsubsection{OfflineCollaborationInternalError}
+An internal error occurred on the collaboration server. See details in server log.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception OfflineCollaborationInternalError}
+	\label{tab:offlineCollaborationInternalError}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  \camelcase{errorMessage}  & \camelcase{string}  & Summary description of the error. See details in server log. \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
+\end{longtable}
 \subsubsection{TransformationTokenNotFound}
 The specified transformation token does not exist within the invokved MONDO instance.
 
@@ -1397,6 +1388,17 @@ The specified transformation token does not exist within the invokved MONDO inst
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{token}  & \camelcase{string}  & Transformation token which was not found within the invoked MONDO instance. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} CloudATL.getStatus, CloudATL.kill} \\\hline
+\end{longtable}
+\subsubsection{UnauthorizedRepositoryOperation}
+Authenticated user is not permitted to carry out the requested operation on the specified repository.
+
+\begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
+	\caption{Exception UnauthorizedRepositoryOperation}
+	\label{tab:unauthorizedRepositoryOperation}\\
+	\hline%
+	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+	    --- & --- & --- \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
 \end{longtable}
 \subsubsection{UnknownQueryLanguage}
 The specified query language is not supported by the operation.
