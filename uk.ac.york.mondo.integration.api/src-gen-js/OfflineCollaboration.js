@@ -7,493 +7,6 @@
 
 //HELPER FUNCTIONS AND STRUCTURES
 
-OfflineCollaboration_addRule_args = function(args) {
-  this.repoURL = null;
-  this.rule = null;
-  if (args) {
-    if (args.repoURL !== undefined && args.repoURL !== null) {
-      this.repoURL = args.repoURL;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repoURL is unset!');
-    }
-    if (args.rule !== undefined && args.rule !== null) {
-      this.rule = new CollaborationRule(args.rule);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field rule is unset!');
-    }
-  }
-};
-OfflineCollaboration_addRule_args.prototype = {};
-OfflineCollaboration_addRule_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repoURL = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.rule = new CollaborationRule();
-        this.rule.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_addRule_args.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_addRule_args');
-  if (this.repoURL !== null && this.repoURL !== undefined) {
-    output.writeFieldBegin('repoURL', Thrift.Type.STRING, 1);
-    output.writeString(this.repoURL);
-    output.writeFieldEnd();
-  }
-  if (this.rule !== null && this.rule !== undefined) {
-    output.writeFieldBegin('rule', Thrift.Type.STRUCT, 2);
-    this.rule.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_addRule_result = function(args) {
-};
-OfflineCollaboration_addRule_result.prototype = {};
-OfflineCollaboration_addRule_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_addRule_result.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_addRule_result');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_removeRule_args = function(args) {
-  this.repoURL = null;
-  this.ruleName = null;
-  if (args) {
-    if (args.repoURL !== undefined && args.repoURL !== null) {
-      this.repoURL = args.repoURL;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repoURL is unset!');
-    }
-    if (args.ruleName !== undefined && args.ruleName !== null) {
-      this.ruleName = args.ruleName;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field ruleName is unset!');
-    }
-  }
-};
-OfflineCollaboration_removeRule_args.prototype = {};
-OfflineCollaboration_removeRule_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repoURL = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.ruleName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_removeRule_args.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_removeRule_args');
-  if (this.repoURL !== null && this.repoURL !== undefined) {
-    output.writeFieldBegin('repoURL', Thrift.Type.STRING, 1);
-    output.writeString(this.repoURL);
-    output.writeFieldEnd();
-  }
-  if (this.ruleName !== null && this.ruleName !== undefined) {
-    output.writeFieldBegin('ruleName', Thrift.Type.STRING, 2);
-    output.writeString(this.ruleName);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_removeRule_result = function(args) {
-  this.err1 = null;
-  if (args instanceof CollaborationRuleNotFound) {
-    this.err1 = args;
-    return;
-  }
-  if (args) {
-    if (args.err1 !== undefined && args.err1 !== null) {
-      this.err1 = args.err1;
-    }
-  }
-};
-OfflineCollaboration_removeRule_result.prototype = {};
-OfflineCollaboration_removeRule_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.err1 = new CollaborationRuleNotFound();
-        this.err1.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_removeRule_result.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_removeRule_result');
-  if (this.err1 !== null && this.err1 !== undefined) {
-    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
-    this.err1.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_updateRule_args = function(args) {
-  this.repoURL = null;
-  this.rule = null;
-  if (args) {
-    if (args.repoURL !== undefined && args.repoURL !== null) {
-      this.repoURL = args.repoURL;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repoURL is unset!');
-    }
-    if (args.rule !== undefined && args.rule !== null) {
-      this.rule = new CollaborationRule(args.rule);
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field rule is unset!');
-    }
-  }
-};
-OfflineCollaboration_updateRule_args.prototype = {};
-OfflineCollaboration_updateRule_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repoURL = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.rule = new CollaborationRule();
-        this.rule.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_updateRule_args.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_updateRule_args');
-  if (this.repoURL !== null && this.repoURL !== undefined) {
-    output.writeFieldBegin('repoURL', Thrift.Type.STRING, 1);
-    output.writeString(this.repoURL);
-    output.writeFieldEnd();
-  }
-  if (this.rule !== null && this.rule !== undefined) {
-    output.writeFieldBegin('rule', Thrift.Type.STRUCT, 2);
-    this.rule.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_updateRule_result = function(args) {
-  this.err1 = null;
-  if (args instanceof CollaborationRuleNotFound) {
-    this.err1 = args;
-    return;
-  }
-  if (args) {
-    if (args.err1 !== undefined && args.err1 !== null) {
-      this.err1 = args.err1;
-    }
-  }
-};
-OfflineCollaboration_updateRule_result.prototype = {};
-OfflineCollaboration_updateRule_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.err1 = new CollaborationRuleNotFound();
-        this.err1.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_updateRule_result.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_updateRule_result');
-  if (this.err1 !== null && this.err1 !== undefined) {
-    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
-    this.err1.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_listRules_args = function(args) {
-  this.repoURL = null;
-  if (args) {
-    if (args.repoURL !== undefined && args.repoURL !== null) {
-      this.repoURL = args.repoURL;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field repoURL is unset!');
-    }
-  }
-};
-OfflineCollaboration_listRules_args.prototype = {};
-OfflineCollaboration_listRules_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.repoURL = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_listRules_args.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_listRules_args');
-  if (this.repoURL !== null && this.repoURL !== undefined) {
-    output.writeFieldBegin('repoURL', Thrift.Type.STRING, 1);
-    output.writeString(this.repoURL);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-OfflineCollaboration_listRules_result = function(args) {
-  this.success = null;
-  if (args) {
-    if (args.success !== undefined && args.success !== null) {
-      this.success = Thrift.copyList(args.success, [CollaborationRule]);
-    }
-  }
-};
-OfflineCollaboration_listRules_result.prototype = {};
-OfflineCollaboration_listRules_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-      if (ftype == Thrift.Type.LIST) {
-        var _size344 = 0;
-        var _rtmp3348;
-        this.success = [];
-        var _etype347 = 0;
-        _rtmp3348 = input.readListBegin();
-        _etype347 = _rtmp3348.etype;
-        _size344 = _rtmp3348.size;
-        for (var _i349 = 0; _i349 < _size344; ++_i349)
-        {
-          var elem350 = null;
-          elem350 = new CollaborationRule();
-          elem350.read(input);
-          this.success.push(elem350);
-        }
-        input.readListEnd();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-OfflineCollaboration_listRules_result.prototype.write = function(output) {
-  output.writeStructBegin('OfflineCollaboration_listRules_result');
-  if (this.success !== null && this.success !== undefined) {
-    output.writeFieldBegin('success', Thrift.Type.LIST, 0);
-    output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
-    for (var iter351 in this.success)
-    {
-      if (this.success.hasOwnProperty(iter351))
-      {
-        iter351 = this.success[iter351];
-        iter351.write(output);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 OfflineCollaboration_regenerateFrontRepositories_args = function(args) {
   this.goldRepoURL = null;
   if (args) {
@@ -550,6 +63,32 @@ OfflineCollaboration_regenerateFrontRepositories_args.prototype.write = function
 };
 
 OfflineCollaboration_regenerateFrontRepositories_result = function(args) {
+  this.err1 = null;
+  this.err2 = null;
+  this.err3 = null;
+  if (args instanceof GoldRepoNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof UnauthorizedRepositoryOperation) {
+    this.err2 = args;
+    return;
+  }
+  if (args instanceof OfflineCollaborationInternalError) {
+    this.err3 = args;
+    return;
+  }
+  if (args) {
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+    if (args.err3 !== undefined && args.err3 !== null) {
+      this.err3 = args.err3;
+    }
+  }
 };
 OfflineCollaboration_regenerateFrontRepositories_result.prototype = {};
 OfflineCollaboration_regenerateFrontRepositories_result.prototype.read = function(input) {
@@ -563,7 +102,35 @@ OfflineCollaboration_regenerateFrontRepositories_result.prototype.read = functio
     if (ftype == Thrift.Type.STOP) {
       break;
     }
-    input.skip(ftype);
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new GoldRepoNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new UnauthorizedRepositoryOperation();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err3 = new OfflineCollaborationInternalError();
+        this.err3.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
     input.readFieldEnd();
   }
   input.readStructEnd();
@@ -572,6 +139,21 @@ OfflineCollaboration_regenerateFrontRepositories_result.prototype.read = functio
 
 OfflineCollaboration_regenerateFrontRepositories_result.prototype.write = function(output) {
   output.writeStructBegin('OfflineCollaboration_regenerateFrontRepositories_result');
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err3 !== null && this.err3 !== undefined) {
+    output.writeFieldBegin('err3', Thrift.Type.STRUCT, 3);
+    this.err3.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -633,6 +215,36 @@ OfflineCollaboration_getMyFrontRepositoryURL_args.prototype.write = function(out
 };
 
 OfflineCollaboration_getMyFrontRepositoryURL_result = function(args) {
+  this.success = null;
+  this.err1 = null;
+  this.err2 = null;
+  this.err3 = null;
+  if (args instanceof GoldRepoNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof UnauthorizedRepositoryOperation) {
+    this.err2 = args;
+    return;
+  }
+  if (args instanceof OfflineCollaborationInternalError) {
+    this.err3 = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = args.success;
+    }
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+    if (args.err3 !== undefined && args.err3 !== null) {
+      this.err3 = args.err3;
+    }
+  }
 };
 OfflineCollaboration_getMyFrontRepositoryURL_result.prototype = {};
 OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.read = function(input) {
@@ -646,7 +258,42 @@ OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.read = function(in
     if (ftype == Thrift.Type.STOP) {
       break;
     }
-    input.skip(ftype);
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRING) {
+        this.success = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new GoldRepoNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new UnauthorizedRepositoryOperation();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err3 = new OfflineCollaborationInternalError();
+        this.err3.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
     input.readFieldEnd();
   }
   input.readStructEnd();
@@ -655,6 +302,26 @@ OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.read = function(in
 
 OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.write = function(output) {
   output.writeStructBegin('OfflineCollaboration_getMyFrontRepositoryURL_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRING, 0);
+    output.writeString(this.success);
+    output.writeFieldEnd();
+  }
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err3 !== null && this.err3 !== undefined) {
+    output.writeFieldBegin('err3', Thrift.Type.STRUCT, 3);
+    this.err3.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -666,202 +333,6 @@ OfflineCollaborationClient = function(input, output) {
     this.seqid = 0;
 };
 OfflineCollaborationClient.prototype = {};
-OfflineCollaborationClient.prototype.addRule = function(repoURL, rule, callback) {
-  this.send_addRule(repoURL, rule, callback); 
-  if (!callback) {
-  this.recv_addRule();
-  }
-};
-
-OfflineCollaborationClient.prototype.send_addRule = function(repoURL, rule, callback) {
-  this.output.writeMessageBegin('addRule', Thrift.MessageType.CALL, this.seqid);
-  var args = new OfflineCollaboration_addRule_args();
-  args.repoURL = repoURL;
-  args.rule = rule;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  if (callback) {
-    var self = this;
-    this.output.getTransport().flush(true, function() {
-      var result = null;
-      try {
-        result = self.recv_addRule();
-      } catch (e) {
-        result = e;
-      }
-      callback(result);
-    });
-  } else {
-    return this.output.getTransport().flush();
-  }
-};
-
-OfflineCollaborationClient.prototype.recv_addRule = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new OfflineCollaboration_addRule_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  return;
-};
-OfflineCollaborationClient.prototype.removeRule = function(repoURL, ruleName, callback) {
-  this.send_removeRule(repoURL, ruleName, callback); 
-  if (!callback) {
-  this.recv_removeRule();
-  }
-};
-
-OfflineCollaborationClient.prototype.send_removeRule = function(repoURL, ruleName, callback) {
-  this.output.writeMessageBegin('removeRule', Thrift.MessageType.CALL, this.seqid);
-  var args = new OfflineCollaboration_removeRule_args();
-  args.repoURL = repoURL;
-  args.ruleName = ruleName;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  if (callback) {
-    var self = this;
-    this.output.getTransport().flush(true, function() {
-      var result = null;
-      try {
-        result = self.recv_removeRule();
-      } catch (e) {
-        result = e;
-      }
-      callback(result);
-    });
-  } else {
-    return this.output.getTransport().flush();
-  }
-};
-
-OfflineCollaborationClient.prototype.recv_removeRule = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new OfflineCollaboration_removeRule_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  if (null !== result.err1) {
-    throw result.err1;
-  }
-  return;
-};
-OfflineCollaborationClient.prototype.updateRule = function(repoURL, rule, callback) {
-  this.send_updateRule(repoURL, rule, callback); 
-  if (!callback) {
-  this.recv_updateRule();
-  }
-};
-
-OfflineCollaborationClient.prototype.send_updateRule = function(repoURL, rule, callback) {
-  this.output.writeMessageBegin('updateRule', Thrift.MessageType.CALL, this.seqid);
-  var args = new OfflineCollaboration_updateRule_args();
-  args.repoURL = repoURL;
-  args.rule = rule;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  if (callback) {
-    var self = this;
-    this.output.getTransport().flush(true, function() {
-      var result = null;
-      try {
-        result = self.recv_updateRule();
-      } catch (e) {
-        result = e;
-      }
-      callback(result);
-    });
-  } else {
-    return this.output.getTransport().flush();
-  }
-};
-
-OfflineCollaborationClient.prototype.recv_updateRule = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new OfflineCollaboration_updateRule_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  if (null !== result.err1) {
-    throw result.err1;
-  }
-  return;
-};
-OfflineCollaborationClient.prototype.listRules = function(repoURL, callback) {
-  this.send_listRules(repoURL, callback); 
-  if (!callback) {
-    return this.recv_listRules();
-  }
-};
-
-OfflineCollaborationClient.prototype.send_listRules = function(repoURL, callback) {
-  this.output.writeMessageBegin('listRules', Thrift.MessageType.CALL, this.seqid);
-  var args = new OfflineCollaboration_listRules_args();
-  args.repoURL = repoURL;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  if (callback) {
-    var self = this;
-    this.output.getTransport().flush(true, function() {
-      var result = null;
-      try {
-        result = self.recv_listRules();
-      } catch (e) {
-        result = e;
-      }
-      callback(result);
-    });
-  } else {
-    return this.output.getTransport().flush();
-  }
-};
-
-OfflineCollaborationClient.prototype.recv_listRules = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new OfflineCollaboration_listRules_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  if (null !== result.success) {
-    return result.success;
-  }
-  throw 'listRules failed: unknown result';
-};
 OfflineCollaborationClient.prototype.regenerateFrontRepositories = function(goldRepoURL, callback) {
   this.send_regenerateFrontRepositories(goldRepoURL, callback); 
   if (!callback) {
@@ -906,12 +377,21 @@ OfflineCollaborationClient.prototype.recv_regenerateFrontRepositories = function
   result.read(this.input);
   this.input.readMessageEnd();
 
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  if (null !== result.err3) {
+    throw result.err3;
+  }
   return;
 };
 OfflineCollaborationClient.prototype.getMyFrontRepositoryURL = function(goldRepoURL, callback) {
   this.send_getMyFrontRepositoryURL(goldRepoURL, callback); 
   if (!callback) {
-  this.recv_getMyFrontRepositoryURL();
+    return this.recv_getMyFrontRepositoryURL();
   }
 };
 
@@ -952,5 +432,17 @@ OfflineCollaborationClient.prototype.recv_getMyFrontRepositoryURL = function() {
   result.read(this.input);
   this.input.readMessageEnd();
 
-  return;
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  if (null !== result.err3) {
+    throw result.err3;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'getMyFrontRepositoryURL failed: unknown result';
 };

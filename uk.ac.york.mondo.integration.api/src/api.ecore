@@ -1108,66 +1108,11 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaboration">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities.&#xA;&#xA;Nevertheless, managing the rules to be used by the hooks and the lens relationship requires&#xA;its own API, as this is not covered by traditional VCS protocols. The rest of the section&#xA;describes a work-in-progress API for managing these access rules: the final version will be&#xA;provided in D6.8, due in M30.&#xA;"/>
+      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities. The access control rules to be used &#xA;by the security lens are themselves described in the repository.&#xA;&#xA;Nevertheless, managing the operation of the hooks and the lens relationship requires&#xA;its own API, as this is not covered by traditional VCS protocols. The rest of the section&#xA;describes a work-in-progress API for managing these access rules: the final version will be&#xA;provided in D6.8, due in M30.&#xA;"/>
     </eAnnotations>
-    <eOperations name="addRule">
+    <eOperations name="regenerateFrontRepositories" eExceptions="#//GoldRepoNotFound #//UnauthorizedRepositoryOperation #//OfflineCollaborationInternalError">
       <eAnnotations source="doc">
-        <details key="d" value="Adds an access control rule to the specified version control system."/>
-      </eAnnotations>
-      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="URL of the version control system"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="rule" eType="#//CollaborationRule">
-        <eAnnotations source="doc">
-          <details key="d" value="Specification of the access control rule"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="removeRule" eExceptions="#//CollaborationRuleNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Removes an access control rule from the specified version control system."/>
-      </eAnnotations>
-      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="URL of the version control system"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="ruleName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="Specification of the access control rule"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="updateRule" eExceptions="#//CollaborationRuleNotFound">
-      <eAnnotations source="doc">
-        <details key="d" value="Updates an access control rule for the specified version control system."/>
-      </eAnnotations>
-      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="URL of the version control system"/>
-        </eAnnotations>
-      </eParameters>
-      <eParameters name="rule" eType="#//CollaborationRule">
-        <eAnnotations source="doc">
-          <details key="d" value="Specification of the access control rule"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="listRules" upperBound="-1" eType="#//CollaborationRule">
-      <eAnnotations source="doc">
-        <details key="d" value="Lists the access control rules for the specified version control system."/>
-      </eAnnotations>
-      <eParameters name="repoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-        <eAnnotations source="doc">
-          <details key="d" value="URL of the version control system"/>
-        </eAnnotations>
-      </eParameters>
-    </eOperations>
-    <eOperations name="regenerateFrontRepositories">
-      <eAnnotations source="doc">
-        <details key="d" value="Regenerate all front repositories based on the gold repository."/>
+        <details key="d" value="Regenerate all front repositories based on the gold repository. Requires superuser privileges. "/>
       </eAnnotations>
       <eParameters name="goldRepoURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -1175,7 +1120,8 @@
         </eAnnotations>
       </eParameters>
     </eOperations>
-    <eOperations name="getMyFrontRepositoryURL">
+    <eOperations name="getMyFrontRepositoryURL" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        eExceptions="#//GoldRepoNotFound #//UnauthorizedRepositoryOperation #//OfflineCollaborationInternalError">
       <eAnnotations source="doc">
         <details key="d" value="Retrieve the front repository URL for the current user"/>
       </eAnnotations>
@@ -1186,25 +1132,25 @@
       </eParameters>
     </eOperations>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationRule">
+  <eClassifiers xsi:type="ecore:EClass" name="GoldRepoNotFound">
     <eAnnotations source="doc">
-      <details key="d" value="Specification of an access control rule for models"/>
+      <details key="d" value="No gold repository is configured at the specified URL"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="Unique identifier of the rule within the VCS"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="body" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
-      <eAnnotations source="doc">
-        <details key="d" value="Specification of the access rule in the MONDO Collaboration Policy Language from D4.2"/>
-      </eAnnotations>
-    </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CollaborationRuleNotFound">
+  <eClassifiers xsi:type="ecore:EClass" name="UnauthorizedRepositoryOperation">
     <eAnnotations source="doc">
-      <details key="d" value="No collaboration rule with that name was found for the specified repository"/>
+      <details key="d" value="Authenticated user is not permitted to carry out the requested operation on the specified repository"/>
     </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaborationInternalError">
+    <eAnnotations source="doc">
+      <details key="d" value="An internal error occurred on the collaboration server. See details in server log."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="errorMessage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Summary description of the error. See details in server log."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Credentials">
     <eAnnotations source="doc">

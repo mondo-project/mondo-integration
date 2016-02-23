@@ -29,105 +29,6 @@ TransformationState = {
   'RUNNING' : 3,
   'SUCCEEDED' : 4
 };
-CollaborationRule = function(args) {
-  this.name = null;
-  this.body = null;
-  if (args) {
-    if (args.name !== undefined && args.name !== null) {
-      this.name = args.name;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
-    }
-    if (args.body !== undefined && args.body !== null) {
-      this.body = args.body;
-    } else {
-      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field body is unset!');
-    }
-  }
-};
-CollaborationRule.prototype = {};
-CollaborationRule.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.name = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.body = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationRule.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationRule');
-  if (this.name !== null && this.name !== undefined) {
-    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
-    output.writeString(this.name);
-    output.writeFieldEnd();
-  }
-  if (this.body !== null && this.body !== undefined) {
-    output.writeFieldBegin('body', Thrift.Type.STRING, 2);
-    output.writeString(this.body);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-CollaborationRuleNotFound = function(args) {
-};
-Thrift.inherits(CollaborationRuleNotFound, Thrift.TException);
-CollaborationRuleNotFound.prototype.name = 'CollaborationRuleNotFound';
-CollaborationRuleNotFound.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-CollaborationRuleNotFound.prototype.write = function(output) {
-  output.writeStructBegin('CollaborationRuleNotFound');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 CommitItem = function(args) {
   this.repoURL = null;
   this.revision = null;
@@ -5103,6 +5004,120 @@ QueryResult.prototype.write = function(output) {
   if (this.vModelElementType !== null && this.vModelElementType !== undefined) {
     output.writeFieldBegin('vModelElementType', Thrift.Type.STRUCT, 9);
     this.vModelElementType.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+GoldRepoNotFound = function(args) {
+};
+Thrift.inherits(GoldRepoNotFound, Thrift.TException);
+GoldRepoNotFound.prototype.name = 'GoldRepoNotFound';
+GoldRepoNotFound.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+GoldRepoNotFound.prototype.write = function(output) {
+  output.writeStructBegin('GoldRepoNotFound');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+UnauthorizedRepositoryOperation = function(args) {
+};
+Thrift.inherits(UnauthorizedRepositoryOperation, Thrift.TException);
+UnauthorizedRepositoryOperation.prototype.name = 'UnauthorizedRepositoryOperation';
+UnauthorizedRepositoryOperation.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+UnauthorizedRepositoryOperation.prototype.write = function(output) {
+  output.writeStructBegin('UnauthorizedRepositoryOperation');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaborationInternalError = function(args) {
+  this.errorMessage = null;
+  if (args) {
+    if (args.errorMessage !== undefined && args.errorMessage !== null) {
+      this.errorMessage = args.errorMessage;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field errorMessage is unset!');
+    }
+  }
+};
+Thrift.inherits(OfflineCollaborationInternalError, Thrift.TException);
+OfflineCollaborationInternalError.prototype.name = 'OfflineCollaborationInternalError';
+OfflineCollaborationInternalError.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.errorMessage = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaborationInternalError.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaborationInternalError');
+  if (this.errorMessage !== null && this.errorMessage !== undefined) {
+    output.writeFieldBegin('errorMessage', Thrift.Type.STRING, 1);
+    output.writeString(this.errorMessage);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
