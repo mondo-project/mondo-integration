@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="330">
+<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="335">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.team.svn.feature.group" version="3.0.1.I20150722-1700"/>
@@ -188,11 +188,6 @@
 <repository location="http://atlanmod.github.io/org.eclipse.atl.reactive/UpdateSite/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.mondo.collaboration.security.mpbl.feature.feature.group" version="1.0.0.201601230748"/>
-<unit id="org.mondo.collaboration.security.macl.feature.feature.group" version="1.0.0.201601230748"/>
-<repository location="http://mondo.inf.mit.bme.hu/web/mondo-collaboration/update/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="1.1.0.v20151119-0728"/>
 <unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="3.12.0.v20151119-0728"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="3.12.0.v20151119-0728"/>
@@ -210,41 +205,49 @@
 <repository location="http://download.eclipse.org/releases/mars/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.mondo.wt.cstudy.merge.feature.feature.group" version="1.0.0.201601151016"/>
-<unit id="org.mondo.wt.cstudy.model.feature.feature.group" version="1.0.0.201601151016"/>
-<repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201602081125"/>
-<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201602081125"/>
-<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201602081125"/>
-<repository location="http://localhost:8000/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.emf.splitter.feature.feature.group" version="0.1.0.201602091029"/>
 <repository location="http://antoniogarmendia.github.io/EMF-Splitter/update-site/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.hawk.ifc.feature.feature.group" version="1.0.0.201602241635"/>
+<unit id="org.hawk.modelio.feature.feature.group" version="1.0.0.201602241635"/>
+<unit id="org.hawk.neo4jv2.feature.feature.group" version="1.0.0.201602241635"/>
+<repository location="http://localhost:8000/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.epsilon.core.dt.feature.feature.group" version="1.3.0.201602031418"/>
 <unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.3.0.201602031418"/>
-<unit id="org.hawk.git.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.http.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201602231713"/>
+<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201602241647"/>
 <unit id="org.eclipse.epsilon.emf.feature.feature.group" version="1.3.0.201602031418"/>
-<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201602231713"/>
+<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.modelio.exml.feature.feature.group" version="1.0.0.201602241647"/>
 <unit id="org.eclipse.epsilon.core.feature.feature.group" version="1.3.0.201602031418"/>
-<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.localfolder.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.modelio.exml.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.epsilon.feature.feature.group" version="1.0.0.201602231713"/>
+<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.http.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.core.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.git.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201602241647"/>
+<unit id="org.hawk.ui.feature.feature.group" version="1.0.0.201602241647"/>
 <unit id="org.tmatesoft.svnkit.feature.group" version="1.8.11.r10483_v20150925_0010"/>
-<unit id="org.hawk.orientdb.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.svn.feature.feature.group" version="1.0.0.201602231713"/>
-<unit id="org.hawk.workspace.feature.feature.group" version="1.0.0.201602231713"/>
+<unit id="org.hawk.emfresource.feature.feature.group" version="1.0.0.201602241647"/>
 <repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.mondo.collaboration.security.online.server.feature.feature.group" version="1.0.0.201602241535"/>
+<unit id="org.mondo.collaboration.security.macl.feature.feature.group" version="1.0.0.201602241535"/>
+<unit id="org.mondo.collaboration.security.lens.offline.server.feature.feature.group" version="1.0.0.201602241535"/>
+<unit id="org.mondo.collaboration.security.mpbl.feature.feature.group" version="1.0.0.201602241535"/>
+<repository location="http://mondo.inf.mit.bme.hu/web/mondo-collaboration/update/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.mondo.wt.cstudy.online.feature.feature.group" version="1.0.0.201602241541"/>
+<unit id="org.mondo.wt.cstudy.model.feature.feature.group" version="1.0.0.201602241541"/>
+<unit id="org.mondo.wt.cstudy.merge.feature.feature.group" version="1.0.0.201602241541"/>
+<repository location="http://mondo.inf.mit.bme.hu/web/mondo-wt-demo/update/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
