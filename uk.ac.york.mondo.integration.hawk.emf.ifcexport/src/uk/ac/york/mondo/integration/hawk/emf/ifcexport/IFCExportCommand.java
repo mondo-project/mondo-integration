@@ -71,6 +71,8 @@ import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl;
 
 public class IFCExportCommand extends AbstractHandler {
 
+	private static final int REPORTING_BATCH_SIZE = 1_000;
+
 	private final class IFCExportJobFunction implements IJobFunction {
 		private final File dest;
 		private final IFile hawkModel;
@@ -111,7 +113,7 @@ public class IFCExportCommand extends AbstractHandler {
 		return null;
 	}
 
-	protected void exportToSTEP(final IFile hawkModel, final File dest, IProgressMonitor monitor) throws IOException, FileNotFoundException,
+	protected void exportToSTEP(final IFile hawkModel, final File dest, final IProgressMonitor monitor) throws IOException, FileNotFoundException,
 			Exception, IfcModelInterfaceException, SerializerException, CoreException {
 		monitor.beginTask("Exporting " + hawkModel.getName() + " to " + dest.getName(), 4);
 
@@ -132,11 +134,10 @@ public class IFCExportCommand extends AbstractHandler {
 		monitor.subTask("Populating IFC serializer");
 		Serializer serializer;
 		if (desc.getLoadingMode().isGreedyElements()) {
-			serializer = greedySerialize(resource);
+			serializer = greedySerialize(resource, monitor);
 		} else {
-			serializer = lazySerialize(resource);
+			serializer = lazySerialize(resource, monitor);
 		}
-
 		serializer.getModel().generateMinimalExpressIds();
 		monitor.worked(1);
 
@@ -144,7 +145,7 @@ public class IFCExportCommand extends AbstractHandler {
 		serializer.writeToFile(dest, new ProgressReporter() {
 			@Override
 			public void update(long progress, long max) {
-				System.out.println(String.format("Exporting (%d/%d)", progress, max));
+				monitor.subTask(String.format("Writing STEP file (%d/%d)", progress, max));
 			}
 		});
 		monitor.worked(1);
@@ -152,21 +153,30 @@ public class IFCExportCommand extends AbstractHandler {
 		hawkModel.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 	}
 
-	protected Serializer greedySerialize(final HawkResourceImpl resource) throws Exception, IfcModelInterfaceException {
+	protected Serializer greedySerialize(final HawkResourceImpl resource, IProgressMonitor monitor) throws Exception, IfcModelInterfaceException {
+		final int total = resource.getContents().size();
 		/*
 		 * Greedy loading modes are simple: we already have everything in the
 		 * model, so we can use the standard EMF facilities.
 		 */
 		final Serializer serializer = createSerializer(resource);
 		long oid = 0;
+		int current = 0, offset = 0;
 		for (TreeIterator<EObject> it = EcoreUtil.getAllContents(resource, false); it.hasNext();) {
 			final EObject eo = it.next();
 			oid = addToSerializer(serializer, oid, eo);
+			++current;
+
+			if (current == REPORTING_BATCH_SIZE) {
+				offset += current;
+				current = 0;
+				monitor.subTask(String.format("Populating IFC serializer (%d/%d)", offset, total));
+			}
 		}
 		return serializer;
 	}
 
-	protected Serializer lazySerialize(HawkResourceImpl resource) throws Exception {
+	protected Serializer lazySerialize(HawkResourceImpl resource, IProgressMonitor monitor) throws Exception {
 		/*
 		 * Lazy loading modes need to follow all cross references between
 		 * objects to gradually rebuild the full graph on the client.
@@ -180,14 +190,21 @@ public class IFCExportCommand extends AbstractHandler {
 		}
 
 		final Serializer serializer = createSerializer(resource);
-		long oid = 0;
+		long oid = 0, current = 0, offset = 0;
 		while (!pending.isEmpty()) {
 			final EObject eob = pending.remove();
 			if (!encoded.contains(eob)) {
 				oid = addToSerializer(serializer, oid, eob);
 				encoded.add(eob);
+				++current;
 				for (EObject ref : eob.eCrossReferences()) {
 					pending.add(ref);
+				}
+
+				if (current == REPORTING_BATCH_SIZE) {
+					offset += current;
+					current = 0;
+					monitor.subTask(String.format("Populating IFC serializer (%d objects so far, %d in the queue)", offset, pending.size()));
 				}
 			}
 		}
