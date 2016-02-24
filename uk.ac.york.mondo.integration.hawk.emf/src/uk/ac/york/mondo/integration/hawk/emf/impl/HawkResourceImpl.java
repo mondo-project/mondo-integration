@@ -1024,6 +1024,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
 						final EObject eob = (EObject)o;
 						switch (m.getName()) {
+						case "eIsSet":
+							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isPending(eob, (EStructuralFeature) args[0]);
 						case "eGet":
 							// We need to serialize modifications from lazy loading + change notifications,
 							// for consistency and for the ability to signal if an EMF notification comes
@@ -1371,7 +1373,16 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	@Override
 	public EObject fetchNode(String id, boolean mustFetchAttributes) throws Exception {
-		EList<EObject> resolved = fetchNodes(Arrays.asList(id), mustFetchAttributes);
+		if (!isIncludeNodeIDs(getDescriptor())) {
+			throw new IllegalArgumentException("Cannot fetch by ID: loading mode is " + descriptor.getLoadingMode());
+		}
+
+		final EObject eob = nodeIdToEObjectMap.get(id);
+		if (eob != null) {
+			return eob;
+		}
+
+		final EList<EObject> resolved = fetchNodes(Arrays.asList(id), mustFetchAttributes);
 		if (resolved.isEmpty()) {
 			return null;
 		} else {

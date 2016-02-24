@@ -332,8 +332,7 @@ public class HawkModelElementEncoder {
 	public ModelElement encode(ModelElementNode meNode) throws Exception {
 		assert meNode.getNode().getGraph() == this.graph.getGraph()
 			: "The node should belong to the same graph as this encoder";
-		final TypeNode tn = meNode.getTypeNode();
-		if (effectiveMetamodel.isIncluded(tn.getMetamodelURI(), tn.getTypeName())) {
+		if (isEncodable(meNode)) {
 			return encodeInternal(meNode);
 		} else {
 			return null;
@@ -352,6 +351,16 @@ public class HawkModelElementEncoder {
 	 */
 	public boolean isEncoded(ModelElementNode meNode) {
 		return isEncoded(meNode.getNodeId());
+	}
+
+	/**
+	 * Returns <code>true</code> if the model element should be encoded (i.e.
+	 * it's in the effective metamodel). Does not need to retrieve the type node
+	 * for the model element if we don't have an effective metamodel defined.
+	 */
+	private boolean isEncodable(ModelElementNode meNode) {
+		return effectiveMetamodel.isEverythingIncluded() || effectiveMetamodel
+				.isIncluded(meNode.getTypeNode().getMetamodelURI(), meNode.getTypeNode().getTypeName());
 	}
 
 	public EffectiveMetamodelRuleset getEffectiveMetamodel() {
@@ -473,7 +482,10 @@ public class HawkModelElementEncoder {
 	private void addToReferenceIds(Object o, ReferenceSlot s) throws Exception {
 		final String referencedId = o.toString();
 		final ModelElementNode meNode = graph.getModelElementNodeById(referencedId);
-		s.addToIds(meNode.getNodeId());
+
+		if (isEncodable(meNode)) {
+			s.addToIds(meNode.getNodeId());
+		}
 	}
 
 	public static AttributeSlot encodeAttributeSlot(final String name, Object rawValue) {

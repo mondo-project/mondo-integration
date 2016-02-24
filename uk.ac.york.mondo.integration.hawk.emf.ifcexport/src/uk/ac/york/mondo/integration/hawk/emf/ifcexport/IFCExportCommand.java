@@ -15,6 +15,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -55,6 +59,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -125,24 +130,13 @@ public class IFCExportCommand extends AbstractHandler {
 		monitor.worked(1);
 
 		monitor.subTask("Populating IFC serializer");
-		Serializer serializer = null;
-		long oid = 0;
-		for (TreeIterator<EObject> it = resource.getAllContents(); it.hasNext(); ) {
-			EObject eo = it.next();
-
-			if (eo.eClass().getEAnnotation("wrapped") != null) {
-				// this is a wrapped object: no need to add it explicitly
-			}
-			else if (eo instanceof IdEObject) {
-				if (serializer == null) {
-					serializer = createSerializer(eo.eClass().getEPackage().getNsURI());
-				}
-
-				final IdEObject idEObj = (IdEObject)eo;
-				serializer.getModel().add(oid, idEObj);
-				oid++;
-			}
+		Serializer serializer;
+		if (desc.getLoadingMode().isGreedyElements()) {
+			serializer = greedySerialize(resource);
+		} else {
+			serializer = lazySerialize(resource);
 		}
+
 		serializer.getModel().generateMinimalExpressIds();
 		monitor.worked(1);
 
@@ -156,6 +150,72 @@ public class IFCExportCommand extends AbstractHandler {
 		monitor.worked(1);
 
 		hawkModel.getParent().refreshLocal(IResource.DEPTH_ONE, null);
+	}
+
+	protected Serializer greedySerialize(final HawkResourceImpl resource) throws Exception, IfcModelInterfaceException {
+		/*
+		 * Greedy loading modes are simple: we already have everything in the
+		 * model, so we can use the standard EMF facilities.
+		 */
+		final Serializer serializer = createSerializer(resource);
+		long oid = 0;
+		for (TreeIterator<EObject> it = EcoreUtil.getAllContents(resource, false); it.hasNext();) {
+			final EObject eo = it.next();
+			oid = addToSerializer(serializer, oid, eo);
+		}
+		return serializer;
+	}
+
+	protected Serializer lazySerialize(HawkResourceImpl resource) throws Exception {
+		/*
+		 * Lazy loading modes need to follow all cross references between
+		 * objects to gradually rebuild the full graph on the client.
+		 * getAllContents won't work, since it relies on using containment (and
+		 * IFC models are flat).
+		 */
+		final Set<EObject> encoded = new HashSet<>();
+		final Deque<EObject> pending = new LinkedList<>();
+		for (EObject eob : resource.getContents()) {
+			pending.add(eob);
+		}
+
+		final Serializer serializer = createSerializer(resource);
+		long oid = 0;
+		while (!pending.isEmpty()) {
+			final EObject eob = pending.remove();
+			if (!encoded.contains(eob)) {
+				oid = addToSerializer(serializer, oid, eob);
+				encoded.add(eob);
+				for (EObject ref : eob.eCrossReferences()) {
+					pending.add(ref);
+				}
+			}
+		}
+
+		return serializer;
+	}
+
+	protected long addToSerializer(final Serializer serializer, long oid, final EObject eo)
+			throws IfcModelInterfaceException {
+		if (eo.eClass().getEAnnotation("wrapped") != null) {
+			// this is a wrapped object: no need to add it explicitly
+		} else if (eo instanceof IdEObject) {
+			final IdEObject idEObj = (IdEObject) eo;
+			serializer.getModel().add(oid, idEObj);
+			oid++;
+		}
+		return oid;
+	}
+
+	private Serializer createSerializer(final HawkResourceImpl resource) throws Exception {
+		Serializer serializer = null;
+		for (TreeIterator<EObject> it = EcoreUtil.getAllContents(resource, false); it.hasNext() && serializer == null; ) {
+			EObject eo = it.next();
+			if (eo instanceof IdEObject) {
+				serializer = createSerializer(eo.eClass().getEPackage().getNsURI());
+			}
+		}
+		return serializer;
 	}
 
 	private Serializer createSerializer(final String nsURI) throws Exception {
