@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="emmImporter" name="Effective Metamodel Importer" schema="schema/emmImporter.exsd"/>
 
    <extension
          point="org.eclipse.ui.editors">
@@ -29,6 +30,13 @@
             customizerClass="org.hawk.ui.emfresource.exeed.HawkResourceExeedCustomizer"
             resourceClass="uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl">
       </customizer>
+   </extension>
+   <extension
+         name="Hawk model descriptor importer"
+         point="uk.ac.york.mondo.integration.hawk.emf.dt.emmImporter">
+      <importer
+            class="uk.ac.york.mondo.integration.hawk.emf.dt.importers.HawkModelDescriptorEMMImporter">
+      </importer>
    </extension>
 
 </plugin>

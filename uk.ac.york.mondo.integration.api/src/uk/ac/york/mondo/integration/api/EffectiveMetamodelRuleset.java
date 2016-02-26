@@ -55,6 +55,16 @@ public class EffectiveMetamodelRuleset {
 		loadMapIntoTable(exclusionRules, this.exclusions);
 	}
 
+	/**
+	 * Brings all the exclusions and inclusion rules from another effective
+	 * metamodel into this one, potentially overriding some of the existing
+	 * rules.
+	 */
+	public void importRules(EffectiveMetamodelRuleset source) {
+		exclusions.putAll(source.exclusions);
+		inclusions.putAll(source.inclusions);
+	}
+
 	protected void loadMapIntoTable(Map<String, Map<String, Set<String>>> rawMap, final Table<String, String, ImmutableSet<String>> table) {
 		if (rawMap != null) {
 			for (final Entry<String, Map<String, Set<String>>> mmEntry : rawMap.entrySet()) {

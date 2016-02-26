@@ -254,15 +254,25 @@ public class HawkModelDescriptor {
 
 	public HawkModelDescriptor() {}
 
+	/**
+	 * Loads the contents of the input stream into this descriptor. The
+	 * input stream is closed after this call completes.
+	 */
 	public void load(InputStream is) throws IOException {
 		Properties props = new Properties();
 		props.load(is);
+		is.close();
 		loadFromProperties(props);
 	}
 
+	/**
+	 * Loads the contents of the reader into this descriptor. The
+	 * reader is closed after this call completes.
+	 */
 	public void load(Reader r) throws IOException {
 		Properties props = new Properties();
 		props.load(r);
+		r.close();
 		loadFromProperties(props);
 	}
 

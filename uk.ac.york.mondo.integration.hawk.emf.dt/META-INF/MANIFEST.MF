@@ -23,3 +23,7 @@ Require-Bundle: org.eclipse.ui,
  com.google.guava;bundle-version="15.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.york.mondo.integration.hawk.emf.dt,
+ uk.ac.york.mondo.integration.hawk.emf.dt.editors,
+ uk.ac.york.mondo.integration.hawk.emf.dt.editors.fields,
+ uk.ac.york.mondo.integration.hawk.emf.dt.wizards

@@ -19,7 +19,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.thrift.TException;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
@@ -31,11 +35,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -44,6 +50,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -61,9 +70,54 @@ import uk.ac.york.mondo.integration.api.QueryResult;
 import uk.ac.york.mondo.integration.api.SlotMetadata;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
+import uk.ac.york.mondo.integration.hawk.emf.dt.importers.EMMImporter;
 import uk.ac.york.mondo.integration.hawk.emf.impl.HawkResourceImpl;
 
 public class EffectiveMetamodelFormPage extends FormPage {
+
+	private static final String EMM_IMPORTER_EXTID = "uk.ac.york.mondo.integration.hawk.emf.dt.emmImporter";
+
+	private final class ImportEMMSelectionListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent event) {
+			IConfigurationElement[] importerElements = Platform.getExtensionRegistry()
+					.getConfigurationElementsFor(EMM_IMPORTER_EXTID);
+
+			// We only give the choice to the user if there are 2+ importers
+			Object[] selected = importerElements;
+			if (importerElements.length > 1) {
+				final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				final ListDialog lstDialog = new ListDialog(shell);
+				lstDialog.setContentProvider(new ArrayContentProvider());
+				lstDialog.setLabelProvider(new LabelProvider() {
+					@Override
+					public String getText(Object element) {
+						return ((IConfigurationElement) element).getDeclaringExtension().getLabel();
+					}
+				});
+				lstDialog.setInput(importerElements);
+				lstDialog.setTitle("Select an importer");
+				if (lstDialog.open() == Window.OK) {
+					selected = lstDialog.getResult();
+				} else {
+					selected = new Object[0];
+				}
+			}
+
+			if (selected.length > 0) {
+				final IConfigurationElement selectedCE = (IConfigurationElement) selected[0];
+				try {
+					final EMMImporter importer = (EMMImporter) selectedCE.createExecutableExtension("class");
+					importer.importEffectiveMetamodelInto(store);
+					setEffectiveMetamodel(store);
+					treeViewer.refresh();
+					getEditor().setDirty(true);
+				} catch (CoreException ex) {
+					Activator.getDefault().logError(ex);
+				}
+			}
+		}
+	}
 
 	private final class SetStateSelectionListener extends SelectionAdapter {
 		private final MetamodelEditingSupport editingSupport;
@@ -625,6 +679,10 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		btnReset.setText("Reset");
 		btnReset.addSelectionListener(new SetStateSelectionListener(editingSupport, RowState.DEFAULT));
 		btnReset.setEnabled(false);
+
+		final Button btnImport = new Button(cButtons, SWT.NONE);
+		btnImport.setText("Import...");
+		btnImport.addSelectionListener(new ImportEMMSelectionListener());
 
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
