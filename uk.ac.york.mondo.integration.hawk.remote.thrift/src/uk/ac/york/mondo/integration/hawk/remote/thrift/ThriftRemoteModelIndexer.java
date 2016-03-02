@@ -247,8 +247,9 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public void importFiles(String path, File temp) {
+		public File importFiles(String path, File temp) {
 			// nothing to do
+			return null;
 		}
 
 		@Override
