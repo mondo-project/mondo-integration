@@ -59,50 +59,66 @@ requires.14.name = org.hawk.localfolder.feature.feature.group
 requires.14.range = [1.0.0,2.0.0)
 
 requires.15.namespace = org.eclipse.equinox.p2.iu
-requires.15.name = org.hawk.orientdb.feature.feature.group
+requires.15.name = org.hawk.git.feature.feature.group
 requires.15.range = [1.0.0,2.0.0)
 
 requires.16.namespace = org.eclipse.equinox.p2.iu
-requires.16.name = org.hawk.osgiserver.feature.feature.group
+requires.16.name = org.hawk.http.feature.feature.group
 requires.16.range = [1.0.0,2.0.0)
 
 requires.17.namespace = org.eclipse.equinox.p2.iu
-requires.17.name = org.hawk.svn.feature.feature.group
+requires.17.name = org.hawk.orientdb.feature.feature.group
 requires.17.range = [1.0.0,2.0.0)
 
 requires.18.namespace = org.eclipse.equinox.p2.iu
-requires.18.name = org.hawk.ui.feature.feature.group
+requires.18.name = org.hawk.osgiserver.feature.feature.group
 requires.18.range = [1.0.0,2.0.0)
 
 requires.19.namespace = org.eclipse.equinox.p2.iu
-requires.19.name = org.hawk.workspace.feature.feature.group
+requires.19.name = org.hawk.svn.feature.feature.group
 requires.19.range = [1.0.0,2.0.0)
 
 requires.20.namespace = org.eclipse.equinox.p2.iu
-requires.20.name = org.mondo.editor.feature.feature.group
-requires.20.range = [0.3.8,2.0.0)
+requires.20.name = org.hawk.ui.feature.feature.group
+requires.20.range = [1.0.0,2.0.0)
 
 requires.21.namespace = org.eclipse.equinox.p2.iu
-requires.21.name = uk.ac.york.mondo.integration.api.feature.feature.group
-requires.21.range = [1.0.0,2.0.0)
+requires.21.name = org.mondo.editor.feature.feature.group
+requires.21.range = [0.3.8,2.0.0)
 
 requires.22.namespace = org.eclipse.equinox.p2.iu
-requires.22.name = uk.ac.york.mondo.integration.hawk.servlet.feature.feature.group
+requires.22.name = org.mondo.collaboration.security.lens.offline.server.feature.feature.group
 requires.22.range = [1.0.0,2.0.0)
 
 requires.23.namespace = org.eclipse.equinox.p2.iu
-requires.23.name = uk.ac.york.mondo.integration.server.feature.feature.group
+requires.23.name = org.mondo.collaboration.security.online.server.feature.feature.group
 requires.23.range = [1.0.0,2.0.0)
 
 requires.24.namespace = org.eclipse.equinox.p2.iu
-requires.24.name = uk.ac.york.mondo.integration.hawk.emf.feature.feature.group
+requires.24.name = org.mondo.wt.cstudy.online.feature.feature.group
 requires.24.range = [1.0.0,2.0.0)
 
 requires.25.namespace = org.eclipse.equinox.p2.iu
-requires.25.name = org.hawk.neo4jv2.feature.feature.group
+requires.25.name = uk.ac.york.mondo.integration.api.feature.feature.group
 requires.25.range = [1.0.0,2.0.0)
 
 requires.26.namespace = org.eclipse.equinox.p2.iu
-requires.26.name = org.hawk.ifc.feature.feature.group
+requires.26.name = uk.ac.york.mondo.integration.hawk.servlet.feature.feature.group
 requires.26.range = [1.0.0,2.0.0)
+
+requires.27.namespace = org.eclipse.equinox.p2.iu
+requires.27.name = uk.ac.york.mondo.integration.server.feature.feature.group
+requires.27.range = [1.0.0,2.0.0)
+
+requires.28.namespace = org.eclipse.equinox.p2.iu
+requires.28.name = uk.ac.york.mondo.integration.hawk.emf.feature.feature.group
+requires.28.range = [1.0.0,2.0.0)
+
+requires.29.namespace = org.eclipse.equinox.p2.iu
+requires.29.name = org.hawk.neo4jv2.feature.feature.group
+requires.29.range = [1.0.0,2.0.0)
+
+requires.30.namespace = org.eclipse.equinox.p2.iu
+requires.30.name = org.hawk.ifc.feature.feature.group
+requires.30.range = [1.0.0,2.0.0)
 
