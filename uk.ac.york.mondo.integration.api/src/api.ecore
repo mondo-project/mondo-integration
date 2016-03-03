@@ -100,10 +100,21 @@
           <details key="d" value="Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization)"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="enabledPlugins" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+        <eAnnotations source="doc">
+          <details key="d" value="List of plugins to be enabled: if not set, all plugins are enabled."/>
+          <details key="optional" value="true"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="listBackends" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
         <details key="d" value="Lists the names of the available storage backends"/>
+      </eAnnotations>
+    </eOperations>
+    <eOperations name="listPlugins" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="doc">
+        <details key="d" value="Lists all the plugins that can be enabled: metamodel parsers, model parsers, query parsers, updaters and graph change listeners."/>
       </eAnnotations>
     </eOperations>
     <eOperations name="listInstances" upperBound="-1" eType="#//HawkInstance">

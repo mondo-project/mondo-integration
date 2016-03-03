@@ -568,18 +568,23 @@ public final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void createInstance(String name, String backend, int minDelay, int maxDelay) throws TException {
+	public void createInstance(String name, String backend, int minDelay, int maxDelay, List<String> plugins) throws TException {
 		try {
 			final HManager manager = HManager.getInstance();
 			if (manager.getHawkByName(name) == null) {
 				HModel model = HModel.create(new LocalHawkFactory(), name, storageFolder(name),
-						null, backend, null,
+						null, backend, plugins,
 						manager, new SecurePreferencesCredentialsStore(), minDelay, maxDelay);
 				addStateListener(model);
 			}
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}
+	}
+
+	@Override
+	public List<String> listPlugins() throws TException {
+		return HManager.getInstance().getAvailablePlugins();
 	}
 
 	@Override

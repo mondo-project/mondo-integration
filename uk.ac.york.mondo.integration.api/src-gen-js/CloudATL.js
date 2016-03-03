@@ -241,18 +241,18 @@ CloudATL_getJobs_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size344 = 0;
-        var _rtmp3348;
+        var _size360 = 0;
+        var _rtmp3364;
         this.success = [];
-        var _etype347 = 0;
-        _rtmp3348 = input.readListBegin();
-        _etype347 = _rtmp3348.etype;
-        _size344 = _rtmp3348.size;
-        for (var _i349 = 0; _i349 < _size344; ++_i349)
+        var _etype363 = 0;
+        _rtmp3364 = input.readListBegin();
+        _etype363 = _rtmp3364.etype;
+        _size360 = _rtmp3364.size;
+        for (var _i365 = 0; _i365 < _size360; ++_i365)
         {
-          var elem350 = null;
-          elem350 = input.readString().value;
-          this.success.push(elem350);
+          var elem366 = null;
+          elem366 = input.readString().value;
+          this.success.push(elem366);
         }
         input.readListEnd();
       } else {
@@ -276,12 +276,12 @@ CloudATL_getJobs_result.prototype.write = function(output) {
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter351 in this.success)
+    for (var iter367 in this.success)
     {
-      if (this.success.hasOwnProperty(iter351))
+      if (this.success.hasOwnProperty(iter367))
       {
-        iter351 = this.success[iter351];
-        output.writeString(iter351);
+        iter367 = this.success[iter367];
+        output.writeString(iter367);
       }
     }
     output.writeListEnd();

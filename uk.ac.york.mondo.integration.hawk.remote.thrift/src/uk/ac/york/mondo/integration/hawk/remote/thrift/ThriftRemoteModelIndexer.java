@@ -426,16 +426,19 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	private final ICredentialsStore credStore;
 	private String dbType;
 
+	private final List<String> enabledPlugins;
+
 	private CompositeStateListener stateListener = new CompositeStateListener();
 	private Consumer consumer;
 
-	public ThriftRemoteModelIndexer(String name, String location, File parentFolder, Client client, ICredentialsStore credStore, IConsole console) throws IOException {
+	public ThriftRemoteModelIndexer(String name, String location, File parentFolder, Client client, ICredentialsStore credStore, IConsole console, List<String> enabledPlugins) throws IOException {
 		this.name = name;
 		this.location = location;
 		this.client = client;
 		this.credStore = credStore;
 		this.console = console;
 		this.parentFolder = parentFolder;
+		this.enabledPlugins = enabledPlugins;
 
 		createDummyProperties(parentFolder);
 
@@ -592,7 +595,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		try {
 			client.startInstance(name);
 		} catch (HawkInstanceNotFound ex) {
-			client.createInstance(name, dbType, minDelay, maxDelay);
+			client.createInstance(name, dbType, minDelay, maxDelay, enabledPlugins);
 		}
 		connectToArtemis();
 	}

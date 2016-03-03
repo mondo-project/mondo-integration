@@ -157,7 +157,7 @@ public class HawkCommandProvider implements CommandProvider {
 		final int minimumDelay = sMinimum != null ? Integer.parseInt(sMinimum) : 1000;
 		final int maximumDelay = sMaximum != null ? Integer.parseInt(sMaximum) : 512 * 1000;
 
-		client.createInstance(name, backend, minimumDelay, maximumDelay);
+		client.createInstance(name, backend, minimumDelay, maximumDelay, null);
 		return String.format("Created instance %s", name);
 	}
 

@@ -32,8 +32,8 @@ import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 public class ThriftRemoteHawkFactory implements IHawkFactory {
 
 	@Override
-	public IHawk create(String name, File parentFolder, String location, ICredentialsStore credStore, IConsole console) throws Exception {
-		return new ThriftRemoteHawk(name, location, parentFolder, credStore, console, ThriftProtocol.guessFromURL(location));
+	public IHawk create(String name, File parentFolder, String location, ICredentialsStore credStore, IConsole console, List<String> enabledPlugins) throws Exception {
+		return new ThriftRemoteHawk(name, location, parentFolder, credStore, console, ThriftProtocol.guessFromURL(location), enabledPlugins);
 	}
 
 	@Override
@@ -89,6 +89,12 @@ public class ThriftRemoteHawkFactory implements IHawkFactory {
 	public List<String> listBackends(String location) throws Exception {
 		final Hawk.Client client = getClient(location);
 		return client.listBackends();
+	}
+
+	@Override
+	public List<String> listPlugins(String location) throws Exception {
+		final Hawk.Client client = getClient(location);
+		return client.listPlugins();
 	}
 
 }
