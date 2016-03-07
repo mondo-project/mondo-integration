@@ -65,6 +65,7 @@ class DetailsFormPage extends FormPage {
 		private final FormTextField fldQuery;
 		private final FormTextField fldDefaultNamespaces;
 		private final FormCheckBoxField fldSplit;
+		private final FormTextField fldPaged;
 
 		public ContentSection(FormToolkit toolkit, Composite parent) {
 			super(toolkit, parent, "Contents", "Filters on the contents of the index to be read as a model");
@@ -77,6 +78,7 @@ class DetailsFormPage extends FormPage {
 		    this.fldQuery = new FormTextField(toolkit, cContents, "Query:", HawkModelDescriptor.DEFAULT_QUERY);
 		    this.fldDefaultNamespaces = new FormTextField(toolkit, cContents, "Default namespaces:", HawkModelDescriptor.DEFAULT_DEFAULT_NAMESPACES);
 		    this.fldSplit = new FormCheckBoxField(toolkit, cContents, "Split by file:", HawkModelDescriptor.DEFAULT_IS_SPLIT);
+		    this.fldPaged = new FormTextField(toolkit, cContents, "Page size for initial load:", HawkModelDescriptor.DEFAULT_PAGE_SIZE + "");
 
 		    this.fldRepositoryURL.getText().setToolTipText(
 		        "Pattern for the URL repositories to be fetched (* means 0+ arbitrary characters).");
@@ -90,6 +92,8 @@ class DetailsFormPage extends FormPage {
 			"Comma-separated list of namespaces used to disambiguate types if multiple matches are found.");
 		    this.fldSplit.getCheck().setToolTipText(
 		    	"If checked, the contents of the index will be split by file, using surrogate resources. Otherwise, the entire contents of the index will be under this resource (needed for CloudATL).");
+		    this.fldPaged.getText().setToolTipText(
+			"If set to a value > 0, the initial load will be done in two stages: 1 request for the node IDs + N requests for their contents (in batches). Recommended for very large models that cannot be sent in one go.");
 
 		    fldRepositoryURL.getText().addModifyListener(this);
 		    fldFilePatterns.getText().addModifyListener(this);
@@ -98,6 +102,7 @@ class DetailsFormPage extends FormPage {
 		    fldQuery.getText().addModifyListener(this);
 		    fldDefaultNamespaces.getText().addModifyListener(this);
 		    fldSplit.getCheck().addSelectionListener(this);
+		    fldPaged.getText().addModifyListener(this);
 
 		    final HyperlinkAdapter hyperlinkListener = new HyperlinkAdapter() {
 				@Override
@@ -144,6 +149,14 @@ class DetailsFormPage extends FormPage {
 			return fldSplit.getCheck().getSelection();
 		}
 
+		public int getPageSize() {
+			try {
+				return Integer.valueOf(fldPaged.getText().getText());
+			} catch (NumberFormatException ex) {
+				return HawkModelDescriptor.DEFAULT_PAGE_SIZE;
+			}
+		}
+
 		public String getDefaultNamespaces() {
 			return fldDefaultNamespaces.getText().getText().trim();
 		}
@@ -174,6 +187,8 @@ class DetailsFormPage extends FormPage {
 				queryChanged();
 			} else if (e.widget == fldDefaultNamespaces.getText()) {
 				defaultNamespacesChanged();
+			} else if (e.widget == fldPaged.getText()) {
+				pageSizeChanged();
 			}
 		}
 
@@ -201,6 +216,10 @@ class DetailsFormPage extends FormPage {
 			fldSplit.getCheck().setSelection(isSplit);
 		}
 
+		public void setPageSize(int size) {
+			fldPaged.getText().setText(size + "");
+		}
+
 		public void setDefaultNamespaces(String defaultNS) {
 			fldDefaultNamespaces.setTextWithoutListener(defaultNS, this);
 		}
@@ -212,6 +231,7 @@ class DetailsFormPage extends FormPage {
 		protected abstract void queryChanged();
 		protected abstract void defaultNamespacesChanged();
 		protected abstract void splitChanged();
+		protected abstract void pageSizeChanged();
 
 		protected abstract void selectQueryLanguage();
 		protected abstract void selectRepository();
@@ -531,6 +551,7 @@ class DetailsFormPage extends FormPage {
 			@Override protected void queryChanged() { getEditor().setDirty(true); }
 			@Override protected void defaultNamespacesChanged() { getEditor().setDirty(true); }
 			@Override protected void splitChanged() { getEditor().setDirty(true); }
+			@Override protected void pageSizeChanged() { getEditor().setDirty(true); }
 
 			@Override protected void selectQueryLanguage() {
 				final HawkModelDescriptor d = getEditor().buildDescriptor();

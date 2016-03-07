@@ -128,7 +128,7 @@ public class IFCExportCommand extends AbstractHandler {
 		final ResourceSet rs = new ResourceSetImpl();
 		final HawkResourceImpl resource = new HawkResourceImpl(emfURI, desc);
 		rs.getResources().add(resource);
-		resource.load(null);
+		resource.doLoad(desc, monitor);
 		monitor.worked(1);
 
 		monitor.subTask("Populating IFC serializer");

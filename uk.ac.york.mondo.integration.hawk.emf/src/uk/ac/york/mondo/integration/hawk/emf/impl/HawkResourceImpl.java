@@ -13,7 +13,9 @@ package uk.ac.york.mondo.integration.hawk.emf.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,9 @@ import org.apache.http.auth.Credentials;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TTransportException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -550,7 +555,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	public void load(final Map<?, ?> options) throws IOException {
 		if (descriptor != null) {
 			// We already have a descriptor: no need to create an InputStream from the URI
-			doLoad(descriptor);
+			doLoad(descriptor, new NullProgressMonitor());
 		} else {
 			// Let Ecore create an InputStream from the URI and call doLoad(InputStream, Map)
 			super.load(options);
@@ -586,7 +591,56 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		return false;
 	}
 
-	public void doLoad(final HawkModelDescriptor descriptor) throws IOException {
+	public void doLoad(final HawkModelDescriptor descriptor, IProgressMonitor monitor) throws IOException {
+		prepareResourceFactoryMap();
+
+		try {
+			this.descriptor = descriptor;
+			monitor.subTask("Connecting to Hawk");
+			final Credentials lazyCreds = connect(descriptor);
+
+			// TODO allow for multiple repositories
+			final LoadingMode mode = descriptor.getLoadingMode();
+
+			final HawkQueryOptions opts = new HawkQueryOptions();
+			opts.setDefaultNamespaces(descriptor.getDefaultNamespaces());
+			opts.setRepositoryPattern(descriptor.getHawkRepository());
+			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
+			opts.setIncludeAttributes(mode.isGreedyAttributes() && !descriptor.isPaged());
+			opts.setIncludeReferences(!descriptor.isPaged());
+			opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
+			opts.setIncludeContained(mode.isGreedyElements() && !descriptor.isPaged());
+
+			// Send the effective metamodel if included
+			// TODO: use stateful variant to keep using effective metamodel in lazy modes?
+			setEffectiveMetamodelOptions(opts, descriptor.getEffectiveMetamodel());
+
+			// STAGE ONE: either full fetch or initial fetch of IDs (for a later paged fetch)
+			monitor.subTask("Performing initial fetch");
+			final List<ModelElement> elems = initialFetch(descriptor, mode, opts);
+
+			// STAGE TWO: paged fetch+decoding or just simple decoding
+			resolveContents(descriptor, mode, elems, opts, monitor);
+
+			// Subscribe to changes through Artemis
+			if (descriptor.isSubscribed()) {
+				monitor.subTask("Subscribing to Artemis");
+				subscribeToChanges(descriptor, lazyCreds);
+			}
+
+			setLoaded(true);
+		} catch (final TException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw new IOException(e);
+		} catch (final IOException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw e;
+		} catch (final Exception e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
+
+	protected void prepareResourceFactoryMap() {
 		// Needed for the virtual resources we create for EMF files, so
 		// the Exeed customizations can activate.
 		final Factory hawkResourceFactory = new Factory() {
@@ -602,111 +656,126 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		protocolToFactoryMap.put("hawkrepo+git", hawkResourceFactory);
 		protocolToFactoryMap.put("hawkrepo+svn", hawkResourceFactory);
 		protocolToFactoryMap.put("hawkrepo+svn+ssh", hawkResourceFactory);
+	}
 
-		try {
-			this.descriptor = descriptor;
-
-			final String username = descriptor.getUsername();
-			final String password = descriptor.getPassword();
-			Credentials lazyCreds = null;
-			if (username != null && password != null && username.length() > 0 && password.length() > 0) {
+	protected Credentials connect(final HawkModelDescriptor descriptor) throws TTransportException, URISyntaxException {
+		final String username = descriptor.getUsername();
+		final String password = descriptor.getPassword();
+		Credentials lazyCreds = null;
+		if (username != null && password != null && username.length() > 0 && password.length() > 0) {
+			this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
+					descriptor.getThriftProtocol(), username, password);
+		} else {
+			try {
+				/*
+				 * If we don't have explicit username/password but the
+				 * remote.thrift plugin is available, we may be able to
+				 * reuse previously stored usernames/passwords.
+				 */
+				Class<?> lCredClass = Class
+						.forName("uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials");
+				lazyCreds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
+						.newInstance(descriptor.getHawkURL());
 				this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
-						descriptor.getThriftProtocol(), username, password);
-			} else {
-				try {
-					/*
-					 * If we don't have explicit username/password but the
-					 * remote.thrift plugin is available, we may be able to
-					 * reuse previously stored usernames/passwords.
-					 */
-					Class<?> lCredClass = Class
-							.forName("uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials");
-					lazyCreds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
-							.newInstance(descriptor.getHawkURL());
-					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
-							descriptor.getThriftProtocol(), lazyCreds);
-				} catch (Exception ex) {
-					// Falling back to non-auth
-					this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
-							descriptor.getThriftProtocol());
+						descriptor.getThriftProtocol(), lazyCreds);
+			} catch (Exception ex) {
+				// Falling back to non-auth
+				this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),
+						descriptor.getThriftProtocol());
+			}
+		}
+		return lazyCreds;
+	}
+
+	protected List<ModelElement> initialFetch(final HawkModelDescriptor descriptor, final LoadingMode mode,
+			final HawkQueryOptions opts) throws HawkInstanceNotFound, HawkInstanceNotRunning, UnknownQueryLanguage,
+					InvalidQuery, FailedQuery, TException {
+		List<ModelElement> elems;
+		final String queryLanguage = descriptor.getHawkQueryLanguage();
+		final String query = descriptor.getHawkQuery();
+		final boolean useQuery = queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0;
+		if (useQuery) {
+			List<QueryResult> results = client.query(descriptor.getHawkInstance(), query, queryLanguage, opts);
+			elems = new ArrayList<>();
+			for (final QueryResult result : results) {
+				if (result.isSetVModelElement()) {
+					elems.add(result.getVModelElement());
 				}
 			}
+		} else if (mode.isGreedyElements()) {
+			elems = client.getModel(descriptor.getHawkInstance(), opts);
+		} else {
+			elems = client.getRootElements(descriptor.getHawkInstance(), opts);
+		}
+		return elems;
+	}
 
-			// TODO allow for multiple repositories
-			final LoadingMode mode = descriptor.getLoadingMode();
-			List<ModelElement> elems;
-			final String queryLanguage = descriptor.getHawkQueryLanguage();
-			final String query = descriptor.getHawkQuery();
-
-			final HawkQueryOptions opts = new HawkQueryOptions();
-			opts.setDefaultNamespaces(descriptor.getDefaultNamespaces());
-			opts.setRepositoryPattern(descriptor.getHawkRepository());
-			opts.setFilePatterns(Arrays.asList(descriptor.getHawkFilePatterns()));
-			opts.setIncludeAttributes(mode.isGreedyAttributes());
+	protected void resolveContents(final HawkModelDescriptor descriptor, final LoadingMode mode,
+			List<ModelElement> elems, final HawkQueryOptions opts, final IProgressMonitor monitor)
+					throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
+		if (descriptor.isPaged()) {
+			// Two-stage fetch (ids + pages): first we fetch all the objects in batches,
+			// then we resolve references internally (also in batches).
+			opts.setIncludeAttributes(true);
 			opts.setIncludeReferences(true);
-			opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
-			opts.setIncludeContained(mode.isGreedyElements());
 
-			// Send the effective metamodel if included
-			// TODO: use stateful variant to keep using effective metamodel in lazy modes
-			setEffectiveMetamodelOptions(opts, descriptor.getEffectiveMetamodel());
-
-			if (queryLanguage != null && queryLanguage.length() > 0 && query != null && query.length() > 0) {
-				List<QueryResult> results = client.query(descriptor.getHawkInstance(), query, queryLanguage, opts);
-				elems = new ArrayList<>();
-				for (final QueryResult result : results) {
-					if (result.isSetVModelElement()) {
-						elems.add(result.getVModelElement());
-					}
+			final int nElems = elems.size();
+			for (int iRangeStart = 0; iRangeStart < nElems; iRangeStart += descriptor.getPageSize()) {
+				final List<String> rangeIDs = new ArrayList<>(descriptor.getPageSize());
+				final int iRangeEnd = Math.min(nElems, iRangeStart + descriptor.getPageSize());
+				for (ModelElement elem : elems.subList(iRangeStart, iRangeEnd)) {
+					rangeIDs.add(elem.getId());
 				}
-			} else if (mode.isGreedyElements()) {
-				opts.setIncludeAttributes(mode.isGreedyAttributes());
-				opts.setIncludeReferences(true);
-				opts.setIncludeNodeIDs(isIncludeNodeIDs(descriptor));
 
-				// We need node IDs if attributes are lazy or if we're subscribing to remote changes
-				elems = client.getModel(descriptor.getHawkInstance(), opts);
-			} else {
-				elems = client.getRootElements(descriptor.getHawkInstance(), opts);
+				// We create a temporary per-batch state to handle position-based refs: ID-based refs
+				// are resolved lazily through the node IDs.
+				monitor.subTask(String.format("Fetching model elements %d-%d out of %d", iRangeStart, iRangeEnd, nElems));
+				final List<ModelElement> batch = client.resolveProxies(descriptor.getHawkInstance(), rangeIDs, opts);
+				final TreeLoadingState state = new TreeLoadingState();
+				createEObjectTree(batch, state);
+				fillInReferences(batch, state);
 			}
 
+			// If we used a greedy mode, recheck containment for the still remaining root objects
+			if (mode.isGreedyElements()) {
+				monitor.subTask("Revising object containment");
+				for (EObject eob : getContents()) {
+					eob.eContainer();
+				}
+			}
+		} else {
+			monitor.subTask("Resolving contents");
+
+			// Single-stage fetch: the usual way
 			final TreeLoadingState state = new TreeLoadingState();
 			createEObjectTree(elems, state);
 			fillInReferences(elems, state);
-
-			if (descriptor.isSubscribed()) {
-				final SubscriptionDurability sd = descriptor.getSubscriptionDurability();
-
-				final Subscription subscription = client.watchModelChanges(
-					descriptor.getHawkInstance(),
-					descriptor.getHawkRepository(),
-					Arrays.asList(descriptor.getHawkFilePatterns()),
-					descriptor.getSubscriptionClientID(), sd);
-
-				subscriber = APIUtils.connectToArtemis(subscription, sd);
-				if (lazyCreds != null) {
-					// If security is disabled for the Thrift API, we do not want to trigger the secure storage here either.
-					// These methods in the LazyCredentials class do just that.
-					final Principal fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
-					final String fetchedPass = (String) lazyCreds.getClass().getMethod("getRawPassword").invoke(lazyCreds);
-					subscriber.openSession(fetchedUser.getName(), fetchedPass);
-				} else {
-					subscriber.openSession(descriptor.getUsername(), descriptor.getPassword());
-				}
-				subscriber.processChangesAsync(new HawkResourceMessageHandler(
-					descriptor.getThriftProtocol().getProtocolFactory()));
-			}
-
-			setLoaded(true);
-		} catch (final TException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new IOException(e);
-		} catch (final IOException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw e;
-		} catch (final Exception e) {
-			LOGGER.error(e.getMessage(), e);
 		}
+	}
+
+	protected void subscribeToChanges(final HawkModelDescriptor descriptor, Credentials lazyCreds)
+			throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, Exception, IllegalAccessException,
+			InvocationTargetException, NoSuchMethodException, ActiveMQException {
+		final SubscriptionDurability sd = descriptor.getSubscriptionDurability();
+
+		final Subscription subscription = client.watchModelChanges(
+			descriptor.getHawkInstance(),
+			descriptor.getHawkRepository(),
+			Arrays.asList(descriptor.getHawkFilePatterns()),
+			descriptor.getSubscriptionClientID(), sd);
+
+		subscriber = APIUtils.connectToArtemis(subscription, sd);
+		if (lazyCreds != null) {
+			// If security is disabled for the Thrift API, we do not want to trigger the secure storage here either.
+			// These methods in the LazyCredentials class do just that.
+			final Principal fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+			final String fetchedPass = (String) lazyCreds.getClass().getMethod("getRawPassword").invoke(lazyCreds);
+			subscriber.openSession(fetchedUser.getName(), fetchedPass);
+		} else {
+			subscriber.openSession(descriptor.getUsername(), descriptor.getPassword());
+		}
+		subscriber.processChangesAsync(new HawkResourceMessageHandler(
+			descriptor.getThriftProtocol().getProtocolFactory()));
 	}
 
 	protected void setEffectiveMetamodelOptions(final HawkQueryOptions opts, final EffectiveMetamodelRuleset emm) {
@@ -729,11 +798,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		}
 	}
 
-	
-
 	protected boolean isIncludeNodeIDs(final HawkModelDescriptor descriptor) {
 		final LoadingMode lm = descriptor.getLoadingMode();
-		return !lm.isGreedyElements() || !lm.isGreedyAttributes() || descriptor.isSubscribed();
+		return !lm.isGreedyElements() || !lm.isGreedyAttributes() || descriptor.isSubscribed() || descriptor.isPaged();
 	}
 
 	@Override
@@ -1155,7 +1222,9 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			return;
 		}
 
-		final boolean greedyElements = descriptor.getLoadingMode().isGreedyElements();
+		// True if we can count on having all the relevant model elements now, false if we need to use lazy loading
+		// or lazy resolving (for paged greedy loads).
+		final boolean allAvailable = descriptor.getLoadingMode().isGreedyElements() && !descriptor.isPaged();
 
 		// This variable will be set to a non-null value if we need to call eSet
 		EList<Object> eSetValues = null;
@@ -1172,7 +1241,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			final EObject eObject = nodeIdToEObjectMap.get(s.id);
 			if (eObject != null) {
 				eSetValues = createEList(eObject);
-			} else if (!greedyElements) {
+			} else if (!allAvailable) {
 				final EList<Object> value = new BasicEList<Object>();
 				value.add(s.id);
 				getLazyResolver().putLazyReference(sourceObj, feature, value);
@@ -1190,7 +1259,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				}
 			}
 
-			if (!greedyElements && eSetValues.size() != s.ids.size()) {
+			if (!allAvailable && eSetValues.size() != s.ids.size()) {
 				eSetValues = null;
 				final EList<Object> lazyIds = new BasicEList<>();
 				lazyIds.addAll(s.ids);
@@ -1218,7 +1287,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						if (feature.isContainment() && eob.eResource() != null) {
 							eob.eResource().getContents().remove(eob);
 						}
-					} else if (!greedyElements) {
+					} else if (!allAvailable) {
 						allFetched = false;
 						value.add(mixed.getId());
 					}
@@ -1272,7 +1341,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	protected void doLoad(final InputStream inputStream, final Map<?, ?> options) throws IOException {
 		final HawkModelDescriptor descriptor = new HawkModelDescriptor();
 		descriptor.load(inputStream);
-		doLoad(descriptor);
+		doLoad(descriptor, new NullProgressMonitor());
 	}
 
 	@Override

@@ -173,6 +173,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 			detailsPage.getContentSection().setQuery(descriptor.getHawkQuery());
 			detailsPage.getContentSection().setDefaultNamespaces(descriptor.getDefaultNamespaces());
 			detailsPage.getContentSection().setSplit(descriptor.isSplit());
+			detailsPage.getContentSection().setPageSize(descriptor.getPageSize());
 			detailsPage.getSubscriptionSection().setSubscribed(descriptor.isSubscribed());
 			detailsPage.getSubscriptionSection().setClientID(descriptor.getSubscriptionClientID());
 			detailsPage.getSubscriptionSection().setDurability(descriptor.getSubscriptionDurability());
@@ -213,6 +214,7 @@ public class HawkMultiPageEditor extends FormEditor	implements IResourceChangeLi
 		descriptor.setHawkQuery(detailsPage.getContentSection().getQuery());
 		descriptor.setDefaultNamespaces(detailsPage.getContentSection().getDefaultNamespaces());
 		descriptor.setSplit(detailsPage.getContentSection().isSplit());
+		descriptor.setPageSize(detailsPage.getContentSection().getPageSize());
 		descriptor.setEffectiveMetamodel(emmPage.getEffectiveMetamodel());
 		return descriptor;
 	}

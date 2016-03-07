@@ -323,8 +323,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 					LOGGER.error(ex.getMessage(), ex);
 				}
 			}
-			final List<ModelElement> results = new ArrayList<ModelElement>(encoder.getElements());
-			return results;
+			return encoder.getElements();
 		} catch (Exception ex) {
 			throw new TException(ex);
 		}
@@ -515,6 +514,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 			encoder.setIncludeAttributes(opts.includeAttributes);
 			encoder.setIncludeReferences(opts.includeReferences);
 			encoder.setIncludeNodeIDs(opts.includeNodeIDs);
+			encoder.setUseContainment(opts.includeContained);
 
 			final EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset(
 					opts.getEffectiveMetamodelIncludes(), opts.getEffectiveMetamodelExcludes());
@@ -528,15 +528,17 @@ public final class HawkThriftIface implements Hawk.Iface {
 				for (FileNode fileNode : fileNodes) {
 					LOGGER.info("Retrieving elements from file {}", opts.getFilePatterns());
 
-					if (collectType == CollectElements.ALL) {
+					switch (collectType) {
+					case ALL:
 						for (ModelElementNode meNode : fileNode.getModelElements()) {
 							encoder.encode(meNode);
 						}
-					} else {
-						encoder.setUseContainment(false);
+						break;
+					case ONLY_ROOTS:
 						for (ModelElementNode meNode : fileNode.getRootModelElements()) {
 							encoder.encode(meNode);
 						}
+						break;
 					}
 				}
 			} else {
@@ -560,7 +562,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 				} // for (mmEntry)
 			}
 
-			return new ArrayList<>(encoder.getElements());
+			return encoder.getElements();
 		} catch (Exception ex) {
 			LOGGER.error(ex.getMessage(), ex);
 			throw new TException(ex);

@@ -126,6 +126,7 @@ public class HawkModelDescriptor {
 	public static final LoadingMode DEFAULT_LOADING_MODE = LoadingMode.GREEDY;
 	public static final boolean DEFAULT_IS_SUBSCRIBED = false;
 	public static final boolean DEFAULT_IS_SPLIT = true;
+	public static final int DEFAULT_PAGE_SIZE = 0;
 	public static final ThriftProtocol DEFAULT_TPROTOCOL = ThriftProtocol.TUPLE;
 	public static final String DEFAULT_CLIENTID = System.getProperty("user.name");
 	public static final SubscriptionDurability DEFAULT_DURABILITY = SubscriptionDurability.DEFAULT;
@@ -224,6 +225,15 @@ public class HawkModelDescriptor {
 	 */
 	public static final String PROPERTY_HAWK_SPLIT = "hawk.split";
 
+	/**
+	 * Property that if set to an integer value greater than 0, will make the
+	 * initial load be "paged": since the Hawk API is stateless, what we do
+	 * instead is fetching all the node IDs first in one go (which is less
+	 * expensive), and then resolve their contents in batches. This usually
+	 * scales better.
+	 */
+	public static final String PROPERTY_HAWK_PAGE_SIZE = "hawk.pageSize";
+
 	/** Property that stores the username to be used to connect to Hawk. */
 	public static final String PROPERTY_HAWK_USERNAME = "hawk.username";
 
@@ -246,6 +256,7 @@ public class HawkModelDescriptor {
 	private String hawkQuery = DEFAULT_QUERY;
 	private String defaultNamespaces = DEFAULT_DEFAULT_NAMESPACES;
 	private boolean isSplit = DEFAULT_IS_SPLIT;
+	private int pageSize = DEFAULT_PAGE_SIZE;
 	private EffectiveMetamodelRuleset emm = new EffectiveMetamodelRuleset();
 
 	private boolean isSubscribed = DEFAULT_IS_SUBSCRIBED;
@@ -382,6 +393,28 @@ public class HawkModelDescriptor {
 		isSplit = newValue;
 	}
 
+	public boolean isPaged() {
+		return pageSize > 0;
+	}
+
+	/**
+	 * Returns an integer value for the page size of the initial fetch. If
+	 * greater than 0, the initial fetch will be done in two stages: first fetch
+	 * all the node IDs, and then fetch their contents in batches. The Hawk API
+	 * is stateless, so it doesn't support 'real' paged queries, but we can
+	 * emulate them this way.
+	 *
+	 * This should be enabled for large models, to prevent the server from
+	 * choking while trying to encode huge result sets.
+	 */
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
 	public String getDefaultNamespaces() {
 		return defaultNamespaces;
 	}
@@ -437,6 +470,7 @@ public class HawkModelDescriptor {
 		props.setProperty(PROPERTY_HAWK_QUERY, hawkQuery);
 		props.setProperty(PROPERTY_HAWK_DEFAULT_NAMESPACES, defaultNamespaces);
 		props.setProperty(PROPERTY_HAWK_SPLIT, Boolean.toString(isSplit));
+		props.setProperty(PROPERTY_HAWK_PAGE_SIZE, Integer.toString(pageSize));
 
 		props.setProperty(PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(isSubscribed));
 		props.setProperty(PROPERTY_HAWK_CLIENTID, subscriptionClientID);
@@ -460,6 +494,7 @@ public class HawkModelDescriptor {
 		this.hawkQuery = optionalProperty(props, PROPERTY_HAWK_QUERY, DEFAULT_QUERY);
 		this.defaultNamespaces = optionalProperty(props, PROPERTY_HAWK_DEFAULT_NAMESPACES, DEFAULT_DEFAULT_NAMESPACES);
 		this.isSplit = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SPLIT, DEFAULT_IS_SPLIT + ""));
+		this.pageSize = Integer.valueOf(optionalProperty(props, PROPERTY_HAWK_PAGE_SIZE, DEFAULT_PAGE_SIZE + ""));
 		this.emm = new EffectiveMetamodelRulesetSerializer(PROPERTY_HAWK_EMM_PREFIX).load(props);
 
 		this.isSubscribed = Boolean.valueOf(optionalProperty(props, PROPERTY_HAWK_SUBSCRIBE, Boolean.toString(DEFAULT_IS_SUBSCRIBED)));
