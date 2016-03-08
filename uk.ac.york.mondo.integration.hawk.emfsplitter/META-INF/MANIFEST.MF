@@ -14,4 +14,5 @@ Require-Bundle: org.eclipse.osgi,
  org.hawk.workspace,
  org.hawk.emf,
  org.hawk.orientdb,
- org.hawk.emfresource
+ org.hawk.emfresource,
+ org.eclipse.core.resources

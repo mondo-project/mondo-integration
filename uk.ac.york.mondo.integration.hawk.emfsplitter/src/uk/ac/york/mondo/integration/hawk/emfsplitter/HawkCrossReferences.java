@@ -11,16 +11,29 @@
 package uk.ac.york.mondo.integration.hawk.emfsplitter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.hawk.core.IMetaModelResourceFactory;
 import org.hawk.core.IStateListener.HawkState;
 import org.hawk.core.IVcsManager;
 import org.hawk.core.runtime.LocalHawkFactory;
+import org.hawk.emf.EMFPackage;
+import org.hawk.emf.metamodel.EMFMetaModelResource;
+import org.hawk.emf.metamodel.EMFMetaModelResourceFactory;
 import org.hawk.emfresource.impl.LocalHawkResourceImpl;
 import org.hawk.orientdb.OrientDatabase;
 import org.hawk.osgiserver.HManager;
@@ -38,10 +51,38 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	private static final String HAWK_INSTANCE = "emfsplitter";
 
 	@Override
-	public boolean init(String modularNature) {
+	public boolean init(String metamodelURI, String modularNature) {
 		try {
-			// Ensure the Hawk instance is ready
-			getHawkInstance();
+			// Ensure the Hawk instance is ready and that the metamodel has been registered
+			HModel hm = getHawkInstance();
+			hm.getIndexer().waitFor(HawkState.RUNNING);
+			if (!hm.getRegisteredMetamodels().contains(metamodelURI)) {
+				final EPackage epkg = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
+				if (epkg == null) {
+					throw new NoSuchElementException(String.format(
+							"No metamodel with URL '%s' is available in the global EMF registry.", metamodelURI));
+				}
+
+				/*
+				 * TODO: this might not deal well with metamodels that also
+				 * depend on other metamodels - this method may need to take a
+				 * list of metamodels and not just one.
+				 */
+				final IMetaModelResourceFactory emfFactory = hm.getIndexer().getMetaModelParser(EMFMetaModelResourceFactory.class.getName());
+				final String pkgEcore = emfFactory.dumpPackageToString(new EMFPackage(epkg, new EMFMetaModelResource(epkg.eResource(), emfFactory)));
+				final File tmpEcore = File.createTempFile("tmp", ".ecore");
+				try {
+					try (final FileOutputStream fOS = new FileOutputStream(tmpEcore)) {
+						fOS.write(pkgEcore.getBytes());
+					}
+
+					hm.getIndexer().registerMetamodels(tmpEcore);
+				} finally {
+					if (tmpEcore.exists()) {
+						tmpEcore.delete();
+					}
+				}
+			}
 		} catch (Exception e) {
 			HawkCrossReferencesPlugin.getDefault().logError(e);
 			return false;
@@ -96,8 +137,33 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 				res.getResourceSet().getResources().add(hawkResource);
 			}
 
-			// Fetch all the instances of the provided class
-			return hawkResource.fetchNodes(anEClass, true);
+			if (modularNature != null) {
+				final EList<EObject> instances = hawkResource.fetchNodes(anEClass, true);
+
+				final List<String> acceptedPrefixes = new ArrayList<>();
+				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+					if (project.getNature(modularNature) != null) {
+						project.getFullPath().toString();
+					}
+				}
+
+				filterByNature:
+				for (Iterator<EObject> itInstance = instances.iterator(); itInstance.hasNext(); ) {
+					final EObject eob = itInstance.next();
+					for (String prefix : acceptedPrefixes) {
+						if (eob.eResource().getURI().path().startsWith(prefix)) {
+							continue filterByNature;
+						}
+					}
+					itInstance.remove();
+				}
+
+				return instances;
+			} else if (res != null) {
+				return hawkResource.fetchNodesByContainerFragment(anEClass, new Workspace().getLocation(), res.getURI().path());
+			} else {
+				return hawkResource.fetchNodes(anEClass, true);
+			}
 		} catch (Exception e) {
 			HawkCrossReferencesPlugin.getDefault().logError(e);
 			return new BasicEList<Object>();
