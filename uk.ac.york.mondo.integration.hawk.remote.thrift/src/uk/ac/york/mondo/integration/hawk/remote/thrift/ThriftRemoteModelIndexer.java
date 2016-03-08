@@ -526,17 +526,12 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void registerMetamodel(File[] files) throws Exception {
+	public void registerMetamodels(File... files) throws Exception {
 		List<uk.ac.york.mondo.integration.api.File> thriftFiles = new ArrayList<>();
 		for (File f : files) {
 			thriftFiles.add(APIUtils.convertJavaFileToThriftFile(f));
 		}
 		client.registerMetamodels(name, thriftFiles);
-	}
-
-	@Override
-	public void registerMetamodel(File f) throws Exception {
-		registerMetamodel(new File[]{ f });
 	}
 
 	@Override
