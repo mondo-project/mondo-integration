@@ -27,8 +27,6 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.hawk.core.IMetaModelResourceFactory;
 import org.hawk.core.IStateListener.HawkState;
 import org.hawk.core.IVcsManager;
@@ -109,20 +107,18 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	}
 
 	@Override
-	public EList<?> getChoicesOfValues(String modularNature, Resource res, EClass anEClass) {
+	public EList<?> getChoicesOfValues(String modularNature, Resource res, boolean searchAll, EClass anEClass) {
 		LocalHawkResourceImpl hawkResource = null;
 		try {
 			final HModel hawkInstance = getHawkInstance();
 
 			// Look for the Hawk resource in the resource set first
-			if (res != null) {
-				for (Resource r : res.getResourceSet().getResources()) {
-					if (r instanceof LocalHawkResourceImpl) {
-						hawkResource = (LocalHawkResourceImpl) r;
-						if (hawkResource.getIndexer().getName().equals(HAWK_INSTANCE)) {
-							// This is the EMF-Splitter local Hawk resource
-							break;
-						}
+			for (Resource r : res.getResourceSet().getResources()) {
+				if (r instanceof LocalHawkResourceImpl) {
+					hawkResource = (LocalHawkResourceImpl) r;
+					if (hawkResource.getIndexer().getName().equals(HAWK_INSTANCE)) {
+						// This is the EMF-Splitter local Hawk resource
+						break;
 					}
 				}
 			}
@@ -131,14 +127,19 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 			if (hawkResource == null) {
 				hawkResource = new LocalHawkResourceImpl(URI.createURI("hawk://"), hawkInstance.getIndexer(), true, Arrays.asList("*"), Arrays.asList("*"));
 				hawkResource.load(null);
-				if (res != null) {
-					res.getResourceSet().getResources().add(hawkResource);
-				}
+				res.getResourceSet().getResources().add(hawkResource);
 			}
 
-			if (modularNature != null) {
-				final EList<EObject> instances = hawkResource.fetchNodes(anEClass, true);
+			// Look for instances of the types first
+			EList<EObject> instances;
+			if (searchAll) {
+				instances = hawkResource.fetchNodes(anEClass, true);
+			} else {
+				instances = hawkResource.fetchNodesByContainerFragment(anEClass, new Workspace().getLocation(), res.getURI().path());
+			}
 
+			// Optionally, filter by project nature
+			if (modularNature != null) {
 				final List<String> acceptedPrefixes = new ArrayList<>();
 				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 					if (project.getNature(modularNature) != null) {
@@ -156,13 +157,9 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 					}
 					itInstance.remove();
 				}
-
-				return instances;
-			} else if (res != null) {
-				return hawkResource.fetchNodesByContainerFragment(anEClass, new Workspace().getLocation(), res.getURI().path());
-			} else {
-				return hawkResource.fetchNodes(anEClass, true);
 			}
+
+			return instances;
 		} catch (Exception e) {
 			HawkCrossReferencesPlugin.getDefault().logError(e);
 			return new BasicEList<Object>();
