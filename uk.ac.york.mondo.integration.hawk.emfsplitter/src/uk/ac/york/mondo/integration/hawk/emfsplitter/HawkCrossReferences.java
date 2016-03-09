@@ -51,33 +51,44 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	private static final String HAWK_INSTANCE = "emfsplitter";
 
 	@Override
-	public boolean init(String metamodelURI, String modularNature) {
+	public boolean init(EList<String> metamodelURIs, String modularNature) {
 		try {
 			final HModel hm = getHawkInstance();
-			if (!hm.getRegisteredMetamodels().contains(metamodelURI)) {
-				final EPackage epkg = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
-				if (epkg == null) {
-					throw new NoSuchElementException(String.format(
-							"No metamodel with URL '%s' is available in the global EMF registry.", metamodelURI));
-				}
 
-				/*
-				 * TODO: this might not deal well with metamodels that also
-				 * depend on other metamodels - this method may need to take a
-				 * list of metamodels and not just one.
-				 */
-				final IMetaModelResourceFactory emfFactory = hm.getIndexer().getMetaModelParser(EMFMetaModelResourceFactory.class.getName());
-				final String pkgEcore = emfFactory.dumpPackageToString(new EMFPackage(epkg, new EMFMetaModelResource(epkg.eResource(), emfFactory)));
-				final File tmpEcore = File.createTempFile("tmp", ".ecore");
+			if (!hm.getRegisteredMetamodels().containsAll(metamodelURIs)) {
+				final List<File> dumped = new ArrayList<>();
+
 				try {
-					try (final FileOutputStream fOS = new FileOutputStream(tmpEcore)) {
-						fOS.write(pkgEcore.getBytes());
+					final IMetaModelResourceFactory emfFactory = hm.getIndexer()
+							.getMetaModelParser(EMFMetaModelResourceFactory.class.getName());
+
+					for (String metamodelURI : metamodelURIs) {
+						if (hm.getRegisteredMetamodels().contains(metamodelURI)) {
+							continue;
+						}
+
+						final EPackage epkg = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
+						if (epkg == null) {
+							throw new NoSuchElementException(
+									String.format("No metamodel with URL '%s' is available in the global EMF registry.",
+											metamodelURI));
+						}
+
+						final String pkgEcore = emfFactory.dumpPackageToString(
+								new EMFPackage(epkg, new EMFMetaModelResource(epkg.eResource(), emfFactory)));
+						final File tmpEcore = File.createTempFile("tmp", ".ecore");
+						try (final FileOutputStream fOS = new FileOutputStream(tmpEcore)) {
+							fOS.write(pkgEcore.getBytes());
+						}
+						dumped.add(tmpEcore);
 					}
 
-					hm.getIndexer().registerMetamodels(tmpEcore);
+					hm.getIndexer().registerMetamodels(dumped.toArray(new File[dumped.size()]));
 				} finally {
-					if (tmpEcore.exists()) {
-						tmpEcore.delete();
+					for (File tmpEcore : dumped) {
+						if (tmpEcore.exists()) {
+							tmpEcore.delete();
+						}
 					}
 				}
 			}

@@ -58,6 +58,7 @@ ENTRIES_NOGPL = (
     ('uk.ac.york.mondo.integration.hawk.cli.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.hawk.emf.dt.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.hawk.emf.feature.feature.group', '[1.0.0,2.0.0)'),
+    ('uk.ac.york.mondo.integration.hawk.emfsplitter.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.hawk.remote.thrift.feature.feature.group', '[1.0.0,2.0.0)'),
     ('uk.ac.york.mondo.integration.server.users.cli.feature.feature.group', '[1.0.0,2.0.0)'),
 

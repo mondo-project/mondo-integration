@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="353">
+<?pde version="3.8"?><target includeMode="feature" name="MONDO Integration Target Platform" sequenceNumber="354">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.team.svn.feature.group" version="3.0.1.I20150722-1700"/>
@@ -226,10 +226,6 @@
 <repository location="http://mondo.inf.mit.bme.hu/web/mondo-collaboration/update/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.emf.splitter.feature.feature.group" version="0.1.0.201603091543"/>
-<repository location="http://antoniogarmendia.github.io/EMF-Splitter/update-site/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.hawk.emf.feature.feature.group" version="1.0.0.201603081823"/>
 <unit id="org.eclipse.epsilon.emf.dt.feature.feature.group" version="1.4.0.201603091038"/>
 <unit id="org.hawk.http.feature.feature.group" version="1.0.0.201603081823"/>
@@ -250,6 +246,10 @@
 <unit id="org.hawk.osgiserver.feature.feature.group" version="1.0.0.201603081823"/>
 <unit id="org.hawk.bpmn.feature.feature.group" version="1.0.0.201603081823"/>
 <repository location="http://mondo-project.github.io/mondo-hawk/updates/"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.emf.splitter.feature.feature.group" version="0.1.0.201603091819"/>
+<repository location="http://antoniogarmendia.github.io/EMF-Splitter/update-site/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
