@@ -4,8 +4,8 @@
    <extension
          point="org.model.references.definition.ext">
       <client
-            Id="uk.ac.york.mondo.integration.hawk.emfsplitter.client1"
-            class="uk.ac.york.mondo.integration.hawk.emfsplitter.HawkCrossReferences">
+            Id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.client"
+            class="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.HawkCrossReferences">
       </client>
    </extension>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.ac.york.mondo.integration.hawk.emfsplitter.feature"
+      id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature"
       label="Feature for the Hawk+EMFSplitter integration"
       version="1.0.0.qualifier"
       provider-name="University of York">
@@ -18,10 +18,9 @@
    </license>
 
    <plugin
-         id="uk.ac.york.mondo.integration.hawk.emfsplitter"
+         id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>

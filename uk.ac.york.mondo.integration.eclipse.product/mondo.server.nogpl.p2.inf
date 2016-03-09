@@ -219,7 +219,7 @@ requires.54.name = uk.ac.york.mondo.integration.hawk.emf.feature.feature.group
 requires.54.range = [1.0.0,2.0.0)
 
 requires.55.namespace = org.eclipse.equinox.p2.iu
-requires.55.name = uk.ac.york.mondo.integration.hawk.emfsplitter.feature.feature.group
+requires.55.name = uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature.feature.group
 requires.55.range = [1.0.0,2.0.0)
 
 requires.56.namespace = org.eclipse.equinox.p2.iu

@@ -21,6 +21,7 @@
     <module>hu.bme.mit.mondo.integration.incquery.hawk</module>
     <module>hu.bme.mit.mondo.integration.incquery.hawk.feature</module>
     <module>uk.ac.york.mondo.integration.api</module>
+    <module>uk.ac.york.mondo.integration.api.dt</module>
     <module>uk.ac.york.mondo.integration.api.feature</module>
     <module>uk.ac.york.mondo.integration.artemis</module>
     <module>uk.ac.york.mondo.integration.artemis.server</module>
@@ -37,6 +38,8 @@
     <module>uk.ac.york.mondo.integration.hawk.emf.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.emf.ifcexport</module>
     <module>uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature</module>
+    <module>uk.ac.york.mondo.integration.hawk.emf.emfsplitter</module>
+    <module>uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.remote.thrift</module>
     <module>uk.ac.york.mondo.integration.hawk.remote.thrift.feature</module>
     <module>uk.ac.york.mondo.integration.hawk.servlet</module>

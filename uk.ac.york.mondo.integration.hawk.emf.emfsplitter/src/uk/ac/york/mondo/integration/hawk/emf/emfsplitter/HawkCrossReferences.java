@@ -8,7 +8,7 @@
  * Contributors:
  *    Antonio Garcia-Dominguez - initial API and implementation
  *******************************************************************************/
-package uk.ac.york.mondo.integration.hawk.emfsplitter;
+package uk.ac.york.mondo.integration.hawk.emf.emfsplitter;
 
 import java.io.File;
 import java.io.FileOutputStream;

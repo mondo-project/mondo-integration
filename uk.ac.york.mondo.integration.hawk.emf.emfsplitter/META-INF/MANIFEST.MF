@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hawk + EMF Splitter integration
-Bundle-SymbolicName: uk.ac.york.mondo.integration.hawk.emfsplitter;singleton:=true
+Bundle-SymbolicName: uk.ac.york.mondo.integration.hawk.emf.emfsplitter;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of York
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

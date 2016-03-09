@@ -309,7 +309,7 @@
       <feature id="uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature"/>
       <feature id="org.hawk.git.feature"/>
       <feature id="org.mondo.wt.cstudy.online.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emfsplitter.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature"/>
    </features>
 
    <configurations>
