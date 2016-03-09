@@ -673,7 +673,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				 * reuse previously stored usernames/passwords.
 				 */
 				Class<?> lCredClass = Class
-						.forName("uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials");
+						.forName("uk.ac.york.mondo.integration.api.dt.http.LazyCredentials");
 				lazyCreds = (org.apache.http.auth.Credentials) lCredClass.getConstructor(String.class)
 						.newInstance(descriptor.getHawkURL());
 				this.client = APIUtils.connectTo(Hawk.Client.class, descriptor.getHawkURL(),

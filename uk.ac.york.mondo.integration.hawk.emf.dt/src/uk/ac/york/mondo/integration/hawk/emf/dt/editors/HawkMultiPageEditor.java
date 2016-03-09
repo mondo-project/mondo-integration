@@ -34,10 +34,10 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.part.FileEditorInput;
 
 import uk.ac.york.mondo.integration.api.Hawk;
+import uk.ac.york.mondo.integration.api.dt.http.LazyCredentials;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.hawk.emf.HawkModelDescriptor;
 import uk.ac.york.mondo.integration.hawk.emf.dt.Activator;
-import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 
 /**
  * Editor for <code>.hawkmodel</code> files. The first page is a form-based UI

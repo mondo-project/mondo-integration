@@ -1,4 +1,14 @@
-package uk.ac.york.mondo.integration.hawk.remote.thrift.ui;
+/*******************************************************************************
+ * Copyright (c) 2015-2016 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Antonio Garcia-Dominguez - initial API and implementation
+ *******************************************************************************/
+package uk.ac.york.mondo.integration.api.dt.ui;
 
 /* Based on the following code, with modifications:
  *
@@ -22,25 +32,30 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class UsernamePasswordDialog extends Dialog {
+import uk.ac.york.mondo.integration.api.dt.prefs.CredentialsStore.Credentials;
+
+public class ServerConfigurationDialog extends Dialog {
 	private static final int RESET_ID = IDialogConstants.NO_TO_ALL_ID + 1;
 
+	private Text locationField;
 	private Text usernameField;
 	private Text passwordField;
 
-	private String username;
-	private String password;
+	private final String title;
+	private String username = "admin";
+	private String password = "password";
 	private String location;
 
-	public UsernamePasswordDialog(Shell parentShell, String location) {
+	public ServerConfigurationDialog(Shell parentShell, String title, String location) {
 		super(parentShell);
+		this.title = title;
 		this.location = location;
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Auth for " + location);
+		newShell.setText(title);
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -49,12 +64,25 @@ public class UsernamePasswordDialog extends Dialog {
 		GridLayout layout = (GridLayout) comp.getLayout();
 		layout.numColumns = 2;
 
+		Label locationLabel = new Label(comp, SWT.RIGHT);
+		locationLabel.setText("Base URI: ");
+
+		locationField = new Text(comp, SWT.SINGLE | SWT.BORDER);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		locationField.setLayoutData(data);
+		if (location != null) {
+			locationField.setText(location);
+		}
+
 		Label usernameLabel = new Label(comp, SWT.RIGHT);
 		usernameLabel.setText("Username: ");
 
 		usernameField = new Text(comp, SWT.SINGLE | SWT.BORDER);
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		usernameField.setLayoutData(data);
+		if (username != null) {
+			usernameField.setText(username);
+		}
 
 		Label passwordLabel = new Label(comp, SWT.RIGHT);
 		passwordLabel.setText("Password: ");
@@ -62,6 +90,9 @@ public class UsernamePasswordDialog extends Dialog {
 		passwordField = new Text(comp, SWT.SINGLE | SWT.PASSWORD | SWT.BORDER);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		passwordField.setLayoutData(data);
+		if (password != null) {
+			passwordField.setText(password);
+		}
 
 		return comp;
 	}
@@ -75,6 +106,7 @@ public class UsernamePasswordDialog extends Dialog {
 		if (buttonId == RESET_ID) {
 			usernameField.setText("");
 			passwordField.setText("");
+			locationField.setText(location);
 		} else {
 			super.buttonPressed(buttonId);
 		}
@@ -84,6 +116,7 @@ public class UsernamePasswordDialog extends Dialog {
 	protected void okPressed() {
 		username = usernameField.getText();
 		password = passwordField.getText();
+		location = locationField.getText();
 		super.okPressed();
 	}
 
@@ -93,5 +126,30 @@ public class UsernamePasswordDialog extends Dialog {
 
 	public String getPassword() {
 		return password;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public Credentials getCredentials() {
+		return new Credentials(username, password);
+	}
+
+	public void setCredentials(Credentials creds) {
+		setUsername(creds.getUsername());
+		setPassword(creds.getPassword());
 	}
 }

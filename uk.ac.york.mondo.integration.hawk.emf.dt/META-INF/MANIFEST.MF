@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.ui,
  org.hawk.ui.emfresource;bundle-version="1.0.0",
  uk.ac.york.mondo.integration.hawk.remote.thrift;bundle-version="1.0.0",
  org.apache.httpcomponents.httpclient;bundle-version="4.3.6",
- com.google.guava;bundle-version="15.0.0"
+ com.google.guava;bundle-version="15.0.0",
+ uk.ac.york.mondo.integration.api.dt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.york.mondo.integration.hawk.emf.dt,

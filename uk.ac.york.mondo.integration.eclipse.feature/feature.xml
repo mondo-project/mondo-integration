@@ -16,4 +16,19 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.equinox.security"/>
+      <import plugin="org.apache.httpcomponents.httpclient"/>
+      <import plugin="org.apache.httpcomponents.httpcore"/>
+   </requires>
+
+   <plugin
+         id="uk.ac.york.mondo.integration.api.dt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

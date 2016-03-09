@@ -23,9 +23,9 @@ import org.hawk.core.IModelIndexer;
 
 import uk.ac.york.mondo.integration.api.Hawk;
 import uk.ac.york.mondo.integration.api.Hawk.Client;
+import uk.ac.york.mondo.integration.api.dt.http.LazyCredentials;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
-import uk.ac.york.mondo.integration.hawk.remote.thrift.ui.LazyCredentials;
 
 public class ThriftRemoteHawk implements IHawk {
 
@@ -34,7 +34,7 @@ public class ThriftRemoteHawk implements IHawk {
 	private File folder;
 
 	public ThriftRemoteHawk(String name, String location, File parentFolder, ICredentialsStore credStore, IConsole console, ThriftProtocol thriftProtocol, List<String> enabledPlugins) throws TTransportException, IOException, URISyntaxException {
-		this.client = APIUtils.connectTo(Hawk.Client.class, location, thriftProtocol, new LazyCredentials(location, credStore));
+		this.client = APIUtils.connectTo(Hawk.Client.class, location, thriftProtocol, new LazyCredentials(location));
 		this.folder = parentFolder;
 		this.indexer = new ThriftRemoteModelIndexer(name, location, parentFolder, client, credStore, console, enabledPlugins);
 	}
