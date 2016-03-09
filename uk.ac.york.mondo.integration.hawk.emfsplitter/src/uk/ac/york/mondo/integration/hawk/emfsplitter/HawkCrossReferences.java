@@ -53,9 +53,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	@Override
 	public boolean init(String metamodelURI, String modularNature) {
 		try {
-			// Ensure the Hawk instance is ready and that the metamodel has been registered
-			HModel hm = getHawkInstance();
-			hm.getIndexer().waitFor(HawkState.RUNNING);
+			final HModel hm = getHawkInstance();
 			if (!hm.getRegisteredMetamodels().contains(metamodelURI)) {
 				final EPackage epkg = EPackage.Registry.INSTANCE.getEPackage(metamodelURI);
 				if (epkg == null) {
@@ -112,12 +110,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	public EList<?> getChoicesOfValues(String modularNature, Resource res, EClass anEClass) {
 		LocalHawkResourceImpl hawkResource = null;
 		try {
-			// Ensure that Hawk is available and running
-			HModel hawkInstance = getHawkInstance();
-			if (!hawkInstance.isRunning()) {
-				hawkInstance.start(HManager.getInstance());
-			}
-			hawkInstance.getHawk().getModelIndexer().waitFor(HawkState.RUNNING);
+			final HModel hawkInstance = getHawkInstance();
 
 			// Look for the Hawk resource in the resource set first
 			for (Resource r : res.getResourceSet().getResources()) {
@@ -170,6 +163,10 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 		}
 	}
 
+	/**
+	 * Returns the Hawk instance that indexes the whole workspace, ensuring that
+	 * it exists and that it is in the {@link HawkState#RUNNING} state.
+	 */
 	protected HModel getHawkInstance() throws Exception {
 		final HManager hawkManager = HManager.getInstance();
 		synchronized (hawkManager) {
@@ -185,7 +182,11 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 				final IVcsManager repo = new Workspace();
 				hawkInstance.addVCS(repo.getLocation(), repo.getClass().getName(), "", "", false);
 			}
-	
+
+			if (!hawkInstance.isRunning()) {
+				hawkInstance.start(hawkManager);
+				hawkInstance.getIndexer().waitFor(HawkState.RUNNING);
+			}
 			return hawkInstance;
 		}
 	}
