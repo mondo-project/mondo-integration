@@ -51,7 +51,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	private static final String HAWK_INSTANCE = "emfsplitter";
 
 	@Override
-	public boolean init(EList<String> metamodelURIs, String modularNature) {
+	public boolean init(List<String> metamodelURIs, String modularNature) {
 		try {
 			final HModel hm = getHawkInstance();
 
