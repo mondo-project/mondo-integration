@@ -36,8 +36,8 @@ import org.hawk.emf.metamodel.EMFMetaModelResource;
 import org.hawk.emf.metamodel.EMFMetaModelResourceFactory;
 import org.hawk.emfresource.impl.LocalHawkResourceImpl;
 import org.hawk.orientdb.OrientDatabase;
-import org.hawk.osgiserver.HManager;
 import org.hawk.osgiserver.HModel;
+import org.hawk.ui2.util.HUIManager;
 import org.hawk.workspace.Workspace;
 import org.mondo.modular.references.ext.IEditorCrossReferences;
 
@@ -184,7 +184,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	 * it exists and that it is in the {@link HawkState#RUNNING} state.
 	 */
 	protected HModel getHawkInstance() throws Exception {
-		final HManager hawkManager = HManager.getInstance();
+		final HUIManager hawkManager = HUIManager.getInstance();
 		synchronized (hawkManager) {
 			HModel hawkInstance = hawkManager.getHawkByName(HAWK_INSTANCE);
 			if (hawkInstance == null) {
