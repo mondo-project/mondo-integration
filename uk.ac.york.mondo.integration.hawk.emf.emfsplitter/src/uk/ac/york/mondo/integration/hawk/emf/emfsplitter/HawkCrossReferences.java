@@ -91,6 +91,8 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 						}
 					}
 				}
+
+				hm.sync();
 			}
 		} catch (Exception e) {
 			HawkCrossReferencesPlugin.getDefault().logError(e);
