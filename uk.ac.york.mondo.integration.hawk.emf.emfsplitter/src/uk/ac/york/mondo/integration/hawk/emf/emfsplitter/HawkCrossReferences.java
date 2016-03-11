@@ -139,8 +139,8 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 			// If it's not in the resource set, load it and add it to the resource set
 			if (hawkResource == null) {
 				hawkResource = new LocalHawkResourceImpl(URI.createURI("hawk://"), hawkInstance.getIndexer(), true, Arrays.asList("*"), Arrays.asList("*"));
-				hawkResource.load(null);
 				res.getResourceSet().getResources().add(hawkResource);
+				hawkResource.load(null);
 			}
 
 			// Look for instances of the types first
@@ -188,6 +188,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 		synchronized (hawkManager) {
 			HModel hawkInstance = hawkManager.getHawkByName(HAWK_INSTANCE);
 			if (hawkInstance == null) {
+				// TODO: use a path within the workspace directory?
 				final File storageFolder = new File("hawk");
 
 				// TODO: limit plugins to EMF, use Neo4j if available
