@@ -122,6 +122,9 @@ public class IFCExportCommand extends AbstractHandler {
 		desc.load(new FileReader(hawkModel.getLocation().toFile()));
 		desc.setSplit(false);
 		monitor.worked(1);
+		if (monitor.isCanceled()) {
+			return;
+		}
 
 		monitor.subTask("Loading remote Hawk resource");
 		final URI emfURI = URI.createURI(hawkModel.getLocationURI().toString());
@@ -130,6 +133,9 @@ public class IFCExportCommand extends AbstractHandler {
 		rs.getResources().add(resource);
 		resource.doLoad(desc, monitor);
 		monitor.worked(1);
+		if (monitor.isCanceled()) {
+			return;
+		}
 
 		monitor.subTask("Populating IFC serializer");
 		Serializer serializer;
@@ -140,6 +146,9 @@ public class IFCExportCommand extends AbstractHandler {
 		}
 		serializer.getModel().generateMinimalExpressIds();
 		monitor.worked(1);
+		if (monitor.isCanceled()) {
+			return;
+		}
 
 		monitor.subTask("Writing STEP file");
 		serializer.writeToFile(dest, new ProgressReporter() {
@@ -149,6 +158,9 @@ public class IFCExportCommand extends AbstractHandler {
 			}
 		});
 		monitor.worked(1);
+		if (monitor.isCanceled()) {
+			return;
+		}
 
 		hawkModel.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 	}
