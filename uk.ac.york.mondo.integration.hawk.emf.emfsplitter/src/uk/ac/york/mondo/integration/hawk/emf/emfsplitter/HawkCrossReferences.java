@@ -156,7 +156,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 				final List<String> acceptedPrefixes = new ArrayList<>();
 				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 					if (project.getNature(modularNature) != null) {
-						project.getFullPath().toString();
+						acceptedPrefixes.add(project.getFullPath().toString());
 					}
 				}
 
