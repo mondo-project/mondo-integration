@@ -35,8 +35,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ITreeViewerListener;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -46,8 +48,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -590,7 +594,6 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		layout.numColumns = 1;
 		final Composite formBody = managedForm.getForm().getBody();
 		formBody.setLayout(layout);
-		formBody.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 
 		final FormText formText = toolkit.createFormText(formBody, true);
 		formText.setText(
@@ -604,12 +607,14 @@ public class EffectiveMetamodelFormPage extends FormPage {
 				+ "</p>",
 				true, false);
 
-		final Composite cTable = toolkit.createComposite(formBody, SWT.FILL);
-		cTable.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+		final Composite cTable = toolkit.createComposite(formBody, SWT.NONE);
+		cTable.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB));
 		cTable.setLayout(Utils.createTableWrapLayout(2));
 
 		final Composite cTree = new Composite(cTable, SWT.NONE);
-		cTree.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+		final TableWrapData cTreeLayoutData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB);
+		cTreeLayoutData.maxHeight = 500;
+		cTree.setLayoutData(cTreeLayoutData);
 		TreeColumnLayout tcl_cTree = new TreeColumnLayout();
 		cTree.setLayout(tcl_cTree);
 
@@ -631,7 +636,6 @@ public class EffectiveMetamodelFormPage extends FormPage {
 		stateColumn.setEditingSupport(editingSupport);
 		tcl_cTree.setColumnData(stateColumn.getColumn(), new ColumnPixelData(100));
 
-		treeViewer.setInput(store);
 		final Composite cButtons = toolkit.createComposite(cTable, SWT.WRAP);
 		final FillLayout cButtonsLayout = new FillLayout(SWT.VERTICAL);
 		cButtonsLayout.spacing = 7;
@@ -694,7 +698,8 @@ public class EffectiveMetamodelFormPage extends FormPage {
 			}
 		});
 
-		// TODO add UI for Analyze... button
+		treeViewer.setInput(store);
+		treeViewer.expandToLevel(2);
 	}
 
 	public EffectiveMetamodelRuleset getEffectiveMetamodel() {
