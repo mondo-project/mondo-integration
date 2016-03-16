@@ -156,7 +156,8 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 				final List<String> acceptedPrefixes = new ArrayList<>();
 				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 					if (project.getNature(modularNature) != null) {
-						acceptedPrefixes.add(project.getFullPath().toString());
+						String prefix = URI.createPlatformResourceURI(project.getFullPath().toString(), false).path() + "/";
+						acceptedPrefixes.add(prefix);
 					}
 				}
 
@@ -164,7 +165,8 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 				for (Iterator<EObject> itInstance = instances.iterator(); itInstance.hasNext(); ) {
 					final EObject eob = itInstance.next();
 					for (String prefix : acceptedPrefixes) {
-						if (eob.eResource().getURI().path().startsWith(prefix)) {
+						final String path = eob.eResource().getURI().path();
+						if (path.startsWith(prefix)) {
 							continue filterByNature;
 						}
 					}
