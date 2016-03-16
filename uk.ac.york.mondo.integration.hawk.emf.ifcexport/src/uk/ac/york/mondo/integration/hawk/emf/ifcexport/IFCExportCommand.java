@@ -113,8 +113,9 @@ public class IFCExportCommand extends AbstractHandler {
 		return null;
 	}
 
-	protected void exportToSTEP(final IFile hawkModel, final File dest, final IProgressMonitor monitor) throws IOException, FileNotFoundException,
-			Exception, IfcModelInterfaceException, SerializerException, CoreException {
+	protected void exportToSTEP(final IFile hawkModel, final File dest, final IProgressMonitor monitor)
+			throws IOException, FileNotFoundException, Exception, IfcModelInterfaceException, SerializerException,
+			CoreException {
 		monitor.beginTask("Exporting " + hawkModel.getName() + " to " + dest.getName(), 4);
 
 		monitor.subTask("Loading descriptor");
@@ -130,42 +131,47 @@ public class IFCExportCommand extends AbstractHandler {
 		final URI emfURI = URI.createURI(hawkModel.getLocationURI().toString());
 		final ResourceSet rs = new ResourceSetImpl();
 		final HawkResourceImpl resource = new HawkResourceImpl(emfURI, desc);
-		rs.getResources().add(resource);
-		resource.doLoad(desc, monitor);
-		monitor.worked(1);
-		if (monitor.isCanceled()) {
-			return;
-		}
-
-		monitor.subTask("Populating IFC serializer");
-		Serializer serializer;
-		if (desc.getLoadingMode().isGreedyElements()) {
-			serializer = greedySerialize(resource, monitor);
-		} else {
-			serializer = lazySerialize(resource, monitor);
-		}
-		serializer.getModel().generateMinimalExpressIds();
-		monitor.worked(1);
-		if (monitor.isCanceled()) {
-			return;
-		}
-
-		monitor.subTask("Writing STEP file");
-		serializer.writeToFile(dest, new ProgressReporter() {
-			@Override
-			public void update(long progress, long max) {
-				monitor.subTask(String.format("Writing STEP file (%d/%d)", progress, max));
+		try {
+			rs.getResources().add(resource);
+			resource.doLoad(desc, monitor);
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return;
 			}
-		});
-		monitor.worked(1);
-		if (monitor.isCanceled()) {
-			return;
-		}
 
-		hawkModel.getParent().refreshLocal(IResource.DEPTH_ONE, null);
+			monitor.subTask("Populating IFC serializer");
+			Serializer serializer;
+			if (desc.getLoadingMode().isGreedyElements()) {
+				serializer = greedySerialize(resource, monitor);
+			} else {
+				serializer = lazySerialize(resource, monitor);
+			}
+			serializer.getModel().generateMinimalExpressIds();
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return;
+			}
+
+			monitor.subTask("Writing STEP file");
+			serializer.writeToFile(dest, new ProgressReporter() {
+				@Override
+				public void update(long progress, long max) {
+					monitor.subTask(String.format("Writing STEP file (%d/%d)", progress, max));
+				}
+			});
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return;
+			}
+
+			hawkModel.getParent().refreshLocal(IResource.DEPTH_ONE, null);
+		} finally {
+			resource.unload();
+		}
 	}
 
-	protected Serializer greedySerialize(final HawkResourceImpl resource, IProgressMonitor monitor) throws Exception, IfcModelInterfaceException {
+	protected Serializer greedySerialize(final HawkResourceImpl resource, IProgressMonitor monitor)
+			throws Exception, IfcModelInterfaceException {
 		final int total = resource.getContents().size();
 		/*
 		 * Greedy loading modes are simple: we already have everything in the
@@ -216,7 +222,8 @@ public class IFCExportCommand extends AbstractHandler {
 				if (current == REPORTING_BATCH_SIZE) {
 					offset += current;
 					current = 0;
-					monitor.subTask(String.format("Populating IFC serializer (%d objects so far, %d in the queue)", offset, pending.size()));
+					monitor.subTask(String.format("Populating IFC serializer (%d objects so far, %d in the queue)",
+							offset, pending.size()));
 				}
 			}
 		}
@@ -238,7 +245,8 @@ public class IFCExportCommand extends AbstractHandler {
 
 	private Serializer createSerializer(final HawkResourceImpl resource) throws Exception {
 		Serializer serializer = null;
-		for (TreeIterator<EObject> it = EcoreUtil.getAllContents(resource, false); it.hasNext() && serializer == null; ) {
+		for (TreeIterator<EObject> it = EcoreUtil.getAllContents(resource, false); it.hasNext()
+				&& serializer == null;) {
 			EObject eo = it.next();
 			if (eo instanceof IdEObject) {
 				serializer = createSerializer(eo.eClass().getEPackage().getNsURI());
@@ -278,11 +286,11 @@ public class IFCExportCommand extends AbstractHandler {
 		final InputStream isBIMPluginXML = IFCModelResource.class.getResourceAsStream("/plugin/plugin.xml");
 		final PluginDescriptor desc = readPluginDescriptor(isBIMPluginXML);
 		for (PluginImplementation impl : desc.getImplementations()) {
-			final Class<? extends Plugin> interfaceClass = (Class<? extends Plugin>) Class.forName(impl.getInterfaceClass());
+			final Class<? extends Plugin> interfaceClass = (Class<? extends Plugin>) Class
+					.forName(impl.getInterfaceClass());
 			final Class<?> implClass = Class.forName(impl.getImplementationClass());
 			final Plugin plugin = (Plugin) implClass.newInstance();
-			bimPluginManager.loadPlugin(interfaceClass, "", "", plugin,
-					this.getClass().getClassLoader(),
+			bimPluginManager.loadPlugin(interfaceClass, "", "", plugin, this.getClass().getClassLoader(),
 					PluginSourceType.INTERNAL, impl);
 		}
 		return bimPluginManager;
