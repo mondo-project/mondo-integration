@@ -42,9 +42,13 @@ The dependencies for the project using Artemis are located in `uk.ac.york.mondo.
 You may have to run the Ant job _twice_ in order to succeed.
 
 ### Setting the target platform
+Before attempting to resolve the target platform, don't forget to start the local webserver in the mondo-hawk directory:
 
-Go to the `uk.ac.york.mondo.integration.targetplatform`, open the `uk.ac.york.mondo.thrift.osgi.example.targetplatform.target` Target Definition file and click **Set as Target Platform**.
+    cd mondo-hawk/org.hawk.updateiste/hawk-gpl
+    python -m SimpleHTTPServer 8000
 
+Go to the `uk.ac.york.mondo.integration.targetplatform`, open the `uk.ac.york.mondo.thrift.osgi.example.targetplatform.target` Target Definition file and click **Set as Target Platform**. 
+    
 API
 ---
 
