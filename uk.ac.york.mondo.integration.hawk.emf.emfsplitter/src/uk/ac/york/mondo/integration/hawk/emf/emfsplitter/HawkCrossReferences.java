@@ -148,7 +148,12 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 			if (searchAll) {
 				instances = hawkResource.fetchNodes(anEClass, true);
 			} else {
-				instances = hawkResource.fetchNodesByContainerFragment(anEClass, new Workspace().getLocation(), res.getURI().path());
+				final String prefix = new Workspace().getLocation();
+				String resourceURI = res.getURI().toString();
+				if (resourceURI.startsWith(prefix)) {
+					resourceURI = resourceURI.substring(prefix.length());
+				}
+				instances = hawkResource.fetchNodesByContainerFragment(anEClass, prefix, resourceURI);
 			}
 
 			// Optionally, filter by project nature
@@ -204,6 +209,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 
 			if (!hawkInstance.isRunning()) {
 				hawkInstance.start(hawkManager);
+				hawkInstance.getIndexer().waitFor(HawkState.UPDATING, 3000);
 				hawkInstance.getIndexer().waitFor(HawkState.RUNNING);
 			}
 			return hawkInstance;
