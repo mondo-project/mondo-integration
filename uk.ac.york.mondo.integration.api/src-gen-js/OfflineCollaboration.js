@@ -7,6 +7,148 @@
 
 //HELPER FUNCTIONS AND STRUCTURES
 
+OfflineCollaboration_listGoldRepositories_args = function(args) {
+};
+OfflineCollaboration_listGoldRepositories_args.prototype = {};
+OfflineCollaboration_listGoldRepositories_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_listGoldRepositories_args.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_listGoldRepositories_args');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaboration_listGoldRepositories_result = function(args) {
+  this.success = null;
+  this.err1 = null;
+  this.err2 = null;
+  if (args instanceof UnauthorizedRepositoryOperation) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof OfflineCollaborationInternalError) {
+    this.err2 = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = Thrift.copyList(args.success, [null]);
+    }
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+  }
+};
+OfflineCollaboration_listGoldRepositories_result.prototype = {};
+OfflineCollaboration_listGoldRepositories_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.LIST) {
+        var _size360 = 0;
+        var _rtmp3364;
+        this.success = [];
+        var _etype363 = 0;
+        _rtmp3364 = input.readListBegin();
+        _etype363 = _rtmp3364.etype;
+        _size360 = _rtmp3364.size;
+        for (var _i365 = 0; _i365 < _size360; ++_i365)
+        {
+          var elem366 = null;
+          elem366 = input.readString().value;
+          this.success.push(elem366);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new UnauthorizedRepositoryOperation();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new OfflineCollaborationInternalError();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_listGoldRepositories_result.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_listGoldRepositories_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.LIST, 0);
+    output.writeListBegin(Thrift.Type.STRING, this.success.length);
+    for (var iter367 in this.success)
+    {
+      if (this.success.hasOwnProperty(iter367))
+      {
+        iter367 = this.success[iter367];
+        output.writeString(iter367);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 OfflineCollaboration_regenerateFrontRepositories_args = function(args) {
   this.goldRepoURL = null;
   if (args) {
@@ -327,12 +469,234 @@ OfflineCollaboration_getMyFrontRepositoryURL_result.prototype.write = function(o
   return;
 };
 
+OfflineCollaboration_getOnlineCollaborationURL_args = function(args) {
+  this.goldRepoURL = null;
+  if (args) {
+    if (args.goldRepoURL !== undefined && args.goldRepoURL !== null) {
+      this.goldRepoURL = args.goldRepoURL;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field goldRepoURL is unset!');
+    }
+  }
+};
+OfflineCollaboration_getOnlineCollaborationURL_args.prototype = {};
+OfflineCollaboration_getOnlineCollaborationURL_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.goldRepoURL = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_getOnlineCollaborationURL_args.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_getOnlineCollaborationURL_args');
+  if (this.goldRepoURL !== null && this.goldRepoURL !== undefined) {
+    output.writeFieldBegin('goldRepoURL', Thrift.Type.STRING, 1);
+    output.writeString(this.goldRepoURL);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+OfflineCollaboration_getOnlineCollaborationURL_result = function(args) {
+  this.success = null;
+  this.err1 = null;
+  this.err2 = null;
+  this.err3 = null;
+  if (args instanceof GoldRepoNotFound) {
+    this.err1 = args;
+    return;
+  }
+  if (args instanceof UnauthorizedRepositoryOperation) {
+    this.err2 = args;
+    return;
+  }
+  if (args instanceof OfflineCollaborationInternalError) {
+    this.err3 = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = args.success;
+    }
+    if (args.err1 !== undefined && args.err1 !== null) {
+      this.err1 = args.err1;
+    }
+    if (args.err2 !== undefined && args.err2 !== null) {
+      this.err2 = args.err2;
+    }
+    if (args.err3 !== undefined && args.err3 !== null) {
+      this.err3 = args.err3;
+    }
+  }
+};
+OfflineCollaboration_getOnlineCollaborationURL_result.prototype = {};
+OfflineCollaboration_getOnlineCollaborationURL_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRING) {
+        this.success = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err1 = new GoldRepoNotFound();
+        this.err1.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err2 = new UnauthorizedRepositoryOperation();
+        this.err2.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.err3 = new OfflineCollaborationInternalError();
+        this.err3.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+OfflineCollaboration_getOnlineCollaborationURL_result.prototype.write = function(output) {
+  output.writeStructBegin('OfflineCollaboration_getOnlineCollaborationURL_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRING, 0);
+    output.writeString(this.success);
+    output.writeFieldEnd();
+  }
+  if (this.err1 !== null && this.err1 !== undefined) {
+    output.writeFieldBegin('err1', Thrift.Type.STRUCT, 1);
+    this.err1.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err2 !== null && this.err2 !== undefined) {
+    output.writeFieldBegin('err2', Thrift.Type.STRUCT, 2);
+    this.err2.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.err3 !== null && this.err3 !== undefined) {
+    output.writeFieldBegin('err3', Thrift.Type.STRUCT, 3);
+    this.err3.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 OfflineCollaborationClient = function(input, output) {
     this.input = input;
     this.output = (!output) ? input : output;
     this.seqid = 0;
 };
 OfflineCollaborationClient.prototype = {};
+OfflineCollaborationClient.prototype.listGoldRepositories = function(callback) {
+  this.send_listGoldRepositories(callback); 
+  if (!callback) {
+    return this.recv_listGoldRepositories();
+  }
+};
+
+OfflineCollaborationClient.prototype.send_listGoldRepositories = function(callback) {
+  this.output.writeMessageBegin('listGoldRepositories', Thrift.MessageType.CALL, this.seqid);
+  var args = new OfflineCollaboration_listGoldRepositories_args();
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_listGoldRepositories();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+OfflineCollaborationClient.prototype.recv_listGoldRepositories = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new OfflineCollaboration_listGoldRepositories_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'listGoldRepositories failed: unknown result';
+};
 OfflineCollaborationClient.prototype.regenerateFrontRepositories = function(goldRepoURL, callback) {
   this.send_regenerateFrontRepositories(goldRepoURL, callback); 
   if (!callback) {
@@ -445,4 +809,62 @@ OfflineCollaborationClient.prototype.recv_getMyFrontRepositoryURL = function() {
     return result.success;
   }
   throw 'getMyFrontRepositoryURL failed: unknown result';
+};
+OfflineCollaborationClient.prototype.getOnlineCollaborationURL = function(goldRepoURL, callback) {
+  this.send_getOnlineCollaborationURL(goldRepoURL, callback); 
+  if (!callback) {
+    return this.recv_getOnlineCollaborationURL();
+  }
+};
+
+OfflineCollaborationClient.prototype.send_getOnlineCollaborationURL = function(goldRepoURL, callback) {
+  this.output.writeMessageBegin('getOnlineCollaborationURL', Thrift.MessageType.CALL, this.seqid);
+  var args = new OfflineCollaboration_getOnlineCollaborationURL_args();
+  args.goldRepoURL = goldRepoURL;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_getOnlineCollaborationURL();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+OfflineCollaborationClient.prototype.recv_getOnlineCollaborationURL = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new OfflineCollaboration_getOnlineCollaborationURL_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.err1) {
+    throw result.err1;
+  }
+  if (null !== result.err2) {
+    throw result.err2;
+  }
+  if (null !== result.err3) {
+    throw result.err3;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'getOnlineCollaborationURL failed: unknown result';
 };

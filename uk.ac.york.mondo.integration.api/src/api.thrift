@@ -719,6 +719,14 @@ service Hawk {
    describes a work-in-progress API for managing these access rules: the final version will be
    provided in D6.8, due in M30. */
 service OfflineCollaboration {
+  /* Retrieve the list of all managed gold repositories. Auth needed: Yes */
+  list<string> listGoldRepositories(
+  )
+  throws (
+	1: UnauthorizedRepositoryOperation err1 /* Authenticated user is not permitted to carry out the requested operation on the specified repository. */ 
+	2: OfflineCollaborationInternalError err2 /* An internal error occurred on the collaboration server. See details in server log. */ 
+	) 
+	
   /* Regenerate all front repositories based on the gold repository. Requires superuser privileges. Auth needed: Yes */
   void regenerateFrontRepositories(
 	/* URL of the gold repository. */ 1: required string goldRepoURL,
@@ -732,6 +740,16 @@ service OfflineCollaboration {
   /* Retrieve the front repository URL for the current user. Auth needed: Yes */
   string getMyFrontRepositoryURL(
 	/* URL of the gold repository. */ 1: required string goldRepoURL,
+  )
+  throws (
+	1: GoldRepoNotFound err1 /* No gold repository is configured at the specified URL. */ 
+	2: UnauthorizedRepositoryOperation err2 /* Authenticated user is not permitted to carry out the requested operation on the specified repository. */ 
+	3: OfflineCollaborationInternalError err3 /* An internal error occurred on the collaboration server. See details in server log. */ 
+	) 
+	
+  /* Retrieve the online collaboration access point URL for the current user. Auth needed: Yes */
+  string getOnlineCollaborationURL(
+	/*  */ 1: required string goldRepoURL,
   )
   throws (
 	1: GoldRepoNotFound err1 /* No gold repository is configured at the specified URL. */ 

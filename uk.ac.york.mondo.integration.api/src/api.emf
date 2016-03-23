@@ -495,6 +495,11 @@ class OfflineCollaboration {
   op CollaborationRule[*] listRules(
     @doc(d="URL of the version control system") String repoURL);
 */
+		
+  @doc(d="Retrieve the list of all managed gold repositories")
+  op String[*] listGoldRepositories()
+		throws UnauthorizedRepositoryOperation, OfflineCollaborationInternalError;
+
   @doc(d="Regenerate all front repositories based on the gold repository. Requires superuser privileges. ")
   op void regenerateFrontRepositories(
     @doc(d="URL of the gold repository") String goldRepoURL)
@@ -502,6 +507,11 @@ class OfflineCollaboration {
 
   @doc(d="Retrieve the front repository URL for the current user")
   op String getMyFrontRepositoryURL(
+    @doc(d="URL of the gold repository") String goldRepoURL)
+		throws GoldRepoNotFound, UnauthorizedRepositoryOperation, OfflineCollaborationInternalError;
+		
+  @doc(d="Retrieve the online collaboration access point URL for the current user")
+  op String getOnlineCollaborationURL(
     @doc(d="URL of the gold repository") String goldRepoURL)
 		throws GoldRepoNotFound, UnauthorizedRepositoryOperation, OfflineCollaborationInternalError;
 }
