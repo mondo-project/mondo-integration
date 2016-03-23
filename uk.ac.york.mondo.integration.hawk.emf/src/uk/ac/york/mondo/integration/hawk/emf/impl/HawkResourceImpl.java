@@ -209,7 +209,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					return;
 				}
 
-				if (lazyResolver != null && lazyResolver.isPending((EObject)source, ref)) {
+				if (lazyResolver != null && lazyResolver.isLazy((EObject)source, ref)) {
 					if (!lazyResolver.removeFromLazyReference(source, ref, ev.targetId) && target != null) {
 						lazyResolver.removeFromLazyReference(source, ref, target);
 					}
@@ -257,7 +257,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					return;
 				}
 
-				if (lazyResolver != null && lazyResolver.isPending((EObject) source, ref)) {
+				if (lazyResolver != null && lazyResolver.isLazy((EObject) source, ref)) {
 					handleLazyReferenceAddition(ev, source, target, ref);
 				} else if (isLazyLoading() && changeListeners.isEmpty() && !source.eIsSet(ref)) {
 					// Nobody is listening, we're in lazy loading mode and the reference wasn't set
@@ -1092,7 +1092,16 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						final EObject eob = (EObject)o;
 						switch (m.getName()) {
 						case "eIsSet":
-							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isPending(eob, (EStructuralFeature) args[0]);
+							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, (EStructuralFeature) args[0]);
+						case "eContainmentFeature":
+							final Object rawCF = proxy.invokeSuper(o, args);
+							return rawCF != null ? rawCF : lazyResolver.getContainingFeature(eob);
+						case "eContainer":
+							final EObject rawContainer = (EObject) proxy.invokeSuper(o, args);
+							return rawContainer != null ? rawContainer : lazyResolver.getContainer(eob);
+						case "eResource":
+							final Object rawResource = proxy.invokeSuper(o, args);
+							return rawResource != null ? rawResource : lazyResolver.getResource(eob);
 						case "eGet":
 							// We need to serialize modifications from lazy loading + change notifications,
 							// for consistency and for the ability to signal if an EMF notification comes
@@ -1486,6 +1495,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			 }
 		 }
 		return types;
+	}
+
+	@Override
+	public void markChanged(EObject eob) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
