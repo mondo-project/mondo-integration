@@ -99,6 +99,7 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	 & backend & \camelcase{string} & The name of the backend to be used, as returned by listBackends(). \\\hline 
 	 & minimumDelayMillis & \camelcase{i32} & Minimum delay between periodic synchronization in milliseconds. \\\hline 
 	 & maximumDelayMillis & \camelcase{i32} & Maximum delay between periodic synchronization in milliseconds (0 to disable periodic synchronization). \\\hline 
+	 & enabledPlugins  (optional)& \camelcase{list<string>} & List of plugins to be enabled: if not set, all plugins are enabled. \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation Hawk.listBackends}
@@ -106,6 +107,14 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
 	\textbf{Operation} & \camelcase{listBackends} & \camelcase{list<string>} & Lists the names of the available storage backends. \\\hline
+	\textbf{Parameters} & \multicolumn{3}{l|}{None.} \\\hline
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.listPlugins}
+	\label{tab:hawk-listPlugins}\\
+	\cline{2-4}%
+	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listPlugins} & \camelcase{list<string>} & Lists all the plugins that can be enabled: metamodel parsers, model parsers, query parsers, updaters and graph change listeners. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{None.} \\\hline
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
@@ -259,6 +268,33 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
 	 & \camelcase{UnknownRepositoryType} & \multicolumn{2}{p{8.5cm}|}{The specified repository type is not supported by the operation.} \\\hline 
 	 & \camelcase{VCSAuthenticationFailed} & \multicolumn{2}{p{8.5cm}|}{The client failed to prove its identity in the VCS.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.isFrozen}
+	\label{tab:hawk-isFrozen}\\
+	\cline{2-4}%
+	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{isFrozen} & \camelcase{bool} & Returns true if a repository is frozen, false otherwise. \\\hline
+	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
+	 & name & \camelcase{string} & The name of the Hawk instance. \\\hline 
+	 & uri & \camelcase{string} & The URI of the repository to query. \\\hline 
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation Hawk.setFrozen}
+	\label{tab:hawk-setFrozen}\\
+	\cline{2-4}%
+	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{setFrozen} & \camelcase{void} & Changes the 'frozen' state of a repository. \\\hline
+	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
+	 & name & \camelcase{string} & The name of the Hawk instance. \\\hline 
+	 & uri & \camelcase{string} & The URI of the repository to be changed. \\\hline 
+	 & isFrozen & \camelcase{bool} & Whether the repository should be frozen (true) or not (false). \\\hline 
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
+	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation Hawk.removeRepository}
@@ -484,6 +520,17 @@ describes a work-in-progress API for managing these access rules: the final vers
 provided in D6.8, due in M30.
 
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.listGoldRepositories}
+	\label{tab:offlineCollaboration-listGoldRepositories}\\
+	\cline{2-4}%
+	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{listGoldRepositories} & \camelcase{list<string>} & Retrieve the list of all managed gold repositories. \\\hline
+	\textbf{Parameters} & \multicolumn{3}{l|}{None.} \\\hline
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
+	 & \camelcase{OfflineCollaborationInternalError} & \multicolumn{2}{p{8.5cm}|}{An internal error occurred on the collaboration server. See details in server log.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation OfflineCollaboration.regenerateFrontRepositories}
 	\label{tab:offlineCollaboration-regenerateFrontRepositories}\\
 	\cline{2-4}%
@@ -504,6 +551,19 @@ provided in D6.8, due in M30.
 	\textbf{Operation} & \camelcase{getMyFrontRepositoryURL} & \camelcase{string} & Retrieve the front repository URL for the current user. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & goldRepoURL & \camelcase{string} & URL of the gold repository. \\\hline 
+	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
+	 & \camelcase{GoldRepoNotFound} & \multicolumn{2}{p{8.5cm}|}{No gold repository is configured at the specified URL.} \\\hline 
+	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
+	 & \camelcase{OfflineCollaborationInternalError} & \multicolumn{2}{p{8.5cm}|}{An internal error occurred on the collaboration server. See details in server log.} \\\hline 
+\end{longtable}
+\begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+	\caption{Operation OfflineCollaboration.getOnlineCollaborationURL}
+	\label{tab:offlineCollaboration-getOnlineCollaborationURL}\\
+	\cline{2-4}%
+	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
+	\textbf{Operation} & \camelcase{getOnlineCollaborationURL} & \camelcase{string} & Retrieve the online collaboration access point URL for the current user. \\\hline
+	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
+	 & goldRepoURL & \camelcase{string} &  \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
 	 & \camelcase{GoldRepoNotFound} & \multicolumn{2}{p{8.5cm}|}{No gold repository is configured at the specified URL.} \\\hline 
 	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
@@ -1051,6 +1111,7 @@ Entity that represents a model repository.
 	\label{tab:repository}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
+		  \camelcase{isFrozen}  & \camelcase{bool}  (optional) & True if the repository is frozen, false otherwise. \\\hline
 		  \camelcase{type}  & \camelcase{string}  & The type of repository. \\\hline
 		  \camelcase{uri}  & \camelcase{string}  & The URI to the repository. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.addRepository, Hawk.listRepositories} \\\hline
@@ -1264,7 +1325,7 @@ No gold repository is configured at the specified URL.
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL, OfflineCollaboration.getOnlineCollaborationURL} \\\hline
 \end{longtable}
 \subsubsection{HawkInstanceNotFound}
 No Hawk instance exists with that name.
@@ -1275,7 +1336,7 @@ No Hawk instance exists with that name.
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.removeInstance, Hawk.startInstance, Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.removeInstance, Hawk.startInstance, Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.isFrozen, Hawk.setFrozen, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
 \end{longtable}
 \subsubsection{HawkInstanceNotRunning}
 The selected Hawk instance is not running.
@@ -1286,7 +1347,7 @@ The selected Hawk instance is not running.
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.stopInstance, Hawk.syncInstance, Hawk.registerMetamodels, Hawk.unregisterMetamodels, Hawk.listMetamodels, Hawk.query, Hawk.resolveProxies, Hawk.addRepository, Hawk.isFrozen, Hawk.setFrozen, Hawk.removeRepository, Hawk.updateRepositoryCredentials, Hawk.listRepositories, Hawk.listFiles, Hawk.configurePolling, Hawk.addDerivedAttribute, Hawk.removeDerivedAttribute, Hawk.listDerivedAttributes, Hawk.addIndexedAttribute, Hawk.removeIndexedAttribute, Hawk.listIndexedAttributes, Hawk.getModel, Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
 \end{longtable}
 \subsubsection{InvalidDerivedAttributeSpec}
 The derived attribute specification is not valid.
@@ -1376,7 +1437,7 @@ An internal error occurred on the collaboration server. See details in server lo
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{errorMessage}  & \camelcase{string}  & Summary description of the error. See details in server log. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.listGoldRepositories, OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL, OfflineCollaboration.getOnlineCollaborationURL} \\\hline
 \end{longtable}
 \subsubsection{TransformationTokenNotFound}
 The specified transformation token does not exist within the invokved MONDO instance.
@@ -1398,7 +1459,7 @@ Authenticated user is not permitted to carry out the requested operation on the 
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 	    --- & --- & --- \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} OfflineCollaboration.listGoldRepositories, OfflineCollaboration.regenerateFrontRepositories, OfflineCollaboration.getMyFrontRepositoryURL, OfflineCollaboration.getOnlineCollaborationURL} \\\hline
 \end{longtable}
 \subsubsection{UnknownQueryLanguage}
 The specified query language is not supported by the operation.
