@@ -12,7 +12,10 @@
       <vmArgs>-Dorg.osgi.service.http.port=8080 -Dorg.osgi.service.http.port.secure=8443
 -Dosgi.noShutdown=true -Xmx4096m -Xms2048m
 -Dorg.eclipse.equinox.http.jetty.customizer.class=uk.ac.york.mondo.integration.server.gzip.Customizer -Dorg.eclipse.update.reconcile=false
--Dartemis.security.enabled=false -Dhawk.artemis.host=localhost -Dhawk.tcp.port=2080 -Dhawk.tcp.thriftProtocol=TUPLE
+-Dartemis.security.enabled=false
+-Dhawk.artemis.host=localhost
+-Dhawk.artemis.listenAll=false
+-Dhawk.tcp.port=2080 -Dhawk.tcp.thriftProtocol=TUPLE
 
 -Dmondo.repository.gold=http://localhost/svn/wt-demo
 -Dmondo.extensions=wtspec4m

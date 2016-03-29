@@ -49,12 +49,21 @@ public class Server {
 
 	private final String host;
 	private final int port;
+	private boolean listenToAllInterfaces = false;
 
 	private EmbeddedActiveMQ server;
 
 	public Server(String host, int port) {
 		this.host = host;
 		this.port = port;
+	}
+
+	public boolean isListenOnAllInterfaces() {
+		return listenToAllInterfaces;
+	}
+
+	public void setListenOnAllInterfaces(boolean listenOnAllInterfaces) {
+		this.listenToAllInterfaces = listenOnAllInterfaces;
 	}
 
 	public void start() throws Exception {
@@ -78,7 +87,7 @@ public class Server {
 		transports.add(new TransportConfiguration(
 				NettyAcceptorFactory.class.getName(),
 				new FluidMap<String, Object>()
-					.with(TransportConstants.HOST_PROP_NAME, host)
+					.with(TransportConstants.HOST_PROP_NAME, listenToAllInterfaces ? "0.0.0.0" : host)
 					.with(TransportConstants.PORT_PROP_NAME, port + "")
 					.with(TransportConstants.PROTOCOLS_PROP_NAME, "CORE,STOMP"))
 		);

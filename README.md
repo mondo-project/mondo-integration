@@ -84,6 +84,8 @@ Another important detail for production environments is turning on security. Thi
 
 If you are deploying this across a network, you will need to edit the `mondo-server.ini` file and customize the `hawk.artemis.host` line to the host that you want the Artemis server to listen to. This should be the IP address or hostname of the MONDO server in the network, normally. The Thrift API uses this hostname as well in its replies to the `watchModelChanges` operation in the Hawk API.
 
+Additionally, if the server IP is dynamic but has a consistent DNS name (e.g. an Amazon VM), we recommend setting `hawk.artemis.listenAll` to `true` (so the Artemis server will keep listening on all interfaces, even if the IP address changes) and using the DNS name for `hawk.artemis.host` instead of a literal IP address.
+
 Finally, production environments should enable and enforce SSL as well, since plain HTTP is insecure. Some pointers on how to do this are provided [https://www.eclipse.org/forums/index.php/t/24782/](here).
 
 Hawk integration

@@ -57,6 +57,7 @@ public class Activator implements BundleActivator {
 
 	private static final String ARTEMIS_PORT_PROPERTY = "hawk.artemis.port";
 	private static final String ARTEMIS_HOST_PROPERTY = "hawk.artemis.host";
+	private static final String ARTEMIS_LISTENALL_PROPERTY = "hawk.artemis.listenAll";
 	private static final String TCP_PORT_PROPERTY = "hawk.tcp.port";
 	private static final String TCP_TPROTOCOL_PROPERTY = "hawk.tcp.thriftProtocol";
 
@@ -116,6 +117,10 @@ public class Activator implements BundleActivator {
 		}
 
 		artemis = new Server(artemisHost, artemisPort);
+		String sListenAll = System.getProperty(ARTEMIS_LISTENALL_PROPERTY);
+		if (sListenAll != null) {
+			artemis.setListenOnAllInterfaces(Boolean.valueOf(sListenAll));
+		}
 		try {
 			artemis.start();
 		} catch (Exception e) {
