@@ -82,6 +82,8 @@ The server will test on startup that the secure store has been set properly: if 
 
 Another important detail for production environments is turning on security. This is disabled by default to help with testing and initial evaluations, but it can be enabled by running the server once, shutting it down and then editing the `shiro.ini` file appropriately (relevant sections include comments on what to do) and switching `artemis.security.enabled` to `true` in the `mondo-server.ini` file. The MONDO server uses an embedded MapDB database, which is managed through the Users Thrift API. Once security is enabled, all Thrift APIs and all external (not in-VM) Artemis connections become password-protected.
 
+If you enable security, you might want to ensure that -Dhawk.tcp.port is not present in the `mondo-server.ini` file, since the Hawk TCP port does not support security for the sake of raw performance.
+
 If you are deploying this across a network, you will need to edit the `mondo-server.ini` file and customize the `hawk.artemis.host` line to the host that you want the Artemis server to listen to. This should be the IP address or hostname of the MONDO server in the network, normally. The Thrift API uses this hostname as well in its replies to the `watchModelChanges` operation in the Hawk API.
 
 Additionally, if the server IP is dynamic but has a consistent DNS name (e.g. an Amazon VM + a dynamic DNS provider), we recommend setting `hawk.artemis.listenAll` to `true` (so the Artemis server will keep listening on all interfaces, even if the IP address changes) and using the DNS name for `hawk.artemis.host` instead of a literal IP address.
