@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.hawk.core.graph.IGraphNode;
+import org.hawk.epsilon.emc.DeriveFeature;
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.ModelElementNode;
 import org.hawk.graph.TypeNode;
@@ -67,6 +68,7 @@ public class HawkModelElementEncoder {
 	private boolean discardContainerRefs = false;
 	private boolean includeAttributes = true;
 	private boolean includeReferences = true;
+	private boolean includeDerived = true;
 	private boolean sendElementNodeIDs = false;
 	private boolean sortByNodeIDs = false;
 	private boolean useContainment = true;
@@ -142,6 +144,14 @@ public class HawkModelElementEncoder {
 
 	public void setIncludeReferences(boolean includeReferences) {
 		this.includeReferences = includeReferences;
+	}
+
+	public boolean isIncludeDerived() {
+		return includeDerived;
+	}
+
+	public void setIncludeDerived(boolean includeDerived) {
+		this.includeDerived = includeDerived;
 	}
 
 	public boolean isDiscardContainerRefs() {
@@ -398,8 +408,9 @@ public class HawkModelElementEncoder {
 		final Map<String, Object> attrs = isIncludeAttributes() ? new HashMap<String, Object>() : null;
 		final Map<String, Object> refs =  isIncludeReferences() ? new HashMap<String, Object>() : null;
 		final Map<String, Object> mixed = null;
-		if (isIncludeAttributes() || isIncludeReferences()) {
-			meNode.getSlotValues(attrs, refs, mixed);
+		final Map<String, Object> derived = isIncludeDerived() ? new HashMap<String, Object>() : null;
+		if (isIncludeAttributes() || isIncludeReferences() || isIncludeDerived()) {
+			meNode.getSlotValues(attrs, refs, mixed, derived);
 		}
 
 		if (isIncludeAttributes()) {
@@ -416,22 +427,57 @@ public class HawkModelElementEncoder {
 				if (ref.getValue() == null || !effectiveMetamodel.isIncluded(metamodelURI, typeName, ref.getKey())) {
 					continue;
 				}
+				encodeReference(meNode, me, ref);
+			}
+		}
+		if (isIncludeDerived()) {
+			for (Entry<String, Object> derivedEntry : derived.entrySet()) {
+				final Object value = derivedEntry.getValue();
+				if (value == null || !effectiveMetamodel.isIncluded(metamodelURI, typeName, derivedEntry.getKey())) {
+					continue;
+				}
 
-				if (useContainment && meNode.isContainment(ref.getKey())) {
-					final ContainerSlot slot = encodeContainerSlot(ref);
-					if (!slot.isSetElements() || slot.elements.isEmpty()) continue;
-					me.addToContainers(slot);
-				} else if (useContainment && discardContainerRefs && meNode.isContainer(ref.getKey())) {
-					// skip this container reference: we're already using containment, so
-					// we assume we'll have the parent encoded as well.
-				} else {
-					final ReferenceSlot slot = encodeReferenceSlot(ref);
-					if (slot.ids.isEmpty()) continue;
-					me.addToReferences(slot);
+				// Whether it's an attribute or not is not known until we have the value
+				boolean isDerivedReference = false;
+				if (value instanceof String && ((String)value).startsWith(DeriveFeature.REFERENCETARGETPREFIX)) {
+					isDerivedReference = true;
+				} else if (value instanceof Iterable<?>) {
+					final Iterator<?> itValues = ((Iterable<?>) value).iterator();
+					if (!itValues.hasNext()) {
+						continue;
+					} else if (itValues.next().toString().startsWith(DeriveFeature.REFERENCETARGETPREFIX)) {
+						isDerivedReference = true;
+					}
+				}
+
+				if (isDerivedReference) {
+					if (isIncludeReferences()) {
+						encodeReference(meNode, me, derivedEntry);
+					}
+				} else if (isIncludeAttributes()) {
+					me.addToAttributes(encodeAttributeSlot(derivedEntry.getKey(), derivedEntry.getValue()));
 				}
 			}
 		}
 		return me;
+	}
+
+	protected void encodeReference(ModelElementNode meNode, final ModelElement me, Map.Entry<String, Object> ref)
+			throws Exception {
+		if (useContainment && meNode.isContainment(ref.getKey())) {
+			final ContainerSlot slot = encodeContainerSlot(ref);
+			if (!slot.isSetElements() || slot.elements.isEmpty())
+				return;
+			me.addToContainers(slot);
+		} else if (useContainment && discardContainerRefs && meNode.isContainer(ref.getKey())) {
+			// skip this container reference: we're already using containment, so
+			// we assume we'll have the parent encoded as well.
+		} else {
+			final ReferenceSlot slot = encodeReferenceSlot(ref);
+			if (slot.ids.isEmpty())
+				return;
+			me.addToReferences(slot);
+		}
 	}
 
 	private ContainerSlot encodeContainerSlot(Entry<String, Object> slotEntry) throws Exception {
@@ -440,9 +486,11 @@ public class HawkModelElementEncoder {
 		ContainerSlot s = new ContainerSlot();
 		s.name = slotEntry.getKey();
 
-		final Object value = slotEntry.getValue();
+		Object value = slotEntry.getValue();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
+				o = stripDerivedReferencePrefix(o);
+
 				final ModelElementNode meNode = graph.getModelElementNodeById(o);
 				final ModelElement me = encode(meNode);
 				if (me != null) {
@@ -451,6 +499,8 @@ public class HawkModelElementEncoder {
 				}
 			}
 		} else {
+			value = stripDerivedReferencePrefix(value);
+
 			final ModelElementNode meNode = graph.getModelElementNodeById(value);
 			final ModelElement me = encode(meNode);
 			if (me != null) {
@@ -472,13 +522,20 @@ public class HawkModelElementEncoder {
 		s.ids = new ArrayList<>();
 		if (value instanceof Collection) {
 			for (Object o : (Collection<?>)value) {
-				addToReferenceIds(o, s);
+				addToReferenceIds(stripDerivedReferencePrefix(o), s);
 			}
 		} else {
-			addToReferenceIds(value, s);
+			addToReferenceIds(stripDerivedReferencePrefix(value), s);
 		}
 
 		return s;
+	}
+
+	protected Object stripDerivedReferencePrefix(Object o) {
+		if (o.toString().startsWith(DeriveFeature.REFERENCETARGETPREFIX)) {
+			o = o.toString().substring(DeriveFeature.REFERENCETARGETPREFIX.length());
+		}
+		return o;
 	}
 
 	private void addToReferenceIds(Object o, ReferenceSlot s) throws Exception {

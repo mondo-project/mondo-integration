@@ -1108,7 +1108,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 							// from lazy loading or not.
 							synchronized(nodeIdToEObjectMap) {
 								final LoadingMode loadingMode = getDescriptor().getLoadingMode();
-								getLazyResolver().resolve(eob, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+								Object value = getLazyResolver().resolve(eob, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+								if (value != null) {
+									return value;
+								}
 							}
 							break;
 						case "eContents":
@@ -1355,7 +1358,11 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 
 	@Override
 	protected void doUnload() {
-		super.doUnload();
+		if (!getContents().isEmpty()) {
+			getContents().clear();
+		}
+	    getErrors().clear();
+	    getWarnings().clear();
 
 		resources.clear();
 		nodeIdToEObjectMap.clear();
