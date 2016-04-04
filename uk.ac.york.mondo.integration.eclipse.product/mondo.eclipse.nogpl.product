@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx2048m -Dorg.eclipse.update.reconcile=false
+      <vmArgs>-Xmx2g -Dorg.eclipse.update.reconcile=false  -XX:+UseG1GC
       </vmArgs>
       <vmArgsLin>-Dsvnkit.library.gnome-keyring.enabled=false
       </vmArgsLin>
