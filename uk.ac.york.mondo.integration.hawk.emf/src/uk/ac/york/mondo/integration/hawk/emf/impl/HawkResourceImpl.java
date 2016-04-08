@@ -1115,13 +1115,30 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 							}
 							break;
 						case "eContents":
-						default:
 							// eContents requires resolving all containment references from the object
 							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
 							synchronized(nodeIdToEObjectMap) {
 								for (EReference ref : eob.eClass().getEAllReferences()) {
 									if (ref.isContainment()) {
 										getLazyResolver().resolve(eob, (EStructuralFeature)ref, loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+									}
+								}
+							}
+							break;
+						default:
+							if (m.getName().startsWith("get")) {
+								// Reuse the regular eGet
+								EReference eRef = eobFactory.guessEReferenceFromGetter(eob.eClass(), m.getName());
+								if (eRef != null) {
+									Method mEGet = eob.getClass().getMethod("eGet", EStructuralFeature.class);
+									try {
+										return mEGet.invoke(o, eRef);
+									} catch (InvocationTargetException ex) {
+										if (ex.getCause() != null) {
+											throw ex.getCause();
+										} else {
+											throw ex;
+										}
 									}
 								}
 							}
