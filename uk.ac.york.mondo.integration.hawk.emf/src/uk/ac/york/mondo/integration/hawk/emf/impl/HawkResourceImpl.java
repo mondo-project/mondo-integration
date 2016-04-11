@@ -763,10 +763,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			descriptor.getSubscriptionClientID(), sd);
 
 		subscriber = APIUtils.connectToArtemis(subscription, sd);
+		Principal fetchedUser = null;
 		if (lazyCreds != null) {
 			// If security is disabled for the Thrift API, we do not want to trigger the secure storage here either.
 			// These methods in the LazyCredentials class do just that.
-			final Principal fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+			fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+		}
+		if (fetchedUser != null) {
 			final String fetchedPass = (String) lazyCreds.getClass().getMethod("getRawPassword").invoke(lazyCreds);
 			subscriber.openSession(fetchedUser.getName(), fetchedPass);
 		} else {
@@ -1088,10 +1091,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					@Override
 					public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
 						final EObject eob = (EObject)o;
-						final EStructuralFeature sf = (EStructuralFeature)args[0];
 						switch (m.getName()) {
 						case "eIsSet":
-							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, sf);
+							final EStructuralFeature sfEIsSet = (EStructuralFeature)args[0];
+							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, sfEIsSet);
 						case "eContainmentFeature":
 							final Object rawCF = proxy.invokeSuper(o, args);
 							return rawCF != null ? rawCF : lazyResolver.getContainingFeature(eob);
@@ -1102,7 +1105,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 							final Object rawResource = proxy.invokeSuper(o, args);
 							return rawResource != null ? rawResource : lazyResolver.getResource(eob);
 						case "eGet":
-							return interceptEGet(eob, args, proxy, sf);
+							final EStructuralFeature sfEGet = (EStructuralFeature)args[0];
+							return interceptEGet(eob, args, proxy, sfEGet);
 						case "eContents":
 							// eContents requires resolving all containment references from the object
 							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
