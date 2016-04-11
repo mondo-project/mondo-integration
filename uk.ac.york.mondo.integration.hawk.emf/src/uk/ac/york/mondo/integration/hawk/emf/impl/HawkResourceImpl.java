@@ -496,8 +496,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final EPackage pkg = packageRegistry.getEPackage(metamodelUri);
 		if (pkg == null) {
 			throw new NoSuchElementException(String.format(
-					"Could not find EPackage with URI '%s' in the registry %s",
-					metamodelUri, packageRegistry));
+					"Could not find EPackage with URI '%s' in the registry",
+					metamodelUri));
 		}
 
 		final EClassifier eClassifier = pkg.getEClassifier(typeName);
@@ -629,14 +629,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 
 			setLoaded(true);
-		} catch (final TException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new IOException(e);
 		} catch (final IOException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw e;
 		} catch (final Exception e) {
 			LOGGER.error(e.getMessage(), e);
+			throw new IOException(e);
 		}
 	}
 
@@ -1090,9 +1088,10 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 					@Override
 					public Object intercept(final Object o, final Method m, final Object[] args, final MethodProxy proxy) throws Throwable {
 						final EObject eob = (EObject)o;
+						final EStructuralFeature sf = (EStructuralFeature)args[0];
 						switch (m.getName()) {
 						case "eIsSet":
-							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, (EStructuralFeature) args[0]);
+							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, sf);
 						case "eContainmentFeature":
 							final Object rawCF = proxy.invokeSuper(o, args);
 							return rawCF != null ? rawCF : lazyResolver.getContainingFeature(eob);
@@ -1103,17 +1102,7 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 							final Object rawResource = proxy.invokeSuper(o, args);
 							return rawResource != null ? rawResource : lazyResolver.getResource(eob);
 						case "eGet":
-							// We need to serialize modifications from lazy loading + change notifications,
-							// for consistency and for the ability to signal if an EMF notification comes
-							// from lazy loading or not.
-							synchronized(nodeIdToEObjectMap) {
-								final LoadingMode loadingMode = getDescriptor().getLoadingMode();
-								Object value = getLazyResolver().resolve(eob, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
-								if (value != null) {
-									return value;
-								}
-							}
-							break;
+							return interceptEGet(eob, args, proxy, sf);
 						case "eContents":
 							// eContents requires resolving all containment references from the object
 							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
@@ -1130,21 +1119,26 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 								// Reuse the regular eGet
 								EReference eRef = eobFactory.guessEReferenceFromGetter(eob.eClass(), m.getName());
 								if (eRef != null) {
-									Method mEGet = eob.getClass().getMethod("eGet", EStructuralFeature.class);
-									try {
-										return mEGet.invoke(o, eRef);
-									} catch (InvocationTargetException ex) {
-										if (ex.getCause() != null) {
-											throw ex.getCause();
-										} else {
-											throw ex;
-										}
-									}
+									return interceptEGet(eob, args, proxy, eRef);
 								}
 							}
 							break;
 						}
 						return proxy.invokeSuper(o, args);
+					}
+
+					protected Object interceptEGet(final EObject eob, final Object[] args, final MethodProxy proxy, final EStructuralFeature sf) throws Throwable {
+						// We need to serialize modifications from lazy loading + change notifications,
+						// for consistency and for the ability to signal if an EMF notification comes
+						// from lazy loading or not.
+						synchronized(nodeIdToEObjectMap) {
+							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
+							Object value = getLazyResolver().resolve(eob, sf, loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+							if (value != null) {
+								return value;
+							}
+						}
+						return proxy.invokeSuper(eob, args);
 					}
 				});
 			}
