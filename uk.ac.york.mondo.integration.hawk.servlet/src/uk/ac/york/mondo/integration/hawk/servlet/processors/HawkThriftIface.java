@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +36,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.thrift.TException;
 import org.hawk.core.IModelIndexer.ShutdownRequestType;
+import org.hawk.core.IStateListener.HawkState;
 import org.hawk.core.IVcsManager;
+import org.hawk.core.graph.IGraphChangeListener;
 import org.hawk.core.graph.IGraphDatabase;
 import org.hawk.core.graph.IGraphNode;
 import org.hawk.core.graph.IGraphNodeReference;
@@ -45,6 +48,7 @@ import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.query.InvalidQueryException;
 import org.hawk.core.query.QueryExecutionException;
 import org.hawk.core.runtime.LocalHawkFactory;
+import org.hawk.core.util.GraphChangeAdapter;
 import org.hawk.graph.FileNode;
 import org.hawk.graph.GraphWrapper;
 import org.hawk.graph.MetamodelNode;
@@ -99,6 +103,32 @@ import uk.ac.york.mondo.integration.hawk.servlet.utils.HawkModelElementTypeEncod
  */
 public final class HawkThriftIface implements Hawk.Iface {
 
+	/**
+	 * {@link IGraphChangeListener} that waits for a synchronisation process to end and then start.
+	 * The actual waiting is done through the {@link CountDownLatch#await()} method of the latch
+	 * returned by {@link #getLatch()}.
+	 */
+	protected static final class SynchroniseLatchGraphChangeListener extends GraphChangeAdapter {
+		boolean started = false;
+		CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void synchroniseStart() {
+			started = true;
+		}
+
+		@Override
+		public void synchroniseEnd() {
+			if (started) {
+				latch.countDown();
+			}
+		}
+
+		public CountDownLatch getLatch() {
+			return latch;
+		}
+	}
+
 	public static String getStateQueueName(final HModel model) {
 		return "hawkstate." + model.getName();
 	}
@@ -111,7 +141,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 	// TODO: create Equinox declarative service for using this information for ACL
 	@SuppressWarnings("unused")
 	private final HttpServletRequest request;
-	
+
 	private static enum CollectElements { ALL, ONLY_ROOTS; }
 
 	/**
@@ -733,10 +763,27 @@ public final class HawkThriftIface implements Hawk.Iface {
 	}
 
 	@Override
-	public void syncInstance(String name) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
+	public void syncInstance(String name, boolean waitForSync) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException {
 		final HModel model = getRunningHawkByName(name);
 		try {
+			// Register a graph change listener if we want to wait for the sync
+			SynchroniseLatchGraphChangeListener listener = null;
+			if (waitForSync) {
+				model.getIndexer().waitFor(HawkState.RUNNING);
+
+				listener = new SynchroniseLatchGraphChangeListener();
+				model.getIndexer().addGraphChangeListener(listener);
+			}
+
+			// Request the sync
 			model.sync();
+
+			// Wait for the sync to end, if desired
+			if (listener != null) {
+				listener.getLatch().await();
+				model.getIndexer().removeGraphChangeListener(listener);
+			}
+
 		} catch (Exception e) {
 			throw new TException("Could not force an immediate synchronisation", e);
 		}

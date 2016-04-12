@@ -848,11 +848,15 @@ Hawk_stopInstance_result.prototype.write = function(output) {
 
 Hawk_syncInstance_args = function(args) {
   this.name = null;
+  this.blockUntilDone = false;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field name is unset!');
+    }
+    if (args.blockUntilDone !== undefined && args.blockUntilDone !== null) {
+      this.blockUntilDone = args.blockUntilDone;
     }
   }
 };
@@ -877,9 +881,13 @@ Hawk_syncInstance_args.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.blockUntilDone = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -894,6 +902,11 @@ Hawk_syncInstance_args.prototype.write = function(output) {
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 1);
     output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.blockUntilDone !== null && this.blockUntilDone !== undefined) {
+    output.writeFieldBegin('blockUntilDone', Thrift.Type.BOOL, 2);
+    output.writeBool(this.blockUntilDone);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5732,17 +5745,18 @@ HawkClient.prototype.recv_stopInstance = function() {
   }
   return;
 };
-HawkClient.prototype.syncInstance = function(name, callback) {
-  this.send_syncInstance(name, callback); 
+HawkClient.prototype.syncInstance = function(name, blockUntilDone, callback) {
+  this.send_syncInstance(name, blockUntilDone, callback); 
   if (!callback) {
   this.recv_syncInstance();
   }
 };
 
-HawkClient.prototype.send_syncInstance = function(name, callback) {
+HawkClient.prototype.send_syncInstance = function(name, blockUntilDone, callback) {
   this.output.writeMessageBegin('syncInstance', Thrift.MessageType.CALL, this.seqid);
   var args = new Hawk_syncInstance_args();
   args.name = name;
+  args.blockUntilDone = blockUntilDone;
   args.write(this.output);
   this.output.writeMessageEnd();
   if (callback) {

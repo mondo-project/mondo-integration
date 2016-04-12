@@ -96,7 +96,8 @@ class Hawk {
 
     @doc(d="Forces an immediate synchronization on a Hawk instance")
     op void syncInstance(
-		@doc(d="The name of the Hawk instance to stop") String name
+		@doc(d="The name of the Hawk instance to stop") String name,
+		@doc(d="If true, blocks the call until the synchronisation completes", optional="true", default="false") boolean blockUntilDone
     ) throws HawkInstanceNotFound, HawkInstanceNotRunning;
 
 	@doc(d="Registers a set of file-based metamodels with a Hawk instance")

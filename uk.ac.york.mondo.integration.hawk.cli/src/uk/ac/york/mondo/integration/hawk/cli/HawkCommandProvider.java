@@ -137,7 +137,7 @@ public class HawkCommandProvider implements CommandProvider {
 		} else {
 			StringBuffer sbuf = new StringBuffer();
 			for (HawkInstance i : instances) {
-				sbuf.append(String.format("%s (%s%s%s)\n", i.name,
+				sbuf.append(String.format("%s (%s%s)\n", i.name,
 					i.state.toString(),
 					i.name.equals(currentInstance) ? ", selected": ""
 				));
@@ -209,9 +209,10 @@ public class HawkCommandProvider implements CommandProvider {
 	public Object _hawkSyncInstance(CommandInterpreter intp) throws Exception {
 		checkConnected();
 		final String name = requiredArgument(intp, "name");
+		final String sWaitForSync = intp.nextArgument();
 		final HawkInstance hi = findInstance(name);
 		if (hi.state != HawkState.STOPPED) {
-			client.syncInstance(name);
+			client.syncInstance(name, sWaitForSync != null && Boolean.valueOf(sWaitForSync.toLowerCase()));
 			return String.format("Requested immediate sync on instance %s", currentInstance);
 		} else {
 			return String.format("Instance %s is not running", name);
@@ -682,7 +683,7 @@ public class HawkCommandProvider implements CommandProvider {
 		sbuf.append("hawkSelectInstance <name> - selects the instance with the provided name\n\t");
 		sbuf.append("hawkStartInstance <name> - starts the instance with the provided name\n\t");
 		sbuf.append("hawkStopInstance <name> - stops the instance with the provided name\n\t");
-		sbuf.append("hawkSyncInstance <name> - forces an immediate sync on the instance with the provided name\n");
+		sbuf.append("hawkSyncInstance <name> [waitForSync:true|false] - forces an immediate sync on the instance with the provided name\n");
 		sbuf.append("--Metamodels--\n\t");
 		sbuf.append("hawkListMetamodels - lists all registered metamodels in this instance\n\t");
 		sbuf.append("hawkRegisterMetamodel <files...> - registers one or more metamodels\n\t");

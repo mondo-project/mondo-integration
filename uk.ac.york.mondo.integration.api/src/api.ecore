@@ -161,6 +161,13 @@
           <details key="d" value="The name of the Hawk instance to stop"/>
         </eAnnotations>
       </eParameters>
+      <eParameters name="blockUntilDone" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
+        <eAnnotations source="doc">
+          <details key="d" value="If true, blocks the call until the synchronisation completes"/>
+          <details key="optional" value="true"/>
+          <details key="default" value="false"/>
+        </eAnnotations>
+      </eParameters>
     </eOperations>
     <eOperations name="registerMetamodels" eExceptions="#//HawkInstanceNotFound #//InvalidMetamodel #//HawkInstanceNotRunning">
       <eAnnotations source="doc">

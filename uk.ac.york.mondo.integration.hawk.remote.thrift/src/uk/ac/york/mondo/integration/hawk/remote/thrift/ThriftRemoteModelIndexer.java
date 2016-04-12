@@ -473,7 +473,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 
 	@Override
 	public void requestImmediateSync() throws Exception {
-		client.syncInstance(name);
+		client.syncInstance(name, false);
 	}
 
 	@Override
