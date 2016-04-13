@@ -53,6 +53,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
@@ -1095,9 +1096,24 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						case "eIsSet":
 							final EStructuralFeature sfEIsSet = (EStructuralFeature)args[0];
 							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, sfEIsSet);
+						case "eContainingFeature":
 						case "eContainmentFeature":
-							final Object rawCF = proxy.invokeSuper(o, args);
-							return rawCF != null ? rawCF : lazyResolver.getContainingFeature(eob);
+							// Most implementations use eContainerFeatureID, but if they don't we fall back to the lazy resolver
+							EReference sfContainingF = lazyResolver.getContainingFeature(eob);
+							return sfContainingF != null ? sfContainingF : proxy.invokeSuper(o, args);
+						case "eContainerFeatureID":
+								EReference sfContaining = lazyResolver.getContainingFeature(eob);
+								assert sfContaining.isContainment() : "containing feature should be containment";
+								if (sfContaining != null) {
+									if (sfContaining.getEOpposite() != null) {
+										return sfContaining.getEOpposite().getFeatureID();
+									} else {
+										return InternalEObject.EOPPOSITE_FEATURE_BASE - sfContaining.getFeatureID();
+									}
+								} else {
+									return proxy.invokeSuper(o, args);
+								}
+						case "eInternalContainer":
 						case "eContainer":
 							final EObject rawContainer = (EObject) proxy.invokeSuper(o, args);
 							return rawContainer != null ? rawContainer : lazyResolver.getContainer(eob);
