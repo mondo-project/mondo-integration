@@ -114,7 +114,7 @@
     </eOperations>
     <eOperations name="listPlugins" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
       <eAnnotations source="doc">
-        <details key="d" value="Lists all the plugins that can be enabled: metamodel parsers, model parsers, query parsers, updaters and graph change listeners."/>
+        <details key="d" value="Lists all the Hawk plugins that can be enabled or disabled: metamodel parsers, model parsers and graph change listeners."/>
       </eAnnotations>
     </eOperations>
     <eOperations name="listInstances" upperBound="-1" eType="#//HawkInstance">
@@ -163,7 +163,7 @@
       </eParameters>
       <eParameters name="blockUntilDone" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean">
         <eAnnotations source="doc">
-          <details key="d" value="If true, blocks the call until the synchronisation completes"/>
+          <details key="d" value="If true, blocks the call until the synchronisation completes. False by default."/>
           <details key="optional" value="true"/>
           <details key="default" value="false"/>
         </eAnnotations>
@@ -324,7 +324,7 @@
     </eOperations>
     <eOperations name="removeRepository" eExceptions="#//HawkInstanceNotFound #//HawkInstanceNotRunning">
       <eAnnotations source="doc">
-        <details key="d" value="Asks a Hawk instance to stop monitoring a repository"/>
+        <details key="d" value="Asks a Hawk instance to stop monitoring a repository and remove its elements from the graph"/>
       </eAnnotations>
       <eParameters name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
         <eAnnotations source="doc">
@@ -569,24 +569,45 @@
     </eOperations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodelMap">
+    <eAnnotations source="doc">
+      <details key="d" value="Representation of a set of rules for either including or excluding metamodels, types or slots"/>
+    </eAnnotations>
     <eAnnotations source="thrift.map">
       <details key="key" value="uri"/>
       <details key="value" value="metamodel"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        containment="true"/>
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Namespace URI of the metamodel"/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="metamodel" upperBound="-1"
-        eType="#//EffectiveMetamodel" containment="true"/>
+        eType="#//EffectiveMetamodel" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Types and slots within the metamodel that should be included or excluded: empty means 'all types and slots'"/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EffectiveMetamodel">
+    <eAnnotations source="doc">
+      <details key="d" value="Representation of a set of rules for either including or excluding certain types and/or slots within a metamodel"/>
+    </eAnnotations>
     <eAnnotations source="thrift.map">
       <details key="key" value="type"/>
       <details key="value" value="slots"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        containment="true"/>
+        containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Type that should be included or excluded"/>
+      </eAnnotations>
+    </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="slots" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" containment="true">
+      <eAnnotations source="doc">
+        <details key="d" value="Slots within the type that should be included or excluded: empty means 'all slots'"/>
+      </eAnnotations>
       <eAnnotations source="thrift.set"/>
     </eStructuralFeatures>
   </eClassifiers>
@@ -1128,7 +1149,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OfflineCollaboration">
     <eAnnotations source="doc">
-      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities. The access control rules to be used &#xA;by the security lens are themselves described in the repository.&#xA;&#xA;Nevertheless, managing the operation of the hooks and the lens relationship requires&#xA;its own API, as this is not covered by traditional VCS protocols. The rest of the section&#xA;describes a work-in-progress API for managing these access rules: the final version will be&#xA;provided in D6.8, due in M30.&#xA;"/>
+      <details key="d" value="&#xA;The offline collaboration tool is realized in the MONDO platform through the&#xA;MONDO Offline Collaboration Server, as mentioned in D4.4~\cite{D4.4}. It extends an&#xA;off-the-shelf version control server with ``hooks'' that enforce access control and&#xA;maintain the lens relationship between the ``gold'' repository and the ``front'' repositories.&#xA;This allows users to continue using their preferred tools for interacting with the version&#xA;control systems in their day-to-day modelling activities. The access control rules to be used &#xA;by the security lens are themselves described in the repository.&#xA;&#xA;Nevertheless, managing the operation of the hooks and the lens relationship requires&#xA;its own API, as this is not covered by traditional VCS protocols. The rest of the section&#xA;describes an API for managing these access rules.&#xA;"/>
     </eAnnotations>
     <eOperations name="listGoldRepositories" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         eExceptions="#//UnauthorizedRepositoryOperation #//OfflineCollaborationInternalError">
