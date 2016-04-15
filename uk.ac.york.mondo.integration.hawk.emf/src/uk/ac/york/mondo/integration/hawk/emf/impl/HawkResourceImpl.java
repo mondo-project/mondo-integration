@@ -57,6 +57,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.hawk.core.query.IQueryEngine;
 import org.hawk.emfresource.HawkResource;
 import org.hawk.emfresource.HawkResourceChangeListener;
 import org.hawk.emfresource.impl.HawkFileResourceImpl;
@@ -885,6 +886,26 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				return fetched;
 			}
 		}
+	}
+
+	@Override
+	public Object performRawQuery(String queryLanguage, String query, Map<String, String> context) throws Exception {
+		HawkQueryOptions options = new HawkQueryOptions();
+
+		final String sFilePattern = context.get(IQueryEngine.PROPERTY_FILECONTEXT);
+		if (sFilePattern != null) {
+			options.setFilePatterns(Arrays.asList(sFilePattern.split(",")));
+		}
+		final String sRepoPattern = context.get(IQueryEngine.PROPERTY_REPOSITORYCONTEXT);
+		if (sRepoPattern != null) {
+			options.setRepositoryPattern(sRepoPattern);
+		}
+		final String sDefaultNamespaces = context.get(IQueryEngine.PROPERTY_DEFAULTNAMESPACES);
+		if (sDefaultNamespaces != null) {
+			options.setDefaultNamespaces(sDefaultNamespaces);
+		}
+
+		return client.query(descriptor.getHawkInstance(), query, queryLanguage, options);
 	}
 
 	public EList<EObject> fetchByQuery(final String language, final String query, final HawkQueryOptions opts) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
