@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.mondo.collaboration.offline.management.client.ui.mondo"
+            name="MONDO">
+      </category>
+      <command
+            categoryId="org.mondo.collaboration.offline.management.client.ui.mondo"
+            id="org.mondo.collaboration.offline.management.client.ui.test"
+            name="Test">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               commandId="org.mondo.collaboration.offline.management.client.ui.test"
+               label="MONDO">
+            <command
+                  commandId="org.mondo.collaboration.offline.management.client.ui.test"
+                  label="Test"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.mondo.collaboration.offline.management.client.ui.TestHandler"
+            commandId="org.mondo.collaboration.offline.management.client.ui.test">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.mondo.collaboration.offline.management.client.ui.MondoPreferencePage"
+            id="org.mondo.collaboration.offline.management.client.ui.page1"
+            name="MONDO">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.mondo.collaboration.offline.management.client.ui.MONDOServerView"
+            id="org.mondo.collaboration.offline.management.client.ui.MONDOServerView"
+            name="MONDO Server View">
+      </view>
+   </extension>
+
+</plugin>
