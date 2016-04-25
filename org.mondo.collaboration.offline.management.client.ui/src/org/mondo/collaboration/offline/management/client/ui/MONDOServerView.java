@@ -3,7 +3,6 @@ package org.mondo.collaboration.offline.management.client.ui;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
@@ -13,7 +12,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -229,11 +227,11 @@ public class MONDOServerView extends ViewPart {
 		return managementURL;
 	}
 
-	private SelectionAdapter createGetFrontListener(List list) {
+	private SelectionAdapter createGetFrontListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Client client = createClient(list);
+				final Client client = createClient(list);
 
 				String myFrontRepositoryURL;
 				String shortError = null;
@@ -271,7 +269,7 @@ public class MONDOServerView extends ViewPart {
 		};
 	}
 
-	private SelectionListener createListSelectionListener(List list) {
+	private SelectionListener createListSelectionListener(final List list) {
 		return new SelectionListener() {
 
 			@Override
@@ -298,7 +296,7 @@ public class MONDOServerView extends ViewPart {
 
 
 
-	private SelectionAdapter createResetListener(List list) {
+	private SelectionAdapter createResetListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -323,7 +321,7 @@ public class MONDOServerView extends ViewPart {
 		};
 	}
 
-	private SelectionAdapter createOnlineCollaborationListener(List list) {
+	private SelectionAdapter createOnlineCollaborationListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
