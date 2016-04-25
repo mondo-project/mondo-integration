@@ -101,7 +101,7 @@
       <feature id="org.mondo.collaboration.security.lens.offline.server.feature"/>
       <feature id="org.mondo.collaboration.security.online.server.feature"/>
       <feature id="org.mondo.wt.cstudy.online.feature"/>
-      <feature id="org.mondo.collaboration.offline.management.server.feature" version="1.0.0.qualifier"/>
+      <feature id="org.mondo.collaboration.offline.management.server.feature"/>
    </features>
 
    <configurations>
