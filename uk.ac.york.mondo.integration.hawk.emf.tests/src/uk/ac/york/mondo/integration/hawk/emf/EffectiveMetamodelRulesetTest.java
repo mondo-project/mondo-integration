@@ -267,6 +267,27 @@ public class EffectiveMetamodelRulesetTest {
 	}
 
 	@Test
+	public void saveLoadExcludeMetamodelIncludeTypes() {
+		final EffectiveMetamodelRuleset saved = new EffectiveMetamodelRuleset();
+		saved.exclude("x");
+		saved.include("x", "y");
+		serializer.save(saved, props);
+
+		final EffectiveMetamodelRuleset loaded = serializer.load(props);
+		assertEquals(loaded, saved);
+		assertFalse(loaded.isIncluded("x"));
+		assertFalse(loaded.isFullyIncluded("x"));
+		assertFalse(loaded.isIncluded("x", "y"));
+		assertFalse(loaded.isFullyIncluded("x", "y"));
+		assertFalse(loaded.isIncluded("x", "y", "a"));
+		assertFalse(loaded.isIncluded("x", "y", "f"));
+		assertFalse(loaded.isIncluded("x", "z"));
+		assertFalse(loaded.isFullyIncluded("x", "z"));
+		assertFalse(loaded.isIncluded("x", "z", "a"));
+		assertFalse(loaded.isIncluded("x", "z", "f"));
+	}
+
+	@Test
 	public void saveLoadIncludeMetamodelExcludeSlots() {
 		final EffectiveMetamodelRuleset saved = new EffectiveMetamodelRuleset();
 		saved.include("x");
