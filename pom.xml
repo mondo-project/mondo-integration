@@ -18,8 +18,17 @@
     <module>fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature</module>
     <module>fr.inria.atlanmod.mondo.integration.cloudatl.servlet</module>
     <module>fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature</module>
+
     <module>hu.bme.mit.mondo.integration.incquery.hawk</module>
     <module>hu.bme.mit.mondo.integration.incquery.hawk.feature</module>
+
+    <module>org.mondo.collaboration.offline.management.cli</module>
+    <module>org.mondo.collaboration.offline.management.client.feature</module>
+    <module>org.mondo.collaboration.offline.management.client.ui</module>
+    <module>org.mondo.collaboration.offline.management.cli.feature</module>
+    <module>org.mondo.collaboration.offline.management.server.feature</module>
+    <module>org.mondo.collaboration.offline.management.servlet</module>
+
     <module>uk.ac.york.mondo.integration.api</module>
     <module>uk.ac.york.mondo.integration.api.dt</module>
     <module>uk.ac.york.mondo.integration.api.feature</module>
