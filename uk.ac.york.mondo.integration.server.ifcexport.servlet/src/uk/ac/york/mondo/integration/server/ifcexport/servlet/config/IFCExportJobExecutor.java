@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2016 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Ran Wei - initial API and implementation
+ *******************************************************************************/
 package uk.ac.york.mondo.integration.server.ifcexport.servlet.config;
 
 import java.io.File;
@@ -119,6 +129,7 @@ public class IFCExportJobExecutor extends Job{
 				return;
 			}
 		} finally {
+			// TODO: ask Will - why don't we unload the resource here?
 			//resource.unload();
 		}
 	}
@@ -227,21 +238,6 @@ public class IFCExportJobExecutor extends Job{
 		File dest = new File(job.getJobID()+".ifc");
 		try {
 			exportToSTEP(dest, monitor);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IfcModelInterfaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SerializerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

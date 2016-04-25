@@ -1,34 +1,31 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2016 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Ran Wei - initial API and implementation
+ *******************************************************************************/
 package uk.ac.york.mondo.integration.server.ifcexport.servlet.config;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import uk.ac.york.mondo.integration.api.IFCExportJob;
 import uk.ac.york.mondo.integration.api.IFCExportStatus;
 
-public class IFCExportJobChangeListener implements IJobChangeListener{
+public class IFCExportJobChangeListener extends JobChangeAdapter {
 
 	protected IFCExportJob job;
 	
 	public IFCExportJobChangeListener(IFCExportJob job) {
-		// TODO Auto-generated constructor stub
 		this.job = job;
-	}
-	
-	public void setJob(IFCExportJob job) {
-		this.job = job;
-	}
-	
-	@Override
-	public void aboutToRun(IJobChangeEvent event) {
-		// TODO Auto-generated method stub
-		
 	}
 
-	@Override
-	public void awake(IJobChangeEvent event) {
-		// TODO Auto-generated method stub
-		
+	public void setJob(IFCExportJob job) {
+		this.job = job;
 	}
 
 	@Override
@@ -38,19 +35,11 @@ public class IFCExportJobChangeListener implements IJobChangeListener{
 
 	@Override
 	public void running(IJobChangeEvent event) {
-		// TODO Auto-generated method stub
 		job.setStatus(IFCExportStatus.RUNNING);
 	}
 
 	@Override
 	public void scheduled(IJobChangeEvent event) {
-		// TODO Auto-generated method stub
 		job.setStatus(IFCExportStatus.SCHEDULED);
-		
 	}
-
-	@Override
-	public void sleeping(IJobChangeEvent event) {
-	}
-
 }

@@ -1,6 +1,18 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2016 University of York.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Ran Wei - initial API and implementation
+ *    Antonio Garcia-Dominguez - cleanup, use shared scheduling rule instance
+ *******************************************************************************/
 package uk.ac.york.mondo.integration.server.ifcexport.servlet.config;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -11,9 +23,23 @@ import uk.ac.york.mondo.integration.api.IFCExportStatus;
 public class IFCExportManager {
 
 	private static IFCExportManager instance = new IFCExportManager();
+
+	private final ISchedulingRule schedulingRule;
 	
-	private IFCExportManager(){}
-	
+	private IFCExportManager(){
+		schedulingRule = new ISchedulingRule() {
+			@Override
+			public boolean isConflicting(ISchedulingRule rule) {
+				return this == rule;
+			}
+
+			@Override
+			public boolean contains(ISchedulingRule rule) {
+				return this == rule;
+			}
+		};
+	}
+
 	public static IFCExportManager getInstance()
 	{
 		if(instance == null)
@@ -23,16 +49,19 @@ public class IFCExportManager {
 		}
 		return instance;
 	}
+
 	protected JobIDGenerator jobIDGen = new JobIDGenerator();
-	protected HashMap<IFCExportJob, IFCExportRequest> request_map = new HashMap<>();
-	protected HashMap<IFCExportJob, IFCExportJobExecutor> executor_map = new HashMap<>();
+
+	// TODO: meet with Will - these maps probably need to be flipped/reorganized
+	protected Map<IFCExportJob, IFCExportRequest> requestMap = new HashMap<>();
+	protected Map<IFCExportJob, IFCExportJobExecutor> executorMap = new HashMap<>();
 	
 	public IFCExportJob postRequest(IFCExportRequest request)
 	{
-		if (request_map.values().contains(request)) {
-			for(IFCExportJob job: request_map.keySet())
+		if (requestMap.values().contains(request)) {
+			for(IFCExportJob job: requestMap.keySet())
 			{
-				if(request_map.get(job).equals(request))
+				if(requestMap.get(job).equals(request))
 				{
 					return job;
 				}
@@ -42,36 +71,24 @@ public class IFCExportManager {
 		else {
 			String jobID = jobIDGen.nextSessionId();
 			IFCExportJob job = new IFCExportJob(jobID, IFCExportStatus.SCHEDULED, "added to queue");
-			ISchedulingRule rule = new ISchedulingRule() {
-				
-				@Override
-				public boolean isConflicting(ISchedulingRule rule) {
-					return this.equals(rule);
-				}
-				
-				@Override
-				public boolean contains(ISchedulingRule rule) {
-					return this.equals(rule);
-				}
-			};
 			IFCExportJobExecutor exe_thread = new IFCExportJobExecutor(job, request);
-			exe_thread.setRule(rule);
+			exe_thread.setRule(schedulingRule);
 			exe_thread.addJobChangeListener(new IFCExportJobChangeListener(job));
-			request_map.put(job, request);
+			requestMap.put(job, request);
 			exe_thread.schedule();
-			executor_map.put(job, exe_thread);
+			executorMap.put(job, exe_thread);
 			return job;
 		}
 	}
 	
 	public Set<IFCExportJob> getJobs()
 	{
-		return request_map.keySet();
+		return requestMap.keySet();
 	}
 	
 	public IFCExportJob getJob(String jobID)
 	{
-		for(IFCExportJob job: request_map.keySet())
+		for(IFCExportJob job: requestMap.keySet())
 		{
 			if(job.getJobID().equals(jobID))
 			{
@@ -100,7 +117,7 @@ public class IFCExportManager {
 		}
 		else
 		{
-			IFCExportJobExecutor executor = executor_map.get(job);
+			IFCExportJobExecutor executor = executorMap.get(job);
 			if(executor != null)
 			{
 				executor.cancel();
