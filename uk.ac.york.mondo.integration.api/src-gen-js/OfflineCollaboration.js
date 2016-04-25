@@ -75,18 +75,18 @@ OfflineCollaboration_listGoldRepositories_result.prototype.read = function(input
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size360 = 0;
-        var _rtmp3364;
+        var _size424 = 0;
+        var _rtmp3428;
         this.success = [];
-        var _etype363 = 0;
-        _rtmp3364 = input.readListBegin();
-        _etype363 = _rtmp3364.etype;
-        _size360 = _rtmp3364.size;
-        for (var _i365 = 0; _i365 < _size360; ++_i365)
+        var _etype427 = 0;
+        _rtmp3428 = input.readListBegin();
+        _etype427 = _rtmp3428.etype;
+        _size424 = _rtmp3428.size;
+        for (var _i429 = 0; _i429 < _size424; ++_i429)
         {
-          var elem366 = null;
-          elem366 = input.readString().value;
-          this.success.push(elem366);
+          var elem430 = null;
+          elem430 = input.readString().value;
+          this.success.push(elem430);
         }
         input.readListEnd();
       } else {
@@ -123,12 +123,12 @@ OfflineCollaboration_listGoldRepositories_result.prototype.write = function(outp
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
     output.writeListBegin(Thrift.Type.STRING, this.success.length);
-    for (var iter367 in this.success)
+    for (var iter431 in this.success)
     {
-      if (this.success.hasOwnProperty(iter367))
+      if (this.success.hasOwnProperty(iter431))
       {
-        iter367 = this.success[iter367];
-        output.writeString(iter367);
+        iter431 = this.success[iter431];
+        output.writeString(iter431);
       }
     }
     output.writeListEnd();

@@ -14,6 +14,14 @@ enum HawkState {
 		/* The instance is updating its contents from the indexed locations. */ UPDATING 
 }
 
+enum IFCExportStatus {
+		/* The job has been cancelled. */ CANCELLED 
+		/* The job is completed. */ DONE 
+		/* The job has failed. */ FAILED 
+		/* The job is currently running. */ RUNNING 
+		/* The job has been scheduled but has not started yet. */ SCHEDULED 
+}
+
 enum SubscriptionDurability {
 		/* Subscription survives client disconnections but not server restarts. */ DEFAULT 
 		/* Subscription survives client disconnections and server restarts. */ DURABLE 
@@ -89,6 +97,12 @@ struct HawkSynchronizationEndEvent {
 
 struct HawkSynchronizationStartEvent {
 	 /* Local timestamp, measured in nanoseconds. Only meant to be used to compute synchronization cost. */ 1: required i64 timestampNanos,
+}
+
+struct IFCExportJob {
+	 /*  */ 1: required string jobID,
+	 /*  */ 2: required IFCExportStatus status,
+	 /*  */ 3: required string message,
 }
 
 struct IndexedAttributeSpec {
@@ -320,6 +334,13 @@ struct HawkQueryOptions {
 	 /* If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. */ 9: optional map<string,map<string,set<string>>> effectiveMetamodelExcludes,
 }
 
+struct IFCExportOptions {
+	 /* The repository for the query (or * for all repositories). */ 1: optional string repositoryPattern = "*",
+	 /* The file patterns for the query (e.g. *.uml). */ 2: optional list<string> filePatterns,
+	 /* If set and not empty, only the specified metamodels, types and features will be fetched. Otherwise, everything that is not excluded will be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. */ 3: optional map<string,map<string,set<string>>> includeRules,
+	 /* If set and not empty, the mentioned metamodels, types and features will not be fetched. The string '*' can be used to refer to all types within a metamodel or all fields within a type. */ 4: optional map<string,map<string,set<string>>> excludeRules,
+}
+
 struct ModelElement {
 	 /* Unique ID of the model element (not set if using position-based references). */ 1: optional string id,
 	 /* URI of the repository to which the element belongs (not set if equal to that of the previous model element). */ 2: optional string repositoryURL,
@@ -408,7 +429,7 @@ service Hawk {
   list<string> listBackends(
   )
 	
-  /* Lists all the plugins that can be enabled: metamodel parsers, model parsers, query parsers, updaters and graph change listeners. Auth needed: Yes */
+  /* Lists all the Hawk plugins that can be enabled or disabled: metamodel parsers, model parsers and graph change listeners. Auth needed: Yes */
   list<string> listPlugins(
   )
 	
@@ -444,7 +465,7 @@ service Hawk {
   /* Forces an immediate synchronization on a Hawk instance. Auth needed: Yes */
   void syncInstance(
 	/* The name of the Hawk instance to stop. */ 1: required string name,
-	/* If true, blocks the call until the synchronisation completes. */ 2:  bool blockUntilDone = false,
+	/* If true, blocks the call until the synchronisation completes. False by default. */ 2:  bool blockUntilDone = false,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -548,7 +569,7 @@ service Hawk {
 	2: HawkInstanceNotRunning err2 /* The selected Hawk instance is not running. */ 
 	) 
 	
-  /* Asks a Hawk instance to stop monitoring a repository. Auth needed: Yes */
+  /* Asks a Hawk instance to stop monitoring a repository and remove its elements from the graph. Auth needed: Yes */
   void removeRepository(
 	/* The name of the Hawk instance. */ 1: required string name,
 	/* The URI of the repository to stop monitoring. */ 2: required string uri,
@@ -717,8 +738,7 @@ service Hawk {
    
    Nevertheless, managing the operation of the hooks and the lens relationship requires
    its own API, as this is not covered by traditional VCS protocols. The rest of the section
-   describes a work-in-progress API for managing these access rules: the final version will be
-   provided in D6.8, due in M30. */
+   describes an API for managing these access rules. */
 service OfflineCollaboration {
   /* Retrieve the list of all managed gold repositories. Auth needed: Yes */
   list<string> listGoldRepositories(
@@ -794,6 +814,30 @@ service CloudATL {
   throws (
 	1: TransformationTokenNotFound err1 /* The specified transformation token does not exist within the invokved MONDO instance. */ 
 	) 
+	
+}
+
+/* IFC export facility for getting IFC models from MONDO server. */
+service IFCExport {
+  /* Export part of a Hawk index in IFC STEP format. Auth needed: Yes */
+  IFCExportJob exportAsSTEP(
+	/*  */ 1: required string hawkInstance,
+	/*  */ 2: required IFCExportOptions options,
+  )
+	
+  /* List all the previously scheduled IFC export jobs. Auth needed: Yes */
+  list<IFCExportJob> getJobs(
+  )
+	
+  /* Retrieve the current status of the job with the specified ID. Auth needed: Yes */
+  IFCExportJob getJobStatus(
+	/*  */ 1: required string jobID,
+  )
+	
+  /* Cancel the job with the specified ID. Auth needed: Yes */
+  bool killJob(
+	/*  */ 1: required string jobID,
+  )
 	
 }
 

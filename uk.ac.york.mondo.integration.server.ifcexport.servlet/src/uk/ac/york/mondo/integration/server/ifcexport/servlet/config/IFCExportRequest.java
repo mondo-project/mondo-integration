@@ -1,6 +1,6 @@
 package uk.ac.york.mondo.integration.server.ifcexport.servlet.config;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,13 +16,6 @@ public class IFCExportRequest {
 		this.exportOptions = exportOptions;
 	}
 	
-	public IFCExportRequest(String hawkInstance, ArrayList<String> repoPatterns, 
-			ArrayList<String> filePatterns, Map<String,Map<String,Set<String>>> includeRules, Map<String,Map<String,Set<String>>> excludeRules)
-	{
-		this.hawkInstance = hawkInstance;
-		this.exportOptions = new IFCExportOptions(repoPatterns, filePatterns, includeRules, excludeRules);
-	}
-	
 	public String getHawkInstance() {
 		return hawkInstance;
 	}
@@ -31,14 +24,14 @@ public class IFCExportRequest {
 		return exportOptions;
 	}
 	
-	public ArrayList<String> getRepoPatterns()
+	public String getRepositoryPattern()
 	{
-		return (ArrayList<String>) exportOptions.getRepoPatterns();
+		return exportOptions.getRepositoryPattern();
 	}
 	
-	public ArrayList<String> getFilePatterns()
+	public List<String> getFilePatterns()
 	{
-		return (ArrayList<String>) exportOptions.getFilePatterns();
+		return exportOptions.getFilePatterns();
 	}
 	
 	public Map<String,Map<String,Set<String>>> getIncludeRules()

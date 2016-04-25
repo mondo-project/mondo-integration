@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -78,7 +79,8 @@ public class IFCExportJobExecutor extends Job{
 	{
 		return new LocalHawkResourceImpl(URI.createURI("hawk://"), 
 				getHawkModel().getIndexer(), false, 
-				request.getRepoPatterns(), request.getFilePatterns());
+				Collections.singletonList(request.getRepositoryPattern()),
+				request.getFilePatterns());
 	}
 
 	
