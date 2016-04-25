@@ -315,13 +315,6 @@
       <feature id="org.hawk.git.feature"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature"/>
       <feature id="org.mondo.collaboration.client.feature"/>
-      <feature id="org.eclipse.team.svn.m2e.sources"/>
-      <feature id="org.eclipse.team.svn.mylyn.sources"/>
-      <feature id="org.eclipse.team.svn.nl1.sources"/>
-      <feature id="org.eclipse.team.svn.resource.ignore.rules.jdt.sources"/>
-      <feature id="org.eclipse.team.svn.revision.graph.sources"/>
-      <feature id="org.eclipse.team.svn.source"/>
-      <feature id="org.eclipse.team.svn.sources"/>
    </features>
 
    <configurations>
