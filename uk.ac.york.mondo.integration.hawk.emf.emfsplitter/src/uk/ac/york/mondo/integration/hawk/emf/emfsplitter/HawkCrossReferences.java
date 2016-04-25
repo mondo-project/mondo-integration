@@ -160,7 +160,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 			if (modularNature != null) {
 				final List<String> acceptedPrefixes = new ArrayList<>();
 				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-					if (project.getNature(modularNature) != null) {
+					if (project.isOpen() && project.getNature(modularNature) != null) {
 						String prefix = URI.createPlatformResourceURI(project.getFullPath().toString(), false).path() + "/";
 						acceptedPrefixes.add(prefix);
 					}

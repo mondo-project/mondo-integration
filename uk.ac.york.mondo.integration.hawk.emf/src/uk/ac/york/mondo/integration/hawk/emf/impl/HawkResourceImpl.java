@@ -53,9 +53,11 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.DynamicEStoreEObjectImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.hawk.core.query.IQueryEngine;
 import org.hawk.emfresource.HawkResource;
 import org.hawk.emfresource.HawkResourceChangeListener;
 import org.hawk.emfresource.impl.HawkFileResourceImpl;
@@ -496,8 +498,8 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 		final EPackage pkg = packageRegistry.getEPackage(metamodelUri);
 		if (pkg == null) {
 			throw new NoSuchElementException(String.format(
-					"Could not find EPackage with URI '%s' in the registry %s",
-					metamodelUri, packageRegistry));
+					"Could not find EPackage with URI '%s' in the registry",
+					metamodelUri));
 		}
 
 		final EClassifier eClassifier = pkg.getEClassifier(typeName);
@@ -629,14 +631,12 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			}
 
 			setLoaded(true);
-		} catch (final TException e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new IOException(e);
 		} catch (final IOException e) {
 			LOGGER.error(e.getMessage(), e);
 			throw e;
 		} catch (final Exception e) {
 			LOGGER.error(e.getMessage(), e);
+			throw new IOException(e);
 		}
 	}
 
@@ -765,10 +765,13 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 			descriptor.getSubscriptionClientID(), sd);
 
 		subscriber = APIUtils.connectToArtemis(subscription, sd);
+		Principal fetchedUser = null;
 		if (lazyCreds != null) {
 			// If security is disabled for the Thrift API, we do not want to trigger the secure storage here either.
 			// These methods in the LazyCredentials class do just that.
-			final Principal fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+			fetchedUser = (Principal) lazyCreds.getClass().getMethod("getRawUserPrincipal").invoke(lazyCreds);
+		}
+		if (fetchedUser != null) {
 			final String fetchedPass = (String) lazyCreds.getClass().getMethod("getRawPassword").invoke(lazyCreds);
 			subscriber.openSession(fetchedUser.getName(), fetchedPass);
 		} else {
@@ -883,6 +886,26 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 				return fetched;
 			}
 		}
+	}
+
+	@Override
+	public Object performRawQuery(String queryLanguage, String query, Map<String, String> context) throws Exception {
+		HawkQueryOptions options = new HawkQueryOptions();
+
+		final String sFilePattern = context.get(IQueryEngine.PROPERTY_FILECONTEXT);
+		if (sFilePattern != null) {
+			options.setFilePatterns(Arrays.asList(sFilePattern.split(",")));
+		}
+		final String sRepoPattern = context.get(IQueryEngine.PROPERTY_REPOSITORYCONTEXT);
+		if (sRepoPattern != null) {
+			options.setRepositoryPattern(sRepoPattern);
+		}
+		final String sDefaultNamespaces = context.get(IQueryEngine.PROPERTY_DEFAULTNAMESPACES);
+		if (sDefaultNamespaces != null) {
+			options.setDefaultNamespaces(sDefaultNamespaces);
+		}
+
+		return client.query(descriptor.getHawkInstance(), query, queryLanguage, options);
 	}
 
 	public EList<EObject> fetchByQuery(final String language, final String query, final HawkQueryOptions opts) throws HawkInstanceNotFound, HawkInstanceNotRunning, TException, IOException {
@@ -1092,30 +1115,36 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 						final EObject eob = (EObject)o;
 						switch (m.getName()) {
 						case "eIsSet":
-							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, (EStructuralFeature) args[0]);
+							final EStructuralFeature sfEIsSet = (EStructuralFeature)args[0];
+							return (Boolean)proxy.invokeSuper(o, args) || getLazyResolver().isLazy(eob, sfEIsSet);
+						case "eContainingFeature":
 						case "eContainmentFeature":
-							final Object rawCF = proxy.invokeSuper(o, args);
-							return rawCF != null ? rawCF : lazyResolver.getContainingFeature(eob);
+							// Most implementations use eContainerFeatureID, but if they don't we fall back to the lazy resolver
+							EReference sfContainingF = lazyResolver.getContainingFeature(eob);
+							return sfContainingF != null ? sfContainingF : proxy.invokeSuper(o, args);
+						case "eContainerFeatureID":
+								EReference sfContaining = lazyResolver.getContainingFeature(eob);
+								assert sfContaining.isContainment() : "containing feature should be containment";
+								if (sfContaining != null) {
+									if (sfContaining.getEOpposite() != null) {
+										return sfContaining.getEOpposite().getFeatureID();
+									} else {
+										return InternalEObject.EOPPOSITE_FEATURE_BASE - sfContaining.getFeatureID();
+									}
+								} else {
+									return proxy.invokeSuper(o, args);
+								}
+						case "eInternalContainer":
 						case "eContainer":
 							final EObject rawContainer = (EObject) proxy.invokeSuper(o, args);
-							return rawContainer != null ? rawContainer : lazyResolver.getContainer(eob);
+							return rawContainer != null ? rawContainer : (lazyResolver != null ? lazyResolver.getContainer(eob) : null);
 						case "eResource":
 							final Object rawResource = proxy.invokeSuper(o, args);
-							return rawResource != null ? rawResource : lazyResolver.getResource(eob);
+							return rawResource != null ? rawResource : (lazyResolver != null ? lazyResolver.getContainer(eob) : null);
 						case "eGet":
-							// We need to serialize modifications from lazy loading + change notifications,
-							// for consistency and for the ability to signal if an EMF notification comes
-							// from lazy loading or not.
-							synchronized(nodeIdToEObjectMap) {
-								final LoadingMode loadingMode = getDescriptor().getLoadingMode();
-								Object value = getLazyResolver().resolve(eob, (EStructuralFeature)args[0], loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
-								if (value != null) {
-									return value;
-								}
-							}
-							break;
+							final EStructuralFeature sfEGet = (EStructuralFeature)args[0];
+							return interceptEGet(eob, args, proxy, sfEGet);
 						case "eContents":
-						default:
 							// eContents requires resolving all containment references from the object
 							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
 							synchronized(nodeIdToEObjectMap) {
@@ -1126,8 +1155,31 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 								}
 							}
 							break;
+						default:
+							if (m.getName().startsWith("get")) {
+								// Reuse the regular eGet
+								EReference eRef = eobFactory.guessEReferenceFromGetter(eob.eClass(), m.getName());
+								if (eRef != null) {
+									return interceptEGet(eob, args, proxy, eRef);
+								}
+							}
+							break;
 						}
 						return proxy.invokeSuper(o, args);
+					}
+
+					protected Object interceptEGet(final EObject eob, final Object[] args, final MethodProxy proxy, final EStructuralFeature sf) throws Throwable {
+						// We need to serialize modifications from lazy loading + change notifications,
+						// for consistency and for the ability to signal if an EMF notification comes
+						// from lazy loading or not.
+						synchronized(nodeIdToEObjectMap) {
+							final LoadingMode loadingMode = getDescriptor().getLoadingMode();
+							Object value = getLazyResolver().resolve(eob, sf, loadingMode.isGreedyReferences(), loadingMode.isGreedyAttributes());
+							if (value != null) {
+								return value;
+							}
+						}
+						return proxy.invokeSuper(eob, args);
 					}
 				});
 			}

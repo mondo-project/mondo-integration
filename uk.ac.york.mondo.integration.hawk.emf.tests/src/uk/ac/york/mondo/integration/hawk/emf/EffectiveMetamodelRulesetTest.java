@@ -207,6 +207,26 @@ public class EffectiveMetamodelRulesetTest {
 		assertFalse(loaded.isIncluded("x", "y", "f"));
 	}
 
+	/**
+	 * Sanity check: including a slot should not matter if we have excluded the entire type.
+	 */
+	@Test
+	public void saveLoadExcludeTypeIncludeSlots() {
+		final EffectiveMetamodelRuleset saved = new EffectiveMetamodelRuleset();
+		saved.exclude("x", "y");
+		saved.include("x", "y", ImmutableSet.of("f"));
+		serializer.save(saved, props);
+
+		final EffectiveMetamodelRuleset loaded = serializer.load(props);
+		assertEquals(loaded, saved);
+		assertTrue(loaded.isIncluded("x"));
+		assertFalse(loaded.isFullyIncluded("x"));
+		assertFalse(loaded.isIncluded("x", "y"));
+		assertFalse(loaded.isFullyIncluded("x", "y"));
+		assertFalse(loaded.isIncluded("x", "y", "a"));
+		assertFalse(loaded.isIncluded("x", "y", "f"));
+	}
+
 	@Test
 	public void saveLoadIncludeExcludeSlots() {
 		final EffectiveMetamodelRuleset saved = new EffectiveMetamodelRuleset();

@@ -114,7 +114,7 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	\label{tab:hawk-listPlugins}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{listPlugins} & \camelcase{list<string>} & Lists all the plugins that can be enabled: metamodel parsers, model parsers, query parsers, updaters and graph change listeners. \\\hline
+	\textbf{Operation} & \camelcase{listPlugins} & \camelcase{list<string>} & Lists all the Hawk plugins that can be enabled or disabled: metamodel parsers, model parsers and graph change listeners. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{None.} \\\hline
 \end{longtable}
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
@@ -167,6 +167,7 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	\textbf{Operation} & \camelcase{syncInstance} & \camelcase{void} & Forces an immediate synchronization on a Hawk instance. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & name & \camelcase{string} & The name of the Hawk instance to stop. \\\hline 
+	 & blockUntilDone  (optional)& \camelcase{bool} & If true, blocks the call until the synchronisation completes. False by default. \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
 	 & \camelcase{HawkInstanceNotFound} & \multicolumn{2}{p{8.5cm}|}{No Hawk instance exists with that name.} \\\hline 
 	 & \camelcase{HawkInstanceNotRunning} & \multicolumn{2}{p{8.5cm}|}{The selected Hawk instance is not running.} \\\hline 
@@ -301,7 +302,7 @@ framework developed in Work Package 5. The framework is discussed in detail in D
 	\label{tab:hawk-removeRepository}\\
 	\cline{2-4}%
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
-	\textbf{Operation} & \camelcase{removeRepository} & \camelcase{void} & Asks a Hawk instance to stop monitoring a repository. \\\hline
+	\textbf{Operation} & \camelcase{removeRepository} & \camelcase{void} & Asks a Hawk instance to stop monitoring a repository and remove its elements from the graph. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
 	 & name & \camelcase{string} & The name of the Hawk instance. \\\hline 
 	 & uri & \camelcase{string} & The URI of the repository to stop monitoring. \\\hline 
@@ -516,8 +517,7 @@ by the security lens are themselves described in the repository.
 
 Nevertheless, managing the operation of the hooks and the lens relationship requires
 its own API, as this is not covered by traditional VCS protocols. The rest of the section
-describes a work-in-progress API for managing these access rules: the final version will be
-provided in D6.8, due in M30.
+describes an API for managing these access rules.
 
 \begin{longtable} {|p{2cm}|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
 	\caption{Operation OfflineCollaboration.listGoldRepositories}
@@ -563,7 +563,7 @@ provided in D6.8, due in M30.
 	\multicolumn{1}{c|}{} & \textbf{Name} & \textbf{Type} & \textbf{Documentation} \\\hline 
 	\textbf{Operation} & \camelcase{getOnlineCollaborationURL} & \camelcase{string} & Retrieve the online collaboration access point URL for the current user. \\\hline
 	\textbf{Parameters} & \multicolumn{3}{l|}{} \\\hline
-	 & goldRepoURL & \camelcase{string} &  \\\hline 
+	 & goldRepoURL & \camelcase{string} & URL of the gold repository. \\\hline 
 	\textbf{Exceptions} & \multicolumn{3}{l|}{} \\\hline
 	 & \camelcase{GoldRepoNotFound} & \multicolumn{2}{p{8.5cm}|}{No gold repository is configured at the specified URL.} \\\hline 
 	 & \camelcase{UnauthorizedRepositoryOperation} & \multicolumn{2}{p{8.5cm}|}{Authenticated user is not permitted to carry out the requested operation on the specified repository.} \\\hline 
@@ -715,29 +715,29 @@ Used to configure Hawk's derived attributes (discussed in D5.3).
 
 \subsubsection{EffectiveMetamodel}
 
-
+Representation of a set of rules for either including or excluding certain types and/or slots within a metamodel.
 
 \begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
 	\caption{Structure EffectiveMetamodel}
 	\label{tab:effectiveMetamodel}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{slots}  & \camelcase{set<string>}  &  \\\hline
-		  \camelcase{type}  & \camelcase{string}  &  \\\hline
+		  \camelcase{slots}  & \camelcase{set<string>}  & Slots within the type that should be included or excluded: empty means 'all slots'. \\\hline
+		  \camelcase{type}  & \camelcase{string}  & Type that should be included or excluded. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} EffectiveMetamodelMap} \\\hline
 \end{longtable}
 
 \subsubsection{EffectiveMetamodelMap}
 
-
+Representation of a set of rules for either including or excluding metamodels, types or slots.
 
 \begin{longtable} {|p{4cm}|p{4cm}|p{7.25cm}|}
 	\caption{Structure EffectiveMetamodelMap}
 	\label{tab:effectiveMetamodelMap}\\
 	\hline%
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
-		  \camelcase{metamodel}  & \camelcase{map<string,set<string>>}  &  \\\hline
-		  \camelcase{uri}  & \camelcase{string}  &  \\\hline
+		  \camelcase{metamodel}  & \camelcase{map<string,set<string>>}  & Types and slots within the metamodel that should be included or excluded: empty means 'all types and slots'. \\\hline
+		  \camelcase{uri}  & \camelcase{string}  & Namespace URI of the metamodel. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkQueryOptions} \\\hline
 \end{longtable}
 

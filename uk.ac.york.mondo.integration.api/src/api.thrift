@@ -444,6 +444,7 @@ service Hawk {
   /* Forces an immediate synchronization on a Hawk instance. Auth needed: Yes */
   void syncInstance(
 	/* The name of the Hawk instance to stop. */ 1: required string name,
+	/* If true, blocks the call until the synchronisation completes. */ 2:  bool blockUntilDone = false,
   )
   throws (
 	1: HawkInstanceNotFound err1 /* No Hawk instance exists with that name. */ 
@@ -749,7 +750,7 @@ service OfflineCollaboration {
 	
   /* Retrieve the online collaboration access point URL for the current user. Auth needed: Yes */
   string getOnlineCollaborationURL(
-	/*  */ 1: required string goldRepoURL,
+	/* URL of the gold repository. */ 1: required string goldRepoURL,
   )
   throws (
 	1: GoldRepoNotFound err1 /* No gold repository is configured at the specified URL. */ 
