@@ -139,43 +139,43 @@
       <feature id="org.eclipse.ecf.filetransfer.feature"/>
       <feature id="org.eclipse.ecf.core.ssl.feature"/>
       <feature id="org.eclipse.ecf.filetransfer.ssl.feature"/>
-      <feature id="org.hawk.bpmn.feature"/>
-      <feature id="org.hawk.core.feature"/>
-      <feature id="org.hawk.emf.feature"/>
-      <feature id="org.hawk.emfresource.feature"/>
-      <feature id="org.hawk.epsilon.feature"/>
-      <feature id="org.hawk.localfolder.feature"/>
-      <feature id="org.hawk.orientdb.feature"/>
-      <feature id="org.hawk.osgiserver.feature"/>
-      <feature id="org.hawk.svn.feature"/>
-      <feature id="org.hawk.ui.feature"/>
-      <feature id="org.hawk.workspace.feature"/>
-      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature"/>
-      <feature id="uk.ac.york.mondo.integration.clients.cli.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.cli.feature"/>
-      <feature id="uk.ac.york.mondo.integration.server.users.cli.feature"/>
-      <feature id="org.eclipse.incquery.databinding.runtime.feature"/>
-      <feature id="org.eclipse.incquery.databinding.runtime.feature.source"/>
-      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature"/>
-      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature.source"/>
-      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature"/>
-      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature.source"/>
-      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature"/>
-      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature.source"/>
-      <feature id="org.eclipse.incquery.runtime.feature"/>
-      <feature id="org.eclipse.incquery.runtime.feature.source"/>
-      <feature id="org.eclipse.incquery.runtime.generic.feature"/>
-      <feature id="org.eclipse.incquery.runtime.generic.feature.source"/>
-      <feature id="org.eclipse.incquery.sdk.feature"/>
-      <feature id="org.eclipse.incquery.sdk.feature.source"/>
-      <feature id="org.eclipse.incquery.validation.runtime.feature"/>
-      <feature id="org.eclipse.incquery.validation.runtime.feature.source"/>
-      <feature id="org.eclipse.incquery.validation.tooling.feature"/>
-      <feature id="org.eclipse.incquery.validation.tooling.feature.source"/>
-      <feature id="org.eclipse.incquery.viewers.runtime.feature"/>
-      <feature id="org.eclipse.incquery.viewers.runtime.feature.source"/>
-      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature"/>
-      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature.source"/>
+      <feature id="org.hawk.bpmn.feature" installMode="root"/>
+      <feature id="org.hawk.core.feature" installMode="root"/>
+      <feature id="org.hawk.emf.feature" installMode="root"/>
+      <feature id="org.hawk.emfresource.feature" installMode="root"/>
+      <feature id="org.hawk.epsilon.feature" installMode="root"/>
+      <feature id="org.hawk.localfolder.feature" installMode="root"/>
+      <feature id="org.hawk.orientdb.feature" installMode="root"/>
+      <feature id="org.hawk.osgiserver.feature" installMode="root"/>
+      <feature id="org.hawk.svn.feature" installMode="root"/>
+      <feature id="org.hawk.ui.feature" installMode="root"/>
+      <feature id="org.hawk.workspace.feature" installMode="root"/>
+      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.cli.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.clients.cli.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.cli.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.server.users.cli.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.databinding.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.databinding.runtime.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.runtime.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.querybasedfeatures.tooling.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.evm.transactions.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.generic.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.runtime.generic.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.sdk.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.sdk.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.validation.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.validation.runtime.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.validation.tooling.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.validation.tooling.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.viewers.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.viewers.runtime.feature.source" installMode="root"/>
+      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature" installMode="root"/>
+      <feature id="org.eclipse.incquery.viewers.tooling.ui.feature.source" installMode="root"/>
       <feature id="org.eclipse.xtext.runtime"/>
       <feature id="org.eclipse.xtext.sdk"/>
       <feature id="org.eclipse.xtext.ui"/>
@@ -218,22 +218,22 @@
       <feature id="org.eclipse.xsd.mapping.editor.source"/>
       <feature id="org.eclipse.xsd.mapping.source"/>
       <feature id="org.eclipse.jdt"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
-      <feature id="uk.ac.york.mondo.integration.api.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.dt.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.api.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.dt.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.remote.thrift.feature" installMode="root"/>
       <feature id="org.eclipse.core.runtime.feature"/>
       <feature id="org.eclipse.xtext.examples"/>
       <feature id="org.eclipse.xtext.docs"/>
       <feature id="org.eclipse.equinox.core.feature"/>
       <feature id="org.eclipse.gef"/>
       <feature id="org.eclipse.emf"/>
-      <feature id="org.eclipse.epsilon.core.dependencies.feature"/>
-      <feature id="org.eclipse.epsilon.core.dt.feature"/>
-      <feature id="org.eclipse.epsilon.core.feature"/>
-      <feature id="org.eclipse.epsilon.emf.dt.dependencies.feature"/>
-      <feature id="org.eclipse.epsilon.emf.dt.feature"/>
-      <feature id="org.eclipse.epsilon.emf.feature"/>
+      <feature id="org.eclipse.epsilon.core.dependencies.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.core.dt.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.core.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.emf.dt.dependencies.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.emf.dt.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.emf.feature" installMode="root"/>
       <feature id="org.eclipse.xpand"/>
       <feature id="org.eclipse.xsd"/>
       <feature id="org.eclipse.xtend"/>
@@ -272,8 +272,8 @@
       <feature id="org.eclipse.emf.edit.ui.source"/>
       <feature id="org.eclipse.emf.mapping.ui.source"/>
       <feature id="org.eclipse.emf.query.sdk"/>
-      <feature id="org.emf.splitter.feature"/>
-      <feature id="org.mondo.editor.feature"/>
+      <feature id="org.emf.splitter.feature" installMode="root"/>
+      <feature id="org.mondo.editor.feature" installMode="root"/>
       <feature id="org.eclipse.graphiti.feature"/>
       <feature id="org.eclipse.gmf"/>
       <feature id="org.eclipse.emf.query.ocl.source"/>
@@ -288,33 +288,33 @@
       <feature id="org.eclipse.sirius.runtime"/>
       <feature id="org.eclipse.sirius.runtime.ide.ui"/>
       <feature id="org.eclipse.bpmn2.feature"/>
-      <feature id="ReactiveATLFeature"/>
+      <feature id="ReactiveATLFeature" installMode="root"/>
       <feature id="org.eclipse.emf.compare"/>
       <feature id="org.eclipse.emf.compare.ide.ui"/>
       <feature id="org.eclipse.emf.compare.rcp.ui"/>
-      <feature id="org.eclipse.viatra.cep.feature"/>
-      <feature id="org.eclipse.viatra.dse.feature"/>
-      <feature id="org.eclipse.viatra.dse.merge.feature"/>
-      <feature id="org.eclipse.viatra.emf.mwe2integration.feature"/>
-      <feature id="org.eclipse.viatra.emf.runtime.feature"/>
-      <feature id="org.eclipse.viatra.modelobfuscator.feature"/>
+      <feature id="org.eclipse.viatra.cep.feature" installMode="root"/>
+      <feature id="org.eclipse.viatra.dse.feature" installMode="root"/>
+      <feature id="org.eclipse.viatra.dse.merge.feature" installMode="root"/>
+      <feature id="org.eclipse.viatra.emf.mwe2integration.feature" installMode="root"/>
+      <feature id="org.eclipse.viatra.emf.runtime.feature" installMode="root"/>
+      <feature id="org.eclipse.viatra.modelobfuscator.feature" installMode="root"/>
       <feature id="org.eclipse.team.svn"/>
       <feature id="org.eclipse.gef4.zest"/>
       <feature id="org.eclipse.gef4.geometry"/>
       <feature id="org.eclipse.gef4.zest.sdk"/>
       <feature id="org.eclipse.platform.source"/>
-      <feature id="org.mondo.collaboration.security.macl.feature"/>
-      <feature id="org.mondo.collaboration.security.mpbl.feature"/>
-      <feature id="org.mondo.wt.cstudy.merge.feature"/>
-      <feature id="org.mondo.wt.cstudy.model.feature"/>
+      <feature id="org.mondo.collaboration.security.macl.feature" installMode="root"/>
+      <feature id="org.mondo.collaboration.security.mpbl.feature" installMode="root"/>
+      <feature id="org.mondo.wt.cstudy.merge.feature" installMode="root"/>
+      <feature id="org.mondo.wt.cstudy.model.feature" installMode="root"/>
       <feature id="org.eclipse.sirius.aql"/>
       <feature id="org.eclipse.sirius.runtime.aql"/>
       <feature id="org.eclipse.acceleo.query"/>
-      <feature id="uk.ac.york.mondo.integration.eclipse.feature"/>
-      <feature id="org.hawk.modelio.exml.feature"/>
-      <feature id="org.hawk.git.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature"/>
-      <feature id="org.mondo.collaboration.client.feature"/>
+      <feature id="uk.ac.york.mondo.integration.eclipse.feature" installMode="root"/>
+      <feature id="org.hawk.modelio.exml.feature" installMode="root"/>
+      <feature id="org.hawk.git.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature" installMode="root"/>
+      <feature id="org.mondo.collaboration.client.feature" installMode="root"/>
    </features>
 
    <configurations>

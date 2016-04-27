@@ -51,20 +51,20 @@
    </plugins>
 
    <features>
-      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.servlet.feature"/>
-      <feature id="uk.ac.york.mondo.integration.server.feature"/>
-      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature"/>
-      <feature id="uk.ac.york.mondo.integration.api.feature"/>
-      <feature id="org.hawk.orientdb.feature"/>
-      <feature id="org.hawk.localfolder.feature"/>
-      <feature id="org.hawk.emf.feature"/>
-      <feature id="org.hawk.svn.feature"/>
-      <feature id="org.hawk.epsilon.feature"/>
-      <feature id="org.hawk.core.feature"/>
-      <feature id="org.hawk.osgiserver.feature"/>
-      <feature id="org.hawk.bpmn.feature"/>
-      <feature id="org.hawk.emfresource.feature"/>
+      <feature id="fr.inria.atlanmod.mondo.integration.cloudatl.servlet.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.servlet.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.server.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.hawk.emf.feature" installMode="root"/>
+      <feature id="uk.ac.york.mondo.integration.api.feature" installMode="root"/>
+      <feature id="org.hawk.orientdb.feature" installMode="root"/>
+      <feature id="org.hawk.localfolder.feature" installMode="root"/>
+      <feature id="org.hawk.emf.feature" installMode="root"/>
+      <feature id="org.hawk.svn.feature" installMode="root"/>
+      <feature id="org.hawk.epsilon.feature" installMode="root"/>
+      <feature id="org.hawk.core.feature" installMode="root"/>
+      <feature id="org.hawk.osgiserver.feature" installMode="root"/>
+      <feature id="org.hawk.bpmn.feature" installMode="root"/>
+      <feature id="org.hawk.emfresource.feature" installMode="root"/>
       <feature id="org.tmatesoft.svnkit"/>
       <feature id="org.eclipse.core.runtime.feature"/>
       <feature id="org.eclipse.equinox.core.feature"/>
@@ -88,20 +88,20 @@
       <feature id="org.eclipse.e4.rcp"/>
       <feature id="org.eclipse.emf.mapping"/>
       <feature id="org.eclipse.emf.ecore.edit"/>
-      <feature id="org.eclipse.epsilon.core.feature"/>
-      <feature id="org.eclipse.epsilon.core.dependencies.feature"/>
+      <feature id="org.eclipse.epsilon.core.feature" installMode="root"/>
+      <feature id="org.eclipse.epsilon.core.dependencies.feature" installMode="root"/>
       <feature id="org.eclipse.emf.mapping.ecore"/>
       <feature id="org.eclipse.emf.edit.ui"/>
       <feature id="org.eclipse.emf.common.ui"/>
       <feature id="org.eclipse.equinox.core.sdk"/>
       <feature id="org.eclipse.bpmn2.feature"/>
-      <feature id="org.hawk.modelio.exml.feature"/>
-      <feature id="org.hawk.git.feature"/>
-      <feature id="org.hawk.http.feature"/>
-      <feature id="org.mondo.collaboration.security.lens.offline.server.feature"/>
-      <feature id="org.mondo.collaboration.security.online.server.feature"/>
-      <feature id="org.mondo.wt.cstudy.online.feature"/>
-      <feature id="org.mondo.collaboration.offline.management.server.feature"/>
+      <feature id="org.hawk.modelio.exml.feature" installMode="root"/>
+      <feature id="org.hawk.git.feature" installMode="root"/>
+      <feature id="org.hawk.http.feature" installMode="root"/>
+      <feature id="org.mondo.collaboration.security.lens.offline.server.feature" installMode="root"/>
+      <feature id="org.mondo.collaboration.security.online.server.feature" installMode="root"/>
+      <feature id="org.mondo.wt.cstudy.online.feature" installMode="root"/>
+      <feature id="org.mondo.collaboration.offline.management.server.feature" installMode="root"/>
    </features>
 
    <configurations>
