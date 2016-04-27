@@ -806,7 +806,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 	}
 
 	@Override
-	public void removeMetamodels(String[] metamodelURIs) throws Exception {
+	public void removeMetamodels(String... metamodelURIs) throws Exception {
 		client.unregisterMetamodels(name, Arrays.asList(metamodelURIs));
 	}
 
