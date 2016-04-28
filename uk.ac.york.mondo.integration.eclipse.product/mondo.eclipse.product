@@ -309,7 +309,6 @@
       <feature id="org.hawk.git.feature" installMode="root"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.emfsplitter.feature" installMode="root"/>
       <feature id="uk.ac.york.mondo.integration.hawk.emf.ifcexport.feature" installMode="root"/>
-      <feature id="org.mondo.wt.cstudy.online.feature" installMode="root"/>
       <feature id="org.mondo.collaboration.client.feature" installMode="root"/>
    </features>
 
