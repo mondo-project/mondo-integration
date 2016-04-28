@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Wrapper over an embedded Apache Artemis server. The server listens on port
  * {@link TransportConstants#DEFAULT_LOCAL_PORT} by default and also supports
- * in-VM connections.
+ * in-VM connections. SSL can be turned on optionally.
  */
 public class Server {
 
@@ -49,7 +49,25 @@ public class Server {
 
 	private final String host;
 	private final int port;
+
 	private boolean listenToAllInterfaces = false;
+
+	/**
+	 * <p>
+	 * Whether SSL should be enabled or not. Note that if SSL is enabled, the
+	 * user will be expected to set up the proper system properties for the key
+	 * store and trust store. According to the <a href=
+	 * "https://activemq.apache.org/artemis/docs/1.0.0/configuring-transports.html">
+	 * official docs</a>, these are:
+	 * </p>
+	 * <ul>
+	 * <li>javax.net.ssl.keyStore / org.apache.activemq.ssl.keyStore</li>
+	 * <li>javax.net.ssl.keyStorePassword / org.apache.activemq.ssl.keyStorePassword</li>
+	 * <li>javax.net.ssl.trustStore / org.apache.activemq.ssl.trustStore</li>
+	 * <li>javax.net.ssl.trustStorePassword / org.apache.activemq.ssl.trustStorePassword</li>
+	 * </ul>
+	 */
+	private boolean sslEnabled = false;
 
 	private EmbeddedActiveMQ server;
 
@@ -64,6 +82,14 @@ public class Server {
 
 	public void setListenOnAllInterfaces(boolean listenOnAllInterfaces) {
 		this.listenToAllInterfaces = listenOnAllInterfaces;
+	}
+
+	public boolean isSSLEnabled() {
+		return sslEnabled;
+	}
+
+	public void setSSLEnabled(boolean sslEnabled) {
+		this.sslEnabled = sslEnabled;
 	}
 
 	public void start() throws Exception {
@@ -84,13 +110,13 @@ public class Server {
 		// Enable in-VM, regular HTTP and Stomp over Web Sockets
 		Set<TransportConfiguration> transports = new HashSet<>();
 		transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-		transports.add(new TransportConfiguration(
-				NettyAcceptorFactory.class.getName(),
-				new FluidMap<String, Object>()
-					.with(TransportConstants.HOST_PROP_NAME, listenToAllInterfaces ? "0.0.0.0" : host)
-					.with(TransportConstants.PORT_PROP_NAME, port + "")
-					.with(TransportConstants.PROTOCOLS_PROP_NAME, "CORE,STOMP"))
-		);
+
+		final FluidMap<String, Object> nettyOptions = new FluidMap<String, Object>()
+			.with(TransportConstants.HOST_PROP_NAME, listenToAllInterfaces ? "0.0.0.0" : host)
+			.with(TransportConstants.PORT_PROP_NAME, port + "")
+			.with(TransportConstants.PROTOCOLS_PROP_NAME, "CORE,STOMP")
+			.with(TransportConstants.SSL_ENABLED_PROP_NAME, sslEnabled + "");
+		transports.add(new TransportConfiguration(NettyAcceptorFactory.class.getName(), nettyOptions));
 		config.setAcceptorConfigurations(transports);
 
 		// Set up a paging directory (for when an address has too many messages to fit on memory)

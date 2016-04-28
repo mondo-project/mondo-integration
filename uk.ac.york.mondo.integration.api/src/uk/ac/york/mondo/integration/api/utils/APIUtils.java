@@ -107,7 +107,7 @@ public class APIUtils {
 	}
 
 	public static Consumer connectToArtemis(Subscription s, SubscriptionDurability sd) throws Exception {
-		return Consumer.connectRemote(s.host, s.port, s.queueAddress, s.queueName, toQueueType(sd));
+		return Consumer.connectRemote(s.host, s.port, s.queueAddress, s.queueName, toQueueType(sd), s.sslRequired);
 	}
 
 	public static <T extends TServiceClient> T connectTo(Class<T> clazz, String url) throws TTransportException, URISyntaxException {

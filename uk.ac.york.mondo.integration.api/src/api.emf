@@ -811,6 +811,7 @@ class Subscription {
 	@doc(d="Port in which the message queue server is listening") attr int port;
 	@doc(d="Address of the topic queue") attr String queueAddress;
 	@doc(d="Name of the topic queue") attr String queueName;
+	@doc(d="Whether SSL is required or not", default="false") attr boolean sslRequired;
 }
 
 @doc(d="Durability of a subscription")

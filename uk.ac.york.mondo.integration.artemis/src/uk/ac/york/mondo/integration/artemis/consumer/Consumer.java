@@ -64,10 +64,11 @@ public class Consumer implements Closeable {
 	 * @param int port Port in which Artemis is listening.
 	 * @param String queueAddress
 	 */
-	public static Consumer connectRemote(String host, int port, String queueAddress, String queueName, QueueType queueType) throws Exception {
+	public static Consumer connectRemote(String host, int port, String queueAddress, String queueName, QueueType queueType, boolean isSSLEnabled) throws Exception {
 		final Map<String, Object> params = new HashMap<>();
 		params.put(TransportConstants.HOST_PROP_NAME, host);
 		params.put(TransportConstants.PORT_PROP_NAME, port);
+		params.put(TransportConstants.SSL_ENABLED_PROP_NAME, isSSLEnabled);
 		final TransportConfiguration config = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
 
 		return new Consumer(config, queueAddress, queueName, queueType);

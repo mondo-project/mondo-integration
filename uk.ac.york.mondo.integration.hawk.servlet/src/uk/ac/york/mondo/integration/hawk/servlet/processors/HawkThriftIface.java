@@ -702,7 +702,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 			createQueue(queueAddress, queueName, durability);
 
 			model.addGraphChangeListener(listener);
-			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName);
+			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName, artemisServer.isSSLEnabled());
 		} catch (Exception e) {
 			LOGGER.error("Could not register the new listener", e);
 			throw new TException(e);
@@ -717,7 +717,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 			// All we do is provide the connection details to the queue.
 			final String queueAddress = getStateQueueName(model);
 			final String queueName = queueAddress + "." + UUID.randomUUID();
-			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName);
+			return new Subscription(artemisServer.getHost(), artemisServer.getPort(), queueAddress, queueName, artemisServer.isSSLEnabled());
 		} catch (Exception e) {
 			LOGGER.error("Could not register the new listener", e);
 			throw new TException(e);

@@ -2296,6 +2296,7 @@ Subscription = function(args) {
   this.port = null;
   this.queueAddress = null;
   this.queueName = null;
+  this.sslRequired = false;
   if (args) {
     if (args.host !== undefined && args.host !== null) {
       this.host = args.host;
@@ -2316,6 +2317,11 @@ Subscription = function(args) {
       this.queueName = args.queueName;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field queueName is unset!');
+    }
+    if (args.sslRequired !== undefined && args.sslRequired !== null) {
+      this.sslRequired = args.sslRequired;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field sslRequired is unset!');
     }
   }
 };
@@ -2361,6 +2367,13 @@ Subscription.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.sslRequired = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -2390,6 +2403,11 @@ Subscription.prototype.write = function(output) {
   if (this.queueName !== null && this.queueName !== undefined) {
     output.writeFieldBegin('queueName', Thrift.Type.STRING, 4);
     output.writeString(this.queueName);
+    output.writeFieldEnd();
+  }
+  if (this.sslRequired !== null && this.sslRequired !== undefined) {
+    output.writeFieldBegin('sslRequired', Thrift.Type.BOOL, 5);
+    output.writeBool(this.sslRequired);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

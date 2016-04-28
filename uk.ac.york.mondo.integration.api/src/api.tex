@@ -738,7 +738,7 @@ Representation of a set of rules for either including or excluding metamodels, t
 	\textbf{Field} & \textbf{Type} & \textbf{Documentation} \\\hline
 		  \camelcase{metamodel}  & \camelcase{map<string,set<string>>}  & Types and slots within the metamodel that should be included or excluded: empty means 'all types and slots'. \\\hline
 		  \camelcase{uri}  & \camelcase{string}  & Namespace URI of the metamodel. \\\hline
-   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkQueryOptions} \\\hline
+   \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} HawkQueryOptions, IFCExportOptions} \\\hline
 \end{longtable}
 
 \subsubsection{File}
@@ -1190,6 +1190,7 @@ Details about a subscription to a topic queue.
 		  \camelcase{port}  & \camelcase{i32}  & Port in which the message queue server is listening. \\\hline
 		  \camelcase{queueAddress}  & \camelcase{string}  & Address of the topic queue. \\\hline
 		  \camelcase{queueName}  & \camelcase{string}  & Name of the topic queue. \\\hline
+		  \camelcase{sslRequired}  & \camelcase{bool}  & Whether SSL is required or not. \\\hline
    \multicolumn{3}{|p{.95\linewidth}|}{\textbf{Used in:} Hawk.watchStateChanges, Hawk.watchModelChanges} \\\hline
 \end{longtable}
 

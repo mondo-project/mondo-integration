@@ -190,6 +190,7 @@ struct Subscription {
 	 /* Port in which the message queue server is listening. */ 2: required i32 port,
 	 /* Address of the topic queue. */ 3: required string queueAddress,
 	 /* Name of the topic queue. */ 4: required string queueName,
+	 /* Whether SSL is required or not. */ 5: required bool sslRequired = false,
 }
 
 struct TransformationStatus {
