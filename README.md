@@ -88,7 +88,7 @@ If you are deploying this across a network, you will need to edit the `mondo-ser
 
 Additionally, if the server IP is dynamic but has a consistent DNS name (e.g. an Amazon VM + a dynamic DNS provider), we recommend setting `hawk.artemis.listenAll` to `true` (so the Artemis server will keep listening on all interfaces, even if the IP address changes) and using the DNS name for `hawk.artemis.host` instead of a literal IP address.
 
-Finally, production environments should enable and enforce SSL as well, since plain HTTP is insecure. Some pointers on how to do this are provided [https://www.eclipse.org/forums/index.php/t/24782/](here).
+Finally, production environments should enable and enforce SSL as well, since plain HTTP is insecure. The Linux products include a shell script that generates simple self-signed key/trust stores and indicates which Java system properties should be set on the server and the client.
 
 Hawk integration
 ----------------

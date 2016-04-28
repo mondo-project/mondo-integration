@@ -15,6 +15,7 @@
 -Dartemis.security.enabled=false
 -Dhawk.artemis.host=localhost
 -Dhawk.artemis.listenAll=false
+-Dhawk.artemis.sslEnabled=false
 -Dhawk.tcp.port=2080 -Dhawk.tcp.thriftProtocol=TUPLE
 
 -Dmondo.repository.gold=http://localhost/svn/wt-demo
