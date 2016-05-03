@@ -8,6 +8,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.IJobFunction;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
@@ -44,10 +48,10 @@ import uk.ac.york.mondo.integration.api.dt.prefs.ServerStore;
 import uk.ac.york.mondo.integration.api.utils.APIUtils;
 import uk.ac.york.mondo.integration.api.utils.APIUtils.ThriftProtocol;
 
+@SuppressWarnings("deprecation")
 public class MONDOServerView extends ViewPart {
 
 	private static final String CUSTOM_URL_TEXT = "Custom URL...";
-	private static final String DUMMY_URL = "dummy.url";
 	public static final String ID = "org.mondo.collaboration.offline.management.client.ui.MONDOView"; //$NON-NLS-1$
 	private Text frontRepoURL;
 	private Text userName;
@@ -55,6 +59,7 @@ public class MONDOServerView extends ViewPart {
 
 	private static Logger logger = Logger.getLogger(MONDOServerView.class);
 	private Credentials credentials;
+	private Text goldRepositoryText;
 
 	public MONDOServerView() {
 	}
@@ -69,6 +74,15 @@ public class MONDOServerView extends ViewPart {
 
 		Composite userDataComposite = new Composite(parent, SWT.NONE);
 		userDataComposite.setLayout(new GridLayout(1, false));
+		
+		Label lblGoldRepositoryName = new Label(userDataComposite, SWT.NONE);
+		lblGoldRepositoryName.setText("Enter gold repository URL:");
+		
+		goldRepositoryText = new Text(userDataComposite, SWT.BORDER);
+		goldRepositoryText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label_1 = new Label(userDataComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Label lblUserSpecificDetails = new Label(userDataComposite, SWT.NONE);
 		lblUserSpecificDetails.setText("User specific details:");
@@ -118,7 +132,7 @@ public class MONDOServerView extends ViewPart {
 		Label lblYouAnAdd = new Label(serversComposite, SWT.WRAP | SWT.LEFT);
 		lblYouAnAdd.setLayoutData(new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1));
 		lblYouAnAdd.setText(
-				"You an add further servers under the Mondo servers preference page, or connect to a given URL here:");
+				"You can add further servers under the Mondo servers preference page, or connect to a given URL here:");
 
 		customURL = new Text(serversComposite, SWT.BORDER);
 		customURL.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -227,18 +241,27 @@ public class MONDOServerView extends ViewPart {
 		return managementURL;
 	}
 
-	private SelectionAdapter createGetFrontListener(final List list) {
+	private SelectionAdapter createGetFrontListener(List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final Client client = createClient(list);
+				Client client = createClient(list);
 
 				String myFrontRepositoryURL;
 				String shortError = null;
 				String message = null;
 				try {
-					myFrontRepositoryURL = client.getMyFrontRepositoryURL("");
-					frontRepoURL.setText(myFrontRepositoryURL);
+					myFrontRepositoryURL = client.getMyFrontRepositoryURL(goldRepositoryText.getText());
+					
+					String managementURL = getManagementURL(list.getSelection());
+
+					URI url = new URI(managementURL);
+					String scheme = url.getScheme();
+					String host = url.getHost();
+//					int port = url.getPort();
+					
+					
+					frontRepoURL.setText(scheme + "://" + host + "/svn/"+myFrontRepositoryURL);
 					Credentials credentials = MONDOServerView.this.credentials;
 					userName.setText(credentials.getUsername());
 				} catch (GoldRepoNotFound e1) {
@@ -256,6 +279,9 @@ public class MONDOServerView extends ViewPart {
 				} catch (NullPointerException e1) {
 					shortError = "Unable To Connect To Server";
 					message = e1.getMessage() == null ? "Unable To Connect To Server. Make sure that the URL is correct." : e1.getMessage();
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				} finally {
 					if(shortError != null || message != null){
 						MessageBox mb = new MessageBox(getSite().getShell());
@@ -269,7 +295,7 @@ public class MONDOServerView extends ViewPart {
 		};
 	}
 
-	private SelectionListener createListSelectionListener(final List list) {
+	private SelectionListener createListSelectionListener(List list) {
 		return new SelectionListener() {
 
 			@Override
@@ -296,32 +322,33 @@ public class MONDOServerView extends ViewPart {
 
 
 
-	private SelectionAdapter createResetListener(final List list) {
+	private SelectionAdapter createResetListener(List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Client client = createClient(list);
 
+		
 				try {
-					client.regenerateFrontRepositories(DUMMY_URL);
-					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.OK);
-					messageBox.setText("Success.");
-					messageBox.setMessage("Front repositories regenerated, locks released.");
-					messageBox.open();
+					client.regenerateFrontRepositories(goldRepositoryText.getText());
 				} catch (Exception e1) {
 					String message = "Error occured while regenerating";
 					logger.error(message);
-					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.ERROR);
+					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_ERROR | SWT.OK);
 					messageBox.setText("MONDO server management error");
-					messageBox.setMessage("Error occured while regenerating.");
+					messageBox.setMessage(message);
 					messageBox.open();
 				}
+				MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.OK);
+				messageBox.setText("Success.");
+				messageBox.setMessage("Rpository regeneration command issued.");
+				messageBox.open();
 			}
 
 		};
 	}
 
-	private SelectionAdapter createOnlineCollaborationListener(final List list) {
+	private SelectionAdapter createOnlineCollaborationListener(List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -329,7 +356,7 @@ public class MONDOServerView extends ViewPart {
 				
 				String managementURL = getManagementURL(list.getSelection());
 				try {
-					String rapPath = client.getOnlineCollaborationURL(DUMMY_URL);
+					String rapPath = client.getOnlineCollaborationURL(goldRepositoryText.getText());
 					URL u = new URL(managementURL);
 					System.out.println(u.getHost());
 					String rapURL = u.getProtocol() + "://" + u.getHost() + ":" + u.getPort() + rapPath;
@@ -405,6 +432,7 @@ public class MONDOServerView extends ViewPart {
 	 * Initialize the toolbar.
 	 */
 	private void initializeToolBar() {
+		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 	}
 
@@ -412,6 +440,7 @@ public class MONDOServerView extends ViewPart {
 	 * Initialize the menu.
 	 */
 	private void initializeMenu() {
+		@SuppressWarnings("unused")
 		IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
 	}
 

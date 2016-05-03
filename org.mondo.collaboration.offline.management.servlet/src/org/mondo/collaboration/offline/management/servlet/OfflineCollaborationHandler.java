@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import javax.crypto.interfaces.PBEKey;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.shiro.SecurityUtils;
@@ -47,11 +48,19 @@ public class OfflineCollaborationHandler implements Iface {
 			UnauthorizedRepositoryOperation, OfflineCollaborationInternalError, TException {
 		try {
 			String scriptsFolder = getScriptsFolder();
-			ProcessBuilder builder1 = new ProcessBuilder(scriptsFolder + "/reset-front-repositories.sh", "--apache2");
-			/* Process process1 = */ builder1.start();
+			ProcessBuilder builder0 = new ProcessBuilder(scriptsFolder + "lookup-gold-repository.sh", goldRepoURL);
+			Process lookupRepoName = builder0.start();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(lookupRepoName.getInputStream()));
+			String goldRepoName = bufferedReader.readLine();
+			ProcessBuilder builder1 = new ProcessBuilder(scriptsFolder + "/reset-front-repositories.sh", goldRepoName);
+			Process regenerateRepos = builder1.start();
+//			regenerateRepos.waitFor();
 		} catch (IOException e) {
 			throw new OfflineCollaborationInternalError(e.getMessage());
 		}
+//		catch (InterruptedException e) {
+//			throw new OfflineCollaborationInternalError(e.getMessage());
+//		}
 		
 	}
 
@@ -62,9 +71,13 @@ public class OfflineCollaborationHandler implements Iface {
 		try {
 			String userName = SecurityUtils.getSubject().getPrincipal().toString();
 			String scriptsFolder = getScriptsFolder();
-			ProcessBuilder processBuilder = new ProcessBuilder(scriptsFolder + "/get-front-repository.sh", userName);
-			Process p = processBuilder.start();
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			ProcessBuilder builder0 = new ProcessBuilder(scriptsFolder + "lookup-gold-repository.sh", goldRepoURL);
+			Process lookupRepoName = builder0.start();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(lookupRepoName.getInputStream()));
+			String goldRepoName = bufferedReader.readLine();
+			ProcessBuilder builder1 = new ProcessBuilder(scriptsFolder + "/get-front-repository.sh", goldRepoName, userName);
+			Process getFrontRepo = builder1.start();
+			BufferedReader br = new BufferedReader(new InputStreamReader(getFrontRepo.getInputStream()));
 			frontRepoURL = br.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();

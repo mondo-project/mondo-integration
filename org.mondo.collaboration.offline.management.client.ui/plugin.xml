@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
+<!--   <extension
          point="org.eclipse.ui.commands">
       <category
             id="org.mondo.collaboration.offline.management.client.ui.mondo"
@@ -36,6 +36,7 @@
             commandId="org.mondo.collaboration.offline.management.client.ui.test">
       </handler>
    </extension>
+   -->
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
