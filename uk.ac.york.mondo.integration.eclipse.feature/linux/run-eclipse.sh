@@ -1,4 +1,6 @@
 #!/bin/bash
 
+BASEDIR="$(dirname "$0")"
+
 export SWT_GTK3=0
-./mondo-eclipse
+"$BASEDIR/mondo-eclipse"
