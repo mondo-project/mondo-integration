@@ -241,7 +241,7 @@ public class MONDOServerView extends ViewPart {
 		return managementURL;
 	}
 
-	private SelectionAdapter createGetFrontListener(List list) {
+	private SelectionAdapter createGetFrontListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -295,7 +295,7 @@ public class MONDOServerView extends ViewPart {
 		};
 	}
 
-	private SelectionListener createListSelectionListener(List list) {
+	private SelectionListener createListSelectionListener(final List list) {
 		return new SelectionListener() {
 
 			@Override
@@ -322,7 +322,7 @@ public class MONDOServerView extends ViewPart {
 
 
 
-	private SelectionAdapter createResetListener(List list) {
+	private SelectionAdapter createResetListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -348,7 +348,7 @@ public class MONDOServerView extends ViewPart {
 		};
 	}
 
-	private SelectionAdapter createOnlineCollaborationListener(List list) {
+	private SelectionAdapter createOnlineCollaborationListener(final List list) {
 		return new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
