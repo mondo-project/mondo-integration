@@ -161,7 +161,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object query(IModelIndexer m, File query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer m, File query, Map<String, Object> context) throws InvalidQueryException,
 				QueryExecutionException {
 			try {
 				return query(m, fileToString(query), context);
@@ -171,17 +171,17 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 		}
 
 		@Override
-		public Object query(IModelIndexer m, String query, Map<String, String> context) throws InvalidQueryException,
+		public Object query(IModelIndexer m, String query, Map<String, Object> context) throws InvalidQueryException,
 				QueryExecutionException {
 			if (context == null) {
 				context = Collections.emptyMap();
 			}
-			String sRepoScope = context.get(PROPERTY_REPOSITORYCONTEXT);
+			String sRepoScope = (String) context.get(PROPERTY_REPOSITORYCONTEXT);
 			if (sRepoScope == null) {
 				sRepoScope = "*";
 			}
 
-			final String sFileScope = context.get(PROPERTY_FILECONTEXT);
+			final String sFileScope = (String) context.get(PROPERTY_FILECONTEXT);
 			final List<String> filePatterns = new ArrayList<>();
 			if (sFileScope == null) {
 				filePatterns.add("*");
@@ -195,7 +195,7 @@ public class ThriftRemoteModelIndexer implements IModelIndexer {
 			try {
 				final HawkQueryOptions opts = new HawkQueryOptions();
 				if (context.containsKey(PROPERTY_DEFAULTNAMESPACES)) {
-					opts.setDefaultNamespaces(context.get(PROPERTY_DEFAULTNAMESPACES));
+					opts.setDefaultNamespaces((String) context.get(PROPERTY_DEFAULTNAMESPACES));
 				} else {
 					opts.setDefaultNamespaces(defaultNamespaces);
 				}

@@ -889,18 +889,18 @@ public class HawkResourceImpl extends ResourceImpl implements HawkResource {
 	}
 
 	@Override
-	public Object performRawQuery(String queryLanguage, String query, Map<String, String> context) throws Exception {
+	public Object performRawQuery(String queryLanguage, String query, Map<String, Object> context) throws Exception {
 		HawkQueryOptions options = new HawkQueryOptions();
 
-		final String sFilePattern = context.get(IQueryEngine.PROPERTY_FILECONTEXT);
+		final String sFilePattern = (String) context.get(IQueryEngine.PROPERTY_FILECONTEXT);
 		if (sFilePattern != null) {
 			options.setFilePatterns(Arrays.asList(sFilePattern.split(",")));
 		}
-		final String sRepoPattern = context.get(IQueryEngine.PROPERTY_REPOSITORYCONTEXT);
+		final String sRepoPattern = (String) context.get(IQueryEngine.PROPERTY_REPOSITORYCONTEXT);
 		if (sRepoPattern != null) {
 			options.setRepositoryPattern(sRepoPattern);
 		}
-		final String sDefaultNamespaces = context.get(IQueryEngine.PROPERTY_DEFAULTNAMESPACES);
+		final String sDefaultNamespaces = (String) context.get(IQueryEngine.PROPERTY_DEFAULTNAMESPACES);
 		if (sDefaultNamespaces != null) {
 			options.setDefaultNamespaces(sDefaultNamespaces);
 		}

@@ -225,7 +225,7 @@ public final class HawkThriftIface implements Hawk.Iface {
 			FailedQuery, TException {
 		final HModel model = getRunningHawkByName(name);
 		try {
-			final Map<String, String> context = new HashMap<>();
+			final Map<String, Object> context = new HashMap<>();
 			if (opts.isSetDefaultNamespaces()) {
 				context.put(IQueryEngine.PROPERTY_DEFAULTNAMESPACES, opts.getDefaultNamespaces());
 			}
