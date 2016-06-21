@@ -14,8 +14,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.resources.IProject;
@@ -30,11 +33,13 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.hawk.core.IMetaModelResourceFactory;
 import org.hawk.core.IStateListener.HawkState;
 import org.hawk.core.IVcsManager;
+import org.hawk.core.query.IQueryEngine;
 import org.hawk.core.runtime.LocalHawkFactory;
 import org.hawk.emf.EMFPackage;
 import org.hawk.emf.metamodel.EMFMetaModelResource;
 import org.hawk.emf.metamodel.EMFMetaModelResourceFactory;
 import org.hawk.emfresource.impl.LocalHawkResourceImpl;
+import org.hawk.epsilon.emc.EOLQueryEngine;
 import org.hawk.orientdb.OrientDatabase;
 import org.hawk.osgiserver.HModel;
 import org.hawk.ui2.util.HUIManager;
@@ -120,7 +125,7 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 	}
 
 	@Override
-	public EList<?> getChoicesOfValues(String modularNature, Resource res, boolean searchAll, EClass anEClass) {
+	public EList<?> getChoicesOfValues(String modularNature, Resource res, boolean searchAll, EClass anEClass, String eolQuery) {
 		LocalHawkResourceImpl hawkResource = null;
 		try {
 			final HModel hawkInstance = getHawkInstance();
@@ -177,6 +182,17 @@ public class HawkCrossReferences implements IEditorCrossReferences {
 					}
 					itInstance.remove();
 				}
+			}
+
+			// Optionally, filter by EOL query
+			if (eolQuery != null) {
+				Map<String, Object> context = new HashMap<>();
+				context.put(IQueryEngine.PROPERTY_ARGUMENTS, Collections.singletonMap("instances", instances));
+				context.put(IQueryEngine.PROPERTY_FILECONTEXT, "*");
+				context.put(IQueryEngine.PROPERTY_REPOSITORYCONTEXT, "*");
+				instances = hawkResource.fetchByQuery(EOLQueryEngine.TYPE,
+						String.format("return instances.select(self | %s);", eolQuery),
+						context);
 			}
 
 			return instances;
